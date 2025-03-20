@@ -6,7 +6,7 @@
 </a>
 
 # VPNsibcom
-VPN-service in Telegram-mini-app(TMA) and WEB-app. It is based on Xray-core with Marzban.
+VPN-service in Telegram-mini-app(TMA) and WEB-app. It is based on [Xray-core](https://github.com/XTLS/Xray-core/) with [Marzban](https://github.com/Gozargah/Marzban).
 
 ![Title](https://img.shields.io/badge/Repository%3A-blue?style=for-the-badge&color=3C5280)
 [![release](https://img.shields.io/github/package-json/v/Kennix88/vpnsibcom?style=for-the-badge&color=0891b2&labelColor=1c1917)](https://github.com/Kennix88/vpnsibcom/releases)
