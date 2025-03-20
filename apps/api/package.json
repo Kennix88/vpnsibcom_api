@@ -1,0 +1,44 @@
+{
+  "name": "@vpnsibcom/api",
+  "version": "0.0.1",
+  "private": false,
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "webpack-cli build",
+          "args": [
+            "node-env=production"
+          ]
+        },
+        "configurations": {
+          "development": {
+            "args": [
+              "node-env=development"
+            ]
+          }
+        }
+      },
+      "serve": {
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "@vpnsibcom/api:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "@vpnsibcom/api:build:development"
+          },
+          "production": {
+            "buildTarget": "@vpnsibcom/api:build:production"
+          }
+        }
+      }
+    }
+  }
+}

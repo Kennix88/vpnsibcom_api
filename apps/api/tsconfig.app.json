@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": ["node"],
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es2021",
+    "paths": {
+      "@/*": ["./*"],
+      "@core/*": ["./src/app/core/*"],
+      "@integrations/*": ["./src/app/integrations/*"],
+      "@modules/*": ["./src/app/modules/*"],
+      "@shared/*": ["./src/app/shared/*"],
+      "@prisma/generated": ["./prisma/generated"],
+      "@prisma/generated/*": ["./prisma/generated/*"],
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["eslint.config.js", "eslint.config.cjs", "eslint.config.mjs"]
+}
