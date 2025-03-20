@@ -1,109 +1,86 @@
+
+<div align="center">
+
 # Vpnsibcom
+VPN-service in Telegram-mini-app(TMA).
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+![Title](https://img.shields.io/badge/Repository%3A-blue?style=for-the-badge&color=3C5280)
+[![release](https://img.shields.io/github/package-json/v/Kennix88/vpnsibcom?style=for-the-badge&color=0891b2&labelColor=1c1917)](https://github.com/Kennix88/vpnsibcom/releases)
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+![GitHub Repo stars](https://img.shields.io/github/stars/Kennix88/vpnsibcom?style=for-the-badge&color=0891b2&labelColor=1c1917)
+[![wakatime](https://wakatime.com/badge/user/9268c051-c861-45cc-b927-3babf56c56d9/project/8ea93489-247b-4b6c-96db-f1013437caa0.svg?style=for-the-badge&color=0891b2&logoColor=1c1917)](https://github.com/Kennix88/vpnsibcom)
+![Title](https://img.shields.io/badge/HashRateGame%3A-blue?style=for-the-badge&color=3C5280)
+[![VPN Telegram Bot](https://img.shields.io/badge/earn-blue?style=for-the-badge&color=0891b2&labelColor=1c1917&logo=telegram&label=Bot)](https://t.me/vpnsibcom_bot)
+[![VPN Telegram Channel](https://img.shields.io/endpoint?style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fvpnsibcom&label=Community)](https://t.me/vpnsibcom)
+[![VPN Telegram chat](https://img.shields.io/endpoint?label=Chat&style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fvpnsibcom_chat)](https://t.me/vpnsibcom_chat)
+![Title](https://img.shields.io/badge/Me%3A-blue?style=for-the-badge&color=3C5280)
+[![Github followers](https://img.shields.io/github/followers/Kennix88?logo=github&style=for-the-badge&color=0891b2&labelColor=1c1917)](https://www.github.com/Kennix88)
+[![Telegram Channel](https://img.shields.io/endpoint?style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fkennixdev&label=Channel)](https://t.me/KennixDev)
+[![Telegram Group](https://img.shields.io/endpoint?label=Group&style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2FKennixDevGroup)](https://t.me/KennixDevGroup)
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+</div>
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## 📈 Project Statistics
 
-## Generate a library
+### ⭐ Stargazers:
+[![Stargazers repo roster for @Kennix88/vpnsibcom](https://reporoster.com/stars/dark/Kennix88/vpnsibcom)](https://github.com/Kennix88/vpnsibcom/stargazers)
+### Star History
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
+<a href="https://www.star-history.com/#kennix88/vpnsibcom&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kennix88/vpnsibcom&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kennix88/vpnsibcom&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kennix88/vpnsibcom&type=Date" />
+ </picture>
+</a>
 
-## Run tasks
+### 🍴 Forkers:
+[![Forkers repo roster for @Kennix88/vpnsibcom](https://reporoster.com/forks/dark/Kennix88/vpnsibcom)](https://github.com/Kennix88/vpnsibcom/network/members)
 
-To build the library use:
 
-```sh
-npx nx build pkg1
-```
+## 🤝 Contributing
 
-To run any task with Nx use:
+We welcome any contributions to VPNsibcom! If you want to help:
 
-```sh
-npx nx <target> <project-name>
-```
+1. Fork the repository
+2. Create a branch for your changes
+3. Make and test your changes
+4. Create a Pull Request
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+<div align="center">
+Thanks to the all contributors who have helped improve VPNsibcom:
 
-## Versioning and releasing
+<a href="https://github.com/kennix88/vpnsibcom/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=kennix88/vpnsibcom" />
+</a>
 
-To version and release the library use
+Made with <a rel="noopener noreferrer" target="_blank" href="https://contrib.rocks">contrib.rocks</a>
 
-```
-npx nx release
-```
+</div>
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+## License
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
 
-[Learn more about Nx release &raquo;](hhttps://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This repository is available under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](cc-by-nc-sa). Commercial use is prohibited!
 
-## Keep TypeScript project references up to date
+Created by [Kennix88](https://github.com/Kennix88).
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+## 💵 Sponsorship
+If you want to support me, I will be very happy about it. 🥺👉👈
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+- TON or Jettons(NOT, DOGS, X, HMSTR, STON, GEM, JETTON etc) or TON NFT or TG-Names: `UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ`
+- USDT (TON): `UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ`
+- USDT (TRC20): `TPYpSQoK7CBvdNBsQRjsNdxFB54Uon8687`
+- BTC: `1Ai9bL7862KQrcHymkakgaEAsDL5M3uNyX`
+- Binance ID: `91467512`
+- ByBit ID: `249886061`
+- KuCoin ID: `208825167`
+- GateIO ID: `18943532`
+- BingX ID: `27667379`
+- OKX ID: `178528329853476864`
+- Telegram Wallet: [@kennix88](https://t.me/Kennix88)
 
-```sh
-npx nx sync
-```
-
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
-
-```sh
-npx nx sync:check
-```
-
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg?style=for-the-badge&color=0891b2&labelColor=1c1917

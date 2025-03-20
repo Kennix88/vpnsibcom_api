@@ -1,9 +1,9 @@
 {
   "name": "@vpnsibcom/source",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "CC BY-NC-SA 4.0",
   "scripts": {},
-  "private": true,
+  "private": false,
   "dependencies": {},
   "devDependencies": {
     "@nx/js": "20.6.2",
