@@ -1,16 +1,20 @@
 
 <div align="center">
 
-# Vpnsibcom
-VPN-service in Telegram-mini-app(TMA).
+<a href="https://t.me/vpnsibcom_bot" target='_blank'>
+    <img src="logo.png" width='150' />
+</a>
+
+# VPNsibcom
+VPN-service in Telegram-mini-app(TMA) and WEB-app. It is based on Xray-core with Marzban.
 
 ![Title](https://img.shields.io/badge/Repository%3A-blue?style=for-the-badge&color=3C5280)
 [![release](https://img.shields.io/github/package-json/v/Kennix88/vpnsibcom?style=for-the-badge&color=0891b2&labelColor=1c1917)](https://github.com/Kennix88/vpnsibcom/releases)
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 ![GitHub Repo stars](https://img.shields.io/github/stars/Kennix88/vpnsibcom?style=for-the-badge&color=0891b2&labelColor=1c1917)
-[![wakatime](https://wakatime.com/badge/user/9268c051-c861-45cc-b927-3babf56c56d9/project/8ea93489-247b-4b6c-96db-f1013437caa0.svg?style=for-the-badge&color=0891b2&logoColor=1c1917)](https://github.com/Kennix88/vpnsibcom)
-![Title](https://img.shields.io/badge/HashRateGame%3A-blue?style=for-the-badge&color=3C5280)
-[![VPN Telegram Bot](https://img.shields.io/badge/earn-blue?style=for-the-badge&color=0891b2&labelColor=1c1917&logo=telegram&label=Bot)](https://t.me/vpnsibcom_bot)
+[![wakatime](https://wakatime.com/badge/user/9268c051-c861-45cc-b927-3babf56c56d9/project/abdd7bad-b8fc-4640-959c-330f9fc8ae24.svg?style=for-the-badge&color=0891b2&logoColor=1c1917)](https://github.com/Kennix88/vpnsibcom)
+![Title](https://img.shields.io/badge/VPNsibcom%3A-blue?style=for-the-badge&color=3C5280)
+[![VPN Telegram Bot](https://img.shields.io/badge/VPN_service-blue?style=for-the-badge&color=0891b2&labelColor=1c1917&logo=telegram&label=Bot)](https://t.me/vpnsibcom_bot)
 [![VPN Telegram Channel](https://img.shields.io/endpoint?style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fvpnsibcom&label=Community)](https://t.me/vpnsibcom)
 [![VPN Telegram chat](https://img.shields.io/endpoint?label=Chat&style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fvpnsibcom_chat)](https://t.me/vpnsibcom_chat)
 ![Title](https://img.shields.io/badge/Me%3A-blue?style=for-the-badge&color=3C5280)
