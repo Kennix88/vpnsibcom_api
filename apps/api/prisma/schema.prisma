@@ -143,3 +143,24 @@ model Language {
 
   @@map("language")
 }
+
+model Currency {
+  key       CurrencyEnum @id
+  name      String
+  symbol    String
+  rate      Float        @default(1)
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  // payments    Payments[]
+  @@map("currency")
+}
+
+enum CurrencyEnum {
+  RUB
+  USD
+  EUR
+  KZT
+  TON
+  USDT
+  XCH
+}
