@@ -8,6 +8,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2021",
+    "noImplicitAny": false,
     "paths": {
       "@/*": ["./*"],
       "@core/*": ["./src/app/core/*"],
@@ -15,7 +16,7 @@
       "@modules/*": ["./src/app/modules/*"],
       "@shared/*": ["./src/app/shared/*"],
       "@prisma/generated": ["./prisma/generated"],
-      "@prisma/generated/*": ["./prisma/generated/*"],
+      "@prisma/generated/*": ["./prisma/generated/*"]
     }
   },
   "include": ["src/**/*.ts"],

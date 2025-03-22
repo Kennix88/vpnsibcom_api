@@ -1,5 +1,5 @@
-const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { join } = require('path');
+const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin')
+const { join } = require('node:path')
 
 module.exports = {
   output: {
@@ -9,7 +9,7 @@ module.exports = {
     new NxAppWebpackPlugin({
       target: 'node',
       compiler: 'tsc',
-      main: './src/main.ts',
+      main: join(__dirname, 'src/main.ts'),
       tsConfig: './tsconfig.app.json',
       assets: ['./src/assets'],
       optimization: false,
@@ -17,4 +17,15 @@ module.exports = {
       generatePackageJson: true,
     }),
   ],
-};
+  resolve: {
+    alias: {
+      '@/*': join(__dirname, 'src/app'),
+      '@integrations/*': join(__dirname, 'src/app/integrations/*'),
+      '@modules/*': join(__dirname, 'src/app/modules/*'),
+      '@prisma/generated': join(__dirname, 'prisma/generated'),
+      '@prisma/generated/*': join(__dirname, 'prisma/generated/*'),
+      '@core': join(__dirname, 'src/app/core'),
+      '@shared': join(__dirname, 'src/app/shared'),
+    },
+  },
+}

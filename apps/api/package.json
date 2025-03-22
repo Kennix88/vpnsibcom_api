@@ -2,6 +2,9 @@
   "name": "@vpnsibcom/api",
   "version": "0.0.1",
   "private": false,
+  "scripts": {
+    "start:dev": "nest start --watch"
+  },
   "nx": {
     "targets": {
       "build": {
@@ -18,6 +21,16 @@
               "node-env=development"
             ]
           }
+        }
+      },
+      "start": {
+        "executor": "@nrwl/workspace:run-commands",
+        "options": {
+          "command": "npm run start:dev",
+          "cwd": "apps/api"
+        },
+        "configurations": {
+          "dev": {}
         }
       },
       "serve": {

@@ -1,21 +1,68 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
-import { Logger } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
+import { CoreModule } from '@core/core.module'
+import { RedisService } from '@core/redis/redis.service'
+import { Logger, ValidationPipe } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { NestFactory } from '@nestjs/core'
+import { ms, type StringValue } from '@shared/utils/ms.util'
+import { parseBoolean } from '@shared/utils/parse-boolean.util'
+import { RedisStore } from 'connect-redis'
+import cookieParser from 'cookie-parser'
+import session from 'express-session'
+import { LoggerErrorInterceptor, Logger as PinoLogger } from 'nestjs-pino'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
-  );
+  const app = await NestFactory.create(CoreModule, { rawBody: true })
+
+  const config = app.get(ConfigService)
+  const redis = app.get(RedisService)
+
+  app.useLogger(app.get(PinoLogger))
+  app.useGlobalInterceptors(new LoggerErrorInterceptor())
+
+  app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')))
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  )
+
+  app.use(
+    session({
+      secret: config.getOrThrow<string>('SESSION_SECRET'),
+      name: config.getOrThrow<string>('SESSION_NAME'),
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        domain: config.getOrThrow<string>('SESSION_DOMAIN'),
+        maxAge: ms(config.getOrThrow<StringValue>('SESSION_MAX_AGE')),
+        httpOnly: parseBoolean(config.getOrThrow<string>('SESSION_HTTP_ONLY')),
+        secure: parseBoolean(config.getOrThrow<string>('SESSION_SECURE')),
+        sameSite: 'lax',
+      },
+      store: new RedisStore({
+        client: redis,
+        prefix: config.getOrThrow<string>('SESSION_FOLDER'),
+      }),
+    }),
+  )
+
+  app.enableCors({
+    origin: config.getOrThrow<string>('ALLOWED_ORIGIN'),
+    credentials: true,
+    exposedHeaders: ['set-cookie'],
+  })
+  app.enableShutdownHooks()
+  await app.listen(config.getOrThrow<number>('APPLICATION_PORT') || 3000)
+
+  return app.getUrl()
 }
 
-bootstrap();
+void (async () => {
+  try {
+    const url = await bootstrap()
+    Logger.log(url, 'Bootstrap')
+  } catch (error) {
+    Logger.error(error, 'Bootstrap')
+  }
+})()
