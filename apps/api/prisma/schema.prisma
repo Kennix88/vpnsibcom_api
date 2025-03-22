@@ -98,6 +98,7 @@ model Users {
   balanceId      String?           @unique @map("balance_id")
   language       Language          @relation(fields: [languageId], references: [id])
   languageId     String            @map("language_id")
+  subscriptions  Subscriptions[]
 
   @@map("users")
 }
@@ -112,6 +113,36 @@ model UserBalance {
   user                   Users?
 
   @@map("user_balance")
+}
+
+model Subscriptions {
+  id            String                 @id @default(uuid())
+  username      String                 @unique
+  isActive      Boolean                @default(false) @map("is_active")
+  isAutoRenewal Boolean                @default(true) @map("is_auto_renewal")
+  token         String                 @unique @map("token")
+  period        SubscriptionPeriodEnum @default(MONTH)
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  expiredAt DateTime? @map("expired_at")
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String @unique @map("user_id")
+
+  @@map("subscriptions")
+}
+
+enum SubscriptionPeriodEnum {
+  TRIAL
+  HOUR
+  DAY
+  MONTH
+  THREE_MONTH
+  SIX_MONTH
+  YEAR
+  TWO_YEAR
+  THREE_YEAR
 }
 
 model Roles {
