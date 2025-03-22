@@ -85,8 +85,8 @@ model Users {
   banExpiredAt  DateTime? @map("banned_expired_at")
   deletedAt     DateTime? @map("deleted_at")
 
-  // role               Roles               @relation(fields: [roleId], references: [key])
-  // roleId             UserRoleEnum        @default(USER) @map("role_id")
+  role           Roles             @relation(fields: [roleId], references: [key])
+  roleId         UserRoleEnum      @default(USER) @map("role_id")
   // payments           Payments[]
   referrals      Referrals[]       @relation("referral")
   inviters       Referrals[]       @relation("inviter")
@@ -94,4 +94,20 @@ model Users {
   telegramDataId String?           @unique @map("telegram_data_id")
 
   @@map("users")
+}
+
+model Roles {
+  key      UserRoleEnum @id
+  discount Float        @default(1)
+
+  users Users[]
+
+  @@map("roles")
+}
+
+enum UserRoleEnum {
+  SUPER_ADMIN
+  ADMIN
+  FRIEND
+  USER
 }
