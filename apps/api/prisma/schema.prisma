@@ -89,7 +89,7 @@ model Users {
 
   role           Roles             @relation(fields: [roleId], references: [key])
   roleId         UserRoleEnum      @default(USER) @map("role_id")
-  // payments           Payments[]
+  payments       Payments[]
   referrals      Referrals[]       @relation("referral")
   inviters       Referrals[]       @relation("inviter")
   telegramData   UserTelegramData? @relation(fields: [telegramDataId], references: [id])
@@ -127,8 +127,9 @@ model Subscriptions {
   updatedAt DateTime  @updatedAt @map("updated_at")
   expiredAt DateTime? @map("expired_at")
 
-  user   Users  @relation(fields: [userId], references: [id])
-  userId String @unique @map("user_id")
+  user     Users      @relation(fields: [userId], references: [id])
+  userId   String     @unique @map("user_id")
+  payments Payments[]
 
   @@map("subscriptions")
 }
@@ -176,13 +177,16 @@ model Language {
 }
 
 model Currency {
-  key       CurrencyEnum @id
-  name      String
-  symbol    String
-  rate      Float        @default(1)
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  key                     CurrencyEnum @id
+  name                    String
+  symbol                  String
+  rate                    Float        @default(1)
+  tonSmartContractAddress String?      @unique @map("ton_smart_contract_address")
+  coinmarketcapUCID       String?      @unique @map("coinmarketcap_ucid")
+  updatedAt               DateTime     @updatedAt @map("updated_at")
 
-  // payments    Payments[]
+  payments Payments[]
+
   @@map("currency")
 }
 
@@ -192,6 +196,43 @@ enum CurrencyEnum {
   EUR
   KZT
   TON
+  MAJOR
+  NOT
+  HMSTR
+  DOGS
+  CATI
   USDT
   XCH
+}
+
+model Payments {
+  id     String            @id @default(uuid())
+  status PaymentStatusEnum @default(PENDING)
+  // method PaymentMethodEnum @default(STARS)
+
+  amount       String @default("0")
+  exchangeRate String @default("0")
+
+  token   String  @unique
+  linkPay String?
+  details Json?   @db.JsonB
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user           Users          @relation(fields: [userId], references: [id])
+  userId         String         @map("user_id")
+  currency       Currency       @relation(fields: [currencyKey], references: [key])
+  currencyKey    CurrencyEnum   @map("currency_key")
+  Subscription   Subscriptions? @relation(fields: [SubscriptionId], references: [id])
+  SubscriptionId String?        @map("subscription_id")
+
+  @@map("payments")
+}
+
+enum PaymentStatusEnum {
+  PENDING
+  SUCCESS
+  CANCELED
+  FAILED
 }
