@@ -1,4 +1,5 @@
 import { pinoConfig } from '@core/configs/pino.config'
+import { PrismaConnectModule } from '@core/prisma/prisma-connect.module'
 import { RedisModule } from '@core/redis/redis.module'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -38,6 +39,7 @@ import { LoggerModule } from 'nestjs-pino'
       loader: I18nJsonLoader,
     }),
     RedisModule,
+    PrismaConnectModule,
   ],
   controllers: [],
   providers: [],
