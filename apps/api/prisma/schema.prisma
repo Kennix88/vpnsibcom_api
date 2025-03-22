@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URI")
+}
+
+enum DefaultEnum {
+  DEFAULT
+}
+
+model Settings {
+  key                       DefaultEnum @id @default(DEFAULT)
+  tgStarsToUSD              Float       @default(0.013) @map("tg_stars_to_usd")
+  priceSubscriptionStars    Int         @default(700) @map("price_subscription_stars")
+  comissionStarsToTon       Float       @default(0.90) @map("comission_stars_to_ton")
+  adsRewardStars            Float       @default(0.1) @map("ads_reward_stars")
+  adsTaskRewardStars        Float       @default(10) @map("ads_task_reward_stars")
+  hourRatioPayment          Float       @default(1.39) @map("hour_ratio_payment")
+  dayRatioPayment           Float       @default(1.31) @map("day_ratio_payment")
+  threeMouthesRatioPayment  Float       @default(0.97) @map("three_mouthes_ratio_payment")
+  sixMouthesRatioPayment    Float       @default(0.94) @map("six_mouthes_ratio_payment")
+  oneYearRatioPayment       Float       @default(0.88) @map("one_year_ratio_payment")
+  twoYearRatioPayment       Float       @default(0.76) @map("two_year_ratio_payment")
+  threeYearRatioPayment     Float       @default(0.64) @map("three_year_ratio_payment")
+  referralOneLevelPercent   Float       @default(0.1) @map("referral_one_level_percent")
+  referralTwoLevelPercent   Float       @default(0.05) @map("referral_two_level_percent")
+  referralThreeLevelPercent Float       @default(0.01) @map("referral_three_level_percent")
+  limitDevices              Int         @default(10) @map("limit_devices")
+  freePlanDays              Int         @default(7) @map("free_plan_days")
+  freePlanDaysForReferrals  Int         @default(14) @map("free_plan_days_for_referrals")
+  limitSubscriptions        Int         @default(10) @map("limit_subscriptions")
+
+  @@map("settings")
+}
