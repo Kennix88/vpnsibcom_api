@@ -92,6 +92,8 @@ model Users {
   inviters       Referrals[]       @relation("inviter")
   telegramData   UserTelegramData? @relation(fields: [telegramDataId], references: [id])
   telegramDataId String?           @unique @map("telegram_data_id")
+  language       Language          @relation(fields: [languageId], references: [id])
+  languageId     String            @map("language_id")
 
   @@map("users")
 }
@@ -110,4 +112,17 @@ enum UserRoleEnum {
   ADMIN
   FRIEND
   USER
+}
+
+model Language {
+  id         String @id @default(uuid())
+  name       String
+  nativeName String @map("native_name")
+  iso6391    String @unique @map("iso_639_1")
+  iso6392    String @unique @map("iso_639_2")
+  iso6393    String @unique @map("iso_639_3")
+
+  users Users[]
+
+  @@map("language")
 }
