@@ -36,3 +36,62 @@ model Settings {
 
   @@map("settings")
 }
+
+model UserTelegramData {
+  id                    String   @id @default(uuid())
+  isLive                Boolean  @default(false) @map("is_live")
+  isRtl                 Boolean  @default(false) @map("is_rtl")
+  isPremium             Boolean  @default(false) @map("is_premium")
+  isBot                 Boolean  @default(false) @map("is_bot")
+  firstName             String   @map("first_name")
+  lastName              String?  @map("last_name")
+  username              String?
+  languageCode          String   @map("language_code")
+  photoUrl              String?  @map("photo_url")
+  addedToAttachmentMenu Boolean  @default(false) @map("added_to_attachment_menu")
+  allowsWriteToPm       Boolean  @default(false) @map("allows_write_to_pm")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  user Users?
+
+  @@map("user_telegram_data")
+}
+
+model Referrals {
+  id         String @id @default(uuid())
+  level      Int    @default(1)
+  inviter    Users  @relation("inviter", fields: [inviterId], references: [id])
+  inviterId  String @map("inviter_id")
+  referral   Users  @relation("referral", fields: [referralId], references: [id])
+  referralId String @map("referral_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("referrals")
+}
+
+model Users {
+  id                  String  @id @default(uuid())
+  telegramId          String  @unique @map("telegram_id")
+  tonWallet           String? @unique @map("ton_wallet")
+  isFreePlanAvailable Boolean @default(true) @map("is_free_plan_available")
+  isBanned            Boolean @default(false) @map("is_banned")
+  isDeleted           Boolean @default(false) @map("is_deleted")
+
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastStartedAt DateTime? @map("last_started_at")
+  banExpiredAt  DateTime? @map("banned_expired_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  // role               Roles               @relation(fields: [roleId], references: [key])
+  // roleId             UserRoleEnum        @default(USER) @map("role_id")
+  // payments           Payments[]
+  referrals      Referrals[]       @relation("referral")
+  inviters       Referrals[]       @relation("inviter")
+  telegramData   UserTelegramData? @relation(fields: [telegramDataId], references: [id])
+  telegramDataId String?           @unique @map("telegram_data_id")
+
+  @@map("users")
+}
