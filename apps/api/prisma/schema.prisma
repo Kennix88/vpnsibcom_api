@@ -99,6 +99,7 @@ model Users {
   language       Language          @relation(fields: [languageId], references: [id])
   languageId     String            @map("language_id")
   subscriptions  Subscriptions[]
+  withdrawals    Withdrawals[]
 
   @@map("users")
 }
@@ -203,6 +204,28 @@ enum CurrencyEnum {
   CATI
   USDT
   XCH
+}
+
+model Withdrawals {
+  id          String               @id @default(uuid())
+  status      WithdrawalStatusEnum @default(CONSIDERATION)
+  amountStars Float                @default(0) @map("amount_stars")
+  amountUSD   Float                @default(0) @map("amount_usd")
+  amountTON   Float                @default(0) @map("amount_ton")
+  address     String
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  @@map("withdrawals")
+}
+
+enum WithdrawalStatusEnum {
+  CONSIDERATION
+  REJECTED
+  SENT
 }
 
 model Payments {
