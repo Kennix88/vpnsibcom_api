@@ -1,4 +1,4 @@
-export const oldUsersData = [
+export const OldUsersData = [
   {
     telegramId: '726260992',
     balance: 15,

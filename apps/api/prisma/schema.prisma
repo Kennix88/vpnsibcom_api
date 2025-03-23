@@ -34,7 +34,6 @@ model Settings {
   limitDevices                     Int         @default(10) @map("limit_devices")
   freePlanDays                     Int         @default(7) @map("free_plan_days")
   freePlanDaysForReferrals         Int         @default(14) @map("free_plan_days_for_referrals")
-  limitSubscriptions               Int         @default(10) @map("limit_subscriptions")
 
   @@map("settings")
 }
@@ -177,8 +176,9 @@ enum SubscriptionPeriodEnum {
 }
 
 model Roles {
-  key      UserRoleEnum @id
-  discount Float        @default(1)
+  key                UserRoleEnum @id
+  discount           Float        @default(1)
+  limitSubscriptions Int          @default(10) @map("limit_subscriptions")
 
   users Users[]
 

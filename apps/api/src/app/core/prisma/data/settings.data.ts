@@ -19,5 +19,4 @@ export const SettingsData = {
   limitDevices: 10,
   freePlanDays: 7,
   freePlanDaysForReferrals: 14,
-  limitSubscriptions: 10,
 }

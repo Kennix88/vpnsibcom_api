@@ -25,6 +25,9 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "incremental": true,
-    "target": "es2022"
+    "target": "es2022",
+    "paths": {
+      "@/libs*": ["./libs/*"]
+    }
   }
 }
