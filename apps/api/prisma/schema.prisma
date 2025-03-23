@@ -132,13 +132,14 @@ enum AdsType {
 }
 
 model UserBalance {
-  id                     String   @id @default(uuid())
-  paymentBalance         Float    @default(0) @map("payment_balance")
-  holdBalance            Float    @default(0) @map("hold_balance")
-  withdrawalBalance      Float    @default(0) @map("withdrawal_balance")
-  isUseWithdrawalBalance Boolean  @default(true) @map("is_use_withdrawal_balance")
-  updatedAt              DateTime @updatedAt @map("updated_at")
+  id                     String         @id @default(uuid())
+  paymentBalance         Float          @default(0) @map("payment_balance")
+  holdBalance            Float          @default(0) @map("hold_balance")
+  withdrawalBalance      Float          @default(0) @map("withdrawal_balance")
+  isUseWithdrawalBalance Boolean        @default(true) @map("is_use_withdrawal_balance")
+  updatedAt              DateTime       @updatedAt @map("updated_at")
   user                   Users?
+  transactions           Transactions[]
 
   @@map("user_balance")
 }
@@ -233,6 +234,42 @@ enum CurrencyEnum {
   XCH
 }
 
+model Transactions {
+  id            String                @id @default(uuid())
+  amount        Float                 @default(0)
+  isHold        Boolean               @default(false) @map("is_hold")
+  type          TransactionTypeEnum   @default(PLUS)
+  reason        TransactionReasonEnum @default(PAYMENT)
+  balanceType   BalanceTypeEnum       @default(PAYMENT) @map("balance_type")
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @updatedAt @map("updated_at")
+  holdExpiredAt DateTime?             @map("hold_expired_at")
+
+  balance    UserBalance  @relation(fields: [balanceId], references: [id])
+  balanceId  String       @map("balance_id")
+  withdrawal Withdrawals?
+  payment    Payments?
+
+  @@map("transactions")
+}
+
+enum TransactionTypeEnum {
+  PLUS
+  MINUS
+}
+
+enum BalanceTypeEnum {
+  PAYMENT
+  WITHDRAWAL
+}
+
+enum TransactionReasonEnum {
+  WITHDRAWAL
+  PAYMENT
+  REWARD
+  REFERRAL
+}
+
 model Withdrawals {
   id          String               @id @default(uuid())
   status      WithdrawalStatusEnum @default(CONSIDERATION)
@@ -243,8 +280,10 @@ model Withdrawals {
   createdAt   DateTime             @default(now()) @map("created_at")
   updatedAt   DateTime             @updatedAt @map("updated_at")
 
-  user   Users  @relation(fields: [userId], references: [id])
-  userId String @map("user_id")
+  user          Users        @relation(fields: [userId], references: [id])
+  userId        String       @map("user_id")
+  transacrion   Transactions @relation(fields: [transactionId], references: [id])
+  transactionId String       @unique @map("transaction_id")
 
   @@map("withdrawals")
 }
@@ -253,6 +292,7 @@ enum WithdrawalStatusEnum {
   CONSIDERATION
   REJECTED
   SENT
+  EXPIRED
 }
 
 model Payments {
@@ -275,6 +315,8 @@ model Payments {
   SubscriptionId String?           @map("subscription_id")
   method         PaymentMethods    @relation(fields: [methodKey], references: [key])
   methodKey      PaymentMethodEnum @map("method_key")
+  transacrion    Transactions?     @relation(fields: [transactionId], references: [id])
+  transactionId  String?           @unique @map("transaction_id")
 
   @@map("payments")
 }
