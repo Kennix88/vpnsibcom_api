@@ -177,15 +177,15 @@ model Language {
 }
 
 model Currency {
-  key                     CurrencyEnum @id
-  name                    String
-  symbol                  String
-  rate                    Float        @default(1)
-  tonSmartContractAddress String?      @unique @map("ton_smart_contract_address")
-  coinmarketcapUCID       String?      @unique @map("coinmarketcap_ucid")
-  updatedAt               DateTime     @updatedAt @map("updated_at")
+  key               CurrencyEnum @id
+  name              String
+  symbol            String
+  rate              Float        @default(1)
+  coinmarketcapUCID String?      @unique @map("coinmarketcap_ucid")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
 
-  payments Payments[]
+  payments       Payments[]
+  paymentMethods PaymentMethods[]
 
   @@map("currency")
 }
@@ -206,26 +206,25 @@ enum CurrencyEnum {
 }
 
 model Payments {
-  id     String            @id @default(uuid())
-  status PaymentStatusEnum @default(PENDING)
-  // method PaymentMethodEnum @default(STARS)
-
-  amount       String @default("0")
-  exchangeRate String @default("0")
-
-  token   String  @unique
-  linkPay String?
-  details Json?   @db.JsonB
+  id           String            @id @default(uuid())
+  status       PaymentStatusEnum @default(PENDING)
+  amount       String            @default("0")
+  exchangeRate String            @default("0")
+  token        String            @unique
+  linkPay      String?
+  details      Json?             @db.JsonB
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  user           Users          @relation(fields: [userId], references: [id])
-  userId         String         @map("user_id")
-  currency       Currency       @relation(fields: [currencyKey], references: [key])
-  currencyKey    CurrencyEnum   @map("currency_key")
-  Subscription   Subscriptions? @relation(fields: [SubscriptionId], references: [id])
-  SubscriptionId String?        @map("subscription_id")
+  user           Users             @relation(fields: [userId], references: [id])
+  userId         String            @map("user_id")
+  currency       Currency          @relation(fields: [currencyKey], references: [key])
+  currencyKey    CurrencyEnum      @map("currency_key")
+  Subscription   Subscriptions?    @relation(fields: [SubscriptionId], references: [id])
+  SubscriptionId String?           @map("subscription_id")
+  method         PaymentMethods    @relation(fields: [methodKey], references: [key])
+  methodKey      PaymentMethodEnum @map("method_key")
 
   @@map("payments")
 }
@@ -235,4 +234,56 @@ enum PaymentStatusEnum {
   SUCCESS
   CANCELED
   FAILED
+}
+
+model PaymentMethods {
+  key                     PaymentMethodEnum     @id
+  name                    String
+  isTonBlockchain         Boolean               @default(false) @map("is_ton_blockchain")
+  tonSmartContractAddress String?               @unique @map("ton_smart_contract_address")
+  minAmount               Float                 @default(0) @map("min_amount")
+  maxAmount               Float                 @default(10000) @map("max_amount")
+  commission              Float                 @default(1)
+  isPlusCommission        Boolean               @default(false) @map("is_plus_commission")
+  type                    PaymentMethodTypeEnum @default(CARD)
+
+  payments    Payments[]
+  currency    Currency     @relation(fields: [currencyKey], references: [key])
+  currencyKey CurrencyEnum @map("currency_key")
+
+  @@map("payment_methods")
+}
+
+enum PaymentMethodTypeEnum {
+  CRYPTOCURRENCY
+  CARD
+  SBP
+  STARS
+  WALLET
+}
+
+enum PaymentMethodEnum {
+  STARS
+  TOME_CARD
+  TOME_SBP
+  PAYPALYCH_RUB
+  PAYPALYCH_USD
+  PAYPALYCH_EUR
+  WATA_RUB
+  WATA_USD
+  WATA_EUR
+  PAYEER_RUB
+  PAYEER_USD
+  PAYEER_EUR
+  VOLET_RUB
+  VOLET_USD
+  VOLET_EUR
+  CRYPTOMUS
+  TON_TON
+  USDT_TON
+  NOT_TON
+  MAJOR_TON
+  HMSTR_TON
+  DOGS_TON
+  CATI_TON
 }
