@@ -339,12 +339,25 @@ model PaymentMethods {
   commission              Float                 @default(1)
   isPlusCommission        Boolean               @default(false) @map("is_plus_commission")
   type                    PaymentMethodTypeEnum @default(CARD)
+  system                  PaymentSystemEnum     @default(TELEGRAM)
 
   payments    Payments[]
   currency    Currency     @relation(fields: [currencyKey], references: [key])
   currencyKey CurrencyEnum @map("currency_key")
 
   @@map("payment_methods")
+}
+
+enum PaymentSystemEnum {
+  PAYEER
+  VOLET
+  WATA
+  TELEGRAM
+  CRYPTOMUS
+  CRYPTOBOT
+  TON_BLOCKCHAIN
+  PAYPALYCH
+  SKINSBACK
 }
 
 enum PaymentMethodTypeEnum {
@@ -372,6 +385,7 @@ enum PaymentMethodEnum {
   VOLET_USD
   VOLET_EUR
   CRYPTOMUS
+  CRYPTOBOT
   TON_TON
   USDT_TON
   NOT_TON
@@ -379,4 +393,5 @@ enum PaymentMethodEnum {
   HMSTR_TON
   DOGS_TON
   CATI_TON
+  SKINSBACK
 }
