@@ -15,7 +15,7 @@ enum DefaultEnum {
 model Settings {
   key                              DefaultEnum @id @default(DEFAULT)
   tgStarsToUSD                     Float       @default(0.013) @map("tg_stars_to_usd")
-  priceSubscriptionStars           Int         @default(700) @map("price_subscription_stars")
+  priceSubscriptionStars           Int         @default(699) @map("price_subscription_stars")
   comissionStarsToTon              Float       @default(0.90) @map("comission_stars_to_ton")
   adsRewardStars                   Float       @default(0.1) @map("ads_reward_stars")
   adsTaskRewardStars               Float       @default(10) @map("ads_task_reward_stars")
