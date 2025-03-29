@@ -1,13 +1,45 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
-  "files": [],
-  "references": [
-    {
-      "path": "./apps/web"
+  "compilerOptions": {
+    "rootDir": ".",
+    "importHelpers": true,
+    "skipDefaultLibCheck": true,
+    "composite": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": true,
+    "lib": ["es2022"],
+    "moduleResolution": "nodenext",
+    "noEmitOnError": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "strict": true,
+    "module": "nodenext",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2022",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@vpnsibcom/*": ["*"],
+      "@core/*": ["src/core/*"],
+      "@integrations/*": ["src/integrations/*"],
+      "@modules/*": ["src/modules/*"],
+      "@shared/*": ["src/shared/*"],
+      "@prisma/generated": ["prisma/generated"],
+      "@prisma/generated/*": ["prisma/generated/*"]
     },
-    {
-      "path": "./apps/api"
-    }
-  ]
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "jsx": "react"
+  }
 }

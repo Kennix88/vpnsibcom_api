@@ -5,7 +5,7 @@
     <img src="logo.png" width='150' />
 </a>
 
-# VPNsibcom
+# VPNsibcom_api
 VPN-service in Telegram-mini-app(TMA) and WEB-app. It is based on [Xray-core](https://github.com/XTLS/Xray-core/) with [Marzban](https://github.com/Gozargah/Marzban).
 
 ![Title](https://img.shields.io/badge/Repository%3A-blue?style=for-the-badge&color=3C5280)
