@@ -1,6 +1,12 @@
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 
-export const CurrencyData = [
+export const CurrencyData: {
+  key: CurrencyEnum
+  name: string
+  symbol: string
+  rate: number
+  coinmarketcapUCID: string | null
+}[] = [
   {
     key: CurrencyEnum.RUB,
     name: 'Russian rouble',

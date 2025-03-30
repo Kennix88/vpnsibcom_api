@@ -1,4 +1,8 @@
-export const OldUsersData = [
+export const OldUsersData: {
+  telegramId: string
+  balance: number
+  referrals: string[]
+}[] = [
   {
     telegramId: '726260992',
     balance: 15,

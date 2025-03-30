@@ -1,6 +1,11 @@
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 
-export const RolesData = [
+export const RolesData: {
+  key: UserRolesEnum
+  name: string
+  discount: number
+  limitSubscriptions: number
+}[] = [
   {
     key: UserRolesEnum.SUPER_ADMIN,
     name: 'Super admin',
