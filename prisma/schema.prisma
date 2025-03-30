@@ -105,15 +105,25 @@ model Users {
 }
 
 model AdsViews {
-  id        String         @id @default(uuid())
-  network   AdsNetworkEnum @default(ADSGRAM)
-  type      AdsType        @default(REWARD)
-  createdAt DateTime       @default(now()) @map("created_at")
+  id         String         @id @default(uuid())
+  network    AdsNetworks    @relation(fields: [networkKey], references: [key])
+  networkKey AdsNetworkEnum @default(ADSGRAM) @map("network_key")
+  type       AdsType        @default(REWARD)
+  createdAt  DateTime       @default(now()) @map("created_at")
 
   user   Users  @relation(fields: [userId], references: [id])
   userId String @map("user_id")
 
   @@map("ads_views")
+}
+
+model AdsNetworks {
+  key      AdsNetworkEnum @id
+  isActive Boolean        @map("is_active")
+  name     String
+  adsViews AdsViews[]
+
+  @@map("ads_networks")
 }
 
 enum AdsNetworkEnum {
