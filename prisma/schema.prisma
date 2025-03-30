@@ -105,11 +105,11 @@ model Users {
 }
 
 model AdsViews {
-  id         String         @id @default(uuid())
-  network    AdsNetworks    @relation(fields: [networkKey], references: [key])
-  networkKey AdsNetworkEnum @default(ADSGRAM) @map("network_key")
-  type       AdsType        @default(REWARD)
-  createdAt  DateTime       @default(now()) @map("created_at")
+  id         String          @id @default(uuid())
+  network    AdsNetworks     @relation(fields: [networkKey], references: [key])
+  networkKey AdsNetworkEnum  @default(ADSGRAM) @map("network_key")
+  type       AdsViewTypeEnum @default(REWARD)
+  createdAt  DateTime        @default(now()) @map("created_at")
 
   user   Users  @relation(fields: [userId], references: [id])
   userId String @map("user_id")
@@ -134,7 +134,7 @@ enum AdsNetworkEnum {
   MONETAG
 }
 
-enum AdsType {
+enum AdsViewTypeEnum {
   REWARD
   TASK
   VIEW
