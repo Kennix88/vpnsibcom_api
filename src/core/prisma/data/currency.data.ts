@@ -12,7 +12,7 @@ export const CurrencyData = [
     key: CurrencyEnum.USD,
     name: 'United States dollar',
     symbol: '$',
-    rate: 0,
+    rate: 1,
     coinmarketcapUCID: null,
   },
   {
@@ -75,15 +75,42 @@ export const CurrencyData = [
     key: CurrencyEnum.USDT,
     name: 'Tether',
     symbol: '₮',
-    rate: 0,
+    rate: 1,
     coinmarketcapUCID: '825',
   },
   {
     key: CurrencyEnum.XCH,
     name: 'Telegram Stars',
     symbol: 'STARS',
-    rate: 0,
+    rate: 0.013,
     coinmarketcapUCID: null,
-  }
+  },
+  {
+    key: CurrencyEnum.JETTON,
+    name: 'JetTon Games',
+    symbol: 'JETTON',
+    rate: 0,
+    coinmarketcapUCID: '27894',
+  },
+  {
+    key: CurrencyEnum.PX,
+    name: 'Not Pixel',
+    symbol: 'PX',
+    rate: 0,
+    coinmarketcapUCID: '35392',
+  },
+  {
+    key: CurrencyEnum.GRAM,
+    name: 'Gram',
+    symbol: 'GRAM',
+    rate: 0,
+    coinmarketcapUCID: '29704',
+  },
+  {
+    key: CurrencyEnum.CATS,
+    name: 'Cats',
+    symbol: 'CATS',
+    rate: 0,
+    coinmarketcapUCID: '33323',
+  },
 ]
-
