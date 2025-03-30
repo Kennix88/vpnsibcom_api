@@ -177,6 +177,7 @@ enum SubscriptionPeriodEnum {
 
 model Roles {
   key                UserRoleEnum @id
+  name               String
   discount           Float        @default(1)
   limitSubscriptions Int          @default(10) @map("limit_subscriptions")
 
