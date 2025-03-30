@@ -399,5 +399,9 @@ enum PaymentMethodEnum {
   HMSTR_TON
   DOGS_TON
   CATI_TON
+  JETTON_TON
+  PX_TON
+  GRAM_TON
+  CATS_TON
   SKINSBACK
 }
