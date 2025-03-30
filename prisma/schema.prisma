@@ -233,6 +233,10 @@ enum CurrencyEnum {
   CATI
   USDT
   XCH
+  JETTON
+  PX
+  GRAM
+  CATS
 }
 
 model Transactions {

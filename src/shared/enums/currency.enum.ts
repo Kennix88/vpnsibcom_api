@@ -11,4 +11,8 @@ export enum CurrencyEnum {
   CATI = 'CATI',
   USDT = 'USDT',
   XCH = 'XCH',
+  JETTON = 'JETTON',
+  PX = 'PX',
+  GRAM = 'GRAM',
+  CATS = 'CATS',
 }
