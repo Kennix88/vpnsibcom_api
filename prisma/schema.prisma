@@ -337,6 +337,7 @@ enum PaymentStatusEnum {
 model PaymentMethods {
   key                     PaymentMethodEnum     @id
   name                    String
+  isActive                Boolean               @default(false)
   isTonBlockchain         Boolean               @default(false) @map("is_ton_blockchain")
   tonSmartContractAddress String?               @unique @map("ton_smart_contract_address")
   minAmount               Float                 @default(0) @map("min_amount")
@@ -372,6 +373,7 @@ enum PaymentMethodTypeEnum {
   SBP
   STARS
   WALLET
+  SKINS
 }
 
 enum PaymentMethodEnum {
@@ -379,6 +381,7 @@ enum PaymentMethodEnum {
   TOME_CARD
   TOME_SBP
   PAYPALYCH_RUB
+  PAYPALYCH_SBP
   PAYPALYCH_USD
   PAYPALYCH_EUR
   WATA_RUB
@@ -392,6 +395,7 @@ enum PaymentMethodEnum {
   VOLET_EUR
   CRYPTOMUS
   CRYPTOBOT
+  XROCKET
   TON_TON
   USDT_TON
   NOT_TON

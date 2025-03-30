@@ -4,4 +4,5 @@ export enum PaymentMethodTypeEnum {
   SBP = 'SBP',
   STARS = 'STARS',
   WALLET = 'WALLET',
+  SKINS = 'SKINS',
 }
