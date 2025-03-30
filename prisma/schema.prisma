@@ -357,6 +357,7 @@ enum PaymentSystemEnum {
   PAYEER
   VOLET
   WATA
+  TOME
   TELEGRAM
   CRYPTOMUS
   CRYPTOBOT
