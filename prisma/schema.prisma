@@ -329,7 +329,7 @@ model Payments {
 
 enum PaymentStatusEnum {
   PENDING
-  SUCCESS
+  COMPLETED
   CANCELED
   FAILED
 }
