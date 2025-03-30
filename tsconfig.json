@@ -11,8 +11,6 @@
     "moduleResolution": "nodenext",
     "noEmitOnError": true,
     "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
     "strict": true,
     "module": "nodenext",
     "declaration": true,
@@ -36,10 +34,14 @@
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
-    "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": true,
     "jsx": "react"
   }
 }
