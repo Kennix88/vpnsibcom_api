@@ -1,37 +1,33 @@
-import { BadRequestException, Logger } from '@nestjs/common'
+import { RolesData } from '@core/prisma/data/roles.data'
+import { SettingsData } from '@core/prisma/data/settings.data'
+import { Logger } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
-import { SettingsData } from './data/settings.data'
 
 const prisma = new PrismaClient({
   transactionOptions: {
     maxWait: 5000,
     timeout: 10000,
+    isolationLevel: 'Serializable',
   },
 })
 
-async function main() {
+export async function PrismaSeed() {
   Logger.log('The beginning of filling in the database', 'Prisma-Seed')
 
-  await prisma.settings.create({
-    data: { ...SettingsData },
+  await prisma.settings.createMany({
+    data: SettingsData,
+    skipDuplicates: true,
   })
 
   Logger.log('Settings added successfully', 'Prisma-Seed')
-}
 
-main()
-  .catch((e) => {
-    Logger.error(e)
-    throw new BadRequestException(
-      'Error filling in the database',
-      'Prisma-Seed',
-    )
+  await prisma.roles.createMany({
+    data: RolesData,
+    skipDuplicates: true,
   })
-  .finally(async () => {
-    Logger.log('Closing the database connection...', 'Prisma-Seed')
-    await prisma.$disconnect()
-    Logger.log(
-      'The database connection has been successfully closed',
-      'Prisma-Seed',
-    )
-  })
+
+  Logger.log('Roles added successfully', 'Prisma-Seed')
+
+  Logger.log('COMPLETED', 'Prisma-Seed')
+  return
+}
