@@ -15,7 +15,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "ts-node src/core/prisma/prisma.seed.ts"
+    "db:seed": "nest build & cross-env SEED_MOD=true nest start"
   },
   "private": false,
   "dependencies": {
@@ -58,6 +58,7 @@
     "@types/express-session": "^1.18.1",
     "@types/node": "~18.16.9",
     "autoprefixer": "10.4.13",
+    "cross-env": "^7.0.3",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^4.0.0",

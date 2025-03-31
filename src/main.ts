@@ -1,6 +1,7 @@
 import { CoreModule } from '@core/core.module'
+import { PrismaSeed } from '@core/prisma/prisma.seed'
 import { RedisService } from '@core/redis/redis.service'
-import { Logger, ValidationPipe } from '@nestjs/common'
+import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { ms, type StringValue } from '@shared/utils/ms.util'
@@ -60,8 +61,22 @@ async function bootstrap() {
 
 void (async () => {
   try {
-    const url = await bootstrap()
-    Logger.log(url, 'Bootstrap')
+    Logger.log(`SEED MOD: ${process.env.SEED_MOD}`, 'Bootstrap')
+    if (process.env.SEED_MOD == 'true') {
+      Logger.log(`GO SEED`, 'Bootstrap')
+      await PrismaSeed().catch((e) => {
+        Logger.error(e)
+        throw new BadRequestException(
+          'Error filling in the database',
+          'Prisma-Seed',
+        )
+      })
+      return
+    } else {
+      Logger.log(`GO NEST`, 'Bootstrap')
+      const url = await bootstrap()
+      Logger.log(url, 'Bootstrap')
+    }
   } catch (error) {
     Logger.error(error, 'Bootstrap')
   }
