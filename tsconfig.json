@@ -1,18 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
-    "importHelpers": true,
-    "skipDefaultLibCheck": true,
-    "composite": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "isolatedModules": true,
-    "lib": ["es2022"],
-    "moduleResolution": "nodenext",
-    "noEmitOnError": true,
-    "noImplicitOverride": true,
-    "strict": true,
-    "module": "nodenext",
+    "module": "commonjs",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -21,15 +9,13 @@
     "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@vpnsibcom/*": ["*"],
       "@core/*": ["src/core/*"],
       "@integrations/*": ["src/integrations/*"],
       "@modules/*": ["src/modules/*"],
-      "@shared/*": ["src/shared/*"],
-      "@prisma/generated": ["prisma/generated"],
-      "@prisma/generated/*": ["prisma/generated/*"]
+      "@shared/*": ["src/shared/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

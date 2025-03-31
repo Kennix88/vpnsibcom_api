@@ -1,32 +1,37 @@
-import { SettingsData } from '@core/prisma/data/settings.data'
 import { BadRequestException, Logger } from '@nestjs/common'
-import { Prisma, PrismaClient } from '@prisma/generated'
+import { PrismaClient } from '@prisma/client'
+import { SettingsData } from './data/settings.data'
 
 const prisma = new PrismaClient({
   transactionOptions: {
     maxWait: 5000,
     timeout: 10000,
-    isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
   },
 })
 
 async function main() {
-  Logger.log('The beginning of filling in the database')
+  Logger.log('The beginning of filling in the database', 'Prisma-Seed')
 
   await prisma.settings.create({
     data: { ...SettingsData },
   })
 
-  Logger.log('Settings added successfully')
+  Logger.log('Settings added successfully', 'Prisma-Seed')
 }
 
 main()
   .catch((e) => {
     Logger.error(e)
-    throw new BadRequestException('Error filling in the database')
+    throw new BadRequestException(
+      'Error filling in the database',
+      'Prisma-Seed',
+    )
   })
   .finally(async () => {
-    Logger.log('Closing the database connection...')
+    Logger.log('Closing the database connection...', 'Prisma-Seed')
     await prisma.$disconnect()
-    Logger.log('The database connection has been successfully closed')
+    Logger.log(
+      'The database connection has been successfully closed',
+      'Prisma-Seed',
+    )
   })

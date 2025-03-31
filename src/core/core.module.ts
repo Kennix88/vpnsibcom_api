@@ -25,11 +25,11 @@ import { LoggerModule } from 'nestjs-pino'
         disableMiddleware: true,
         fallbackLanguage: 'en',
         loaderOptions: {
-          path: 'apps/api/src/app/core/i18n/locales',
+          path: 'src/core/i18n/locales',
           watch: true,
           includeSubfolders: true,
         },
-        typesOutputPath: 'apps/api/src/app/core/i18n/i18n.type.ts',
+        typesOutputPath: 'src/core/i18n/i18n.type.ts',
       }),
       resolvers: [
         { use: QueryResolver, options: ['lang'] },

@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+    db:
+        container_name: postgres-vpn
+        image: postgres:latest
+        restart: unless-stopped
+        environment:
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_DB=${POSTGRES_DATABASE}
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        ports:
+            - "5437:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/pgdata
+        networks:
+            - token-backend
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U postgres_user -d postgres_db" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+        tty: true
+        stdin_open: true
+
+    redis:
+        container_name: redis-vpn
+        image: redis:latest
+        restart: unless-stopped
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        ports:
+            - "6382:6379"
+        command: >
+            sh -c '
+              mkdir -p /usr/local/etc/redis &&
+              echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+              echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
+              echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+              echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+              echo "user default on nopass ~* +@all" > /usr/local/etc/redis/users.acl &&
+              redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+            '
+        volumes:
+            - redis_data:/data
+        networks:
+            - token-backend
+        healthcheck:
+            test: [ "CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+        tty: true
+        stdin_open: true
+
+volumes:
+    postgres_data:
+        driver: local
+    redis_data:
+
+networks:
+    token-backend:

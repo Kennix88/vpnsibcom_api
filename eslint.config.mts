@@ -15,10 +15,10 @@ export default tseslint.config([
     },
     languageOptions: {
       ecmaVersion: 'latest',
-      sourceType: 'module',
+      sourceType: 'commonjs',
       parserOptions: {
         project: 'tsconfig.json',
-        sourceType: 'module',
+        sourceType: 'commonjs',
       },
     },
     rules: {

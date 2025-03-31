@@ -6,8 +6,8 @@ import { NestFactory } from '@nestjs/core'
 import { ms, type StringValue } from '@shared/utils/ms.util'
 import { parseBoolean } from '@shared/utils/parse-boolean.util'
 import { RedisStore } from 'connect-redis'
-import cookieParser from 'cookie-parser'
-import session from 'express-session'
+import * as cookieParser from 'cookie-parser'
+import * as session from 'express-session'
 import { LoggerErrorInterceptor, Logger as PinoLogger } from 'nestjs-pino'
 
 async function bootstrap() {
