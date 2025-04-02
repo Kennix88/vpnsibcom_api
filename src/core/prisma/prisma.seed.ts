@@ -1,3 +1,4 @@
+import { CurrencyData } from '@core/prisma/data/currency.data'
 import { LanguagesData } from '@core/prisma/data/languages.data'
 import { RolesData } from '@core/prisma/data/roles.data'
 import { SettingsData } from '@core/prisma/data/settings.data'
@@ -35,6 +36,13 @@ export async function PrismaSeed() {
   })
 
   Logger.log('Languages added successfully', 'Prisma-Seed')
+
+  await prisma.currency.createMany({
+    data: CurrencyData,
+    skipDuplicates: true,
+  })
+
+  Logger.log('Currencies added successfully', 'Prisma-Seed')
 
   Logger.log('COMPLETED', 'Prisma-Seed')
   return
