@@ -1,3 +1,4 @@
+import { AdsNetworksData } from '@core/prisma/data/ads-networks.data'
 import { CurrencyData } from '@core/prisma/data/currency.data'
 import { LanguagesData } from '@core/prisma/data/languages.data'
 import { RolesData } from '@core/prisma/data/roles.data'
@@ -43,6 +44,13 @@ export async function PrismaSeed() {
   })
 
   Logger.log('Currencies added successfully', 'Prisma-Seed')
+
+  await prisma.adsNetworks.createMany({
+    data: AdsNetworksData,
+    skipDuplicates: true,
+  })
+
+  Logger.log('Ads networks added successfully', 'Prisma-Seed')
 
   Logger.log('COMPLETED', 'Prisma-Seed')
   return
