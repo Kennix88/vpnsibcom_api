@@ -105,6 +105,80 @@ export async function PrismaSeed() {
     'Prisma-Seed',
   )
 
+  const referrals = []
+  for (const el of OldUsersData) {
+    for (const refLvl1 of el.referrals) {
+      const inviterLvl1 = await prisma.users.findUnique({
+        where: {
+          telegramId: el.telegramId,
+        },
+      })
+      const referralLvl1 = await prisma.users.findUnique({
+        where: {
+          telegramId: refLvl1,
+        },
+      })
+
+      referrals.push({
+        level: 1,
+        inviterId: inviterLvl1.id,
+        referralId: referralLvl1.id,
+      })
+
+      const getOldRefLvl1 = OldUsersData.find(
+        (old) => old.telegramId === refLvl1,
+      )
+
+      for (const refLvl2 of getOldRefLvl1.referrals) {
+        const inviterLvl2 = await prisma.users.findUnique({
+          where: {
+            telegramId: refLvl1,
+          },
+        })
+        const referralLvl2 = await prisma.users.findUnique({
+          where: {
+            telegramId: refLvl2,
+          },
+        })
+
+        referrals.push({
+          level: 2,
+          inviterId: inviterLvl2.id,
+          referralId: referralLvl2.id,
+        })
+
+        const getOldRefLvl2 = OldUsersData.find(
+          (old) => old.telegramId === refLvl2,
+        )
+
+        for (const refLvl3 of getOldRefLvl2.referrals) {
+          const inviterLvl3 = await prisma.users.findUnique({
+            where: {
+              telegramId: refLvl2,
+            },
+          })
+          const referralLvl3 = await prisma.users.findUnique({
+            where: {
+              telegramId: refLvl3,
+            },
+          })
+
+          referrals.push({
+            level: 3,
+            inviterId: inviterLvl3.id,
+            referralId: referralLvl3.id,
+          })
+        }
+      }
+    }
+  }
+  await prisma.referrals.createMany({
+    data: referrals,
+    skipDuplicates: true,
+  })
+
+  Logger.log('Referrals: added successfully', 'Prisma-Seed')
+
   Logger.log('COMPLETED', 'Prisma-Seed')
   return
 }
