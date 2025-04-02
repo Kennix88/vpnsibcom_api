@@ -1,3 +1,4 @@
+import { LanguagesData } from '@core/prisma/data/languages.data'
 import { RolesData } from '@core/prisma/data/roles.data'
 import { SettingsData } from '@core/prisma/data/settings.data'
 import { Logger } from '@nestjs/common'
@@ -27,6 +28,13 @@ export async function PrismaSeed() {
   })
 
   Logger.log('Roles added successfully', 'Prisma-Seed')
+
+  await prisma.language.createMany({
+    data: LanguagesData,
+    skipDuplicates: true,
+  })
+
+  Logger.log('Languages added successfully', 'Prisma-Seed')
 
   Logger.log('COMPLETED', 'Prisma-Seed')
   return
