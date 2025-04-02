@@ -1,3 +1,4 @@
+import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 
 export const CurrencyData: {
@@ -5,6 +6,7 @@ export const CurrencyData: {
   name: string
   symbol: string
   rate: number
+  type: CurrencyTypeEnum
   coinmarketcapUCID: string | null
 }[] = [
   {
@@ -12,6 +14,7 @@ export const CurrencyData: {
     name: 'Russian rouble',
     symbol: '₽',
     rate: 0,
+    type: CurrencyTypeEnum.FIAT,
     coinmarketcapUCID: null,
   },
   {
@@ -19,6 +22,7 @@ export const CurrencyData: {
     name: 'United States dollar',
     symbol: '$',
     rate: 1,
+    type: CurrencyTypeEnum.FIAT,
     coinmarketcapUCID: null,
   },
   {
@@ -26,6 +30,7 @@ export const CurrencyData: {
     name: 'Euro',
     symbol: '€',
     rate: 0,
+    type: CurrencyTypeEnum.FIAT,
     coinmarketcapUCID: null,
   },
   {
@@ -33,6 +38,7 @@ export const CurrencyData: {
     name: 'Kazakhstani tenge',
     symbol: '₸',
     rate: 0,
+    type: CurrencyTypeEnum.FIAT,
     coinmarketcapUCID: null,
   },
   {
@@ -40,6 +46,7 @@ export const CurrencyData: {
     name: 'Toncoin',
     symbol: 'TON',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '11419',
   },
   {
@@ -47,6 +54,7 @@ export const CurrencyData: {
     name: 'Major',
     symbol: 'MAJOR',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '33188',
   },
   {
@@ -54,6 +62,7 @@ export const CurrencyData: {
     name: 'Notcoin',
     symbol: 'NOT',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '28850',
   },
   {
@@ -61,6 +70,7 @@ export const CurrencyData: {
     name: 'Hamster Kombat',
     symbol: 'HMSTR',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '32195',
   },
   {
@@ -68,6 +78,7 @@ export const CurrencyData: {
     name: 'DOGS',
     symbol: 'DOGS',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '32698',
   },
   {
@@ -75,6 +86,7 @@ export const CurrencyData: {
     name: 'Catizen',
     symbol: 'CATI',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '32966',
   },
   {
@@ -82,6 +94,7 @@ export const CurrencyData: {
     name: 'Tether',
     symbol: '₮',
     rate: 1,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '825',
   },
   {
@@ -89,6 +102,7 @@ export const CurrencyData: {
     name: 'Telegram Stars',
     symbol: 'STARS',
     rate: 0.013,
+    type: CurrencyTypeEnum.TELEGRAM,
     coinmarketcapUCID: null,
   },
   {
@@ -96,6 +110,7 @@ export const CurrencyData: {
     name: 'JetTon Games',
     symbol: 'JETTON',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '27894',
   },
   {
@@ -103,6 +118,7 @@ export const CurrencyData: {
     name: 'Not Pixel',
     symbol: 'PX',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '35392',
   },
   {
@@ -110,6 +126,7 @@ export const CurrencyData: {
     name: 'Gram',
     symbol: 'GRAM',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '29704',
   },
   {
@@ -117,6 +134,7 @@ export const CurrencyData: {
     name: 'Cats',
     symbol: 'CATS',
     rate: 0,
+    type: CurrencyTypeEnum.CRYPTO,
     coinmarketcapUCID: '33323',
   },
 ]
