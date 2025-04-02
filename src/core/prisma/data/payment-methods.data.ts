@@ -15,7 +15,7 @@ export const PaymentMethodsData: {
   commission: number
   isPlusCommission: boolean
   system: PaymentSystemEnum
-  currency: CurrencyEnum
+  currencyKey: CurrencyEnum
 }[] = [
   {
     key: PaymentMethodEnum.STARS,
@@ -29,7 +29,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TELEGRAM,
-    currency: CurrencyEnum.XCH,
+    currencyKey: CurrencyEnum.XCH,
   },
   {
     key: PaymentMethodEnum.TOME_CARD,
@@ -43,7 +43,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.TOME,
-    currency: CurrencyEnum.RUB,
+    currencyKey: CurrencyEnum.RUB,
   },
   {
     key: PaymentMethodEnum.TOME_SBP,
@@ -57,7 +57,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.TOME,
-    currency: CurrencyEnum.RUB,
+    currencyKey: CurrencyEnum.RUB,
   },
   {
     key: PaymentMethodEnum.PAYPALYCH_RUB,
@@ -71,7 +71,7 @@ export const PaymentMethodsData: {
     commission: 1.09,
     isPlusCommission: false,
     system: PaymentSystemEnum.PAYPALYCH,
-    currency: CurrencyEnum.RUB,
+    currencyKey: CurrencyEnum.RUB,
   },
   {
     key: PaymentMethodEnum.PAYPALYCH_SBP,
@@ -85,7 +85,7 @@ export const PaymentMethodsData: {
     commission: 1.09,
     isPlusCommission: false,
     system: PaymentSystemEnum.PAYPALYCH,
-    currency: CurrencyEnum.RUB,
+    currencyKey: CurrencyEnum.RUB,
   },
   {
     key: PaymentMethodEnum.PAYPALYCH_USD,
@@ -99,7 +99,7 @@ export const PaymentMethodsData: {
     commission: 1.09,
     isPlusCommission: false,
     system: PaymentSystemEnum.PAYPALYCH,
-    currency: CurrencyEnum.USD,
+    currencyKey: CurrencyEnum.USD,
   },
   {
     key: PaymentMethodEnum.PAYPALYCH_EUR,
@@ -113,7 +113,7 @@ export const PaymentMethodsData: {
     commission: 1.09,
     isPlusCommission: false,
     system: PaymentSystemEnum.PAYPALYCH,
-    currency: CurrencyEnum.EUR,
+    currencyKey: CurrencyEnum.EUR,
   },
   {
     key: PaymentMethodEnum.WATA_RUB,
@@ -127,7 +127,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.WATA,
-    currency: CurrencyEnum.RUB,
+    currencyKey: CurrencyEnum.RUB,
   },
   {
     key: PaymentMethodEnum.WATA_USD,
@@ -141,7 +141,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.WATA,
-    currency: CurrencyEnum.USD,
+    currencyKey: CurrencyEnum.USD,
   },
   {
     key: PaymentMethodEnum.WATA_EUR,
@@ -155,7 +155,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.WATA,
-    currency: CurrencyEnum.EUR,
+    currencyKey: CurrencyEnum.EUR,
   },
   {
     key: PaymentMethodEnum.PAYEER_RUB,
@@ -169,7 +169,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.PAYEER,
-    currency: CurrencyEnum.RUB,
+    currencyKey: CurrencyEnum.RUB,
   },
   {
     key: PaymentMethodEnum.PAYEER_USD,
@@ -183,7 +183,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.PAYEER,
-    currency: CurrencyEnum.USD,
+    currencyKey: CurrencyEnum.USD,
   },
   {
     key: PaymentMethodEnum.PAYEER_EUR,
@@ -197,7 +197,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.PAYEER,
-    currency: CurrencyEnum.EUR,
+    currencyKey: CurrencyEnum.EUR,
   },
   {
     key: PaymentMethodEnum.VOLET_RUB,
@@ -211,7 +211,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.VOLET,
-    currency: CurrencyEnum.RUB,
+    currencyKey: CurrencyEnum.RUB,
   },
   {
     key: PaymentMethodEnum.VOLET_USD,
@@ -225,7 +225,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.VOLET,
-    currency: CurrencyEnum.USD,
+    currencyKey: CurrencyEnum.USD,
   },
   {
     key: PaymentMethodEnum.VOLET_USD,
@@ -239,7 +239,7 @@ export const PaymentMethodsData: {
     commission: 1.05,
     isPlusCommission: true,
     system: PaymentSystemEnum.VOLET,
-    currency: CurrencyEnum.EUR,
+    currencyKey: CurrencyEnum.EUR,
   },
   {
     key: PaymentMethodEnum.CRYPTOMUS,
@@ -253,7 +253,7 @@ export const PaymentMethodsData: {
     commission: 1.01,
     isPlusCommission: true,
     system: PaymentSystemEnum.CRYPTOMUS,
-    currency: CurrencyEnum.USD,
+    currencyKey: CurrencyEnum.USD,
   },
   {
     key: PaymentMethodEnum.SKINSBACK,
@@ -267,7 +267,7 @@ export const PaymentMethodsData: {
     commission: 1.01,
     isPlusCommission: true,
     system: PaymentSystemEnum.SKINSBACK,
-    currency: CurrencyEnum.USD,
+    currencyKey: CurrencyEnum.USD,
   },
   {
     key: PaymentMethodEnum.TON_TON,
@@ -281,7 +281,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.TON,
+    currencyKey: CurrencyEnum.TON,
   },
   {
     key: PaymentMethodEnum.USDT_TON,
@@ -295,7 +295,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.USDT,
+    currencyKey: CurrencyEnum.USDT,
   },
   {
     key: PaymentMethodEnum.HMSTR_TON,
@@ -309,7 +309,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.HMSTR,
+    currencyKey: CurrencyEnum.HMSTR,
   },
   {
     key: PaymentMethodEnum.DOGS_TON,
@@ -323,7 +323,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.DOGS,
+    currencyKey: CurrencyEnum.DOGS,
   },
   {
     key: PaymentMethodEnum.NOT_TON,
@@ -337,7 +337,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.NOT,
+    currencyKey: CurrencyEnum.NOT,
   },
   {
     key: PaymentMethodEnum.MAJOR_TON,
@@ -351,7 +351,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.MAJOR,
+    currencyKey: CurrencyEnum.MAJOR,
   },
   {
     key: PaymentMethodEnum.CATI_TON,
@@ -365,7 +365,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.CATI,
+    currencyKey: CurrencyEnum.CATI,
   },
   {
     key: PaymentMethodEnum.CATS_TON,
@@ -379,7 +379,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.CATS,
+    currencyKey: CurrencyEnum.CATS,
   },
   {
     key: PaymentMethodEnum.JETTON_TON,
@@ -393,7 +393,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.JETTON,
+    currencyKey: CurrencyEnum.JETTON,
   },
   {
     key: PaymentMethodEnum.PX_TON,
@@ -407,7 +407,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.PX,
+    currencyKey: CurrencyEnum.PX,
   },
   {
     key: PaymentMethodEnum.GRAM_TON,
@@ -421,6 +421,6 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TON_BLOCKCHAIN,
-    currency: CurrencyEnum.GRAM,
+    currencyKey: CurrencyEnum.GRAM,
   },
 ]

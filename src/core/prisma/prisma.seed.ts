@@ -1,6 +1,7 @@
 import { AdsNetworksData } from '@core/prisma/data/ads-networks.data'
 import { CurrencyData } from '@core/prisma/data/currency.data'
 import { LanguagesData } from '@core/prisma/data/languages.data'
+import { PaymentMethodsData } from '@core/prisma/data/payment-methods.data'
 import { RolesData } from '@core/prisma/data/roles.data'
 import { SettingsData } from '@core/prisma/data/settings.data'
 import { Logger } from '@nestjs/common'
@@ -51,6 +52,13 @@ export async function PrismaSeed() {
   })
 
   Logger.log('Ads networks added successfully', 'Prisma-Seed')
+
+  await prisma.paymentMethods.createMany({
+    data: PaymentMethodsData,
+    skipDuplicates: true,
+  })
+
+  Logger.log('Payment methods added successfully', 'Prisma-Seed')
 
   Logger.log('COMPLETED', 'Prisma-Seed')
   return
