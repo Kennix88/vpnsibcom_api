@@ -3,7 +3,7 @@ import { PrismaConnectModule } from '@core/prisma/prisma-connect.module'
 import { RedisModule } from '@core/redis/redis.module'
 import { TelegramModule } from '@integrations/telegram/telegram.module'
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
 import {
   AcceptLanguageResolver,
@@ -16,7 +16,11 @@ import { LoggerModule } from 'nestjs-pino'
 
 @Module({
   imports: [
-    LoggerModule.forRoot(pinoConfig),
+    LoggerModule.forRootAsync({
+      imports: [],
+      useFactory: pinoConfig,
+      inject: [ConfigService],
+    }),
     ConfigModule.forRoot({
       ignoreEnvFile: !IS_DEV_ENV,
       isGlobal: true,
