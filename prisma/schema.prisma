@@ -219,17 +219,24 @@ model Language {
 }
 
 model Currency {
-  key               CurrencyEnum @id
+  key               CurrencyEnum     @id
   name              String
   symbol            String
-  rate              Float        @default(1)
-  coinmarketcapUCID String?      @unique @map("coinmarketcap_ucid")
-  updatedAt         DateTime     @updatedAt @map("updated_at")
+  type              CurrencyTypeEnum @default(FIAT)
+  rate              Float            @default(1)
+  coinmarketcapUCID String?          @unique @map("coinmarketcap_ucid")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
 
   payments       Payments[]
   paymentMethods PaymentMethods[]
 
   @@map("currency")
+}
+
+enum CurrencyTypeEnum {
+  FIAT
+  CRYPTO
+  TELEGRAM
 }
 
 enum CurrencyEnum {
