@@ -13,7 +13,7 @@ import { PrismaModule } from 'nestjs-prisma'
           log: ['query', 'info', 'warn', 'error'],
           datasources: {
             db: {
-              url: config.getOrThrow('POSTGRES_URI'),
+              url: config.getOrThrow<string>('POSTGRES_URL'),
             },
           },
         },
