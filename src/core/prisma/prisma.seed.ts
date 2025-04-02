@@ -107,12 +107,12 @@ export async function PrismaSeed() {
 
   const referrals = []
   for (const el of OldUsersData) {
+    const inviter = await prisma.users.findUnique({
+      where: {
+        telegramId: el.telegramId,
+      },
+    })
     for (const refLvl1 of el.referrals) {
-      const inviterLvl1 = await prisma.users.findUnique({
-        where: {
-          telegramId: el.telegramId,
-        },
-      })
       const referralLvl1 = await prisma.users.findUnique({
         where: {
           telegramId: refLvl1,
@@ -121,7 +121,7 @@ export async function PrismaSeed() {
 
       referrals.push({
         level: 1,
-        inviterId: inviterLvl1.id,
+        inviterId: inviter.id,
         referralId: referralLvl1.id,
       })
 
@@ -130,11 +130,6 @@ export async function PrismaSeed() {
       )
 
       for (const refLvl2 of getOldRefLvl1.referrals) {
-        const inviterLvl2 = await prisma.users.findUnique({
-          where: {
-            telegramId: refLvl1,
-          },
-        })
         const referralLvl2 = await prisma.users.findUnique({
           where: {
             telegramId: refLvl2,
@@ -143,7 +138,7 @@ export async function PrismaSeed() {
 
         referrals.push({
           level: 2,
-          inviterId: inviterLvl2.id,
+          inviterId: inviter.id,
           referralId: referralLvl2.id,
         })
 
@@ -152,11 +147,6 @@ export async function PrismaSeed() {
         )
 
         for (const refLvl3 of getOldRefLvl2.referrals) {
-          const inviterLvl3 = await prisma.users.findUnique({
-            where: {
-              telegramId: refLvl2,
-            },
-          })
           const referralLvl3 = await prisma.users.findUnique({
             where: {
               telegramId: refLvl3,
@@ -165,7 +155,7 @@ export async function PrismaSeed() {
 
           referrals.push({
             level: 3,
-            inviterId: inviterLvl3.id,
+            inviterId: inviter.id,
             referralId: referralLvl3.id,
           })
         }
