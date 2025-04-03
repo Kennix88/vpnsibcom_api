@@ -1,6 +1,8 @@
+import { ApilayerCurrencyResponceDataInterface } from '@modules/rates/types/apilayer.interface'
 import { CoinmarketcapResponceDataInterface } from '@modules/rates/types/coinmarketcap.interface'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Cron } from '@nestjs/schedule'
 import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
@@ -13,6 +15,7 @@ export class RatesService {
     private readonly logger: PinoLogger,
   ) {}
 
+  @Cron('0 */10 * * * *')
   async updateCoinmarketcapRates() {
     try {
       this.logger.info({
@@ -74,6 +77,63 @@ export class RatesService {
     } catch (e) {
       this.logger.error({
         msg: `Error when getting the exchange rate coinmarketcap`,
+        err: e,
+      })
+    }
+  }
+
+  @Cron('0 0 */12 * * *')
+  async updateApilayerRates() {
+    try {
+      this.logger.info({
+        msg: `The process of obtaining the apilayer exchange rate has begun`,
+      })
+
+      const getCurrency = await this.prismaService.currency.findMany({
+        where: {
+          type: CurrencyTypeEnum.FIAT,
+        },
+      })
+
+      this.logger.info({
+        msg: `Currencies are obtained from the database`,
+        getCurrency,
+      })
+
+      const apilayerBody: ApilayerCurrencyResponceDataInterface = await fetch(
+        `${this.configService.getOrThrow<string>(
+          'APILAYER_URL',
+        )}api/live?access_key=${this.configService.getOrThrow(
+          'APILAYER_TOKENT',
+        )}&currencies=&source=usd&format=1`,
+        {
+          method: 'GET',
+        },
+      ).then((res) => res.json())
+
+      this.logger.info({
+        msg: `The exchange rate has been obtained from apilayer`,
+        apilayerBody,
+      })
+
+      for (const el of getCurrency) {
+        if (apilayerBody.quotes[`USD${el.key}`])
+          await this.prismaService.currency.update({
+            where: { key: el.key },
+            data: {
+              rate: Number(
+                (1 / Number(apilayerBody.quotes[`USD${el.key}`])).toFixed(15),
+              ),
+            },
+          })
+      }
+
+      this.logger.info({
+        msg: `The exchange rate has been updated in the database`,
+      })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error when getting the exchange rate apilayer`,
         err: e,
       })
     }
