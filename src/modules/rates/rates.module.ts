@@ -6,6 +6,6 @@ import { Global, Module } from '@nestjs/common'
   imports: [],
   controllers: [],
   providers: [RatesService],
-  exports: [],
+  exports: [RatesService],
 })
 export class RatesModule {}

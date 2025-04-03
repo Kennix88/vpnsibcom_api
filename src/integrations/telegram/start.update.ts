@@ -1,5 +1,6 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
+import { RatesService } from '@modules/rates/services/rates.service'
 import { ConfigService } from '@nestjs/config'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
@@ -11,6 +12,7 @@ export class StartUpdate {
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
     private readonly i18n: I18nService<I18nTranslations>,
+    private readonly ratesService: RatesService,
   ) {
     this.logger.setContext(StartUpdate.name)
   }
@@ -21,6 +23,10 @@ export class StartUpdate {
       if (ctx.chat?.type !== 'private' || !ctx.from) return
 
       console.log(JSON.stringify(ctx.from, null, 2))
+
+      if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
+        // await this.ratesService.updateCoinmarketcapRates()
+      }
 
       await ctx.replyWithHTML(
         this.i18n.t('telegraf.start.welcome', {

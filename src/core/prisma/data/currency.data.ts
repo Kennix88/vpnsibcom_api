@@ -101,7 +101,7 @@ export const CurrencyData: {
     key: CurrencyEnum.XCH,
     name: 'Telegram Stars',
     symbol: 'STARS',
-    rate: 0.013,
+    rate: Number((1 / 0.013).toFixed(15)),
     type: CurrencyTypeEnum.TELEGRAM,
     coinmarketcapUCID: null,
   },
