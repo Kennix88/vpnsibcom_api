@@ -244,6 +244,64 @@ enum CurrencyEnum {
   USD
   EUR
   KZT
+  AED
+  ARS
+  AUD
+  AZN
+  AMD
+  BDT
+  BYN
+  BGN
+  BHD
+  BOB
+  BRL
+  CAD
+  CHF
+  CNY
+  COP
+  CZK
+  DKK
+  EGP
+  GBP
+  HKD
+  HUF
+  INR
+  IDR
+  JPY
+  KES
+  KWD
+  MAD
+  MNT
+  MXN
+  NGN
+  NZD
+  OMR
+  PEN
+  PHP
+  PKR
+  PLN
+  QAR
+  RON
+  SAR
+  SEK
+  THB
+  TRY
+  TWD
+  UAH
+  UGX
+  VND
+  ZAR
+  GEL
+  KGS
+  MDL
+  NOK
+  XDR
+  SGD
+  TJS
+  TMT
+  UZS
+  RSD
+  KRW
   TON
   MAJOR
   NOT
