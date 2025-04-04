@@ -97,6 +97,8 @@ model Users {
   balanceId      String?           @unique @map("balance_id")
   language       Language          @relation(fields: [languageId], references: [id])
   languageId     String            @map("language_id")
+  currency       Currency          @relation(fields: [currencyKey], references: [key])
+  currencyKey    CurrencyEnum      @default(USD) @map("currency_key")
   subscriptions  Subscriptions[]
   withdrawals    Withdrawals[]
   adsViews       AdsViews[]
@@ -229,6 +231,7 @@ model Currency {
 
   payments       Payments[]
   paymentMethods PaymentMethods[]
+  users          Users[]
 
   @@map("currency")
 }
