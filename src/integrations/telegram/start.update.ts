@@ -25,7 +25,7 @@ export class StartUpdate {
       console.log(JSON.stringify(ctx.from, null, 2))
 
       if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
-        await this.ratesService.updateStarsRate()
+        // await this.ratesService.updateApilayerRates()
       }
 
       await ctx.replyWithHTML(
