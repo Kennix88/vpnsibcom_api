@@ -62,7 +62,7 @@ async function bootstrap() {
 void (async () => {
   try {
     Logger.log(`SEED MOD: ${process.env.SEED_MOD}`, 'Bootstrap')
-    if (process.env.SEED_MOD == 'true') {
+    if (parseBoolean(process.env.SEED_MOD)) {
       Logger.log(`GO SEED`, 'Bootstrap')
       await PrismaSeed().catch((e) => {
         Logger.error(e)

@@ -159,9 +159,7 @@ export class RatesService {
           await this.prismaService.currency.update({
             where: { key: el.key },
             data: {
-              rate: Number(
-                (1 / Number(apilayerBody.quotes[`USD${el.key}`])).toFixed(15),
-              ),
+              rate: Number(apilayerBody.quotes[`USD${el.key}`]),
             },
           })
       }
