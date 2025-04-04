@@ -9,10 +9,10 @@
 VPN-service in Telegram-mini-app(TMA) and WEB-app. It is based on [Xray-core](https://github.com/XTLS/Xray-core/) with [Marzban](https://github.com/Gozargah/Marzban).
 
 ![Title](https://img.shields.io/badge/Repository%3A-blue?style=for-the-badge&color=3C5280)
-[![release](https://img.shields.io/github/package-json/v/Kennix88/vpnsibcom?style=for-the-badge&color=0891b2&labelColor=1c1917)](https://github.com/Kennix88/vpnsibcom/releases)
+[![release](https://img.shields.io/github/package-json/v/Kennix88/vpnsibcom_api?style=for-the-badge&color=0891b2&labelColor=1c1917)](https://github.com/Kennix88/vpnsibcom_api/releases)
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
-![GitHub Repo stars](https://img.shields.io/github/stars/Kennix88/vpnsibcom?style=for-the-badge&color=0891b2&labelColor=1c1917)
-[![wakatime](https://wakatime.com/badge/user/9268c051-c861-45cc-b927-3babf56c56d9/project/abdd7bad-b8fc-4640-959c-330f9fc8ae24.svg?style=for-the-badge&color=0891b2&logoColor=1c1917)](https://github.com/Kennix88/vpnsibcom)
+![GitHub Repo stars](https://img.shields.io/github/stars/Kennix88/vpnsibcom_api?style=for-the-badge&color=0891b2&labelColor=1c1917)
+[![wakatime](https://wakatime.com/badge/user/9268c051-c861-45cc-b927-3babf56c56d9/project/464fb6a4-17bb-4643-b0aa-da7d1624d691.svg?style=for-the-badge&color=0891b2&logoColor=1c1917)](https://github.com/Kennix88/vpnsibcom_api)
 ![Title](https://img.shields.io/badge/VPNsibcom%3A-blue?style=for-the-badge&color=3C5280)
 [![VPN Telegram Bot](https://img.shields.io/badge/VPN_service-blue?style=for-the-badge&color=0891b2&labelColor=1c1917&logo=telegram&label=Bot)](https://t.me/vpnsibcom_bot)
 [![VPN Telegram Channel](https://img.shields.io/endpoint?style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fvpnsibcom&label=Community)](https://t.me/vpnsibcom)
@@ -27,19 +27,19 @@ VPN-service in Telegram-mini-app(TMA) and WEB-app. It is based on [Xray-core](ht
 ## 📈 Project Statistics
 
 ### ⭐ Stargazers:
-[![Stargazers repo roster for @Kennix88/vpnsibcom](https://reporoster.com/stars/dark/Kennix88/vpnsibcom)](https://github.com/Kennix88/vpnsibcom/stargazers)
+[![Stargazers repo roster for @Kennix88/vpnsibcom_api](https://reporoster.com/stars/dark/Kennix88/vpnsibcom_api)](https://github.com/Kennix88/vpnsibcom_api/stargazers)
 ### Star History
 
-<a href="https://www.star-history.com/#kennix88/vpnsibcom&Date">
+<a href="https://www.star-history.com/#kennix88/vpnsibcom_api&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kennix88/vpnsibcom&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kennix88/vpnsibcom&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kennix88/vpnsibcom&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kennix88/vpnsibcom_api&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kennix88/vpnsibcom_api&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kennix88/vpnsibcom_api&type=Date" />
  </picture>
 </a>
 
 ### 🍴 Forkers:
-[![Forkers repo roster for @Kennix88/vpnsibcom](https://reporoster.com/forks/dark/Kennix88/vpnsibcom)](https://github.com/Kennix88/vpnsibcom/network/members)
+[![Forkers repo roster for @Kennix88/vpnsibcom_api](https://reporoster.com/forks/dark/Kennix88/vpnsibcom_api)](https://github.com/Kennix88/vpnsibcom_api/network/members)
 
 
 ## 🤝 Contributing
@@ -55,8 +55,8 @@ We welcome any contributions to VPNsibcom! If you want to help:
 <div align="center">
 Thanks to the all contributors who have helped improve VPNsibcom:
 
-<a href="https://github.com/kennix88/vpnsibcom/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=kennix88/vpnsibcom" />
+<a href="https://github.com/kennix88/vpnsibcom_api/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=kennix88/vpnsibcom_api" />
 </a>
 
 Made with <a rel="noopener noreferrer" target="_blank" href="https://contrib.rocks">contrib.rocks</a>
