@@ -28,7 +28,7 @@ VPN-service in Telegram-mini-app(TMA) and WEB-app. It is based on [Xray-core](ht
 
 ### ⭐ Stargazers:
 [![Stargazers repo roster for @Kennix88/vpnsibcom_api](https://reporoster.com/stars/dark/Kennix88/vpnsibcom_api)](https://github.com/Kennix88/vpnsibcom_api/stargazers)
-### Star History
+### ⭐ Star History
 
 <a href="https://www.star-history.com/#kennix88/vpnsibcom_api&Date">
  <picture>
@@ -61,9 +61,9 @@ Thanks to the all contributors who have helped improve VPNsibcom:
     <img src="https://contrib.rocks/image?repo=kennix88/vpnsibcom_api" />
 </a>
 
----
-
 Made with <a rel="noopener noreferrer" target="_blank" href="https://contrib.rocks">contrib.rocks</a>
+
+---
 
 </div>
 
@@ -92,6 +92,8 @@ If you want to support me, I will be very happy about it. 🥺👉👈
 [cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
 [cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
 [cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg?style=for-the-badge&color=0891b2&labelColor=1c1917
+
+---
 
 <div align="center">
 
