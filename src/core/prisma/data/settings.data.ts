@@ -1,7 +1,7 @@
 export const SettingsData = {
   tgStarsToUSD: 0.013,
   priceSubscriptionStars: 699,
-  comissionStarsToTon: 0.9,
+  commissionStarsToTon: 0.9,
   adsRewardStars: 0.1,
   adsTaskRewardStars: 10,
   hourRatioPayment: 1.39,

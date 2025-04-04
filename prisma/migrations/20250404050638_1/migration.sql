@@ -14,7 +14,10 @@ CREATE TYPE "SubscriptionPeriodEnum" AS ENUM ('TRIAL', 'HOUR', 'DAY', 'MONTH', '
 CREATE TYPE "UserRoleEnum" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'FRIEND', 'OLD_USER', 'USER');
 
 -- CreateEnum
-CREATE TYPE "CurrencyEnum" AS ENUM ('RUB', 'USD', 'EUR', 'KZT', 'TON', 'MAJOR', 'NOT', 'HMSTR', 'DOGS', 'CATI', 'USDT', 'XCH', 'JETTON', 'PX', 'GRAM', 'CATS');
+CREATE TYPE "CurrencyTypeEnum" AS ENUM ('FIAT', 'CRYPTO', 'TELEGRAM');
+
+-- CreateEnum
+CREATE TYPE "CurrencyEnum" AS ENUM ('RUB', 'USD', 'EUR', 'KZT', 'AED', 'ARS', 'AUD', 'AZN', 'AMD', 'BDT', 'BYN', 'BGN', 'BHD', 'BOB', 'BRL', 'CAD', 'CHF', 'CNY', 'COP', 'CZK', 'DKK', 'EGP', 'GBP', 'HKD', 'HUF', 'INR', 'IDR', 'JPY', 'KES', 'KWD', 'MAD', 'MNT', 'MXN', 'NGN', 'NZD', 'OMR', 'PEN', 'PHP', 'PKR', 'PLN', 'QAR', 'RON', 'SAR', 'SEK', 'THB', 'TRY', 'TWD', 'UAH', 'UGX', 'VND', 'ZAR', 'GEL', 'KGS', 'MDL', 'NOK', 'XDR', 'SGD', 'TJS', 'TMT', 'UZS', 'RSD', 'KRW', 'TON', 'MAJOR', 'NOT', 'HMSTR', 'DOGS', 'CATI', 'USDT', 'XCH', 'JETTON', 'PX', 'GRAM', 'CATS');
 
 -- CreateEnum
 CREATE TYPE "TransactionTypeEnum" AS ENUM ('PLUS', 'MINUS');
@@ -23,7 +26,7 @@ CREATE TYPE "TransactionTypeEnum" AS ENUM ('PLUS', 'MINUS');
 CREATE TYPE "BalanceTypeEnum" AS ENUM ('PAYMENT', 'WITHDRAWAL');
 
 -- CreateEnum
-CREATE TYPE "TransactionReasonEnum" AS ENUM ('WITHDRAWAL', 'PAYMENT', 'REWARD', 'REFERRAL');
+CREATE TYPE "TransactionReasonEnum" AS ENUM ('WITHDRAWAL', 'GIFT_SUBSCRIPTIONS', 'SUBSCRIPTIONS', 'PAYMENT', 'REWARD', 'REFERRAL', 'FINE');
 
 -- CreateEnum
 CREATE TYPE "WithdrawalStatusEnum" AS ENUM ('CONSIDERATION', 'REJECTED', 'SENT', 'EXPIRED');
@@ -45,7 +48,7 @@ CREATE TABLE "settings" (
     "key" "DefaultEnum" NOT NULL DEFAULT 'DEFAULT',
     "tg_stars_to_usd" DOUBLE PRECISION NOT NULL DEFAULT 0.013,
     "price_subscription_stars" INTEGER NOT NULL DEFAULT 699,
-    "comission_stars_to_ton" DOUBLE PRECISION NOT NULL DEFAULT 0.90,
+    "commission_stars_to_ton" DOUBLE PRECISION NOT NULL DEFAULT 0.90,
     "ads_reward_stars" DOUBLE PRECISION NOT NULL DEFAULT 0.1,
     "ads_task_reward_stars" DOUBLE PRECISION NOT NULL DEFAULT 10,
     "hour_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 1.39,
@@ -115,6 +118,7 @@ CREATE TABLE "users" (
     "telegram_data_id" TEXT,
     "balance_id" TEXT,
     "language_id" TEXT NOT NULL,
+    "currency_key" "CurrencyEnum" NOT NULL DEFAULT 'USD',
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -150,6 +154,19 @@ CREATE TABLE "user_balance" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "user_balance_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "gift_subscriptions" (
+    "id" TEXT NOT NULL,
+    "period" "SubscriptionPeriodEnum" NOT NULL DEFAULT 'MONTH',
+    "is_active" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "activate_user_id" TEXT,
+
+    CONSTRAINT "gift_subscriptions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -195,6 +212,7 @@ CREATE TABLE "currency" (
     "key" "CurrencyEnum" NOT NULL,
     "name" TEXT NOT NULL,
     "symbol" TEXT NOT NULL,
+    "type" "CurrencyTypeEnum" NOT NULL DEFAULT 'FIAT',
     "rate" DOUBLE PRECISION NOT NULL DEFAULT 1,
     "coinmarketcap_ucid" TEXT,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -225,6 +243,7 @@ CREATE TABLE "withdrawals" (
     "amount_stars" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "amount_usd" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "amount_ton" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "commission" DOUBLE PRECISION NOT NULL DEFAULT 1,
     "address" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -238,16 +257,19 @@ CREATE TABLE "withdrawals" (
 CREATE TABLE "payments" (
     "id" TEXT NOT NULL,
     "status" "PaymentStatusEnum" NOT NULL DEFAULT 'PENDING',
-    "amount" TEXT NOT NULL DEFAULT '0',
-    "exchangeRate" TEXT NOT NULL DEFAULT '0',
+    "amount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "amount_stars" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "exchange_rate" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "commission" DOUBLE PRECISION NOT NULL DEFAULT 1,
     "token" TEXT NOT NULL,
-    "linkPay" TEXT,
+    "link_pay" TEXT,
     "details" JSONB,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "user_id" TEXT NOT NULL,
     "currency_key" "CurrencyEnum" NOT NULL,
     "subscription_id" TEXT,
+    "gift_subscriptions_id" TEXT,
     "method_key" "PaymentMethodEnum" NOT NULL,
     "transaction_id" TEXT,
 
@@ -258,7 +280,7 @@ CREATE TABLE "payments" (
 CREATE TABLE "payment_methods" (
     "key" "PaymentMethodEnum" NOT NULL,
     "name" TEXT NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT false,
+    "is_active" BOOLEAN NOT NULL DEFAULT false,
     "is_ton_blockchain" BOOLEAN NOT NULL DEFAULT false,
     "ton_smart_contract_address" TEXT,
     "min_amount" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -283,6 +305,12 @@ CREATE UNIQUE INDEX "users_telegram_data_id_key" ON "users"("telegram_data_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_balance_id_key" ON "users"("balance_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "gift_subscriptions_user_id_key" ON "gift_subscriptions"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "gift_subscriptions_activate_user_id_key" ON "gift_subscriptions"("activate_user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "subscriptions_username_key" ON "subscriptions"("username");
@@ -336,10 +364,19 @@ ALTER TABLE "users" ADD CONSTRAINT "users_balance_id_fkey" FOREIGN KEY ("balance
 ALTER TABLE "users" ADD CONSTRAINT "users_language_id_fkey" FOREIGN KEY ("language_id") REFERENCES "language"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "users" ADD CONSTRAINT "users_currency_key_fkey" FOREIGN KEY ("currency_key") REFERENCES "currency"("key") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ads_views" ADD CONSTRAINT "ads_views_network_key_fkey" FOREIGN KEY ("network_key") REFERENCES "ads_networks"("key") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ads_views" ADD CONSTRAINT "ads_views_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "gift_subscriptions" ADD CONSTRAINT "gift_subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "gift_subscriptions" ADD CONSTRAINT "gift_subscriptions_activate_user_id_fkey" FOREIGN KEY ("activate_user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -361,6 +398,9 @@ ALTER TABLE "payments" ADD CONSTRAINT "payments_currency_key_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "payments" ADD CONSTRAINT "payments_subscription_id_fkey" FOREIGN KEY ("subscription_id") REFERENCES "subscriptions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "payments" ADD CONSTRAINT "payments_gift_subscriptions_id_fkey" FOREIGN KEY ("gift_subscriptions_id") REFERENCES "gift_subscriptions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "payments" ADD CONSTRAINT "payments_method_key_fkey" FOREIGN KEY ("method_key") REFERENCES "payment_methods"("key") ON DELETE RESTRICT ON UPDATE CASCADE;

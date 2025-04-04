@@ -7,6 +7,7 @@ import { RolesData } from '@core/prisma/data/roles.data'
 import { SettingsData } from '@core/prisma/data/settings.data'
 import { Logger } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
+import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 
 const prisma = new PrismaClient({
@@ -94,6 +95,7 @@ export async function PrismaSeed() {
             balanceId: balance.id,
             roleId: UserRolesEnum.OLD_USER,
             telegramDataId: tdata.id,
+            currencyKey: CurrencyEnum.USD,
           },
         })
       })

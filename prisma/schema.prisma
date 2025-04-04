@@ -16,7 +16,7 @@ model Settings {
   key                              DefaultEnum @id @default(DEFAULT)
   tgStarsToUSD                     Float       @default(0.013) @map("tg_stars_to_usd")
   priceSubscriptionStars           Int         @default(699) @map("price_subscription_stars")
-  comissionStarsToTon              Float       @default(0.90) @map("comission_stars_to_ton")
+  commissionStarsToTon             Float       @default(0.90) @map("commission_stars_to_ton")
   adsRewardStars                   Float       @default(0.1) @map("ads_reward_stars")
   adsTaskRewardStars               Float       @default(10) @map("ads_task_reward_stars")
   hourRatioPayment                 Float       @default(1.39) @map("hour_ratio_payment")
@@ -86,22 +86,24 @@ model Users {
   banExpiredAt  DateTime? @map("banned_expired_at")
   deletedAt     DateTime? @map("deleted_at")
 
-  role           Roles             @relation(fields: [roleId], references: [key])
-  roleId         UserRoleEnum      @default(USER) @map("role_id")
-  payments       Payments[]
-  referrals      Referrals[]       @relation("referral")
-  inviters       Referrals[]       @relation("inviter")
-  telegramData   UserTelegramData? @relation(fields: [telegramDataId], references: [id])
-  telegramDataId String?           @unique @map("telegram_data_id")
-  balance        UserBalance?      @relation(fields: [balanceId], references: [id])
-  balanceId      String?           @unique @map("balance_id")
-  language       Language          @relation(fields: [languageId], references: [id])
-  languageId     String            @map("language_id")
-  currency       Currency          @relation(fields: [currencyKey], references: [key])
-  currencyKey    CurrencyEnum      @default(USD) @map("currency_key")
-  subscriptions  Subscriptions[]
-  withdrawals    Withdrawals[]
-  adsViews       AdsViews[]
+  role                      Roles               @relation(fields: [roleId], references: [key])
+  roleId                    UserRoleEnum        @default(USER) @map("role_id")
+  payments                  Payments[]
+  referrals                 Referrals[]         @relation("referral")
+  inviters                  Referrals[]         @relation("inviter")
+  telegramData              UserTelegramData?   @relation(fields: [telegramDataId], references: [id])
+  telegramDataId            String?             @unique @map("telegram_data_id")
+  balance                   UserBalance?        @relation(fields: [balanceId], references: [id])
+  balanceId                 String?             @unique @map("balance_id")
+  language                  Language            @relation(fields: [languageId], references: [id])
+  languageId                String              @map("language_id")
+  currency                  Currency            @relation(fields: [currencyKey], references: [key])
+  currencyKey               CurrencyEnum        @default(USD) @map("currency_key")
+  subscriptions             Subscriptions[]
+  giftSubscriptions         GiftSubscriptions[]
+  activateGiftSubscriptions GiftSubscriptions[] @relation("activateUser")
+  withdrawals               Withdrawals[]
+  adsViews                  AdsViews[]
 
   @@map("users")
 }
@@ -155,6 +157,23 @@ model UserBalance {
   transactions                 Transactions[]
 
   @@map("user_balance")
+}
+
+model GiftSubscriptions {
+  id       String                 @id @default(uuid())
+  period   SubscriptionPeriodEnum @default(MONTH)
+  isActive Boolean                @default(false) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user           Users      @relation(fields: [userId], references: [id])
+  userId         String     @unique @map("user_id")
+  activateUser   Users?     @relation("activateUser", fields: [activateUserId], references: [id])
+  activateUserId String?    @unique @map("activate_user_id")
+  payments       Payments[]
+
+  @@map("gift_subscriptions")
 }
 
 model Subscriptions {
@@ -350,9 +369,12 @@ enum BalanceTypeEnum {
 
 enum TransactionReasonEnum {
   WITHDRAWAL
+  GIFT_SUBSCRIPTIONS
+  SUBSCRIPTIONS
   PAYMENT
   REWARD
   REFERRAL
+  FINE
 }
 
 model Withdrawals {
@@ -361,6 +383,7 @@ model Withdrawals {
   amountStars Float                @default(0) @map("amount_stars")
   amountUSD   Float                @default(0) @map("amount_usd")
   amountTON   Float                @default(0) @map("amount_ton")
+  commission  Float                @default(1)
   address     String
   createdAt   DateTime             @default(now()) @map("created_at")
   updatedAt   DateTime             @updatedAt @map("updated_at")
@@ -383,25 +406,29 @@ enum WithdrawalStatusEnum {
 model Payments {
   id           String            @id @default(uuid())
   status       PaymentStatusEnum @default(PENDING)
-  amount       String            @default("0")
-  exchangeRate String            @default("0")
+  amount       Float             @default(0)
+  amountStars  Float             @default(0) @map("amount_stars")
+  exchangeRate Float             @default(0) @map("exchange_rate")
+  commission   Float             @default(1)
   token        String            @unique
-  linkPay      String?
+  linkPay      String?           @map("link_pay")
   details      Json?             @db.JsonB
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  user           Users             @relation(fields: [userId], references: [id])
-  userId         String            @map("user_id")
-  currency       Currency          @relation(fields: [currencyKey], references: [key])
-  currencyKey    CurrencyEnum      @map("currency_key")
-  Subscription   Subscriptions?    @relation(fields: [SubscriptionId], references: [id])
-  SubscriptionId String?           @map("subscription_id")
-  method         PaymentMethods    @relation(fields: [methodKey], references: [key])
-  methodKey      PaymentMethodEnum @map("method_key")
-  transacrion    Transactions?     @relation(fields: [transactionId], references: [id])
-  transactionId  String?           @unique @map("transaction_id")
+  user                Users              @relation(fields: [userId], references: [id])
+  userId              String             @map("user_id")
+  currency            Currency           @relation(fields: [currencyKey], references: [key])
+  currencyKey         CurrencyEnum       @map("currency_key")
+  subscription        Subscriptions?     @relation(fields: [subscriptionId], references: [id])
+  subscriptionId      String?            @map("subscription_id")
+  giftSubscriptions   GiftSubscriptions? @relation(fields: [giftSubscriptionsId], references: [id])
+  giftSubscriptionsId String?            @map("gift_subscriptions_id")
+  method              PaymentMethods     @relation(fields: [methodKey], references: [key])
+  methodKey           PaymentMethodEnum  @map("method_key")
+  transacrion         Transactions?      @relation(fields: [transactionId], references: [id])
+  transactionId       String?            @unique @map("transaction_id")
 
   @@map("payments")
 }
@@ -416,7 +443,7 @@ enum PaymentStatusEnum {
 model PaymentMethods {
   key                     PaymentMethodEnum     @id
   name                    String
-  isActive                Boolean               @default(false)
+  isActive                Boolean               @default(false) @map("is_active")
   isTonBlockchain         Boolean               @default(false) @map("is_ton_blockchain")
   tonSmartContractAddress String?               @unique @map("ton_smart_contract_address")
   minAmount               Float                 @default(0) @map("min_amount")
