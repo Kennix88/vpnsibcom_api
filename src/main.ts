@@ -1,18 +1,37 @@
 import { CoreModule } from '@core/core.module'
 import { PrismaSeed } from '@core/prisma/prisma.seed'
 import { RedisService } from '@core/redis/redis.service'
+import compression from '@fastify/compress'
+import cookie from '@fastify/cookie'
+import helmet from '@fastify/helmet'
+import { Authenticator } from '@fastify/passport'
+import session from '@fastify/session'
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify'
+import { genReqId } from '@shared/utils/gen-req-id.util'
 import { ms, type StringValue } from '@shared/utils/ms.util'
 import { parseBoolean } from '@shared/utils/parse-boolean.util'
 import { RedisStore } from 'connect-redis'
 import * as cookieParser from 'cookie-parser'
-import * as session from 'express-session'
 import { LoggerErrorInterceptor, Logger as PinoLogger } from 'nestjs-pino'
 
 async function bootstrap() {
-  const app = await NestFactory.create(CoreModule, { rawBody: true })
+  const isProduction = process.env.NODE_ENV === 'production'
+
+  const app = await NestFactory.create<NestFastifyApplication>(
+    CoreModule,
+    new FastifyAdapter({
+      trustProxy: isProduction,
+      logger: false,
+      genReqId,
+    }),
+    { bufferLogs: isProduction, rawBody: true },
+  )
 
   const config = app.get(ConfigService)
   const redis = app.get(RedisService)
@@ -28,25 +47,26 @@ async function bootstrap() {
     }),
   )
 
-  app.use(
-    session({
-      secret: config.getOrThrow<string>('SESSION_SECRET'),
-      name: config.getOrThrow<string>('SESSION_NAME'),
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        domain: config.getOrThrow<string>('SESSION_DOMAIN'),
-        maxAge: ms(config.getOrThrow<StringValue>('SESSION_MAX_AGE')),
-        httpOnly: parseBoolean(config.getOrThrow<string>('SESSION_HTTP_ONLY')),
-        secure: parseBoolean(config.getOrThrow<string>('SESSION_SECURE')),
-        sameSite: 'lax',
-      },
-      store: new RedisStore({
-        client: redis,
-        prefix: config.getOrThrow<string>('SESSION_FOLDER'),
-      }),
+  await app.register(compression)
+  await app.register(cookie)
+  await app.register(session, {
+    secret: config.getOrThrow<string>('SESSION_SECRET'),
+    rolling: true,
+    saveUninitialized: true,
+    // name: config.getOrThrow<string>('SESSION_NAME'),
+    // resave: false,
+    cookie: {
+      domain: config.getOrThrow<string>('SESSION_DOMAIN'),
+      maxAge: ms(config.getOrThrow<StringValue>('SESSION_MAX_AGE')),
+      httpOnly: parseBoolean(config.getOrThrow<string>('SESSION_HTTP_ONLY')),
+      secure: parseBoolean(config.getOrThrow<string>('SESSION_SECURE')),
+      sameSite: 'lax',
+    },
+    store: new RedisStore({
+      client: redis,
+      prefix: config.getOrThrow<string>('SESSION_FOLDER'),
     }),
-  )
+  })
 
   app.enableCors({
     origin: config.getOrThrow<string>('ALLOWED_ORIGIN'),
@@ -54,6 +74,12 @@ async function bootstrap() {
     exposedHeaders: ['set-cookie'],
   })
   app.enableShutdownHooks()
+
+  const passport = new Authenticator()
+  await app.register(passport.initialize())
+  await app.register(passport.secureSession())
+  await app.register(helmet)
+
   await app.listen(config.getOrThrow<number>('APPLICATION_PORT') || 3000)
 
   return app.getUrl()
