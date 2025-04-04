@@ -6,6 +6,7 @@ import { Cron } from '@nestjs/schedule'
 import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
+import { RatesInterface } from '@shared/types/rates.inteface'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 
@@ -16,6 +17,40 @@ export class RatesService {
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
   ) {}
+
+  async getRates(): Promise<RatesInterface> {
+    try {
+      this.logger.info({
+        msg: `Fetching currencies from the database`,
+      })
+
+      const currencies = await this.prismaService.currency.findMany()
+
+      this.logger.info({
+        msg: `Currencies fetched from the database`,
+        currencies,
+      })
+
+      const rates = Object.fromEntries(
+        currencies.map((currency) => [currency.key, currency.rate]),
+      ) as Record<CurrencyEnum, number>
+
+      this.logger.info({
+        msg: `Rates constructed from currencies`,
+        rates,
+      })
+
+      return {
+        base: CurrencyEnum.USD,
+        rates: rates,
+      }
+    } catch (e) {
+      this.logger.error({
+        msg: `Error when getting the exchange rate`,
+        err: e,
+      })
+    }
+  }
 
   async updateStarsRate() {
     try {
