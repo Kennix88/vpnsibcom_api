@@ -55,9 +55,13 @@ We welcome any contributions to VPNsibcom! If you want to help:
 <div align="center">
 Thanks to the all contributors who have helped improve VPNsibcom:
 
+---
+
 <a href="https://github.com/kennix88/vpnsibcom_api/graphs/contributors">
     <img src="https://contrib.rocks/image?repo=kennix88/vpnsibcom_api" />
 </a>
+
+---
 
 Made with <a rel="noopener noreferrer" target="_blank" href="https://contrib.rocks">contrib.rocks</a>
 
@@ -68,7 +72,7 @@ Made with <a rel="noopener noreferrer" target="_blank" href="https://contrib.roc
 
 This repository is available under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](cc-by-nc-sa). Commercial use is prohibited!
 
-Created by [Kennix88](https://github.com/Kennix88).
+
 
 ## 💵 Sponsorship
 If you want to support me, I will be very happy about it. 🥺👉👈
@@ -88,3 +92,9 @@ If you want to support me, I will be very happy about it. 🥺👉👈
 [cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
 [cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
 [cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg?style=for-the-badge&color=0891b2&labelColor=1c1917
+
+<div align="center">
+
+Created by [Kennix88](https://github.com/Kennix88)
+
+</div>
