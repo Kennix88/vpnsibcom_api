@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
+import { CurrencyEnum } from '@shared/enums/currency.enum'
+import { DefaultEnum } from '@shared/enums/default.enum'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 
@@ -14,6 +16,42 @@ export class RatesService {
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
   ) {}
+
+  async updateStarsRate() {
+    try {
+      this.logger.info({
+        msg: `The process of obtaining the Stars exchange rate has begun`,
+      })
+      const getSettings = await this.prismaService.settings.findUnique({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+
+      this.logger.info({
+        msg: `Settings are obtained from the database`,
+        getSettings,
+      })
+
+      await this.prismaService.currency.update({
+        where: {
+          key: CurrencyEnum.XCH,
+        },
+        data: {
+          rate: Number((1 / getSettings.tgStarsToUSD).toFixed(15)),
+        },
+      })
+
+      this.logger.info({
+        msg: `The exchange rate has been updated in the database`,
+      })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error when getting the exchange rate stars`,
+        error: e,
+      })
+    }
+  }
 
   @Cron('0 */10 * * * *')
   async updateCoinmarketcapRates() {
