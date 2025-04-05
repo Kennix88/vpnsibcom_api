@@ -1,9 +1,11 @@
+import { AuthModule } from '@core/auth/auth.module'
 import { pinoConfig } from '@core/configs/pino.config'
 import { PrismaConnectModule } from '@core/prisma/prisma-connect.module'
 import { RedisModule } from '@core/redis/redis.module'
 import { TelegramModule } from '@integrations/telegram/telegram.module'
 import { createKeyv } from '@keyv/redis'
 import { RatesModule } from '@modules/rates/rates.module'
+import { UsersModule } from '@modules/users/users.module'
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
@@ -44,7 +46,6 @@ import { LoggerModule } from 'nestjs-pino'
       }),
       inject: [ConfigService],
     }),
-
     I18nModule.forRootAsync({
       useFactory: () => ({
         disableMiddleware: true,
@@ -67,6 +68,8 @@ import { LoggerModule } from 'nestjs-pino'
     PrismaConnectModule,
     TelegramModule,
     RatesModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [
