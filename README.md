@@ -6,7 +6,12 @@
 </a>
 
 # VPNsibcom_api
-VPN-service in Telegram-mini-app(TMA) and WEB-app. It is based on [Xray-core](https://github.com/XTLS/Xray-core/) with [Marzban](https://github.com/Gozargah/Marzban).
+#### **Repository**: This repository contains the source code of the VPNsib.com. Contains: API, Telegram Bot, Integrations.
+#### **Description**: VPNsibcom is an open source VPN service. It is based on [Xray-core](https://github.com/XTLS/Xray-core/) with [Marzban](https://github.com/Gozargah/Marzban).
+
+![Title](https://img.shields.io/badge/Project%20Repositories%3A-blue?style=for-the-badge&color=005386)
+[![REPO](https://img.shields.io/github/stars/Kennix88/vpnsibcom_web?style=for-the-badge&color=0891b2&labelColor=1c1917&logo=github&label=vpnsibcom_web)](https://github.com/Kennix88/vpnsibcom_web)
+[![REPO](https://img.shields.io/github/stars/Kennix88/vpnsibcom_api?style=for-the-badge&color=0891b2&labelColor=1c1917&logo=github&label=vpnsibcom_api)](https://github.com/Kennix88/vpnsibcom_api)
 
 ![Title](https://img.shields.io/badge/Repository%3A-blue?style=for-the-badge&color=3C5280)
 [![release](https://img.shields.io/github/package-json/v/Kennix88/vpnsibcom_api?style=for-the-badge&color=0891b2&labelColor=1c1917)](https://github.com/Kennix88/vpnsibcom_api/releases)
