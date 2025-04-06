@@ -28,6 +28,7 @@
     "noUnusedParameters": false,
     "noImplicitReturns": false,
     "noImplicitThis": true,
+    "resolveJsonModule": true,
     "jsx": "react"
   }
 }
