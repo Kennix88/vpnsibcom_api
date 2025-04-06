@@ -3,8 +3,9 @@ import { PrismaSeed } from '@core/prisma/prisma.seed'
 import { RedisService } from '@core/redis/redis.service'
 import compression from '@fastify/compress'
 import cookie from '@fastify/cookie'
+import fastifyCsrf from '@fastify/csrf-protection'
 import helmet from '@fastify/helmet'
-import { Authenticator } from '@fastify/passport'
+import * as fastifyJwt from '@fastify/jwt'
 import session from '@fastify/session'
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -18,6 +19,7 @@ import { ms, type StringValue } from '@shared/utils/ms.util'
 import { parseBoolean } from '@shared/utils/parse-boolean.util'
 import { RedisStore } from 'connect-redis'
 import * as cookieParser from 'cookie-parser'
+import { FastifyReply, FastifyRequest } from 'fastify'
 import { LoggerErrorInterceptor, Logger as PinoLogger } from 'nestjs-pino'
 
 async function bootstrap() {
@@ -44,17 +46,30 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
     }),
   )
 
   await app.register(compression)
   await app.register(cookie)
+  await app.register(fastifyCsrf)
+
+  await app.register(helmet)
+
+  await app.register(fastifyJwt, {
+    secret: config.getOrThrow<string>('JWT_ACCESS_SECRET'),
+    cookie: {
+      cookieName: 'access_token',
+      signed: false,
+    },
+  })
+
   await app.register(session, {
     secret: config.getOrThrow<string>('SESSION_SECRET'),
     rolling: true,
     saveUninitialized: true,
-    // name: config.getOrThrow<string>('SESSION_NAME'),
-    // resave: false,
+    cookieName: config.getOrThrow<string>('SESSION_NAME'),
     cookie: {
       domain: config.getOrThrow<string>('SESSION_DOMAIN'),
       maxAge: ms(config.getOrThrow<StringValue>('SESSION_MAX_AGE')),
@@ -69,16 +84,30 @@ async function bootstrap() {
   })
 
   app.enableCors({
-    origin: config.getOrThrow<string>('ALLOWED_ORIGIN'),
+    origin: [
+      config.getOrThrow<string>('ALLOWED_ORIGIN'),
+      'https://telegram.org',
+      'https://*.t.me',
+    ],
     credentials: true,
     exposedHeaders: ['set-cookie'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
-  app.enableShutdownHooks()
 
-  const passport = new Authenticator()
-  await app.register(passport.initialize())
-  await app.register(passport.secureSession())
-  await app.register(helmet)
+  const fastifyInstance = app.getHttpAdapter().getInstance()
+
+  fastifyInstance.decorate(
+    'authenticate',
+    async function (req: FastifyRequest, res: FastifyReply) {
+      try {
+        await req.jwtVerify()
+      } catch (err) {
+        res.code(401).send({ message: 'Unauthorized' })
+      }
+    },
+  )
+
+  app.enableShutdownHooks()
 
   await app.listen(config.getOrThrow<number>('APPLICATION_PORT') || 3000)
 
