@@ -15,11 +15,11 @@ export class UsersService {
     private readonly logger: PinoLogger,
   ) {}
 
-  public async getUserByTgId(tgId: string) {
+  public async getUserByTgId(telegramId: string) {
     try {
       return await this.prismaService.users.findUnique({
         where: {
-          telegramId: tgId,
+          telegramId,
         },
         include: {
           balance: true,
@@ -29,6 +29,7 @@ export class UsersService {
           telegramData: true,
           currency: true,
           language: true,
+          role: true,
         },
       })
     } catch (e) {
@@ -40,13 +41,13 @@ export class UsersService {
   }
 
   public async createUser({
-    tgId,
-    refKey,
+    telegramId,
+    referralKey,
     giftKey,
     initData,
   }: {
-    tgId: string
-    refKey?: string
+    telegramId: string
+    referralKey?: string
     giftKey?: string
     initData?: TelegramInitDataInterface
   }) {
@@ -89,7 +90,7 @@ export class UsersService {
 
         return tx.users.create({
           data: {
-            telegramId: tgId,
+            telegramId,
             languageId: language.id,
             balanceId: balance.id,
             roleId: UserRolesEnum.USER,
@@ -104,7 +105,7 @@ export class UsersService {
           msg: `Error while creating user`,
         })
       } else {
-        return await this.getUserByTgId(tgId)
+        return await this.getUserByTgId(telegramId)
       }
     } catch (e) {
       this.logger.error({

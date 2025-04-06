@@ -10,6 +10,7 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_INTERCEPTOR } from '@nestjs/core'
+import { ThrottlerModule } from '@nestjs/throttler'
 import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
 import { CacheableMemory } from 'cacheable'
 import Keyv from 'keyv'
@@ -36,7 +37,7 @@ import { LoggerModule } from 'nestjs-pino'
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async (configService: ConfigService) => ({
-        ttl: 60000,
+        ttl: 7 * 24 * 60 * 60 * 1000,
         stores: [
           new Keyv({
             store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
@@ -46,6 +47,7 @@ import { LoggerModule } from 'nestjs-pino'
       }),
       inject: [ConfigService],
     }),
+    ThrottlerModule.forRoot(),
     I18nModule.forRootAsync({
       useFactory: () => ({
         disableMiddleware: true,

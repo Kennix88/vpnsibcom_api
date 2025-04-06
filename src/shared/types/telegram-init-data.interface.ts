@@ -16,7 +16,7 @@ export interface TelegramInitDataUserInterface {
   allows_write_to_pm?: boolean
   is_premium?: boolean
   first_name: string
-  id: number
+  id: number | string
   is_bot?: boolean
   last_name?: string
   language_code?: string
