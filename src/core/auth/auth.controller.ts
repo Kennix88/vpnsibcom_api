@@ -7,6 +7,7 @@ import {
   Body,
   Controller,
   HttpCode,
+  HttpException,
   HttpStatus,
   Post,
   Req,
@@ -30,16 +31,26 @@ export class AuthController {
   @Post('telegram')
   async telegramLogin(
     @Body() telegramAuthDto: TelegramAuthDto,
-    @Req() req: FastifyRequest,
+    // @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const tokens = await this.authService.telegramLogin(
-      telegramAuthDto.initData,
-    )
+    try {
+      console.log('telegramAuthDto', telegramAuthDto)
+      const tokens = await this.authService.telegramLogin(
+        telegramAuthDto.initData,
+      )
 
-    res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS)
+      console.log(tokens)
+      res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS)
 
-    return { accessToken: tokens.accessToken }
+      return { accessToken: tokens.accessToken }
+    } catch (error) {
+      console.error(error)
+      throw new HttpException(
+        'Ошибка авторизации через Telegram',
+        HttpStatus.BAD_REQUEST,
+      )
+    }
   }
 
   @Public()

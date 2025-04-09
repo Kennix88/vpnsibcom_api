@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { Ctx, Start, Update } from 'nestjs-telegraf'
+import { Markup } from 'telegraf'
 
 @Update()
 export class StartUpdate {
@@ -40,7 +41,14 @@ export class StartUpdate {
         }),
         {
           reply_markup: {
-            remove_keyboard: true,
+            inline_keyboard: [
+              [
+                Markup.button.url(
+                  'App',
+                  'https://t.me/dev_vpnsibcom_bot/testapp',
+                ),
+              ],
+            ],
           },
         },
       )

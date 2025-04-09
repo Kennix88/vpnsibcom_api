@@ -1,4 +1,7 @@
+import { IsString } from 'class-validator'
+
 export class TelegramAuthDto {
-  telegramId: string
+  // telegramId: string
+  @IsString()
   initData: string
 }

@@ -87,11 +87,16 @@ async function bootstrap() {
     origin: [
       config.getOrThrow<string>('ALLOWED_ORIGIN'),
       'https://telegram.org',
+      'https://*.telegram.org',
       'https://*.t.me',
+      'https://127.0.0.1:3000',
+      'https://localhost:3000',
+      'https://172.19.0.1:3000/',
     ],
     credentials: true,
     exposedHeaders: ['set-cookie'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    // allowedHeaders: ['Content-Type', 'Authorization'],
   })
 
   const fastifyInstance = app.getHttpAdapter().getInstance()
