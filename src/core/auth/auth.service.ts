@@ -6,6 +6,7 @@ import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
 import { parse } from '@telegram-apps/init-data-node'
+import { PinoLogger } from 'nestjs-pino'
 import { TokenService } from './token.service'
 
 @Injectable()
@@ -14,8 +15,25 @@ export class AuthService {
     private jwtService: JwtService,
     private tokenService: TokenService,
     private configService: ConfigService,
+    private readonly logger: PinoLogger,
     private userService: UsersService,
   ) {}
+
+  public async updateUserActivity(token: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
+        secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
+      })
+      if (!payload) return
+
+      await this.userService.updateUserActivity(payload.sub)
+    } catch (e) {
+      this.logger.error({
+        msg: `Error udapte user activity`,
+        e,
+      })
+    }
+  }
 
   async telegramLogin(
     initData: string,

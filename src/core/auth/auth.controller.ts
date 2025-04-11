@@ -3,6 +3,7 @@ import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
 import { Public } from '@core/auth/decorators/public.decorator'
 import { RefreshDto } from '@core/auth/dto/refresh.dto'
 import { TelegramAuthDto } from '@core/auth/dto/telegram-auth.dto'
+import { UsersService } from '@modules/users/services/users.service'
 import {
   Body,
   Controller,
@@ -24,7 +25,10 @@ import { TelegramAuthGuard } from './guards/telegram-auth.guard'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+  ) {}
 
   @Public()
   @UseGuards(TelegramAuthGuard)
@@ -86,6 +90,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const token = req.headers.authorization?.split(' ')[1]
+    await this.authService.updateUserActivity(token)
     await this.authService.logout(user.sub, token)
 
     res.clearCookie('refreshToken', {
