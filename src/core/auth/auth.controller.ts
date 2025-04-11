@@ -49,6 +49,8 @@ export class AuthController {
       req.session.authenticated = true
       await req.session.save()
 
+      await this.authService.updateUserActivity(auth.accessToken)
+
       return { accessToken: auth.accessToken }
     } catch (error) {
       console.error(error)
