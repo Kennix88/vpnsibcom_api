@@ -40,6 +40,50 @@ export class UsersService {
     }
   }
 
+  public async updateTelegramDataUser(
+    telegramId: string,
+    initData: TelegramInitDataInterface,
+  ) {
+    try {
+      const user = await this.prismaService.users.findUnique({
+        where: {
+          telegramId,
+        },
+        select: {
+          telegramDataId: true,
+        },
+      })
+      if (!user) return
+
+      const isRTL = !initData
+        ? false
+        : isRtl([initData?.user.first_name, initData?.user.last_name])
+      await this.prismaService.userTelegramData.update({
+        where: {
+          id: user.telegramDataId,
+        },
+        data: {
+          isLive: true,
+          isRtl: isRTL,
+          firstName: initData.user.first_name,
+          lastName: initData.user.last_name,
+          username: initData.user.username,
+          languageCode: initData.user.language_code,
+          isPremium: initData.user.is_premium,
+          isBot: initData.user.is_bot,
+          photoUrl: initData.user.photo_url,
+          addedToAttachmentMenu: initData.user.added_to_attachment_menu,
+          allowsWriteToPm: initData.user.allows_write_to_pm,
+        },
+      })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error while updating telegram data user by tgId`,
+        e,
+      })
+    }
+  }
+
   public async createUser({
     telegramId,
     referralKey,
@@ -96,6 +140,7 @@ export class UsersService {
             roleId: UserRolesEnum.USER,
             telegramDataId: tdata.id,
             currencyKey: CurrencyEnum.USD,
+            lastStartedAt: new Date(),
           },
         })
       })

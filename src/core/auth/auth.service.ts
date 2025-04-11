@@ -6,13 +6,11 @@ import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
 import { parse } from '@telegram-apps/init-data-node'
-import { PrismaService } from 'nestjs-prisma'
 import { TokenService } from './token.service'
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
     private jwtService: JwtService,
     private tokenService: TokenService,
     private configService: ConfigService,
@@ -32,6 +30,11 @@ export class AuthService {
         initData: userData,
       })
     }
+
+    await this.userService.updateTelegramDataUser(
+      userData.user.id.toString(),
+      userData,
+    )
 
     const payload: JwtPayload = {
       sub: user.id,
