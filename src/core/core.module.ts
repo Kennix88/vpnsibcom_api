@@ -1,7 +1,9 @@
 import { AuthModule } from '@core/auth/auth.module'
 import { pinoConfig } from '@core/configs/pino.config'
 import { PrismaConnectModule } from '@core/prisma/prisma-connect.module'
+import { RedisThrottlerStorage } from '@core/redis-throttler.storage'
 import { RedisModule } from '@core/redis/redis.module'
+import { RedisService } from '@core/redis/redis.service'
 import { TelegramModule } from '@integrations/telegram/telegram.module'
 import { createKeyv } from '@keyv/redis'
 import { RatesModule } from '@modules/rates/rates.module'
@@ -47,7 +49,18 @@ import { LoggerModule } from 'nestjs-pino'
       }),
       inject: [ConfigService],
     }),
-    ThrottlerModule.forRoot(),
+    ThrottlerModule.forRootAsync({
+      useFactory: (redis: RedisService) => ({
+        throttlers: [
+          {
+            ttl: 60_000,
+            limit: 100,
+          },
+        ],
+        storage: new RedisThrottlerStorage(redis),
+      }),
+      inject: [RedisService],
+    }),
     I18nModule.forRootAsync({
       useFactory: () => ({
         disableMiddleware: true,

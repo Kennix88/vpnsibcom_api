@@ -68,7 +68,7 @@ async function bootstrap() {
   await app.register(session, {
     secret: config.getOrThrow<string>('SESSION_SECRET'),
     rolling: true,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookieName: config.getOrThrow<string>('SESSION_NAME'),
     cookie: {
       domain: config.getOrThrow<string>('SESSION_DOMAIN'),
@@ -80,6 +80,7 @@ async function bootstrap() {
     store: new RedisStore({
       client: redis,
       prefix: config.getOrThrow<string>('SESSION_FOLDER'),
+      ttl: ms(config.getOrThrow<StringValue>('SESSION_MAX_AGE')),
     }),
   })
 
@@ -91,7 +92,8 @@ async function bootstrap() {
       'https://*.t.me',
       'https://127.0.0.1:3000',
       'https://localhost:3000',
-      'https://172.19.0.1:3000/',
+      'https://172.19.0.1:3000',
+      'https://192.168.3.16:3000',
     ],
     credentials: true,
     exposedHeaders: ['set-cookie'],

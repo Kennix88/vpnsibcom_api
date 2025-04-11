@@ -19,7 +19,9 @@ export class AuthService {
     private userService: UsersService,
   ) {}
 
-  async telegramLogin(initData: string) {
+  async telegramLogin(
+    initData: string,
+  ): Promise<{ accessToken: string; refreshToken: string; userId: string }> {
     const userData = parse(initData) as TelegramInitDataInterface
 
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
@@ -37,7 +39,9 @@ export class AuthService {
       role: user.role.key as UserRolesEnum,
     }
 
-    return this.tokenService.generateTokens(payload)
+    const tokens = await this.tokenService.generateTokens(payload)
+
+    return { ...tokens, userId: user.id }
   }
 
   async refreshTokens(refreshToken: string) {

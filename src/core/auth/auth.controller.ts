@@ -31,19 +31,21 @@ export class AuthController {
   @Post('telegram')
   async telegramLogin(
     @Body() telegramAuthDto: TelegramAuthDto,
-    // @Req() req: FastifyRequest,
+    @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
       console.log('telegramAuthDto', telegramAuthDto)
-      const tokens = await this.authService.telegramLogin(
+      const auth = await this.authService.telegramLogin(
         telegramAuthDto.initData,
       )
 
-      console.log(tokens)
-      res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS)
+      res.cookie('refreshToken', auth.refreshToken, COOKIE_OPTIONS)
+      req.session.userId = auth.userId
+      req.session.authenticated = true
+      await req.session.save()
 
-      return { accessToken: tokens.accessToken }
+      return { accessToken: auth.accessToken }
     } catch (error) {
       console.error(error)
       throw new HttpException(
