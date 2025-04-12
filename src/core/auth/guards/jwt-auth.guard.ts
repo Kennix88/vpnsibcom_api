@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { getQueryToken } from '@shared/utils/get-query-token.util'
 import { FastifyRequest } from 'fastify'
 
 @Injectable()
@@ -59,8 +58,8 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     // 3. Check query parameters (optional)
-    const queryToken = getQueryToken(request)
-    if (queryToken) return queryToken
+    // const queryToken = getQueryToken(request)
+    // if (queryToken) return queryToken
 
     return null
   }

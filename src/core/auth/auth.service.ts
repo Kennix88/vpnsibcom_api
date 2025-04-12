@@ -1,10 +1,12 @@
-import { UsersService } from '@modules/users/services/users.service'
+import { UsersService } from '@modules/users/users.service'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
+import { UserDataInterface } from '@shared/types/user-data.interface'
 import { parse } from '@telegram-apps/init-data-node'
 import { PinoLogger } from 'nestjs-pino'
 import { TokenService } from './token.service'
@@ -35,9 +37,11 @@ export class AuthService {
     }
   }
 
-  async telegramLogin(
-    initData: string,
-  ): Promise<{ accessToken: string; refreshToken: string; userId: string }> {
+  async telegramLogin(initData: string): Promise<{
+    accessToken: string
+    refreshToken: string
+    user: UserDataInterface
+  }> {
     const userData = parse(initData) as TelegramInitDataInterface
 
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
@@ -62,17 +66,92 @@ export class AuthService {
 
     const tokens = await this.tokenService.generateTokens(payload)
 
-    return { ...tokens, userId: user.id }
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        telegramId: user.telegramId,
+        tonWallet: user.tonWallet,
+        isFreePlanAvailable: user.isFreePlanAvailable,
+        isBanned: user.isBanned,
+        isDeleted: user.isDeleted,
+        banExpiredAt: user.banExpiredAt,
+        deletedAt: user.deletedAt,
+        roleDiscount: user.role.discount,
+        limitSubscriptions: user.role.limitSubscriptions,
+        isPremium: user.telegramData.isPremium,
+        fullName: `${user.telegramData.firstName}${
+          user.telegramData.lastName ? ` ${user.telegramData.lastName}` : ''
+        }`,
+        username: user.telegramData.username,
+        photoUrl: user.telegramData.photoUrl,
+        languageCode: user.language.iso6391,
+        currencyCode: user.currency.key as CurrencyEnum,
+        giftsCount: user.activateGiftSubscriptions.length,
+        referralsCount: user.referrals.length,
+        balance: {
+          paymentBalance: user.balance.paymentBalance,
+          holdBalance: user.balance.holdBalance,
+          totalEarnedWithdrawalBalance:
+            user.balance.totalEarnedWithdrawalBalance,
+          withdrawalBalance: user.balance.withdrawalBalance,
+          isUseWithdrawalBalance: user.balance.isUseWithdrawalBalance,
+        },
+      },
+    }
   }
 
-  async refreshTokens(refreshToken: string) {
+  async refreshTokens(refreshToken: string): Promise<{
+    accessToken: string
+    refreshToken: string
+    user: UserDataInterface
+  }> {
     try {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(
         refreshToken,
         { secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET') },
       )
 
-      return this.tokenService.rotateTokens(payload.sub, refreshToken)
+      const tokens = await this.tokenService.rotateTokens(
+        payload.sub,
+        refreshToken,
+      )
+
+      const user = await this.userService.getUserByTgId(payload.telegramId)
+
+      return {
+        ...tokens,
+        user: {
+          id: user.id,
+          telegramId: user.telegramId,
+          tonWallet: user.tonWallet,
+          isFreePlanAvailable: user.isFreePlanAvailable,
+          isBanned: user.isBanned,
+          isDeleted: user.isDeleted,
+          banExpiredAt: user.banExpiredAt,
+          deletedAt: user.deletedAt,
+          roleDiscount: user.role.discount,
+          limitSubscriptions: user.role.limitSubscriptions,
+          isPremium: user.telegramData.isPremium,
+          fullName: `${user.telegramData.firstName}${
+            user.telegramData.lastName ? ` ${user.telegramData.lastName}` : ''
+          }`,
+          username: user.telegramData.username,
+          photoUrl: user.telegramData.photoUrl,
+          languageCode: user.language.iso6391,
+          currencyCode: user.currency.key as CurrencyEnum,
+          giftsCount: user.activateGiftSubscriptions.length,
+          referralsCount: user.referrals.length,
+          balance: {
+            paymentBalance: user.balance.paymentBalance,
+            holdBalance: user.balance.holdBalance,
+            totalEarnedWithdrawalBalance:
+              user.balance.totalEarnedWithdrawalBalance,
+            withdrawalBalance: user.balance.withdrawalBalance,
+            isUseWithdrawalBalance: user.balance.isUseWithdrawalBalance,
+          },
+        },
+      }
     } catch (e) {
       throw new UnauthorizedException('Invalid refresh token')
     }

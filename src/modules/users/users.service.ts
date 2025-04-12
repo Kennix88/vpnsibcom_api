@@ -5,6 +5,7 @@ import { Cron } from '@nestjs/schedule'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
+import { UserDataInterface } from '@shared/types/user-data.interface'
 import { isRtl } from '@shared/utils/is-rtl.util'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
@@ -85,6 +86,51 @@ export class UsersService {
     }
   }
 
+  public async getResUserByTgId(
+    telegramId: string,
+  ): Promise<UserDataInterface> {
+    try {
+      const user = await this.getUserByTgId(telegramId)
+      if (!user) return
+
+      return {
+        id: user.id,
+        telegramId: user.telegramId,
+        tonWallet: user.tonWallet,
+        isFreePlanAvailable: user.isFreePlanAvailable,
+        isBanned: user.isBanned,
+        isDeleted: user.isDeleted,
+        banExpiredAt: user.banExpiredAt,
+        deletedAt: user.deletedAt,
+        roleDiscount: user.role.discount,
+        limitSubscriptions: user.role.limitSubscriptions,
+        isPremium: user.telegramData.isPremium,
+        fullName: `${user.telegramData.firstName}${
+          user.telegramData.lastName ? ` ${user.telegramData.lastName}` : ''
+        }`,
+        username: user.telegramData.username,
+        photoUrl: user.telegramData.photoUrl,
+        languageCode: user.language.iso6391,
+        currencyCode: user.currency.key as CurrencyEnum,
+        giftsCount: user.activateGiftSubscriptions.length,
+        referralsCount: user.referrals.length,
+        balance: {
+          paymentBalance: user.balance.paymentBalance,
+          holdBalance: user.balance.holdBalance,
+          totalEarnedWithdrawalBalance:
+            user.balance.totalEarnedWithdrawalBalance,
+          withdrawalBalance: user.balance.withdrawalBalance,
+          isUseWithdrawalBalance: user.balance.isUseWithdrawalBalance,
+        },
+      }
+    } catch (e) {
+      this.logger.error({
+        msg: `Error while getting user by tgId`,
+        e,
+      })
+    }
+  }
+
   public async getUserByTgId(telegramId: string) {
     try {
       return await this.prismaService.users.findUnique({
@@ -94,6 +140,7 @@ export class UsersService {
         include: {
           balance: true,
           giftSubscriptions: true,
+          activateGiftSubscriptions: true,
           subscriptions: true,
           referrals: true,
           telegramData: true,

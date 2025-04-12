@@ -18,7 +18,6 @@ import { genReqId } from '@shared/utils/gen-req-id.util'
 import { ms, type StringValue } from '@shared/utils/ms.util'
 import { parseBoolean } from '@shared/utils/parse-boolean.util'
 import { RedisStore } from 'connect-redis'
-import * as cookieParser from 'cookie-parser'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { LoggerErrorInterceptor, Logger as PinoLogger } from 'nestjs-pino'
 
@@ -41,7 +40,7 @@ async function bootstrap() {
   app.useLogger(app.get(PinoLogger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
 
-  app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')))
+  // app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')))
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -97,8 +96,8 @@ async function bootstrap() {
     ],
     credentials: true,
     exposedHeaders: ['set-cookie'],
-    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    // allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Set-Cookie'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
 
   const fastifyInstance = app.getHttpAdapter().getInstance()

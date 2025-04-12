@@ -5,7 +5,7 @@ import { TelegramAuthGuard } from '@core/auth/guards/telegram-auth.guard'
 import { TokenService } from '@core/auth/token.service'
 import { Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { JwtModule } from '@nestjs/jwt'
+import { JwtModule, JwtService } from '@nestjs/jwt'
 
 @Global()
 @Module({
@@ -19,7 +19,19 @@ import { JwtModule } from '@nestjs/jwt'
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, TelegramAuthGuard, JwtAuthGuard],
-  exports: [AuthService, TokenService, TelegramAuthGuard, JwtAuthGuard],
+  providers: [
+    AuthService,
+    TokenService,
+    TelegramAuthGuard,
+    JwtAuthGuard,
+    JwtService,
+  ],
+  exports: [
+    AuthService,
+    TokenService,
+    TelegramAuthGuard,
+    JwtAuthGuard,
+    JwtService,
+  ],
 })
 export class AuthModule {}

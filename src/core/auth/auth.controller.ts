@@ -3,7 +3,8 @@ import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
 import { Public } from '@core/auth/decorators/public.decorator'
 import { RefreshDto } from '@core/auth/dto/refresh.dto'
 import { TelegramAuthDto } from '@core/auth/dto/telegram-auth.dto'
-import { UsersService } from '@modules/users/services/users.service'
+import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
+import { UsersService } from '@modules/users/users.service'
 import {
   Body,
   Controller,
@@ -16,10 +17,9 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common'
+import { Throttle } from '@nestjs/throttler'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
-import * as cookie from 'cookie'
-import { Response } from 'express'
-import { FastifyRequest } from 'fastify'
+import { FastifyReply, FastifyRequest } from 'fastify'
 import { AuthService } from './auth.service'
 import { TelegramAuthGuard } from './guards/telegram-auth.guard'
 
@@ -31,12 +31,13 @@ export class AuthController {
   ) {}
 
   @Public()
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @UseGuards(TelegramAuthGuard)
   @Post('telegram')
   async telegramLogin(
     @Body() telegramAuthDto: TelegramAuthDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res: FastifyReply,
   ) {
     try {
       console.log('telegramAuthDto', telegramAuthDto)
@@ -45,13 +46,13 @@ export class AuthController {
       )
 
       res.cookie('refreshToken', auth.refreshToken, COOKIE_OPTIONS)
-      req.session.userId = auth.userId
-      req.session.authenticated = true
-      await req.session.save()
+      // req.session.userId = auth.user.id
+      // req.session.authenticated = true
+      // await req.session.save()
 
       await this.authService.updateUserActivity(auth.accessToken)
 
-      return { accessToken: auth.accessToken }
+      return { data: { accessToken: auth.accessToken, user: auth.user } }
     } catch (error) {
       console.error(error)
       throw new HttpException(
@@ -62,16 +63,15 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
     @Body() refreshDto: RefreshDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const refreshToken =
-      refreshDto.refreshToken ||
-      cookie.parse(req.headers.cookie || '').refreshToken
+    const refreshToken = refreshDto.refreshToken || req.cookies.refreshToken
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not provided')
@@ -81,24 +81,24 @@ export class AuthController {
 
     res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS)
 
-    return { accessToken: tokens.accessToken }
+    return { data: { accessToken: tokens.accessToken, user: tokens.user } }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(
     @CurrentUser() user: JwtPayload,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const token = req.headers.authorization?.split(' ')[1]
+    const token =
+      req.headers.authorization?.split(' ')[1] || req.cookies.access_token
     await this.authService.updateUserActivity(token)
     await this.authService.logout(user.sub, token)
 
-    res.clearCookie('refreshToken', {
-      ...COOKIE_OPTIONS,
-      maxAge: 0,
-    })
+    res.clearCookie('refreshToken', COOKIE_OPTIONS)
+    res.clearCookie('access_token', COOKIE_OPTIONS)
 
     return { message: 'Logged out successfully' }
   }
