@@ -20,6 +20,24 @@ export class UsersService {
     private readonly redis: RedisService,
   ) {}
 
+  public async updateUserWallet(tgId: string, address: string | null) {
+    try {
+      return await this.prismaService.users.update({
+        where: {
+          telegramId: tgId,
+        },
+        data: {
+          tonWallet: address,
+        },
+      })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error while updating user wallet`,
+        e,
+      })
+    }
+  }
+
   public async updateUserActivity(userId: string) {
     const key = `${this.USER_ACTIVITY_PREFIX}${userId}`
     const now = Math.floor(Date.now() / 1000) // Unix timestamp в секундах
@@ -102,6 +120,8 @@ export class UsersService {
         isDeleted: user.isDeleted,
         banExpiredAt: user.banExpiredAt,
         deletedAt: user.deletedAt,
+        role: user.role.key as UserRolesEnum,
+        roleName: user.role.name,
         roleDiscount: user.role.discount,
         limitSubscriptions: user.role.limitSubscriptions,
         isPremium: user.telegramData.isPremium,

@@ -1,4 +1,5 @@
 import { CurrencyEnum } from '@shared/enums/currency.enum'
+import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 
 export interface UserDataInterface {
   id: string
@@ -9,6 +10,8 @@ export interface UserDataInterface {
   isDeleted: boolean
   banExpiredAt?: Date
   deletedAt?: Date
+  role: UserRolesEnum
+  roleName: string
   roleDiscount: number
   limitSubscriptions: number
   isPremium: boolean
