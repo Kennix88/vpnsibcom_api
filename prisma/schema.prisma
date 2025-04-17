@@ -176,6 +176,12 @@ model GiftSubscriptions {
   @@map("gift_subscriptions")
 }
 
+model GreenList {
+  green String @id
+
+  @@map("green_list")
+}
+
 model Subscriptions {
   id            String                 @id @default(uuid())
   username      String                 @unique

@@ -29756,7 +29756,7 @@ export const OldUsersData: {
   },
   {
     telegramId: '645259468',
-    balance: 0,
+    balance: 2647,
     referrals: [
       '6286695883',
       '6277336840',
