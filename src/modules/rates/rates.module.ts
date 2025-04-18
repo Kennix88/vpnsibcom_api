@@ -1,4 +1,4 @@
-import { RatesService } from '@modules/rates/services/rates.service'
+import { RatesService } from '@modules/rates/rates.service'
 import { Global, Module } from '@nestjs/common'
 
 @Global()

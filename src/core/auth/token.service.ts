@@ -1,16 +1,15 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { RedisService } from '@core/redis/redis.service'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
-import { Cache } from 'cache-manager'
 
 @Injectable()
 export class TokenService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly redis: RedisService,
   ) {}
 
   async generateTokens(payload: JwtPayload) {
@@ -25,10 +24,11 @@ export class TokenService {
     })
 
     // Store refresh token in Redis
-    await this.cacheManager.set(
+    await this.redis.set(
       `refresh_token:${payload.sub}`,
       refreshToken,
-      7 * 24 * 60 * 60 * 1000, // 7 days
+      'EX',
+      7 * 24 * 60 * 60, // 7 days in seconds
     )
 
     return { accessToken, refreshToken }
@@ -38,22 +38,23 @@ export class TokenService {
     // Verify old refresh token
     const payload = await this.jwtService.verifyAsync<JwtPayload>(
       oldRefreshToken,
-      { secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET') },
+      {
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+      },
     )
 
     // Check if token is in Redis
-    const storedRefreshToken = await this.cacheManager.get<string>(
-      `refresh_token:${userId}`,
-    )
+    const storedRefreshToken = await this.redis.get(`refresh_token:${userId}`)
 
     if (!storedRefreshToken || storedRefreshToken !== oldRefreshToken) {
       throw new Error('Invalid refresh token')
     }
 
     // Blacklist old token
-    await this.cacheManager.set(
+    await this.redis.set(
       `blacklist:${oldRefreshToken}`,
       'true',
+      'EX',
       Math.floor(payload.exp - Date.now() / 1000),
     )
 
@@ -74,19 +75,20 @@ export class TokenService {
       ignoreExpiration: true,
     })
 
-    await this.cacheManager.set(
+    await this.redis.set(
       `blacklist:${token}`,
       'true',
+      'EX',
       Math.floor(payload.exp - Date.now() / 1000),
     )
 
     // Remove refresh token
-    await this.cacheManager.del(`refresh_token:${userId}`)
+    await this.redis.del(`refresh_token:${userId}`)
   }
 
   async isTokenBlacklisted(token: string | null): Promise<boolean> {
     if (!token) return true
-    const blacklisted = await this.cacheManager.get(`blacklist:${token}`)
+    const blacklisted = await this.redis.get(`blacklist:${token}`)
     return !!blacklisted
   }
 }

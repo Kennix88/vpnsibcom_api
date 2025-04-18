@@ -106,7 +106,7 @@ async function bootstrap() {
     'authenticate',
     async function (req: FastifyRequest, res: FastifyReply) {
       try {
-        await req.jwtVerify()
+        await req.jwtVerify({ onlyCookie: true }) // <--- важно
       } catch (err) {
         res.code(401).send({ message: 'Unauthorized' })
       }

@@ -5,17 +5,12 @@ import { RedisThrottlerStorage } from '@core/redis-throttler.storage'
 import { RedisModule } from '@core/redis/redis.module'
 import { RedisService } from '@core/redis/redis.service'
 import { TelegramModule } from '@integrations/telegram/telegram.module'
-import { createKeyv } from '@keyv/redis'
 import { RatesModule } from '@modules/rates/rates.module'
 import { UsersModule } from '@modules/users/users.module'
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { APP_INTERCEPTOR } from '@nestjs/core'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
-import { CacheableMemory } from 'cacheable'
-import Keyv from 'keyv'
 import {
   AcceptLanguageResolver,
   HeaderResolver,
@@ -36,19 +31,19 @@ import { LoggerModule } from 'nestjs-pino'
       ignoreEnvFile: !IS_DEV_ENV,
       isGlobal: true,
     }),
-    CacheModule.registerAsync({
-      isGlobal: true,
-      useFactory: async (configService: ConfigService) => ({
-        ttl: 7 * 24 * 60 * 60 * 1000,
-        stores: [
-          new Keyv({
-            store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
-          }),
-          createKeyv(configService.getOrThrow<string>('REDIS_URL')),
-        ],
-      }),
-      inject: [ConfigService],
-    }),
+    // CacheModule.registerAsync({
+    //   isGlobal: true,
+    //   useFactory: async (configService: ConfigService) => ({
+    //     ttl: 7 * 24 * 60 * 60 * 1000,
+    //     stores: [
+    //       new Keyv({
+    //         store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
+    //       }),
+    //       createKeyv(configService.getOrThrow<string>('REDIS_URL')),
+    //     ],
+    //   }),
+    //   inject: [ConfigService],
+    // }),
     ThrottlerModule.forRootAsync({
       useFactory: (redis: RedisService) => ({
         throttlers: [
@@ -87,11 +82,6 @@ import { LoggerModule } from 'nestjs-pino'
     UsersModule,
   ],
   controllers: [],
-  providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
-  ],
+  providers: [],
 })
 export class CoreModule {}

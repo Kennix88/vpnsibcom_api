@@ -1,6 +1,6 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
-import { RatesService } from '@modules/rates/services/rates.service'
+import { RatesService } from '@modules/rates/rates.service'
 import { ConfigService } from '@nestjs/config'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'

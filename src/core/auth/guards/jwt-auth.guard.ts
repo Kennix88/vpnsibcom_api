@@ -26,40 +26,43 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      // Check if token is blacklisted
+      // Проверка на blacklist
       const isBlacklisted = await this.tokenService.isTokenBlacklisted(token)
       if (isBlacklisted) {
         throw new UnauthorizedException('Token revoked')
       }
 
-      request.user = await this.jwtService.verifyAsync(token, {
+      // Верификация токена
+      const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
       })
+
+      request.user = payload
       return true
     } catch (error) {
       throw new UnauthorizedException(
-        error.message || 'Invalid or expired token',
+        error?.message || 'Invalid or expired token',
       )
     }
   }
 
   private extractTokenFromRequest(request: FastifyRequest): string | null {
-    // 1. Check cookies first
+    // 1. Проверка в cookies
     const cookieToken = request.cookies?.access_token
     if (cookieToken && typeof cookieToken === 'string') {
       return cookieToken
     }
 
-    // 2. Check authorization header
+    // 2. Проверка в Authorization header
     const authHeader = request.headers?.authorization
     if (authHeader && typeof authHeader === 'string') {
       const [type, token] = authHeader.split(' ')
-      return type === 'Bearer' ? token : null
+      if (type === 'Bearer' && token) return token
     }
 
-    // 3. Check query parameters (optional)
-    // const queryToken = getQueryToken(request)
-    // if (queryToken) return queryToken
+    // 3. (опционально) query-параметры
+    // const queryToken = request.query?.token
+    // if (typeof queryToken === 'string') return queryToken
 
     return null
   }
