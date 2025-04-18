@@ -18,6 +18,18 @@ export class RatesService {
     private readonly logger: PinoLogger,
   ) {}
 
+  public async getCurrencies() {
+    return this.prismaService.currency.findMany({
+      select: {
+        key: true,
+        name: true,
+        symbol: true,
+        type: true,
+        rate: true,
+      },
+    })
+  }
+
   async getRates(): Promise<RatesInterface> {
     try {
       this.logger.info({
