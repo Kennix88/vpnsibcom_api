@@ -20,6 +20,33 @@ export class UsersService {
     private readonly redis: RedisService,
   ) {}
 
+  public async updateWithdrawalUsage(tgId: string, isUse: boolean) {
+    try {
+      const balanceId = await this.prismaService.users.findUnique({
+        where: {
+          telegramId: tgId,
+        },
+        select: {
+          balanceId: true,
+        },
+      })
+
+      return await this.prismaService.userBalance.update({
+        where: {
+          id: balanceId.balanceId,
+        },
+        data: {
+          isUseWithdrawalBalance: isUse,
+        },
+      })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error while updating user wallet`,
+        e,
+      })
+    }
+  }
+
   public async updateUserWallet(tgId: string, address: string | null) {
     try {
       return await this.prismaService.users.update({
