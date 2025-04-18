@@ -20,6 +20,33 @@ export class UsersService {
     private readonly redis: RedisService,
   ) {}
 
+  public async updateLanguage(tgId: string, language: string) {
+    try {
+      const languageId = await this.prismaService.language.findUnique({
+        where: {
+          iso6391: language,
+        },
+        select: {
+          id: true,
+        },
+      })
+
+      return await this.prismaService.users.update({
+        where: {
+          telegramId: tgId,
+        },
+        data: {
+          languageId: languageId.id,
+        },
+      })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error while updating user language`,
+        e,
+      })
+    }
+  }
+
   public async updateCurrency(tgId: string, currency: CurrencyEnum) {
     try {
       return await this.prismaService.users.update({
