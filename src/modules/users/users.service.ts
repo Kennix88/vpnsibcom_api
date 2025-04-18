@@ -20,6 +20,24 @@ export class UsersService {
     private readonly redis: RedisService,
   ) {}
 
+  public async updateCurrency(tgId: string, currency: CurrencyEnum) {
+    try {
+      return await this.prismaService.users.update({
+        where: {
+          telegramId: tgId,
+        },
+        data: {
+          currencyKey: currency,
+        },
+      })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error while updating user currency`,
+        e,
+      })
+    }
+  }
+
   public async updateWithdrawalUsage(tgId: string, isUse: boolean) {
     try {
       const balanceId = await this.prismaService.users.findUnique({

@@ -15,6 +15,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
+import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
@@ -39,6 +40,28 @@ export class UsersController {
     const userData = await this.userService.getResUserByTgId(user.telegramId)
     return {
       data: {
+        user: userData,
+      },
+    }
+  }
+
+  @Post('currency')
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async updateCurrency(
+    @CurrentUser() user: JwtPayload,
+    @Body('code') code: CurrencyEnum,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    const token = req.headers.authorization?.split(' ')[1]
+    await this.authService.updateUserActivity(token)
+    await this.userService.updateCurrency(user.telegramId, code)
+    const userData = await this.userService.getResUserByTgId(user.telegramId)
+    return {
+      data: {
+        success: true,
         user: userData,
       },
     }
