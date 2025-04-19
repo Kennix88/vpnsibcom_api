@@ -59,12 +59,16 @@ model UserTelegramData {
 }
 
 model Referrals {
-  id         String @id @default(uuid())
-  level      Int    @default(1)
-  inviter    Users  @relation("inviter", fields: [inviterId], references: [id])
-  inviterId  String @map("inviter_id")
-  referral   Users  @relation("referral", fields: [referralId], references: [id])
-  referralId String @map("referral_id")
+  id                       String  @id @default(uuid())
+  level                    Int     @default(1)
+  inviter                  Users   @relation("inviter", fields: [inviterId], references: [id])
+  inviterId                String  @map("inviter_id")
+  referral                 Users   @relation("referral", fields: [referralId], references: [id])
+  referralId               String  @map("referral_id")
+  totalPaymentsRewarded    Float   @default(0)
+  totalWithdrawalsRewarded Float   @default(0)
+  isActivated              Boolean @default(false)
+  isPremium                Boolean @default(false)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -89,8 +93,8 @@ model Users {
   role                      Roles               @relation(fields: [roleId], references: [key])
   roleId                    UserRoleEnum        @default(USER) @map("role_id")
   payments                  Payments[]
-  referrals                 Referrals[]         @relation("referral")
-  inviters                  Referrals[]         @relation("inviter")
+  referrals                 Referrals[]         @relation("inviter")
+  inviters                  Referrals[]         @relation("referral")
   telegramData              UserTelegramData?   @relation(fields: [telegramDataId], references: [id])
   telegramDataId            String?             @unique @map("telegram_data_id")
   balance                   UserBalance?        @relation(fields: [balanceId], references: [id])
