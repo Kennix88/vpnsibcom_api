@@ -1,6 +1,6 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
-import { RatesService } from '@modules/rates/rates.service'
+import { ReferralsService } from '@modules/referrals/referrals.service'
 import { ConfigService } from '@nestjs/config'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
@@ -13,7 +13,7 @@ export class StartUpdate {
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
     private readonly i18n: I18nService<I18nTranslations>,
-    private readonly ratesService: RatesService,
+    private readonly referralsService: ReferralsService,
   ) {
     this.logger.setContext(StartUpdate.name)
   }
@@ -26,6 +26,10 @@ export class StartUpdate {
       console.log(JSON.stringify(ctx.from, null, 2))
 
       if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
+        const referrals = await this.referralsService.getReferrals(
+          ctx.from.id.toString(),
+        )
+        console.log(JSON.stringify(referrals, null, 2))
         // await this.ratesService.updateCoinmarketcapRates()
         // await this.ratesService.updateApilayerRates()
         // await this.ratesService.updateStarsRate()
