@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
+import { DefaultEnum } from '@shared/enums/default.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
 import { UserDataInterface } from '@shared/types/user-data.interface'
@@ -176,6 +177,15 @@ export class UsersService {
     }
   }
 
+  public async getResUserById(id: string): Promise<UserDataInterface> {
+    const user = await this.prismaService.users.findUnique({
+      where: {
+        id,
+      },
+    })
+    return this.getResUserByTgId(user.telegramId)
+  }
+
   public async getResUserByTgId(
     telegramId: string,
   ): Promise<UserDataInterface> {
@@ -183,11 +193,21 @@ export class UsersService {
       const user = await this.getUserByTgId(telegramId)
       if (!user) return
 
+      const settings = await this.prismaService.settings.findUnique({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+
       return {
         id: user.id,
         telegramId: user.telegramId,
         tonWallet: user.tonWallet,
         isFreePlanAvailable: user.isFreePlanAvailable,
+        freePlanDays:
+          user.inviters.length > 0
+            ? settings.freePlanDaysForReferrals
+            : settings.freePlanDays,
         isBanned: user.isBanned,
         isDeleted: user.isDeleted,
         banExpiredAt: user.banExpiredAt,
@@ -235,6 +255,7 @@ export class UsersService {
           activateGiftSubscriptions: true,
           subscriptions: true,
           referrals: true,
+          inviters: true,
           telegramData: true,
           currency: true,
           language: true,
