@@ -1,3 +1,5 @@
+import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
+import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { PaymentMethodTypeEnum } from '@shared/enums/payment-method-type.enum'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { PaymentSystemEnum } from '@shared/enums/payment-system.enum'
@@ -17,9 +19,9 @@ export interface PaymentMethodsDataInterface {
 }
 
 export interface CurrencyInterface {
-  key: true
-  name: true
-  symbol: true
-  type: true
-  rate: true
+  key: CurrencyEnum
+  name: string
+  symbol: string
+  type: CurrencyTypeEnum
+  rate: number
 }
