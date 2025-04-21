@@ -29,7 +29,7 @@ export class ReferralsService {
         include: {
           referrals: {
             include: {
-              inviter: {
+              referral: {
                 include: {
                   telegramData: true,
                 },
@@ -59,13 +59,15 @@ export class ReferralsService {
           id: ref.id,
           isActivated: ref.isActivated,
           isPremium: ref.isPremium,
-          fullName: `${ref.inviter.telegramData.firstName}${
-            ref.inviter.telegramData.lastName
-              ? ` ${ref.inviter.telegramData.lastName}`
+          fullName: `${ref.referral.telegramData.firstName}${
+            ref.referral.telegramData.lastName
+              ? ` ${ref.referral.telegramData.lastName}`
               : ''
           }`,
-          username: ref.inviter.telegramData.username,
-          photoUrl: ref.inviter.telegramData.photoUrl,
+          username: ref.referral.telegramData.username,
+          photoUrl: ref.referral.telegramData.photoUrl,
+          totalPaymentsRewarded: ref.totalPaymentsRewarded,
+          totalWithdrawalsRewarded: ref.totalWithdrawalsRewarded,
         }
         if (ref.level === 1) {
           lvl1.push(nextData)
@@ -107,6 +109,22 @@ export class ReferralsService {
       })
 
       return {
+        inviteBotUrl: `${this.configService.get('BOT_URL')}?start=ref-${tgId}`,
+        inviteBotTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
+          'BOT_URL',
+        )}?start=ref-${tgId}`,
+        inviteTmaUrl: `${this.configService.get(
+          'TMA_URL',
+        )}?startapp=ref-${tgId}`,
+        inviteTmaTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
+          'TMA_URL',
+        )}?startapp=ref-${tgId}`,
+        inviteAppUrl: `${this.configService.get(
+          'APPLICATION_URL',
+        )}/app?ref=${tgId}`,
+        inviteAppTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
+          'APPLICATION_URL',
+        )}/app?ref=${tgId}`,
         lvl1IsActivated,
         lvl2IsActivated,
         lvl3IsActivated,
@@ -130,9 +148,33 @@ export class ReferralsService {
         lvl1Count: lvl1.length,
         lvl2Count: lvl2.length,
         lvl3Count: lvl3.length,
-        lvl1List: lvl1,
-        lvl2List: lvl2,
-        lvl3List: lvl3,
+        lvl1List: lvl1
+          .sort((a, b) => {
+            return (
+              b.totalPaymentsRewarded +
+              b.totalWithdrawalsRewarded -
+              (a.totalPaymentsRewarded + a.totalWithdrawalsRewarded)
+            )
+          })
+          .slice(0, 100),
+        lvl2List: lvl2
+          .sort((a, b) => {
+            return (
+              b.totalPaymentsRewarded +
+              b.totalWithdrawalsRewarded -
+              (a.totalPaymentsRewarded + a.totalWithdrawalsRewarded)
+            )
+          })
+          .slice(0, 100),
+        lvl3List: lvl3
+          .sort((a, b) => {
+            return (
+              b.totalPaymentsRewarded +
+              b.totalWithdrawalsRewarded -
+              (a.totalPaymentsRewarded + a.totalWithdrawalsRewarded)
+            )
+          })
+          .slice(0, 100),
       }
     } catch (e) {
       this.logger.error({
