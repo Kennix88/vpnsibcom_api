@@ -6,7 +6,9 @@ import { RedisModule } from '@core/redis/redis.module'
 import { RedisService } from '@core/redis/redis.service'
 import { TelegramModule } from '@integrations/telegram/telegram.module'
 import { RatesModule } from '@modules/rates/rates.module'
+import { ReferralsModule } from '@modules/referrals/referrals.module'
 import { UsersModule } from '@modules/users/users.module'
+import { XrayModule } from '@modules/xray/xray.module'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ThrottlerModule } from '@nestjs/throttler'
@@ -80,6 +82,8 @@ import { LoggerModule } from 'nestjs-pino'
     RatesModule,
     AuthModule,
     UsersModule,
+    XrayModule,
+    ReferralsModule,
   ],
   controllers: [],
   providers: [],

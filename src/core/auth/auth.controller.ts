@@ -40,7 +40,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     try {
-      console.log('telegramAuthDto', telegramAuthDto)
       const auth = await this.authService.telegramLogin(
         telegramAuthDto.initData,
       )

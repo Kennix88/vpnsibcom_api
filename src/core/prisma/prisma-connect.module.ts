@@ -10,7 +10,7 @@ import { PrismaModule } from 'nestjs-prisma'
       isGlobal: true,
       useFactory: (config: ConfigService) => ({
         prismaOptions: {
-          log: ['query', 'info', 'warn', 'error'],
+          log: ['info', 'warn', 'error'],
           datasources: {
             db: {
               url: config.getOrThrow<string>('POSTGRES_URL'),
