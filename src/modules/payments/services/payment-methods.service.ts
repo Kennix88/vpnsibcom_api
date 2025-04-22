@@ -25,9 +25,10 @@ export class PaymentMethodsService {
     isTma: boolean,
   ): Promise<PaymentMethodsDataInterface[]> {
     try {
-      const getPaymentMethods = isTma
-        ? await this.prismaService.paymentMethods.findMany({
-            where: {
+      const getPaymentMethods =
+        await this.prismaService.paymentMethods.findMany({
+          where: {
+            ...(isTma && {
               key: {
                 in: [
                   PaymentMethodEnum.STARS,
@@ -44,32 +45,21 @@ export class PaymentMethodsService {
                   PaymentMethodEnum.GRAM_TON,
                 ],
               },
-            },
-            include: {
-              currency: {
-                select: {
-                  key: true,
-                  name: true,
-                  symbol: true,
-                  type: true,
-                  rate: true,
-                },
+            }),
+            isActive: true,
+          },
+          include: {
+            currency: {
+              select: {
+                key: true,
+                name: true,
+                symbol: true,
+                type: true,
+                rate: true,
               },
             },
-          })
-        : await this.prismaService.paymentMethods.findMany({
-            include: {
-              currency: {
-                select: {
-                  key: true,
-                  name: true,
-                  symbol: true,
-                  type: true,
-                  rate: true,
-                },
-              },
-            },
-          })
+          },
+        })
 
       const methods: PaymentMethodsDataInterface[] = getPaymentMethods.map(
         (method) => {
