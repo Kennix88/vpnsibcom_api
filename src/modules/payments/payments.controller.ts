@@ -4,11 +4,11 @@ import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { PaymentMethodsService } from '@modules/payments/services/payment-methods.service'
 import { UsersService } from '@modules/users/users.service'
 import {
-  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -35,7 +35,7 @@ export class PaymentsController {
     @CurrentUser() user: JwtPayload,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
-    @Body('isTma') isTma?: boolean,
+    @Query('isTma') isTma?: boolean,
   ) {
     const token = req.headers.authorization?.split(' ')[1]
     await this.authService.updateUserActivity(token)

@@ -228,7 +228,7 @@ export const PaymentMethodsData: {
     currencyKey: CurrencyEnum.USD,
   },
   {
-    key: PaymentMethodEnum.VOLET_USD,
+    key: PaymentMethodEnum.VOLET_EUR,
     name: 'Volet',
     isActive: false,
     type: PaymentMethodTypeEnum.WALLET,
@@ -243,7 +243,7 @@ export const PaymentMethodsData: {
   },
   {
     key: PaymentMethodEnum.CRYPTOMUS,
-    name: 'Cryptomus',
+    name: 'Cryptomus (More 90 crypto)',
     isActive: false,
     type: PaymentMethodTypeEnum.CRYPTOCURRENCY,
     isTonBlockchain: false,
