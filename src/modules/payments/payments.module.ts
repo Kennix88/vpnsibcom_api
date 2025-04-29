@@ -1,14 +1,15 @@
 import { AuthModule } from '@core/auth/auth.module'
 import { PaymentsController } from '@modules/payments/payments.controller'
-import { PaymentMethodsService } from '@modules/payments/services/payment-methods.service'
+import { PaymentsService } from '@modules/payments/services/payments.service'
+import { RatesModule } from '@modules/rates/rates.module'
 import { UsersModule } from '@modules/users/users.module'
 import { Global, Module } from '@nestjs/common'
 
 @Global()
 @Module({
-  imports: [AuthModule, UsersModule],
+  imports: [AuthModule, UsersModule, RatesModule],
   controllers: [PaymentsController],
-  providers: [PaymentMethodsService],
-  exports: [PaymentMethodsService],
+  providers: [PaymentsService],
+  exports: [PaymentsService],
 })
 export class PaymentsModule {}

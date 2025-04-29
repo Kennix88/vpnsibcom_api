@@ -68,7 +68,7 @@ export enum CurrencyEnum {
   DOGS = 'DOGS',
   CATI = 'CATI',
   USDT = 'USDT',
-  XTR = 'XTR',
+  XCH = 'XCH',
   JETTON = 'JETTON',
   PX = 'PX',
   GRAM = 'GRAM',

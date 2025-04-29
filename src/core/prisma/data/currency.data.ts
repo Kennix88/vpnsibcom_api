@@ -562,7 +562,7 @@ export const CurrencyData: {
     coinmarketcapUCID: '825',
   },
   {
-    key: CurrencyEnum.XCH,
+    key: CurrencyEnum.XTR,
     name: 'Telegram Stars',
     symbol: 'STARS',
     rate: Number((1 / 0.013).toFixed(15)),

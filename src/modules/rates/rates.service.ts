@@ -82,7 +82,7 @@ export class RatesService {
 
       await this.prismaService.currency.update({
         where: {
-          key: CurrencyEnum.XCH,
+          key: CurrencyEnum.XTR,
         },
         data: {
           rate: Number((1 / getSettings.tgStarsToUSD).toFixed(15)),

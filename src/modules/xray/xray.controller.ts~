@@ -28,6 +28,7 @@ export class XrayController {
           ? (req.headers['cf-connecting-ip'] as string)
           : (req.headers['x-forwarded-for'] as string)
         : req.ip
+    this.logger.info('IP: ' + ip + JSON.stringify(req.headers, null, 2))
     const isGreen = await this.xrayService.greenCheck(ip)
 
     return {

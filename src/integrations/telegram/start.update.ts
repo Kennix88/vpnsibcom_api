@@ -1,4 +1,5 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
+import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
 import { ReferralsService } from '@modules/referrals/referrals.service'
 import { ConfigService } from '@nestjs/config'
@@ -14,6 +15,7 @@ export class StartUpdate {
     private readonly logger: PinoLogger,
     private readonly i18n: I18nService<I18nTranslations>,
     private readonly referralsService: ReferralsService,
+    private readonly telegramLogger: LoggerTelegramService,
   ) {
     this.logger.setContext(StartUpdate.name)
   }
@@ -30,6 +32,7 @@ export class StartUpdate {
           ctx.from.id.toString(),
         )
         console.log(JSON.stringify(referrals, null, 2))
+
         // await this.ratesService.updateCoinmarketcapRates()
         // await this.ratesService.updateApilayerRates()
         // await this.ratesService.updateStarsRate()

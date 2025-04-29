@@ -29,7 +29,7 @@ export const PaymentMethodsData: {
     commission: 1,
     isPlusCommission: false,
     system: PaymentSystemEnum.TELEGRAM,
-    currencyKey: CurrencyEnum.XCH,
+    currencyKey: CurrencyEnum.XTR,
   },
   {
     key: PaymentMethodEnum.TOME_CARD,
