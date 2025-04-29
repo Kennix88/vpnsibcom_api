@@ -1,83 +1,58 @@
-import type { Params } from 'nestjs-pino'
-import { DestinationStream, multistream, pino } from 'pino'
-import { Options } from 'pino-http'
+import { ConfigService } from '@nestjs/config'
+import { LoggerModuleAsyncParams } from 'nestjs-pino'
+import { join } from 'path'
 
-export function pinoConfig(): Params | Promise<Params> {
-  return {
-    pinoHttp: <Options | DestinationStream | [Options, DestinationStream]>[
-      {
-        stream: process.stdout,
-        timestamp: pino.stdTimeFunctions.isoTime,
-        formatters: {
-          bindings: (bindings: any) => {
-            return {
-              ...bindings,
-              node_version: process.version,
-            }
-          },
-        },
-        transport: {
-          targets: [
-            {
-              target: 'pino-pretty',
-              level: 'trace',
-              options: {
-                sync: true,
-                singleLine: true,
-                colorize: true,
-              },
-            },
-            {
-              target: 'pino/file',
-              level: 'info',
-              options: {
-                destination: 'logs/info.log',
-                mkdir: true,
-                maxSize: '1m',
-                maxFiles: 3,
-              },
-            },
-            {
-              target: 'pino/file',
-              level: 'error',
-              options: {
-                destination: 'logs/error.log',
-                mkdir: true,
-                maxSize: '1m',
-                maxFiles: 3,
-              },
-            },
-            {
-              target: 'pino/file',
-              level: 'debug',
-              options: {
-                destination: 'logs/debug.log',
-                mkdir: true,
-                maxSize: '1m',
-                maxFiles: 3,
-              },
-            },
-            {
-              target: 'pino/file',
-              level: 'fatal',
-              options: {
-                destination: 'logs/fatal.log',
-                mkdir: true,
-                maxSize: '1m',
-                maxFiles: 3,
-              },
-            },
-          ],
+export const pinoConfig: LoggerModuleAsyncParams = {
+  useFactory: async (configService: ConfigService) => ({
+    pinoHttp: {
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: false,
+          levelFirst: true,
+          translateTime: 'yyyy-mm-dd HH:MM:ss',
+          ignore: 'pid,hostname',
+          destination: join(process.cwd(), 'logs', 'app.log'),
         },
       },
-      multistream(
-        [
-          { level: 'debug', stream: process.stdout },
-          { level: 'error', stream: process.stderr },
-          { level: 'fatal', stream: process.stderr },
+      level: 'info',
+    },
+    pino: {
+      transport: {
+        targets: [
+          {
+            target: 'pino/file',
+            level: 'info',
+            options: {
+              destination: 'logs/info.log',
+              mkdir: true,
+              maxSize: '1m',
+              maxFiles: 3,
+            },
+          },
+          {
+            target: 'pino/file',
+            level: 'error',
+            options: {
+              destination: 'logs/error.log',
+              mkdir: true,
+              maxSize: '1m',
+              maxFiles: 3,
+            },
+          },
+          {
+            target: 'pino/file',
+            level: 'debug',
+            options: {
+              destination: 'logs/debug.log',
+              mkdir: true,
+              maxSize: '1m',
+              maxFiles: 3,
+            },
+          },
         ],
-        { dedupe: true },
-      ),
-    ],
-  }
+      },
+    },
+  }),
+  inject: [ConfigService],
 }

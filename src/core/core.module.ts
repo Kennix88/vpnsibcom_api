@@ -1,5 +1,8 @@
 import { AuthModule } from '@core/auth/auth.module'
 import { pinoConfig } from '@core/configs/pino.config'
+import { GlobalExceptionFilter } from '@core/filters/global-exception.filter'
+import { LogRotationService } from '@core/logger/log-rotation.service'
+import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { PrismaConnectModule } from '@core/prisma/prisma-connect.module'
 import { RedisThrottlerStorage } from '@core/redis-throttler.storage'
 import { RedisModule } from '@core/redis/redis.module'
@@ -11,7 +14,8 @@ import { ReferralsModule } from '@modules/referrals/referrals.module'
 import { UsersModule } from '@modules/users/users.module'
 import { XrayModule } from '@modules/xray/xray.module'
 import { Module } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { ConfigModule } from '@nestjs/config'
+import { APP_FILTER } from '@nestjs/core'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
 import {
@@ -25,11 +29,7 @@ import { LoggerModule } from 'nestjs-pino'
 
 @Module({
   imports: [
-    LoggerModule.forRootAsync({
-      imports: [],
-      useFactory: pinoConfig,
-      inject: [ConfigService],
-    }),
+    LoggerModule.forRootAsync(pinoConfig),
     ConfigModule.forRoot({
       ignoreEnvFile: !IS_DEV_ENV,
       isGlobal: true,
@@ -88,6 +88,13 @@ import { LoggerModule } from 'nestjs-pino'
     PaymentsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    LogRotationService,
+    LoggerTelegramService,
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+  ],
 })
 export class CoreModule {}
