@@ -46,12 +46,21 @@ export class PaymentsUpdate {
       this.logger.info(`SuccessfulPayment: ${JSON.stringify(payment)}`)
 
       const updatePayment = await this.paymentsService.updatePayment(
-        payment.provider_payment_charge_id,
+        payment.invoice_payload,
         PaymentStatusEnum.COMPLETED,
         payment,
       )
 
-      await ctx.reply('✅ Спасибо за оплату! Ваш заказ принят.')
+      if (!updatePayment) {
+        await ctx.reply(
+          `❌ The payment was not successful! Please try again later.`,
+        )
+        return
+      }
+
+      await ctx.reply(
+        `✅ The payment was successful! The balance has been replenished by ${updatePayment.amountStars} STARS!`,
+      )
     } catch (err) {
       this.logger.error({ msg: 'Error in successful_payment handler', err })
     }
