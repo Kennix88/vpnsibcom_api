@@ -16,6 +16,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   async catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse()
+    const request = ctx.getRequest()
 
     // Определяем статус и сообщение
     let status = 500
@@ -35,8 +36,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     await this.telegramLogger.error(`🚨 [${status}] ${message}`)
 
     // Возвращаем стандартный ответ клиенту
-    if (response) {
-      response.status(status).json({ statusCode: status, message })
+    if (response && typeof response.status === 'function') {
+      try {
+        const responseObj = response.status(status)
+        if (responseObj && typeof responseObj.json === 'function') {
+          responseObj.json({ statusCode: status, message })
+        } else if (typeof response.send === 'function') {
+          // Альтернативный способ отправки ответа
+          response.send({ statusCode: status, message })
+        }
+      } catch (err) {
+        this.logger.error(`Ошибка при отправке ответа: ${err.message}`)
+      }
     }
   }
 }

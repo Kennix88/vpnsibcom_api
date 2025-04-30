@@ -8,7 +8,7 @@
   "jsxSingleQuote": false,
   "trailingComma": "all",
   "bracketSpacing": true,
-  "jsxBracketSameLine": true,
+  "bracketSameLine": true,
   "arrowParens": "always",
   "proseWrap": "preserve",
   "plugins": ["prettier-plugin-organize-imports"]

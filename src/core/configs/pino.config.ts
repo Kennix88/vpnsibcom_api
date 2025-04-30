@@ -21,6 +21,16 @@ export const pinoConfig: LoggerModuleAsyncParams = {
       transport: {
         targets: [
           {
+            target: 'pino-pretty',
+            level: 'info',
+            options: {
+              colorize: true,
+              levelFirst: true,
+              translateTime: 'yyyy-mm-dd HH:MM:ss',
+              ignore: 'pid,hostname',
+            },
+          },
+          {
             target: 'pino/file',
             level: 'info',
             options: {

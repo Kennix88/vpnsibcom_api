@@ -15,7 +15,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "nest build & cross-env SEED_MOD=true nest start"
+    "db:seed": "nest build && cross-env SEED_MOD=true nest start"
   },
   "private": false,
   "dependencies": {
@@ -55,6 +55,7 @@
     "connect-redis": "^8.0.2",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
+    "date-fns": "^4.1.0",
     "device-detector-js": "^3.0.3",
     "express-session": "^1.18.1",
     "geoip-lite": "^1.4.10",
@@ -95,7 +96,7 @@
     "@types/express": "^5.0.1",
     "@types/express-session": "^1.18.1",
     "@types/geoip-lite": "^1.4.4",
-    "@types/node": "~18.16.9",
+    "@types/node": "^22.15.3",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
     "@types/redis": "^4.0.10",
