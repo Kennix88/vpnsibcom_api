@@ -109,22 +109,20 @@ export class ReferralsService {
       })
 
       return {
-        inviteBotUrl: `${this.configService.get('BOT_URL')}?start=ref-${tgId}`,
+        inviteBotUrl: `${this.configService.get('BOT_URL')}?start=r-${tgId}`,
         inviteBotTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
           'BOT_URL',
-        )}?start=ref-${tgId}`,
-        inviteTmaUrl: `${this.configService.get(
-          'TMA_URL',
-        )}?startapp=ref-${tgId}`,
+        )}?start=r-${tgId}`,
+        inviteTmaUrl: `${this.configService.get('TMA_URL')}?startapp=r-${tgId}`,
         inviteTmaTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
           'TMA_URL',
-        )}?startapp=ref-${tgId}`,
+        )}?startapp=r-${tgId}`,
         inviteAppUrl: `${this.configService.get(
           'APPLICATION_URL',
-        )}/app?ref=${tgId}`,
+        )}/app?r=${tgId}`,
         inviteAppTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
           'APPLICATION_URL',
-        )}/app?ref=${tgId}`,
+        )}/app?r=${tgId}`,
         lvl1IsActivated,
         lvl2IsActivated,
         lvl3IsActivated,
