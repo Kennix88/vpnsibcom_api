@@ -1,6 +1,6 @@
 import { AuthService } from '@core/auth/auth.service'
 import { UsersService } from '@modules/users/users.service'
-import { XrayService } from '@modules/xray/xray.service'
+import { XrayService } from '@modules/xray/services/xray.service'
 import { Controller, Get, HttpCode, HttpStatus, Req, Res } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -28,7 +28,6 @@ export class XrayController {
           ? (req.headers['cf-connecting-ip'] as string)
           : (req.headers['x-forwarded-for'] as string)
         : req.ip
-    this.logger.info('IP: ' + ip + JSON.stringify(req.headers, null, 2))
     const isGreen = await this.xrayService.greenCheck(ip)
 
     return {

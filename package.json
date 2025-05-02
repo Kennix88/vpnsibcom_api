@@ -47,6 +47,7 @@
     "@ton/core": "^0.60.1",
     "@ton/crypto": "^3.3.0",
     "@ton/ton": "^15.2.1",
+    "axios": "^1.9.0",
     "bcrypt": "^5.1.1",
     "cache-manager": "^6.4.2",
     "cacheable": "^1.8.9",

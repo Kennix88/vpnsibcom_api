@@ -12,11 +12,11 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@vpnsibcom/*": ["*"],
       "@core/*": ["src/core/*"],
-      "@integrations/*": ["src/integrations/*"],
       "@modules/*": ["src/modules/*"],
-      "@shared/*": ["src/shared/*"]
+      "@shared/*": ["src/shared/*"],
+      "@integrations/*": ["src/integrations/*"],
+      "@vpnsibcom/*": ["*"]
     },
     "incremental": true,
     "skipLibCheck": true,
