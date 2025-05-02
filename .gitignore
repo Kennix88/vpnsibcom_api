@@ -2,6 +2,8 @@
 .env
 *.log
 
+*~
+
 # compiled output
 dist
 tmp
@@ -11,6 +13,7 @@ out-tsc
 node_modules
 
 # IDEs and editors
+/.vscode
 /.idea
 .project
 .classpath
