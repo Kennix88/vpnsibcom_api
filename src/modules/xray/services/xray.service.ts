@@ -64,6 +64,17 @@ export class XrayService {
         user.freePlanDays,
       )
 
+      if (!subscription) return false
+
+      await this.prismaService.users.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          isFreePlanAvailable: false,
+        },
+      })
+
       this.logger.info({
         msg: `Бесплатный план успешно активирован для пользователя с Telegram ID: ${telegramId}`,
         service: this.serviceName,
