@@ -1,4 +1,6 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { Injectable } from '@nestjs/common'
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
+import { PinoLogger } from 'nestjs-pino'
 import {
   Admin,
   AdminCreate,
@@ -7,13 +9,12 @@ import {
   CoreConfig,
   CoreStats,
   HostsResponse,
-  HTTPValidationError,
   InboundsResponse,
   NodeCreate,
   NodeModify,
   NodeResponse,
-  NodesUsageResponse,
   NodeSettings,
+  NodesUsageResponse,
   ServerSettings,
   SetOwnerRequest,
   SubscriptionUserResponse,
@@ -22,47 +23,157 @@ import {
   UserBulkCreate,
   UserBulkResponse,
   UserCreate,
-  UserFromTemplateCreate,
   UserModify,
   UserResponse,
   UsersResponse,
   UsersUsagesResponse,
-  UserTemplateCreate,
-  UserTemplateModify,
-  UserTemplateResponse,
   UserUsageResponse,
   UserUsagesResponse,
-} from '../types/marzban.types';
+} from '../types/marzban.types'
 
+@Injectable()
 export class MarzbanService {
-  private client: AxiosInstance;
-  private token: string | null = null;
+  private client: AxiosInstance
+  private token: string | null = null
+  private readonly serviceName = 'MarzbanService'
 
   constructor(
     private readonly baseURL: string,
     private readonly username: string,
     private readonly password: string,
+    private readonly logger: PinoLogger,
   ) {
+    this.logger.setContext(this.serviceName)
+    this.logger.info({
+      msg: `Инициализация MarzbanService для ${baseURL}`,
+      service: this.serviceName,
+    })
+
     this.client = axios.create({
       baseURL,
       headers: {
         'Content-Type': 'application/json',
       },
-    });
+    })
 
     // Добавляем интерцептор для автоматического добавления токена
-    this.client.interceptors.request.use(async (config) => {
-      // Если токен отсутствует или истек, получаем новый
-      if (!this.token) {
-        await this.authenticate();
-      }
+    this.client.interceptors.request.use(
+      async (config) => {
+        this.logger.debug({
+          msg: `Отправка запроса: ${config.method?.toUpperCase()} ${
+            config.url
+          }`,
+          service: this.serviceName,
+        })
 
-      if (this.token) {
-        config.headers.Authorization = `Bearer ${this.token}`;
-      }
+        // Если токен отсутствует или истек, получаем новый
+        if (!this.token) {
+          this.logger.info({
+            msg: 'Токен отсутствует, выполняем аутентификацию',
+            service: this.serviceName,
+          })
+          await this.authenticate()
+        }
 
-      return config;
-    });
+        if (this.token) {
+          config.headers.Authorization = `Bearer ${this.token}`
+        }
+
+        return config
+      },
+      (error) => {
+        this.logger.error({
+          msg: `Ошибка при подготовке запроса: ${error.message}`,
+          error,
+          stack: error instanceof Error ? error.stack : undefined,
+          service: this.serviceName,
+        })
+        return Promise.reject(error)
+      },
+    )
+
+    // Добавляем интерцептор для обработки ответов
+    this.client.interceptors.response.use(
+      (response) => {
+        this.logger.debug({
+          msg: `Получен ответ: ${
+            response.status
+          } ${response.config.method?.toUpperCase()} ${response.config.url}`,
+          service: this.serviceName,
+        })
+        return response
+      },
+      async (error: AxiosError) => {
+        if (error.response) {
+          this.logger.error({
+            msg: `Ошибка API: ${
+              error.response.status
+            } ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+            error: error.response.data,
+            service: this.serviceName,
+          })
+
+          // Если ошибка 401 (Unauthorized), пробуем переаутентифицироваться
+          if (error.response.status === 401) {
+            this.logger.warn({
+              msg: 'Получена ошибка 401, пробуем переаутентифицироваться',
+              service: this.serviceName,
+            })
+            this.token = null
+
+            // Если это не запрос на аутентификацию, пробуем повторить запрос
+            if (error.config?.url !== '/api/admin/token') {
+              try {
+                await this.authenticate()
+
+                // Создаем новый запрос без интерцепторов, чтобы избежать бесконечного цикла
+                const newConfig = { ...error.config }
+                if (this.token) {
+                  // @ts-ignore
+                  newConfig.headers = {
+                    ...newConfig.headers,
+                    Authorization: `Bearer ${this.token}`,
+                  }
+                }
+
+                this.logger.info({
+                  msg: `Повторная отправка запроса после переаутентификации: ${newConfig.method?.toUpperCase()} ${
+                    newConfig.url
+                  }`,
+                  service: this.serviceName,
+                })
+                return axios(newConfig)
+              } catch (authError) {
+                this.logger.error({
+                  msg: 'Не удалось переаутентифицироваться',
+                  error: authError,
+                  stack:
+                    authError instanceof Error ? authError.stack : undefined,
+                  service: this.serviceName,
+                })
+                return Promise.reject(authError)
+              }
+            }
+          }
+        } else if (error.request) {
+          this.logger.error({
+            msg: `Ошибка сети: запрос отправлен, но ответ не получен`,
+            error: error.message,
+            stack: error instanceof Error ? error.stack : undefined,
+            service: this.serviceName,
+          })
+        } else {
+          this.logger.error({
+            msg: `Ошибка при настройке запроса: ${error.message}`,
+            error,
+            stack: error instanceof Error ? error.stack : undefined,
+            service: this.serviceName,
+          })
+        }
+
+        return Promise.reject(error)
+      },
+    )
   }
 
   /**
@@ -70,6 +181,11 @@ export class MarzbanService {
    */
   private async authenticate(): Promise<void> {
     try {
+      this.logger.info({
+        msg: `Выполняем аутентификацию в Marzban API: ${this.baseURL}`,
+        service: this.serviceName,
+      })
+
       const response = await axios.post<Token>(
         `${this.baseURL}/api/admin/token`,
         new URLSearchParams({
@@ -81,391 +197,439 @@ export class MarzbanService {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         },
-      );
+      )
 
-      this.token = response.data.access_token;
+      this.token = response.data.access_token
+      this.logger.info({
+        msg: 'Аутентификация успешна, токен получен',
+        service: this.serviceName,
+      })
     } catch (error) {
-      console.error('Ошибка аутентификации в Marzban:', error);
-      throw new Error('Не удалось аутентифицироваться в Marzban API');
+      const axiosError = error as AxiosError
+      this.logger.error({
+        msg: `Ошибка аутентификации в Marzban: ${axiosError.message}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+
+      if (axiosError.response) {
+        this.logger.error({
+          msg: `Статус ошибки: ${axiosError.response.status}`,
+          error: axiosError.response.data,
+          service: this.serviceName,
+        })
+      } else if (axiosError.request) {
+        this.logger.error({
+          msg: 'Ошибка сети: запрос отправлен, но ответ не получен',
+          service: this.serviceName,
+        })
+      }
+
+      throw new Error('Не удалось аутентифицироваться в Marzban API')
+    }
+  }
+
+  /**
+   * Обертка для логирования запросов API
+   * @param method Название метода API
+   * @param apiCall Функция вызова API
+   * @returns Результат вызова API
+   */
+  private async logApiCall<T>(
+    method: string,
+    apiCall: () => Promise<AxiosResponse<T>>,
+  ): Promise<AxiosResponse<T>> {
+    try {
+      this.logger.debug({
+        msg: `Вызов метода API: ${method}`,
+        service: this.serviceName,
+      })
+      const startTime = Date.now()
+      const response = await apiCall()
+      const duration = Date.now() - startTime
+
+      this.logger.debug({
+        msg: `Успешный ответ от ${method}: статус ${response.status}`,
+        duration: `${duration}ms`,
+        service: this.serviceName,
+      })
+      return response
+    } catch (error) {
+      const axiosError = error as AxiosError
+      this.logger.error({
+        msg: `Ошибка при вызове ${method}: ${axiosError.message}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      throw error
     }
   }
 
   /**
    * Получение информации о текущем администраторе
    */
-  async getCurrentAdmin(): Promise<AxiosResponse<Admin>> {
-    return this.client.get<Admin>('/api/admin');
-  }
-
-  /**
-   * Создание нового администратора
-   */
-  async createAdmin(adminData: AdminCreate): Promise<AxiosResponse<Admin>> {
-    return this.client.post<Admin>('/api/admin', adminData);
-  }
-
-  /**
-   * Изменение данных администратора
-   */
-  async modifyAdmin(username: string, adminData: AdminModify): Promise<AxiosResponse<Admin>> {
-    return this.client.put<Admin>(`/api/admin/${username}`, adminData);
-  }
-
-  /**
-   * Удаление администратора
-   */
-  async removeAdmin(username: string): Promise<AxiosResponse<void>> {
-    return this.client.delete(`/api/admin/${username}`);
+  async getCurrentAdmin(): Promise<Admin> {
+    const response = await this.logApiCall('getCurrentAdmin', () =>
+      this.client.get<Admin>('/api/admin'),
+    )
+    return response.data
   }
 
   /**
    * Получение списка администраторов
    */
-  async getAdmins(offset?: number, limit?: number, username?: string): Promise<AxiosResponse<Admin[]>> {
-    const params = new URLSearchParams();
-    if (offset !== undefined) params.append('offset', offset.toString());
-    if (limit !== undefined) params.append('limit', limit.toString());
-    if (username) params.append('username', username);
-
-    return this.client.get<Admin[]>('/api/admins', { params });
+  async getAdmins(): Promise<Admin[]> {
+    const response = await this.logApiCall('getAdmins', () =>
+      this.client.get<Admin[]>('/api/admin/list'),
+    )
+    return response.data
   }
 
   /**
-   * Получение статистики ядра
+   * Создание нового администратора
    */
-  async getCoreStats(): Promise<AxiosResponse<CoreStats>> {
-    return this.client.get<CoreStats>('/api/core');
+  async createAdmin(adminData: AdminCreate): Promise<Admin> {
+    this.logger.info({
+      msg: `Создание нового администратора: ${adminData.username}`,
+      service: this.serviceName,
+    })
+    const response = await this.logApiCall('createAdmin', () =>
+      this.client.post<Admin>('/api/admin', adminData),
+    )
+    return response.data
   }
 
   /**
-   * Перезапуск ядра
+   * Изменение данных администратора
    */
-  async restartCore(): Promise<AxiosResponse<void>> {
-    return this.client.post('/api/core/restart');
+  async modifyAdmin(username: string, adminData: AdminModify): Promise<Admin> {
+    this.logger.info({
+      msg: `Изменение данных администратора: ${username}`,
+      service: this.serviceName,
+    })
+    const response = await this.logApiCall('modifyAdmin', () =>
+      this.client.put<Admin>(`/api/admin/${username}`, adminData),
+    )
+    return response.data
   }
 
   /**
-   * Получение конфигурации ядра
+   * Удаление администратора
    */
-  async getCoreConfig(): Promise<AxiosResponse<CoreConfig>> {
-    return this.client.get<CoreConfig>('/api/core/config');
+  async removeAdmin(username: string): Promise<void> {
+    this.logger.info({
+      msg: `Удаление администратора: ${username}`,
+      service: this.serviceName,
+    })
+    await this.logApiCall('removeAdmin', () =>
+      this.client.delete(`/api/admin/${username}`),
+    )
   }
 
   /**
-   * Изменение конфигурации ядра
+   * Получение списка пользователей
    */
-  async modifyCoreConfig(config: CoreConfig): Promise<AxiosResponse<CoreConfig>> {
-    return this.client.put<CoreConfig>('/api/core/config', config);
+  async getUsers(): Promise<UsersResponse> {
+    const response = await this.logApiCall('getUsers', () =>
+      this.client.get<UsersResponse>('/api/user'),
+    )
+    return response.data
   }
 
   /**
-   * Получение настроек узла
+   * Добавление нового пользователя
    */
-  async getNodeSettings(): Promise<AxiosResponse<NodeSettings>> {
-    return this.client.get<NodeSettings>('/api/node/settings');
-  }
-
-  /**
-   * Добавление нового узла
-   */
-  async addNode(nodeData: NodeCreate): Promise<AxiosResponse<NodeResponse>> {
-    return this.client.post<NodeResponse>('/api/node', nodeData);
-  }
-
-  /**
-   * Получение информации об узле
-   */
-  async getNode(nodeId: number): Promise<AxiosResponse<NodeResponse>> {
-    return this.client.get<NodeResponse>(`/api/node/${nodeId}`);
-  }
-
-  /**
-   * Изменение узла
-   */
-  async modifyNode(nodeId: number, nodeData: NodeModify): Promise<AxiosResponse<NodeResponse>> {
-    return this.client.put<NodeResponse>(`/api/node/${nodeId}`, nodeData);
-  }
-
-  /**
-   * Удаление узла
-   */
-  async removeNode(nodeId: number): Promise<AxiosResponse<void>> {
-    return this.client.delete(`/api/node/${nodeId}`);
-  }
-
-  /**
-   * Получение списка узлов
-   */
-  async getNodes(): Promise<AxiosResponse<NodeResponse[]>> {
-    return this.client.get<NodeResponse[]>('/api/nodes');
-  }
-
-  /**
-   * Переподключение узла
-   */
-  async reconnectNode(nodeId: number): Promise<AxiosResponse<void>> {
-    return this.client.post(`/api/node/${nodeId}/reconnect`);
-  }
-
-  /**
-   * Получение статистики использования узлов
-   */
-  async getNodesUsage(start?: string, end?: string): Promise<AxiosResponse<NodesUsageResponse>> {
-    const params = new URLSearchParams();
-    if (start) params.append('start', start);
-    if (end) params.append('end', end);
-
-    return this.client.get<NodesUsageResponse>('/api/nodes/usage', { params });
-  }
-
-  /**
-   * Получение информации о подписке пользователя
-   */
-  async getUserSubscriptionInfo(token: string): Promise<AxiosResponse<SubscriptionUserResponse>> {
-    return this.client.get<SubscriptionUserResponse>(`/sub/${token}/info`);
-  }
-
-  /**
-   * Получение статистики использования для пользователя по токену
-   */
-  async getUserUsageByToken(token: string, start?: string, end?: string): Promise<AxiosResponse<UserUsageResponse>> {
-    const params = new URLSearchParams();
-    if (start) params.append('start', start);
-    if (end) params.append('end', end);
-
-    return this.client.get<UserUsageResponse>(`/sub/${token}/usage`, { params });
-  }
-
-  /**
-   * Получение системной статистики
-   */
-  async getSystemStats(): Promise<AxiosResponse<SystemStats>> {
-    return this.client.get<SystemStats>('/api/system');
-  }
-
-  /**
-   * Получение шаблонов пользователей
-   */
-  async getUserTemplates(offset?: number, limit?: number): Promise<AxiosResponse<UserTemplateResponse[]>> {
-    const params = new URLSearchParams();
-    if (offset !== undefined) params.append('offset', offset.toString());
-    if (limit !== undefined) params.append('limit', limit.toString());
-
-    return this.client.get<UserTemplateResponse[]>('/api/user_template', { params });
-  }
-
-  /**
-   * Добавление шаблона пользователя
-   */
-  async addUserTemplate(templateData: UserTemplateCreate): Promise<AxiosResponse<UserTemplateResponse>> {
-    return this.client.post<UserTemplateResponse>('/api/user_template', templateData);
-  }
-
-  /**
-   * Получение шаблона пользователя по ID
-   */
-  async getUserTemplate(templateId: number): Promise<AxiosResponse<UserTemplateResponse>> {
-    return this.client.get<UserTemplateResponse>(`/api/user_template/${templateId}`);
-  }
-
-  /**
-   * Изменение шаблона пользователя
-   */
-  async modifyUserTemplate(templateId: number, templateData: UserTemplateModify): Promise<AxiosResponse<UserTemplateResponse>> {
-    return this.client.put<UserTemplateResponse>(`/api/user_template/${templateId}`, templateData);
-  }
-
-  /**
-   * Удаление шаблона пользователя
-   */
-  async removeUserTemplate(templateId: number): Promise<AxiosResponse<void>> {
-    return this.client.delete(`/api/user_template/${templateId}`);
-  }
-
-  /**
-   * Добавление пользователя
-   */
-  async addUser(userData: UserCreate): Promise<AxiosResponse<UserResponse>> {
-    return this.client.post<UserResponse>('/api/user', userData);
+  async addUser(userData: UserCreate): Promise<UserResponse> {
+    this.logger.info({
+      msg: `Добавление нового пользователя: ${userData.username}`,
+      service: this.serviceName,
+    })
+    const response = await this.logApiCall('addUser', () =>
+      this.client.post<UserResponse>('/api/user', userData),
+    )
+    return response.data
   }
 
   /**
    * Получение информации о пользователе
    */
-  async getUser(username: string): Promise<AxiosResponse<UserResponse>> {
-    return this.client.get<UserResponse>(`/api/user/${username}`);
+  async getUser(username: string): Promise<UserResponse> {
+    const response = await this.logApiCall('getUser', () =>
+      this.client.get<UserResponse>(`/api/user/${username}`),
+    )
+    return response.data
   }
 
   /**
-   * Изменение пользователя
+   * Изменение данных пользователя
    */
-  async modifyUser(username: string, userData: UserModify): Promise<AxiosResponse<UserResponse>> {
-    return this.client.put<UserResponse>(`/api/user/${username}`, userData);
+  async modifyUser(
+    username: string,
+    userData: UserModify,
+  ): Promise<UserResponse> {
+    this.logger.info({
+      msg: `Изменение данных пользователя: ${username}`,
+      service: this.serviceName,
+    })
+    const response = await this.logApiCall('modifyUser', () =>
+      this.client.put<UserResponse>(`/api/user/${username}`, userData),
+    )
+    return response.data
   }
 
   /**
    * Удаление пользователя
    */
-  async removeUser(username: string): Promise<AxiosResponse<void>> {
-    return this.client.delete(`/api/user/${username}`);
-  }
-
-  /**
-   * Сброс использования данных пользователя
-   */
-  async resetUserDataUsage(username: string): Promise<AxiosResponse<void>> {
-    return this.client.post(`/api/user/${username}/reset`);
-  }
-
-  /**
-   * Отзыв подписки пользователя
-   */
-  async revokeUserSubscription(username: string): Promise<AxiosResponse<void>> {
-    return this.client.post(`/api/user/${username}/revoke_sub`);
+  async removeUser(username: string): Promise<void> {
+    this.logger.info({
+      msg: `Удаление пользователя: ${username}`,
+      service: this.serviceName,
+    })
+    await this.logApiCall('removeUser', () =>
+      this.client.delete(`/api/user/${username}`),
+    )
   }
 
   /**
    * Получение статистики использования пользователя
    */
-  async getUserUsage(username: string, start?: string, end?: string): Promise<AxiosResponse<UserUsagesResponse>> {
-    const params = new URLSearchParams();
-    if (start) params.append('start', start);
-    if (end) params.append('end', end);
-
-    return this.client.get<UserUsagesResponse>(`/api/user/${username}/usage`, { params });
+  async getUserUsage(username: string): Promise<UserUsageResponse> {
+    const response = await this.logApiCall('getUserUsage', () =>
+      this.client.get<UserUsageResponse>(`/api/user/${username}/usage`),
+    )
+    return response.data
   }
 
   /**
-   * Сброс использования данных для всех пользователей
+   * Получение истории использования пользователя
    */
-  async resetUsersDataUsage(): Promise<AxiosResponse<void>> {
-    return this.client.post('/api/users/reset');
+  async getUserUsages(username: string): Promise<UserUsagesResponse> {
+    const response = await this.logApiCall('getUserUsages', () =>
+      this.client.get<UserUsagesResponse>(`/api/user/${username}/usages`),
+    )
+    return response.data
   }
 
   /**
-   * Получение статистики использования для всех пользователей
+   * Сброс статистики использования пользователя
    */
-  async getUsersUsage(start?: string, end?: string, admin?: string[]): Promise<AxiosResponse<UsersUsagesResponse>> {
-    const params = new URLSearchParams();
-    if (start) params.append('start', start);
-    if (end) params.append('end', end);
-    if (admin && admin.length > 0) {
-      admin.forEach(a => params.append('admin', a));
-    }
-
-    return this.client.get<UsersUsagesResponse>('/api/users/usage', { params });
+  async resetUserUsage(username: string): Promise<void> {
+    this.logger.info({
+      msg: `Сброс статистики использования пользователя: ${username}`,
+      service: this.serviceName,
+    })
+    await this.logApiCall('resetUserUsage', () =>
+      this.client.post(`/api/user/${username}/reset`),
+    )
   }
 
   /**
-   * Установка владельца для пользователя
+   * Получение ссылки на подписку пользователя
    */
-  async setOwner(username: string, adminUsername: string): Promise<AxiosResponse<void>> {
-    const params = new URLSearchParams();
-    params.append('admin_username', adminUsername);
-
-    return this.client.post(`/api/user/${username}/set_owner`, params);
+  async getUserSubscription(
+    username: string,
+  ): Promise<SubscriptionUserResponse> {
+    const response = await this.logApiCall('getUserSubscription', () =>
+      this.client.get<SubscriptionUserResponse>(
+        `/api/user/${username}/subscription`,
+      ),
+    )
+    return response.data
   }
 
   /**
-   * Получение пользователей
+   * Массовое создание пользователей
    */
-  async getUsers(offset?: number, limit?: number, status?: string, sort?: string, username?: string, admin?: string): Promise<AxiosResponse<UsersResponse>> {
-    const params = new URLSearchParams();
-    if (offset !== undefined) params.append('offset', offset.toString());
-    if (limit !== undefined) params.append('limit', limit.toString());
-    if (status) params.append('status', status);
-    if (sort) params.append('sort', sort);
-    if (username) params.append('username', username);
-    if (admin) params.append('admin', admin);
-
-    return this.client.get<UsersResponse>('/api/users', { params });
+  async bulkCreateUsers(usersData: UserBulkCreate): Promise<UserBulkResponse> {
+    this.logger.info({
+      msg: `Массовое создание пользователей: ${usersData.users.length} пользователей`,
+      service: this.serviceName,
+    })
+    const response = await this.logApiCall('bulkCreateUsers', () =>
+      this.client.post<UserBulkResponse>('/api/user/bulk', usersData),
+    )
+    return response.data
   }
 
   /**
-   * Получение пользовательской подписки
+   * Получение статистики использования всех пользователей
    */
-  async getUserSubscription(token: string, userAgent?: string): Promise<AxiosResponse<string>> {
-    const config: any = {};
-    if (userAgent) {
-      config.headers = {
-        'User-Agent': userAgent,
-      };
-    }
-
-    return this.client.get<string>(`/sub/${token}/`, config);
+  async getUsersUsages(): Promise<UsersUsagesResponse> {
+    const response = await this.logApiCall('getUsersUsages', () =>
+      this.client.get<UsersUsagesResponse>('/api/user/usages'),
+    )
+    return response.data
   }
 
   /**
-   * Получение статистики использования для всех узлов
+   * Получение статистики системы
    */
-  async getAllNodesUsage(start?: string, end?: string): Promise<AxiosResponse<NodesUsageResponse>> {
-    const params = new URLSearchParams();
-    if (start) params.append('start', start);
-    if (end) params.append('end', end);
-
-    return this.client.get<NodesUsageResponse>('/api/nodes/usage', { params });
+  async getSystemStats(): Promise<SystemStats> {
+    const response = await this.logApiCall('getSystemStats', () =>
+      this.client.get<SystemStats>('/api/system'),
+    )
+    return response.data
   }
 
   /**
-   * Получение списка inbounds
+   * Получение статистики ядра
    */
-  async getInbounds(): Promise<AxiosResponse<InboundsResponse>> {
-    return this.client.get<InboundsResponse>('/api/inbounds');
+  async getCoreStats(): Promise<CoreStats> {
+    const response = await this.logApiCall('getCoreStats', () =>
+      this.client.get<CoreStats>('/api/core/stats'),
+    )
+    return response.data
   }
 
   /**
-   * Получение списка хостов
+   * Получение конфигурации ядра
    */
-  async getHosts(): Promise<AxiosResponse<HostsResponse>> {
-    return this.client.get<HostsResponse>('/api/hosts');
+  async getCoreConfig(): Promise<CoreConfig> {
+    const response = await this.logApiCall('getCoreConfig', () =>
+      this.client.get<CoreConfig>('/api/core/config'),
+    )
+    return response.data
   }
 
   /**
-   * Изменение хостов
+   * Получение списка входящих соединений
    */
-  async modifyHosts(hostsData: Record<string, string>): Promise<AxiosResponse<HostsResponse>> {
-    return this.client.put<HostsResponse>('/api/hosts', hostsData);
-  }
-
-  /**
-   * Создание нескольких пользователей
-   */
-  async addUsers(usersData: UserBulkCreate): Promise<AxiosResponse<UserBulkResponse>> {
-    return this.client.post<UserBulkResponse>('/api/users', usersData);
-  }
-
-  /**
-   * Создание пользователя из шаблона
-   */
-  async addUserFromTemplate(templateId: number, userData: UserFromTemplateCreate): Promise<AxiosResponse<UserResponse>> {
-    return this.client.post<UserResponse>(`/api/user_template/${templateId}/create_user`, userData);
-  }
-
-  /**
-   * Создание нескольких пользователей из шаблона
-   */
-  async addUsersFromTemplate(templateId: number, usersData: UserFromTemplateCreate): Promise<AxiosResponse<UserBulkResponse>> {
-    return this.client.post<UserBulkResponse>(`/api/user_template/${templateId}/create_users`, usersData);
+  async getInbounds(): Promise<InboundsResponse> {
+    const response = await this.logApiCall('getInbounds', () =>
+      this.client.get<InboundsResponse>('/api/inbound'),
+    )
+    return response.data
   }
 
   /**
    * Получение версии API
    */
-  async getApiVersion(): Promise<AxiosResponse<ApiVersionResponse>> {
-    return this.client.get<ApiVersionResponse>('/api/version');
+  async getApiVersion(): Promise<ApiVersionResponse> {
+    const response = await this.logApiCall('getApiVersion', () =>
+      this.client.get<ApiVersionResponse>('/api/version'),
+    )
+    return response.data
   }
 
   /**
    * Получение настроек сервера
    */
-  async getServerSettings(): Promise<AxiosResponse<ServerSettings>> {
-    return this.client.get<ServerSettings>('/api/settings');
+  async getServerSettings(): Promise<ServerSettings> {
+    const response = await this.logApiCall('getServerSettings', () =>
+      this.client.get<ServerSettings>('/api/setting'),
+    )
+    return response.data
   }
 
   /**
-   * Изменение настроек сервера
+   * Обновление настроек сервера
    */
-  async modifyServerSettings(settingsData: ServerSettings): Promise<AxiosResponse<ServerSettings>> {
-    return this.client.put<ServerSettings>('/api/settings', settingsData);
+  async updateServerSettings(
+    settings: ServerSettings,
+  ): Promise<ServerSettings> {
+    this.logger.info({
+      msg: `Обновление настроек сервера`,
+      service: this.serviceName,
+    })
+    const response = await this.logApiCall('updateServerSettings', () =>
+      this.client.put<ServerSettings>('/api/setting', settings),
+    )
+    return response.data
+  }
+
+  /**
+   * Получение списка хостов
+   */
+  async getHosts(): Promise<HostsResponse> {
+    const response = await this.logApiCall('getHosts', () =>
+      this.client.get<HostsResponse>('/api/host'),
+    )
+    return response.data
+  }
+
+  /**
+   * Получение списка нод
+   */
+  async getNodes(): Promise<NodeResponse[]> {
+    const response = await this.logApiCall('getNodes', () =>
+      this.client.get<NodeResponse[]>('/api/node'),
+    )
+    return response.data
+  }
+
+  /**
+   * Добавление новой ноды
+   */
+  async addNode(nodeData: NodeCreate): Promise<NodeResponse> {
+    this.logger.info({
+      msg: `Добавление новой ноды: ${nodeData.name}`,
+      service: this.serviceName,
+    })
+    const response = await this.logApiCall('addNode', () =>
+      this.client.post<NodeResponse>('/api/node', nodeData),
+    )
+    return response.data
+  }
+
+  /**
+   * Изменение данных ноды
+   */
+  async modifyNode(id: number, nodeData: NodeModify): Promise<NodeResponse> {
+    this.logger.info({
+      msg: `Изменение данных ноды с ID: ${id}`,
+      service: this.serviceName,
+    })
+    const response = await this.logApiCall('modifyNode', () =>
+      this.client.put<NodeResponse>(`/api/node/${id}`, nodeData),
+    )
+    return response.data
+  }
+
+  /**
+   * Удаление ноды
+   */
+  async removeNode(id: number): Promise<void> {
+    this.logger.info({
+      msg: `Удаление ноды с ID: ${id}`,
+      service: this.serviceName,
+    })
+    await this.logApiCall('removeNode', () =>
+      this.client.delete(`/api/node/${id}`),
+    )
+  }
+
+  /**
+   * Получение статистики использования нод
+   */
+  async getNodesUsage(): Promise<NodesUsageResponse> {
+    const response = await this.logApiCall('getNodesUsage', () =>
+      this.client.get<NodesUsageResponse>('/api/node/usage'),
+    )
+    return response.data
+  }
+
+  /**
+   * Получение настроек ноды
+   */
+  async getNodeSettings(id: number): Promise<NodeSettings> {
+    const response = await this.logApiCall('getNodeSettings', () =>
+      this.client.get<NodeSettings>(`/api/node/${id}/settings`),
+    )
+    return response.data
+  }
+
+  /**
+   * Установка владельца для пользователя
+   */
+  async setOwner(username: string, ownerData: SetOwnerRequest): Promise<void> {
+    this.logger.info({
+      msg: `Установка владельца для пользователя: ${username}`,
+      service: this.serviceName,
+    })
+    await this.logApiCall('setOwner', () =>
+      this.client.put(`/api/user/${username}/owner`, ownerData),
+    )
   }
 }
