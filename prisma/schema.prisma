@@ -1,3 +1,4 @@
+// Настройки генератора и источника данных
 generator client {
   provider = "prisma-client-js"
   // output   = "./generated"
@@ -8,17 +9,30 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
+// ==========================================
+// ОСНОВНЫЕ НАСТРОЙКИ И ПЕРЕЧИСЛЕНИЯ
+// ==========================================
+
+/// Перечисление для настроек по умолчанию
 enum DefaultEnum {
   DEFAULT
 }
 
+/// Модель настроек приложения
 model Settings {
   key                              DefaultEnum @id @default(DEFAULT)
+  /// Курс обмена Telegram Stars к USD
   tgStarsToUSD                     Float       @default(0.013) @map("tg_stars_to_usd")
+  /// Стоимость подписки в Stars
   priceSubscriptionStars           Int         @default(699) @map("price_subscription_stars")
+  /// Комиссия при обмене Stars на TON
   commissionStarsToTon             Float       @default(0.90) @map("commission_stars_to_ton")
+  /// Награда за просмотр рекламы в Stars
   adsRewardStars                   Float       @default(0.1) @map("ads_reward_stars")
+  /// Награда за выполнение задания с рекламой в Stars
   adsTaskRewardStars               Float       @default(10) @map("ads_task_reward_stars")
+  
+  // Коэффициенты оплаты для разных периодов подписки
   hourRatioPayment                 Float       @default(1.39) @map("hour_ratio_payment")
   dayRatioPayment                  Float       @default(1.31) @map("day_ratio_payment")
   threeMouthesRatioPayment         Float       @default(0.97) @map("three_mouthes_ratio_payment")
@@ -26,114 +40,196 @@ model Settings {
   oneYearRatioPayment              Float       @default(0.88) @map("one_year_ratio_payment")
   twoYearRatioPayment              Float       @default(0.76) @map("two_year_ratio_payment")
   threeYearRatioPayment            Float       @default(0.64) @map("three_year_ratio_payment")
+  
+  // Настройки реферальной программы
+  /// Процент вознаграждения для рефералов первого уровня
   referralOneLevelPercent          Float       @default(0.1) @map("referral_one_level_percent")
+  /// Процент вознаграждения для рефералов второго уровня
   referralTwoLevelPercent          Float       @default(0.05) @map("referral_two_level_percent")
+  /// Процент вознаграждения для рефералов третьего уровня
   referralThreeLevelPercent        Float       @default(0.01) @map("referral_three_level_percent")
+  /// Награда за приглашение обычного пользователя в Stars
   referralInviteRewardStars        Float       @default(10) @map("referral_invite_reward_stars")
+  /// Награда за приглашение премиум-пользователя в Stars
   referralInvitePremiumRewardStars Float       @default(50) @map("referral_invite_premiumreward_stars")
+  
+  // Ограничения и бонусы
+  /// Максимальное количество устройств на одного пользователя
   limitDevices                     Int         @default(10) @map("limit_devices")
+  /// Количество дней бесплатного периода для обычных пользователей
   freePlanDays                     Int         @default(7) @map("free_plan_days")
+  /// Количество дней бесплатного периода для рефералов
   freePlanDaysForReferrals         Int         @default(14) @map("free_plan_days_for_referrals")
 
   @@map("settings")
 }
 
+// ==========================================
+// ПОЛЬЗОВАТЕЛЬСКИЕ ДАННЫЕ
+// ==========================================
+
+/// Модель для хранения данных Telegram пользователя
 model UserTelegramData {
   id                    String   @id @default(uuid())
+  /// Активен ли пользователь
   isLive                Boolean  @default(false) @map("is_live")
+  /// Использует ли RTL-язык
   isRtl                 Boolean  @default(false) @map("is_rtl")
+  /// Имеет ли премиум-статус в Telegram
   isPremium             Boolean  @default(false) @map("is_premium")
+  /// Является ли ботом
   isBot                 Boolean  @default(false) @map("is_bot")
+  /// Имя пользователя
   firstName             String   @map("first_name")
+  /// Фамилия пользователя
   lastName              String?  @map("last_name")
+  /// Имя пользователя в Telegram
   username              String?
+  /// Код языка пользователя
   languageCode          String   @map("language_code")
+  /// URL фотографии пользователя
   photoUrl              String?  @map("photo_url")
+  /// Добавлен ли в меню вложений
   addedToAttachmentMenu Boolean  @default(false) @map("added_to_attachment_menu")
+  /// Разрешает ли личные сообщения
   allowsWriteToPm       Boolean  @default(false) @map("allows_write_to_pm")
+  /// Дата последнего обновления
   updatedAt             DateTime @updatedAt @map("updated_at")
 
+  /// Связь с пользователем
   user Users?
 
   @@map("user_telegram_data")
 }
 
+/// Модель для хранения реферальных отношений
 model Referrals {
   id                       String  @id @default(uuid())
+  /// Уровень реферала (1-3)
   level                    Int     @default(1)
+  /// Связь с пригласившим пользователем
   inviter                  Users   @relation("inviter", fields: [inviterId], references: [id])
   inviterId                String  @map("inviter_id")
+  /// Связь с приглашенным пользователем
   referral                 Users   @relation("referral", fields: [referralId], references: [id])
   referralId               String  @map("referral_id")
+  /// Общая сумма вознаграждений за платежи
   totalPaymentsRewarded    Float   @default(0)
+  /// Общая сумма вознаграждений за выводы
   totalWithdrawalsRewarded Float   @default(0)
+  /// Активирован ли реферал
   isActivated              Boolean @default(false)
+  /// Имеет ли реферал премиум-статус
   isPremium                Boolean @default(false)
 
+  /// Дата создания
   createdAt DateTime @default(now()) @map("created_at")
+  /// Дата обновления
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("referrals")
+  @@index([inviterId])
+  @@index([referralId])
 }
 
+/// Основная модель пользователя
 model Users {
   id                  String  @id @default(uuid())
+  /// Telegram ID пользователя
   telegramId          String  @unique @map("telegram_id")
+  /// TON кошелек пользователя
   tonWallet           String? @unique @map("ton_wallet")
+  /// Доступен ли бесплатный план
   isFreePlanAvailable Boolean @default(true) @map("is_free_plan_available")
+  /// Заблокирован ли пользователь
   isBanned            Boolean @default(false) @map("is_banned")
+  /// Удален ли пользователь
   isDeleted           Boolean @default(false) @map("is_deleted")
 
+  /// Дата создания
   createdAt     DateTime  @default(now()) @map("created_at")
+  /// Дата обновления
   updatedAt     DateTime  @updatedAt @map("updated_at")
+  /// Дата последнего входа
   lastStartedAt DateTime? @map("last_started_at")
+  /// Дата истечения бана
   banExpiredAt  DateTime? @map("banned_expired_at")
+  /// Дата удаления
   deletedAt     DateTime? @map("deleted_at")
 
+  /// Роль пользователя
   role                      Roles               @relation(fields: [roleId], references: [key])
   roleId                    UserRoleEnum        @default(USER) @map("role_id")
+  /// Платежи пользователя
   payments                  Payments[]
+  /// Рефералы, приглашенные пользователем
   referrals                 Referrals[]         @relation("inviter")
+  /// Пользователи, пригласившие данного пользователя
   inviters                  Referrals[]         @relation("referral")
+  /// Данные Telegram пользователя
   telegramData              UserTelegramData?   @relation(fields: [telegramDataId], references: [id])
   telegramDataId            String?             @unique @map("telegram_data_id")
+  /// Баланс пользователя
   balance                   UserBalance?        @relation(fields: [balanceId], references: [id])
   balanceId                 String?             @unique @map("balance_id")
+  /// Язык пользователя
   language                  Language            @relation(fields: [languageId], references: [id])
   languageId                String              @map("language_id")
+  /// Валюта пользователя
   currency                  Currency            @relation(fields: [currencyKey], references: [key])
   currencyKey               CurrencyEnum        @default(USD) @map("currency_key")
+  /// Подписки пользователя
   subscriptions             Subscriptions[]
+  /// Подарочные подписки, созданные пользователем
   giftSubscriptions         GiftSubscriptions[]
+  /// Активированные подарочные подписки
   activateGiftSubscriptions GiftSubscriptions[] @relation("activateUser")
+  /// Выводы средств пользователя
   withdrawals               Withdrawals[]
+  /// Просмотры рекламы пользователем
   adsViews                  AdsViews[]
 
   @@map("users")
+  @@index([telegramId])
+  @@index([roleId])
+  @@index([languageId])
+  @@index([currencyKey])
 }
 
+/// Модель для просмотров рекламы
 model AdsViews {
   id         String          @id @default(uuid())
+  /// Рекламная сеть
   network    AdsNetworks     @relation(fields: [networkKey], references: [key])
   networkKey AdsNetworkEnum  @default(ADSGRAM) @map("network_key")
+  /// Тип просмотра рекламы
   type       AdsViewTypeEnum @default(REWARD)
+  /// Дата создания
   createdAt  DateTime        @default(now()) @map("created_at")
 
+  /// Связь с пользователем
   user   Users  @relation(fields: [userId], references: [id])
   userId String @map("user_id")
 
   @@map("ads_views")
+  @@index([userId])
+  @@index([networkKey])
 }
 
+/// Модель для рекламных сетей
 model AdsNetworks {
   key      AdsNetworkEnum @id
+  /// Активна ли сеть
   isActive Boolean        @map("is_active")
+  /// Название сети
   name     String
+  /// Связь с просмотрами рекламы
   adsViews AdsViews[]
 
   @@map("ads_networks")
 }
 
+/// Перечисление рекламных сетей
 enum AdsNetworkEnum {
   YANDEX
   ADSGRAM
@@ -143,68 +239,104 @@ enum AdsNetworkEnum {
   MONETAG
 }
 
+/// Перечисление типов просмотра рекламы
 enum AdsViewTypeEnum {
   REWARD
   TASK
   VIEW
 }
 
+/// Модель баланса пользователя
 model UserBalance {
   id                           String         @id @default(uuid())
+  /// Баланс для оплаты
   paymentBalance               Float          @default(0) @map("payment_balance")
+  /// Удерживаемый баланс
   holdBalance                  Float          @default(0) @map("hold_balance")
+  /// Общая заработанная сумма для вывода
   totalEarnedWithdrawalBalance Float          @default(0) @map("total_earned_withdrawal_balance")
+  /// Баланс для вывода
   withdrawalBalance            Float          @default(0) @map("withdrawal_balance")
+  /// Использовать ли баланс для вывода
   isUseWithdrawalBalance       Boolean        @default(true) @map("is_use_withdrawal_balance")
+  /// Дата обновления
   updatedAt                    DateTime       @updatedAt @map("updated_at")
+  /// Связь с пользователем
   user                         Users?
+  /// Транзакции баланса
   transactions                 Transactions[]
 
   @@map("user_balance")
 }
 
+// ==========================================
+// ПОДПИСКИ И ПОДАРКИ
+// ==========================================
+
+/// Модель подарочных подписок
 model GiftSubscriptions {
   id       String                 @id @default(uuid())
+  /// Период подписки
   period   SubscriptionPeriodEnum @default(MONTH)
+  /// Активна ли подписка
   isActive Boolean                @default(false) @map("is_active")
 
+  /// Дата создания
   createdAt DateTime @default(now()) @map("created_at")
+  /// Дата обновления
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  /// Связь с создателем подарка
   user           Users      @relation(fields: [userId], references: [id])
   userId         String     @unique @map("user_id")
+  /// Связь с активировавшим подарок пользователем
   activateUser   Users?     @relation("activateUser", fields: [activateUserId], references: [id])
   activateUserId String?    @unique @map("activate_user_id")
-  payments       Payments[]
 
   @@map("gift_subscriptions")
+  @@index([userId])
+  @@index([activateUserId])
 }
 
+/// Модель для белого списка
 model GreenList {
   green String @id
 
   @@map("green_list")
 }
 
+/// Модель подписок
 model Subscriptions {
   id            String                 @id @default(uuid())
+  /// Имя пользователя
   username      String                 @unique
+  /// Активна ли подписка
   isActive      Boolean                @default(false) @map("is_active")
+  /// Автоматическое продление
   isAutoRenewal Boolean                @default(true) @map("is_auto_renewal")
+  /// Токен подписки
   token         String                 @unique @map("token")
+  /// Период подписки
   period        SubscriptionPeriodEnum @default(MONTH)
 
+  /// Дата создания
   createdAt DateTime  @default(now()) @map("created_at")
+  /// Дата обновления
   updatedAt DateTime  @updatedAt @map("updated_at")
+  /// Дата истечения
   expiredAt DateTime? @map("expired_at")
 
+  /// Связь с пользователем
   user     Users      @relation(fields: [userId], references: [id])
-  userId   String     @unique @map("user_id")
-  payments Payments[]
+  userId   String     @map("user_id")
 
   @@map("subscriptions")
+  @@index([userId])
+  @@index([token])
+  @@index([username])
 }
 
+/// Перечисление периодов подписки
 enum SubscriptionPeriodEnum {
   TRIAL
   HOUR
@@ -217,17 +349,27 @@ enum SubscriptionPeriodEnum {
   THREE_YEAR
 }
 
+// ==========================================
+// РОЛИ И ЯЗЫКИ
+// ==========================================
+
+/// Модель ролей пользователей
 model Roles {
   key                UserRoleEnum @id
+  /// Название роли
   name               String
+  /// Скидка для роли
   discount           Float        @default(1)
+  /// Лимит подписок для роли
   limitSubscriptions Int          @default(10) @map("limit_subscriptions")
 
+  /// Связь с пользователями
   users Users[]
 
   @@map("roles")
 }
 
+/// Перечисление ролей пользователей
 enum UserRoleEnum {
   SUPER_ADMIN
   ADMIN
@@ -236,41 +378,64 @@ enum UserRoleEnum {
   USER
 }
 
+/// Модель языков
 model Language {
   id         String @id @default(uuid())
+  /// Название языка
   name       String
+  /// Нативное название языка
   nativeName String @map("native_name")
+  /// ISO 639-1 код
   iso6391    String @unique @map("iso_639_1")
+  /// ISO 639-2 код
   iso6392    String @unique @map("iso_639_2")
+  /// ISO 639-3 код
   iso6393    String @unique @map("iso_639_3")
 
+  /// Связь с пользователями
   users Users[]
 
   @@map("language")
 }
 
+// ==========================================
+// ВАЛЮТЫ И ПЛАТЕЖИ
+// ==========================================
+
+/// Модель валют
 model Currency {
   key               CurrencyEnum     @id
+  /// Название валюты
   name              String
+  /// Символ валюты
   symbol            String
+  /// Тип валюты
   type              CurrencyTypeEnum @default(FIAT)
+  /// Курс обмена
   rate              Float            @default(1)
+  /// ID валюты в Coinmarketcap
   coinmarketcapUCID String?          @unique @map("coinmarketcap_ucid")
+  /// Дата обновления
   updatedAt         DateTime         @updatedAt @map("updated_at")
 
+  /// Связь с платежами
   payments       Payments[]
+  /// Связь с методами оплаты
   paymentMethods PaymentMethods[]
+  /// Связь с пользователями
   users          Users[]
 
   @@map("currency")
 }
 
+/// Перечисление типов валют
 enum CurrencyTypeEnum {
   FIAT
   CRYPTO
   TELEGRAM
 }
 
+/// Перечисление валют
 enum CurrencyEnum {
   RUB
   USD
@@ -348,35 +513,58 @@ enum CurrencyEnum {
   CATS
 }
 
+// ==========================================
+// ТРАНЗАКЦИИ И ФИНАНСЫ
+// ==========================================
+
+/// Модель транзакций
 model Transactions {
   id            String                @id @default(uuid())
+  /// Сумма транзакции
   amount        Float                 @default(0)
+  /// Находится ли в удержании
   isHold        Boolean               @default(false) @map("is_hold")
+  /// Тип транзакции (плюс/минус)
   type          TransactionTypeEnum   @default(PLUS)
+  /// Причина транзакции
   reason        TransactionReasonEnum @default(PAYMENT)
+  /// Тип баланса для транзакции
   balanceType   BalanceTypeEnum       @default(PAYMENT) @map("balance_type")
+  /// Дата создания
   createdAt     DateTime              @default(now()) @map("created_at")
+  /// Дата обновления
   updatedAt     DateTime              @updatedAt @map("updated_at")
+  /// Дата истечения удержания
   holdExpiredAt DateTime?             @map("hold_expired_at")
 
+  /// Связь с балансом
   balance    UserBalance  @relation(fields: [balanceId], references: [id])
   balanceId  String       @map("balance_id")
+  /// Связь с выводом средств
   withdrawal Withdrawals?
+  /// Связь с платежом
   payment    Payments?
 
   @@map("transactions")
+  @@index([balanceId])
+  @@index([type])
+  @@index([reason])
+  @@index([isHold])
 }
 
+/// Перечисление типов транзакций
 enum TransactionTypeEnum {
   PLUS
   MINUS
 }
 
+/// Перечисление типов баланса
 enum BalanceTypeEnum {
   PAYMENT
   WITHDRAWAL
 }
 
+/// Перечисление причин транзакций
 enum TransactionReasonEnum {
   WITHDRAWAL
   GIFT_SUBSCRIPTIONS
@@ -387,25 +575,39 @@ enum TransactionReasonEnum {
   FINE
 }
 
+/// Модель выводов средств
 model Withdrawals {
   id          String               @id @default(uuid())
+  /// Статус вывода
   status      WithdrawalStatusEnum @default(CONSIDERATION)
+  /// Сумма в Stars
   amountStars Float                @default(0) @map("amount_stars")
+  /// Сумма в USD
   amountUSD   Float                @default(0) @map("amount_usd")
+  /// Сумма в TON
   amountTON   Float                @default(0) @map("amount_ton")
+  /// Комиссия
   commission  Float                @default(1)
+  /// Адрес для вывода
   address     String
+  /// Дата создания
   createdAt   DateTime             @default(now()) @map("created_at")
+  /// Дата обновления
   updatedAt   DateTime             @updatedAt @map("updated_at")
 
+  /// Связь с пользователем
   user          Users        @relation(fields: [userId], references: [id])
   userId        String       @map("user_id")
+  /// Связь с транзакцией
   transacrion   Transactions @relation(fields: [transactionId], references: [id])
   transactionId String       @unique @map("transaction_id")
 
   @@map("withdrawals")
+  @@index([userId])
+  @@index([status])
 }
 
+/// Перечисление статусов вывода средств
 enum WithdrawalStatusEnum {
   CONSIDERATION
   REJECTED
@@ -413,36 +615,53 @@ enum WithdrawalStatusEnum {
   EXPIRED
 }
 
+/// Модель платежей
 model Payments {
   id           String            @id @default(uuid())
+  /// Статус платежа
   status       PaymentStatusEnum @default(PENDING)
+  /// Сумма платежа
   amount       Float             @default(0)
+  /// Сумма в Stars
   amountStars  Float             @default(0) @map("amount_stars")
+  /// Курс обмена
   exchangeRate Float             @default(0) @map("exchange_rate")
+  /// Комиссия
   commission   Float             @default(1)
+  /// Токен платежа
   token        String            @unique
+  /// Ссылка для оплаты
   linkPay      String?           @map("link_pay")
+  /// Дополнительные детали платежа
   details      Json?             @db.JsonB
 
+  /// Дата создания
   createdAt DateTime @default(now()) @map("created_at")
+  /// Дата обновления
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  /// Связь с пользователем
   user                Users              @relation(fields: [userId], references: [id])
   userId              String             @map("user_id")
+  /// Связь с валютой
   currency            Currency           @relation(fields: [currencyKey], references: [key])
   currencyKey         CurrencyEnum       @map("currency_key")
-  subscription        Subscriptions?     @relation(fields: [subscriptionId], references: [id])
-  subscriptionId      String?            @map("subscription_id")
-  giftSubscriptions   GiftSubscriptions? @relation(fields: [giftSubscriptionsId], references: [id])
-  giftSubscriptionsId String?            @map("gift_subscriptions_id")
+  /// Связь с методом оплаты
   method              PaymentMethods     @relation(fields: [methodKey], references: [key])
   methodKey           PaymentMethodEnum  @map("method_key")
+  /// Связь с транзакцией
   transacrion         Transactions?      @relation(fields: [transactionId], references: [id])
   transactionId       String?            @unique @map("transaction_id")
 
   @@map("payments")
+  @@index([userId])
+  @@index([status])
+  @@index([token])
+  @@index([currencyKey])
+  @@index([methodKey])
 }
 
+/// Перечисление статусов платежа
 enum PaymentStatusEnum {
   PENDING
   COMPLETED
@@ -450,26 +669,44 @@ enum PaymentStatusEnum {
   FAILED
 }
 
+/// Модель методов оплаты
 model PaymentMethods {
   key                     PaymentMethodEnum     @id
+  /// Название метода
   name                    String
+  /// Активен ли метод
   isActive                Boolean               @default(false) @map("is_active")
+  /// Использует ли TON блокчейн
   isTonBlockchain         Boolean               @default(false) @map("is_ton_blockchain")
+  /// Адрес смарт-контракта TON
   tonSmartContractAddress String?               @unique @map("ton_smart_contract_address")
+  /// Минимальная сумма
   minAmount               Float                 @default(0) @map("min_amount")
+  /// Максимальная сумма
   maxAmount               Float                 @default(10000) @map("max_amount")
+  /// Комиссия
   commission              Float                 @default(1)
+  /// Добавляется ли комиссия к сумме
   isPlusCommission        Boolean               @default(false) @map("is_plus_commission")
+  /// Тип метода оплаты
   type                    PaymentMethodTypeEnum @default(CARD)
+  /// Платежная система
   system                  PaymentSystemEnum     @default(TELEGRAM)
 
+  /// Связь с платежами
   payments    Payments[]
+  /// Связь с валютой
   currency    Currency     @relation(fields: [currencyKey], references: [key])
   currencyKey CurrencyEnum @map("currency_key")
 
   @@map("payment_methods")
+  @@index([isActive])
+  @@index([currencyKey])
+  @@index([type])
+  @@index([system])
 }
 
+/// Перечисление платежных систем
 enum PaymentSystemEnum {
   PAYEER
   VOLET
@@ -483,6 +720,7 @@ enum PaymentSystemEnum {
   SKINSBACK
 }
 
+/// Перечисление типов методов оплаты
 enum PaymentMethodTypeEnum {
   CRYPTOCURRENCY
   CARD
@@ -492,6 +730,7 @@ enum PaymentMethodTypeEnum {
   SKINS
 }
 
+/// Перечисление методов оплаты
 enum PaymentMethodEnum {
   STARS
   TOME_CARD
