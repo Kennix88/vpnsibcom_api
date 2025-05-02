@@ -16,6 +16,7 @@ import { XrayModule } from '@modules/xray/xray.module'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER } from '@nestjs/core'
+import { ScheduleModule } from '@nestjs/schedule'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
 import {
@@ -29,6 +30,7 @@ import { LoggerModule } from 'nestjs-pino'
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     LoggerModule.forRootAsync(pinoConfig),
     ConfigModule.forRoot({
       ignoreEnvFile: !IS_DEV_ENV,

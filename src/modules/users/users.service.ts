@@ -237,7 +237,15 @@ export class UsersService {
           activateGiftSubscriptions: true,
           subscriptions: true,
           referrals: true,
-          inviters: true,
+          inviters: {
+            include: {
+              inviter: {
+                include: {
+                  balance: true,
+                },
+              },
+            },
+          },
           telegramData: true,
           currency: true,
           language: true,
