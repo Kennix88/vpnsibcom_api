@@ -1,0 +1,15 @@
+{
+  "created": "🎉 Congratulations! Your subscription has been successfully created!\n\n📆 Period: {period}\n⏱ Valid until: {expiredAt}\n\n🔗 Subscription link: {subscriptionUrl}",
+  "period": {
+    "hour": "1 hour",
+    "day": "1 day",
+    "month": "1 month",
+    "three_month": "3 months",
+    "six_month": "6 months",
+    "year": "1 year",
+    "two_year": "2 years",
+    "three_year": "3 years",
+    "trial": "Trial period",
+    "trial_with_days": "Trial period ({days} {daysText})"
+  }
+}

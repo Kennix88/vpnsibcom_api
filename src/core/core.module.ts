@@ -26,7 +26,8 @@ import {
   I18nModule,
   QueryResolver,
 } from 'nestjs-i18n'
-import { LoggerModule } from 'nestjs-pino'
+import { Logger, LoggerModule } from 'nestjs-pino'
+import { join } from 'path'
 
 @Module({
   imports: [
@@ -62,16 +63,24 @@ import { LoggerModule } from 'nestjs-pino'
       inject: [RedisService],
     }),
     I18nModule.forRootAsync({
-      useFactory: () => ({
-        disableMiddleware: true,
-        fallbackLanguage: 'en',
-        loaderOptions: {
-          path: 'src/core/i18n/locales',
-          watch: true,
-          includeSubfolders: true,
-        },
-        typesOutputPath: 'src/core/i18n/i18n.type.ts',
-      }),
+      useFactory: (logger: Logger) => {
+        logger.log('Initializing I18n module', 'I18nModule')
+        return {
+          disableMiddleware: true,
+          fallbackLanguage: 'en',
+          loaderOptions: {
+            path: join(__dirname, 'i18n/locales'),
+            watch: true,
+            includeSubfolders: true,
+          },
+          typesOutputPath: join(__dirname, 'i18n/i18n.type.ts'),
+          generateTypes: true,
+          errorHandler: (error: any) => {
+            logger.error('I18n error:', error)
+          },
+        }
+      },
+      inject: [Logger],
       resolvers: [
         { use: QueryResolver, options: ['lang'] },
         AcceptLanguageResolver,

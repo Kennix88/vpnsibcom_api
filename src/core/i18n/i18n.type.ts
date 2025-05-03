@@ -10,6 +10,26 @@ export type I18nTranslations = {
             "welcome": string;
         };
     };
+    "subscription": {
+        "created": string;
+        "period": {
+            "trial_with_days": string;
+        };
+    };
+    "referral": {
+        "defaultName": string;
+        "rewardReceived": string;
+    };
+    "time": {
+        "days": {
+            "1": string;
+            "2": string;
+            "3": string;
+            "4": string;
+            "5": string;
+            "other": string;
+        };
+    };
 };
 /* prettier-ignore */
 export type I18nPath = Path<I18nTranslations>;

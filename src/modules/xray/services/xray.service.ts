@@ -1,3 +1,4 @@
+import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
@@ -7,9 +8,9 @@ import { DefaultEnum } from '@shared/enums/default.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
-import { declOfNum, TIME_UNITS } from '@shared/utils/decl-of-num.util'
 import { genToken } from '@shared/utils/gen-token.util'
 import { addHours, format } from 'date-fns'
+import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
@@ -32,6 +33,7 @@ export class XrayService {
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
     private readonly marzbanService: MarzbanService,
+    private readonly i18n: I18nService<I18nTranslations>,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
 
@@ -268,16 +270,20 @@ export class XrayService {
       try {
         const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
         const subscriptionUrl = `${allowedOrigin}/sub/${token}`
+        const periodText = await this.getLocalizedPeriodText(
+          period,
+          user.language.iso6391,
+          trialDays,
+        )
 
-        const periodText = this.getPeriodText(period, trialDays)
-        const message =
-          `🎉 Поздравляем! Ваша подписка успешно создана!\n\n` +
-          `📆 Период: ${periodText}\n` +
-          `⏱ Действует до: ${format(
-            subscription.expiredAt,
-            'dd.MM.yyyy HH:mm',
-          )}\n\n` +
-          `🔗 Ссылка на подписку: ${subscriptionUrl}`
+        const message = await this.i18n.t('subscription.created', {
+          lang: user.language.iso6391,
+          args: {
+            period: periodText,
+            expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
+            subscriptionUrl: subscriptionUrl,
+          },
+        })
 
         await this.bot.telegram.sendMessage(telegramId, message)
 
@@ -387,7 +393,6 @@ export class XrayService {
               })
 
               // Создаем транзакцию для реферальной комиссии
-
               const transactions = [
                 {
                   amount: plusPaymentsRewarded,
@@ -399,23 +404,37 @@ export class XrayService {
                 },
               ]
 
-              const referralTransactions = await tx.transactions.createMany({
+              await tx.transactions.createMany({
                 data: transactions,
               })
             })
 
             // Отправляем уведомление инвайтеру о полученном вознаграждении
             try {
-              const inviterTelegramId = inviter.inviter.telegramId
-              const referralName =
-                inviter.user.telegramData.firstName || 'Пользователь'
-              let message = `💰 Вы получили реферальное вознаграждение!\n\n`
-
-              if (plusPaymentsRewarded > 0) {
-                message += `⭐ ${plusPaymentsRewarded} STARS уже доступны на вашем балансе\n`
+              const inviterUser = await this.userService.getUserByTgId(
+                inviter.inviter.telegramId,
+              )
+              if (!inviterUser) {
+                throw new Error(
+                  `Инвайтер с Telegram ID ${inviter.inviter.telegramId} не найден`,
+                )
               }
 
-              message += `\nРеферал: ${referralName}\nУровень: ${inviter.level}`
+              const inviterTelegramId = inviter.inviter.telegramId
+              const referralName =
+                user.telegramData.firstName ||
+                (await this.i18n.t('referral.defaultName', {
+                  lang: inviterUser.language.iso6391,
+                }))
+
+              const message = await this.i18n.t('referral.rewardReceived', {
+                lang: inviterUser.language.iso6391,
+                args: {
+                  starsAmount: plusPaymentsRewarded,
+                  referralName: referralName,
+                  level: inviter.level,
+                },
+              })
 
               await this.bot.telegram.sendMessage(inviterTelegramId, message)
             } catch (err) {
@@ -423,6 +442,7 @@ export class XrayService {
                 msg: `Error sending notification to inviter`,
                 error: err instanceof Error ? err.message : String(err),
                 inviterId: inviter.inviter.id,
+                service: this.serviceName,
               })
             }
 
@@ -493,43 +513,62 @@ export class XrayService {
   }
 
   /**
-   * Возвращает текстовое описание периода подписки
+   * Возвращает локализованное текстовое описание периода подписки
    * @param period - Период подписки
+   * @param lang - Код языка пользователя
    * @param trialDays - Количество дней для пробного периода (опционально)
-   * @returns Текстовое описание периода
+   * @returns Локализованное текстовое описание периода
    * @private
    */
-  private getPeriodText(
+  private async getLocalizedPeriodText(
     period: SubscriptionPeriodEnum,
+    lang: string,
     trialDays?: number,
-  ): string {
-    switch (period) {
-      case SubscriptionPeriodEnum.HOUR:
-        return '1 час'
-      case SubscriptionPeriodEnum.DAY:
-        return '1 день'
-      case SubscriptionPeriodEnum.MONTH:
-        return '1 месяц'
-      case SubscriptionPeriodEnum.THREE_MONTH:
-        return '3 месяца'
-      case SubscriptionPeriodEnum.SIX_MONTH:
-        return '6 месяцев'
-      case SubscriptionPeriodEnum.YEAR:
-        return '1 год'
-      case SubscriptionPeriodEnum.TWO_YEAR:
-        return '2 года'
-      case SubscriptionPeriodEnum.THREE_YEAR:
-        return '3 года'
-      case SubscriptionPeriodEnum.TRIAL:
-        return trialDays && trialDays > 0
-          ? `Пробный период (${trialDays} ${declOfNum(
+  ): Promise<string> {
+    const periodKey = `subscription.period.${period.toLowerCase()}`
+
+    if (period === SubscriptionPeriodEnum.TRIAL && trialDays && trialDays > 0) {
+      return this.i18n.t('subscription.period.trial_with_days', {
+        lang,
+        args: {
+          days: trialDays,
+          daysText: await this.i18n.t(
+            `time.days.${this.getDeclension(
               trialDays,
-              TIME_UNITS.DAYS,
-            )})`
-          : 'Пробный период'
-      default:
-        return 'Неизвестный период'
+            )}` as keyof I18nTranslations,
+            { lang },
+          ),
+        },
+      })
     }
+
+    return this.i18n.t(periodKey as keyof I18nTranslations, { lang })
+  }
+
+  /**
+   * Определяет склонение для числительных
+   * @param count - Количество
+   * @returns Индекс склонения (0, 1 или 2)
+   * @private
+   */
+  private getDeclension(count: number): number {
+    // Для русского языка
+    const lastDigit = count % 10
+    const lastTwoDigits = count % 100
+
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+      return 2 // много (дней)
+    }
+
+    if (lastDigit === 1) {
+      return 0 // один (день)
+    }
+
+    if (lastDigit >= 2 && lastDigit <= 4) {
+      return 1 // несколько (дня)
+    }
+
+    return 2 // много (дней)
   }
 
   /**
