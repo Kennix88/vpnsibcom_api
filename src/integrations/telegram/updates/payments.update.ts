@@ -1,6 +1,7 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
+import { UsersService } from '@modules/users/users.service'
 import { ConfigService } from '@nestjs/config'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { SuccessfulPayment } from '@telegraf/types'
@@ -9,6 +10,9 @@ import { PinoLogger } from 'nestjs-pino'
 import { Ctx, On, Update } from 'nestjs-telegraf'
 import { Context } from 'telegraf'
 
+/**
+ * Обработчик платежных событий Telegram
+ */
 @Update()
 export class PaymentsUpdate {
   constructor(
@@ -17,11 +21,15 @@ export class PaymentsUpdate {
     private readonly i18n: I18nService<I18nTranslations>,
     private readonly telegramLogger: LoggerTelegramService,
     private readonly paymentsService: PaymentsService,
+    private readonly usersService: UsersService,
   ) {
     this.logger.setContext(PaymentsUpdate.name)
   }
 
-  // 1) Обработка pre_checkout_query
+  /**
+   * Обработка pre_checkout_query
+   * @param ctx - Контекст Telegram
+   */
   @On('pre_checkout_query')
   async handlePreCheckout(@Ctx() ctx: Context) {
     try {
@@ -31,11 +39,21 @@ export class PaymentsUpdate {
       // Обязательно отвечаем в течение 10 секунд
       await ctx.answerPreCheckoutQuery(true)
     } catch (err) {
-      this.logger.error({ msg: 'Error in pre_checkout_query handler', err })
+      this.logger.error({ 
+        msg: 'Error in pre_checkout_query handler', 
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined 
+      })
+      
+      // Отправляем уведомление об ошибке в Telegram-логгер
+      await this.telegramLogger.error(`Error in pre_checkout_query handler: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
-  // 2) Обработка успешной оплаты
+  /**
+   * Обработка успешной оплаты
+   * @param ctx - Контекст Telegram
+   */
   @On('message')
   async handleSuccessfulPayment(@Ctx() ctx: Context) {
     try {
@@ -43,7 +61,22 @@ export class PaymentsUpdate {
       if (!('successful_payment' in msg)) return
 
       const payment = msg.successful_payment as SuccessfulPayment
-      this.logger.info(`SuccessfulPayment: ${JSON.stringify(payment)}`)
+      const userId = ctx.from?.id.toString()
+      
+      this.logger.info({
+        msg: 'SuccessfulPayment received',
+        payment: JSON.stringify(payment),
+        userId
+      })
+
+      // Получаем язык пользователя
+      let userLang = 'ru'
+      if (userId) {
+        const user = await this.usersService.getUserByTgId(userId)
+        if (user?.language?.iso6391) {
+          userLang = user.language.iso6391
+        }
+      }
 
       const updatePayment = await this.paymentsService.updatePayment(
         payment.invoice_payload,
@@ -52,17 +85,29 @@ export class PaymentsUpdate {
       )
 
       if (!updatePayment) {
-        await ctx.reply(
-          `❌ The payment was not successful! Please try again later.`,
-        )
+        const errorMessage = await this.i18n.translate('payments.payment_failed', {
+          lang: userLang
+        })
+        
+        await ctx.reply(errorMessage)
         return
       }
 
-      await ctx.reply(
-        `✅ The payment was successful! The balance has been replenished by ${updatePayment.amountStars} STARS!`,
-      )
+      const successMessage = await this.i18n.translate('payments.payment_success', {
+        args: { amount: updatePayment.amountStars },
+        lang: userLang
+      })
+      
+      await ctx.reply(successMessage)
     } catch (err) {
-      this.logger.error({ msg: 'Error in successful_payment handler', err })
+      this.logger.error({ 
+        msg: 'Error in successful_payment handler', 
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined 
+      })
+      
+      // Отправляем уведомление об ошибке в Telegram-логгер
+      await this.telegramLogger.error(`Error in successful_payment handler: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 }

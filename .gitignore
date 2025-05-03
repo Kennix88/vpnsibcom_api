@@ -3,6 +3,8 @@
 *.log
 *.log.gz
 
+/.trae
+
 *~
 
 # compiled output

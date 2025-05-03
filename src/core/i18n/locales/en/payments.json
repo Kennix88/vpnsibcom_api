@@ -1,0 +1,15 @@
+{
+  "payment_failed": "❌ The payment was not successful! Please try again later.",
+  "payment_success": "✅ The payment was successful! The balance has been replenished by {amount} STARS!",
+  "invoice": {
+    "title": "Balance top-up for {amount} STARS",
+    "description": "Balance top-up for {amount} STARS to use VPN service"
+  },
+  "referral": {
+    "reward_title": "🎁 Referral Reward",
+    "hold_reward": "You received {amount} STARS to your withdrawal balance (will be available in {days} days)",
+    "available_reward": "You received {amount} STARS to your payment balance (available immediately)",
+    "referral_label": "Referral",
+    "level_label": "Level"
+  }
+}
