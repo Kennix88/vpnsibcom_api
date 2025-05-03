@@ -2,12 +2,18 @@ import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
+import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
+import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
+import { declOfNum, TIME_UNITS } from '@shared/utils/decl-of-num.util'
 import { genToken } from '@shared/utils/gen-token.util'
-import { addHours } from 'date-fns'
+import { addHours, format } from 'date-fns'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
+import { InjectBot } from 'nestjs-telegraf'
+import { Telegraf } from 'telegraf'
 import { UserCreate } from '../types/marzban.types'
 import { SubscriptionDataInterface } from '../types/subscription-data.interface'
 import { MarzbanService } from './marzban.service'
@@ -26,6 +32,7 @@ export class XrayService {
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
     private readonly marzbanService: MarzbanService,
+    @InjectBot() private readonly bot: Telegraf,
   ) {}
 
   /**
@@ -191,7 +198,9 @@ export class XrayService {
       }
 
       const token = genToken()
-      const username = `${user.telegramId}_${Date.now()}`
+      const username = `${user.telegramId}_${Math.random()
+        .toString(36)
+        .substring(2)}`
 
       // Подготовка данных для Marzban
       const marbanDataStart: UserCreate = {
@@ -254,6 +263,37 @@ export class XrayService {
 
       // Обработка реферальной системы
       await this.processReferrals(user)
+
+      // Отправка уведомления пользователю в Telegram о создании подписки
+      try {
+        const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
+        const subscriptionUrl = `${allowedOrigin}/sub/${token}`
+
+        const periodText = this.getPeriodText(period, trialDays)
+        const message =
+          `🎉 Поздравляем! Ваша подписка успешно создана!\n\n` +
+          `📆 Период: ${periodText}\n` +
+          `⏱ Действует до: ${format(
+            subscription.expiredAt,
+            'dd.MM.yyyy HH:mm',
+          )}\n\n` +
+          `🔗 Ссылка на подписку: ${subscriptionUrl}`
+
+        await this.bot.telegram.sendMessage(telegramId, message)
+
+        this.logger.info({
+          msg: `Уведомление о создании подписки отправлено пользователю с Telegram ID: ${telegramId}`,
+          service: this.serviceName,
+        })
+      } catch (error) {
+        this.logger.error({
+          msg: `Ошибка при отправке уведомления о создании подписки пользователю с Telegram ID: ${telegramId}`,
+          error,
+          stack: error instanceof Error ? error.stack : undefined,
+          service: this.serviceName,
+        })
+        // Не прерываем выполнение, так как основная операция создания подписки уже выполнена
+      }
 
       this.logger.info({
         msg: `Подписка успешно создана для пользователя с Telegram ID: ${telegramId}`,
@@ -345,7 +385,46 @@ export class XrayService {
                     plusPaymentsRewarded,
                 },
               })
+
+              // Создаем транзакцию для реферальной комиссии
+
+              const transactions = [
+                {
+                  amount: plusPaymentsRewarded,
+                  type: TransactionTypeEnum.PLUS,
+                  reason: TransactionReasonEnum.REFERRAL,
+                  balanceType: BalanceTypeEnum.PAYMENT,
+                  isHold: false,
+                  balanceId: inviter.inviter.balanceId,
+                },
+              ]
+
+              const referralTransactions = await tx.transactions.createMany({
+                data: transactions,
+              })
             })
+
+            // Отправляем уведомление инвайтеру о полученном вознаграждении
+            try {
+              const inviterTelegramId = inviter.inviter.telegramId
+              const referralName =
+                inviter.user.telegramData.firstName || 'Пользователь'
+              let message = `💰 Вы получили реферальное вознаграждение!\n\n`
+
+              if (plusPaymentsRewarded > 0) {
+                message += `⭐ ${plusPaymentsRewarded} STARS уже доступны на вашем балансе\n`
+              }
+
+              message += `\nРеферал: ${referralName}\nУровень: ${inviter.level}`
+
+              await this.bot.telegram.sendMessage(inviterTelegramId, message)
+            } catch (err) {
+              this.logger.error({
+                msg: `Error sending notification to inviter`,
+                error: err instanceof Error ? err.message : String(err),
+                inviterId: inviter.inviter.id,
+              })
+            }
 
             this.logger.info({
               msg: `Успешно обновлен реферальный баланс для инвайтера с ID: ${inviter.inviter?.id}`,
@@ -410,6 +489,46 @@ export class XrayService {
           service: this.serviceName,
         })
         return 0
+    }
+  }
+
+  /**
+   * Возвращает текстовое описание периода подписки
+   * @param period - Период подписки
+   * @param trialDays - Количество дней для пробного периода (опционально)
+   * @returns Текстовое описание периода
+   * @private
+   */
+  private getPeriodText(
+    period: SubscriptionPeriodEnum,
+    trialDays?: number,
+  ): string {
+    switch (period) {
+      case SubscriptionPeriodEnum.HOUR:
+        return '1 час'
+      case SubscriptionPeriodEnum.DAY:
+        return '1 день'
+      case SubscriptionPeriodEnum.MONTH:
+        return '1 месяц'
+      case SubscriptionPeriodEnum.THREE_MONTH:
+        return '3 месяца'
+      case SubscriptionPeriodEnum.SIX_MONTH:
+        return '6 месяцев'
+      case SubscriptionPeriodEnum.YEAR:
+        return '1 год'
+      case SubscriptionPeriodEnum.TWO_YEAR:
+        return '2 года'
+      case SubscriptionPeriodEnum.THREE_YEAR:
+        return '3 года'
+      case SubscriptionPeriodEnum.TRIAL:
+        return trialDays && trialDays > 0
+          ? `Пробный период (${trialDays} ${declOfNum(
+              trialDays,
+              TIME_UNITS.DAYS,
+            )})`
+          : 'Пробный период'
+      default:
+        return 'Неизвестный период'
     }
   }
 
