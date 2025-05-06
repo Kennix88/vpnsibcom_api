@@ -995,4 +995,183 @@ export class XrayService {
       })
     }
   }
+
+  /**
+   * Продлевает существующую подписку пользователя
+   * @param telegramId - Telegram ID пользователя
+   * @param subscriptionId - ID подписки для продления
+   * @returns Результат операции продления
+   */
+  public async renewSubscription(telegramId: string, subscriptionId: string) {
+    try {
+      this.logger.info({
+        msg: `Manual subscription renewal requested for user with Telegram ID: ${telegramId}, subscription ID: ${subscriptionId}`,
+        service: this.serviceName,
+      })
+
+      // Получаем пользователя
+      const user = await this.userService.getUserByTgId(telegramId)
+      if (!user) {
+        this.logger.warn({
+          msg: `User with Telegram ID ${telegramId} not found`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'user_not_found' }
+      }
+
+      // Получаем подписку и проверяем, принадлежит ли она пользователю
+      const subscription = await this.prismaService.subscriptions.findFirst({
+        where: {
+          id: subscriptionId,
+          userId: user.id,
+        },
+      })
+
+      if (!subscription) {
+        this.logger.warn({
+          msg: `Subscription with ID ${subscriptionId} not found or does not belong to user with Telegram ID ${telegramId}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'subscription_not_found' }
+      }
+
+      // Расчет стоимости подписки
+      const cost = await this.calculateSubscriptionCost(
+        subscription.period as SubscriptionPeriodEnum,
+        user.role.discount,
+      )
+
+      // Проверка баланса пользователя
+      if (user.balance.paymentBalance < cost) {
+        this.logger.warn({
+          msg: `Insufficient balance for subscription renewal. Required: ${cost}, available: ${user.balance.paymentBalance}`,
+          service: this.serviceName,
+        })
+        return {
+          success: false,
+          message: 'insufficient_balance',
+          requiredAmount: cost,
+          currentBalance: user.balance.paymentBalance,
+        }
+      }
+
+      // Расчет времени истечения подписки
+      const periodHours = this.periodHours(
+        subscription.period as SubscriptionPeriodEnum,
+      )
+      if (periodHours <= 0) {
+        this.logger.error({
+          msg: `Invalid subscription period: ${subscription.period}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'invalid_period' }
+      }
+
+      // Определение новой даты истечения подписки
+      // Если текущая дата истечения в будущем, добавляем период к ней
+      // Иначе добавляем период к текущей дате
+      const now = new Date()
+      const newExpiredAt =
+        subscription.expiredAt > now
+          ? addHours(subscription.expiredAt, periodHours)
+          : addHours(now, periodHours)
+
+      // Продление подписки и списание средств в транзакции
+      const updatedSubscription = await this.prismaService.$transaction(
+        async (tx) => {
+          // Списание средств с баланса
+          await tx.userBalance.update({
+            where: {
+              id: user.balance.id,
+            },
+            data: {
+              paymentBalance: {
+                decrement: cost,
+              },
+            },
+          })
+
+          // Создание записи о транзакции
+          await tx.transactions.create({
+            data: {
+              amount: cost,
+              type: TransactionTypeEnum.MINUS,
+              reason: TransactionReasonEnum.SUBSCRIPTIONS,
+              balanceType: BalanceTypeEnum.PAYMENT,
+              isHold: false,
+              balanceId: user.balance.id,
+            },
+          })
+
+          // Обновление даты истечения подписки
+          return await tx.subscriptions.update({
+            where: {
+              id: subscription.id,
+            },
+            data: {
+              expiredAt: newExpiredAt,
+              isActive: true, // Активируем подписку, если она была неактивна
+            },
+          })
+        },
+      )
+
+      // Отправка уведомления пользователю в Telegram о продлении подписки
+      try {
+        const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
+        const subscriptionUrl = `${allowedOrigin}/sub/${updatedSubscription.token}`
+        const periodText = await this.getLocalizedPeriodText(
+          updatedSubscription.period as SubscriptionPeriodEnum,
+          user.language.iso6391,
+        )
+
+        const message = await this.i18n.t('subscription.renewed_user', {
+          lang: user.language.iso6391,
+          args: {
+            period: periodText,
+            cost,
+            expiredAt: format(
+              updatedSubscription.expiredAt,
+              'dd.MM.yyyy HH:mm',
+            ),
+            subscriptionUrl: subscriptionUrl,
+          },
+        })
+
+        await this.bot.telegram.sendMessage(telegramId, message)
+
+        this.logger.info({
+          msg: `Renewal notification sent to user with Telegram ID: ${telegramId}`,
+          service: this.serviceName,
+        })
+      } catch (error) {
+        this.logger.error({
+          msg: `Error sending renewal notification to user with Telegram ID: ${telegramId}`,
+          error,
+          stack: error instanceof Error ? error.stack : undefined,
+          service: this.serviceName,
+        })
+        // Не прерываем выполнение, так как основная операция продления подписки уже выполнена
+      }
+
+      this.logger.info({
+        msg: `Subscription successfully renewed by user with Telegram ID: ${telegramId}`,
+        subscriptionId: updatedSubscription.id,
+        service: this.serviceName,
+      })
+
+      return { success: true, subscription: updatedSubscription }
+    } catch (error) {
+      this.logger.error({
+        msg: `Error renewing subscription for user with Telegram ID: ${telegramId}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'unknown_error',
+      }
+    }
+  }
 }
