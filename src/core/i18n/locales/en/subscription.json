@@ -1,4 +1,5 @@
 {
+  "deleted": "Your subscription (period: {{period}}) has been successfully deleted. Thank you for using our service!",
   "created": "🎉 Congratulations! Your subscription has been successfully created!\n\n📆 Period: {period}\n⏱ Valid until: {expiredAt}\n\n🔗 Subscription link: {subscriptionUrl}",
   "period": {
     "hour": "1 hour",

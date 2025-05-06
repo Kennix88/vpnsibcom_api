@@ -380,16 +380,34 @@ export class MarzbanService {
   }
 
   /**
-   * Удаление пользователя
+   * Удаляет пользователя из Marzban
+   * @param username - Имя пользователя для удаления
+   * @returns true в случае успеха, false в случае ошибки
    */
-  async removeUser(username: string): Promise<void> {
-    this.logger.info({
-      msg: `Удаление пользователя: ${username}`,
-      service: this.serviceName,
-    })
-    await this.logApiCall('removeUser', () =>
-      this.client.delete(`/api/user/${username}`),
-    )
+  async removeUser(username: string): Promise<boolean> {
+    try {
+      this.logger.info({
+        msg: `Удаление пользователя ${username} из Marzban`,
+        service: this.serviceName,
+      })
+
+      await this.client.delete(`/api/user/${username}`)
+
+      this.logger.info({
+        msg: `Пользователь ${username} успешно удален из Marzban`,
+        service: this.serviceName,
+      })
+
+      return true
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при удалении пользователя ${username} из Marzban`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return false
+    }
   }
 
   /**

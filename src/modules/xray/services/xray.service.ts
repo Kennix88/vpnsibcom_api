@@ -33,7 +33,7 @@ export class XrayService {
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
     private readonly marzbanService: MarzbanService,
-    private readonly i18n: I18nService<I18nTranslations>,
+    private readonly i18n: I18nService,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
 
@@ -664,19 +664,22 @@ export class XrayService {
       }
 
       // Расчет стоимости с учетом периода и скидки пользователя
-      const cost = await this.calculateSubscriptionCost(period, user.role.discount)
-      
+      const cost = await this.calculateSubscriptionCost(
+        period,
+        user.role.discount,
+      )
+
       // Проверка баланса пользователя
       if (user.balance.paymentBalance < cost) {
         this.logger.warn({
           msg: `Недостаточно средств для покупки подписки. Требуется: ${cost}, доступно: ${user.balance.paymentBalance}`,
           service: this.serviceName,
         })
-        return { 
-          success: false, 
+        return {
+          success: false,
           message: 'insufficient_balance',
           requiredAmount: cost,
-          currentBalance: user.balance.paymentBalance
+          currentBalance: user.balance.paymentBalance,
         }
       }
 
@@ -734,7 +737,9 @@ export class XrayService {
         // Добавление пользователя в Marzban
         const marbanData = await this.marzbanService.addUser(marbanDataStart)
         if (!marbanData) {
-          throw new Error(`Не удалось добавить пользователя в Marzban для Telegram ID: ${telegramId}`)
+          throw new Error(
+            `Не удалось добавить пользователя в Marzban для Telegram ID: ${telegramId}`,
+          )
         }
 
         // Расчет времени истечения подписки
@@ -806,7 +811,10 @@ export class XrayService {
         stack: error instanceof Error ? error.stack : undefined,
         service: this.serviceName,
       })
-      return { success: false, message: error instanceof Error ? error.message : 'unknown_error' }
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'unknown_error',
+      }
     }
   }
 
@@ -872,5 +880,119 @@ export class XrayService {
     const price = basePrice * periodRatio * userDiscount
 
     return Math.round(price) // Округление до ближайшего целого
+  }
+
+  /**
+   * Удаляет подписку пользователя
+   * @param telegramId - Telegram ID пользователя
+   * @param subscriptionId - ID подписки для удаления
+   * @returns Объект с результатом операции
+   */
+  public async deleteSubscription(
+    telegramId: string,
+    subscriptionId: string,
+  ): Promise<{ success: boolean; message?: string }> {
+    try {
+      this.logger.info({
+        msg: `Запрос на удаление подписки ${subscriptionId} от пользователя с Telegram ID: ${telegramId}`,
+        service: this.serviceName,
+      })
+
+      // Проверяем существование пользователя
+      const user = await this.userService.getUserByTgId(telegramId)
+      if (!user) {
+        this.logger.warn({
+          msg: `Пользователь с Telegram ID ${telegramId} не найден`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'user_not_found' }
+      }
+
+      // Находим подписку и проверяем, принадлежит ли она пользователю
+      const subscription = await this.prismaService.subscriptions.findFirst({
+        where: {
+          id: subscriptionId,
+          userId: user.id,
+        },
+      })
+
+      if (!subscription) {
+        this.logger.warn({
+          msg: `Подписка ${subscriptionId} не найдена или не принадлежит пользователю ${telegramId}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'subscription_not_found' }
+      }
+
+      // Удаляем пользователя из Marzban
+      const marzbanResult = await this.marzbanService.removeUser(
+        subscription.username,
+      )
+      if (!marzbanResult) {
+        this.logger.error({
+          msg: `Не удалось удалить пользователя ${subscription.username} из Marzban`,
+          service: this.serviceName,
+        })
+        // Продолжаем удаление из БД даже если не удалось удалить из Marzban
+      }
+
+      // Удаляем подписку из базы данных
+      await this.prismaService.subscriptions.delete({
+        where: {
+          id: subscriptionId,
+        },
+      })
+
+      // Отправляем уведомление пользователю
+      await this.sendSubscriptionDeletedNotification(user, subscription)
+
+      this.logger.info({
+        msg: `Подписка ${subscriptionId} успешно удалена для пользователя ${telegramId}`,
+        service: this.serviceName,
+      })
+
+      return { success: true }
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при удалении подписки для пользователя с Telegram ID: ${telegramId}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return { success: false, message: 'internal_error' }
+    }
+  }
+
+  /**
+   * Отправляет уведомление пользователю об удалении подписки
+   * @param user - Пользователь
+   * @param subscription - Удаленная подписка
+   * @private
+   */
+  private async sendSubscriptionDeletedNotification(
+    user: any,
+    subscription: any,
+  ): Promise<void> {
+    try {
+      const message = await this.i18n.t('subscription.deleted', {
+        lang: user.language.iso6391,
+        args: {
+          period: await this.getLocalizedPeriodText(
+            subscription.period,
+            user.language.iso6391,
+          ),
+        },
+      })
+
+      await this.bot.telegram.sendMessage(user.telegramId, message)
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при отправке уведомления об удалении подписки`,
+        userId: user.id,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+    }
   }
 }

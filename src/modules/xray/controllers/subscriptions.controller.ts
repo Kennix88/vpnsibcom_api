@@ -21,6 +21,7 @@ import { UsersService } from '../../users/users.service'
 import { XrayService } from '../services/xray.service'
 import { Body } from '@nestjs/common'
 import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
+import { DeleteSubscriptionDto } from '../types/delete-subscription.dto'
 
 interface SubscriptionResponse {
   data: {
@@ -226,6 +227,87 @@ export class SubscriptionsController {
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при покупке подписки',
+      )
+    }
+  }
+
+  @Post('delete')
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async deleteSubscription(
+    @CurrentUser() user: JwtPayload,
+    @Body() deleteDto: DeleteSubscriptionDto,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ): Promise<SubscriptionResponse> {
+    try {
+      this.logger.info(
+        `Запрос на удаление подписки от пользователя: ${user.telegramId}, ID подписки: ${deleteDto.subscriptionId}`,
+      )
+
+      const token = req.headers.authorization?.split(' ')[1]
+      if (!token) {
+        throw new BadRequestException('Токен авторизации отсутствует')
+      }
+
+      await this.authService.updateUserActivity(token)
+
+      const result = await this.xrayService.deleteSubscription(
+        user.telegramId,
+        deleteDto.subscriptionId,
+      )
+
+      if (!result.success) {
+        this.logger.warn(
+          `Не удалось удалить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
+        )
+        
+        let statusCode = HttpStatus.BAD_REQUEST
+        let message = 'Не удалось удалить подписку'
+        
+        // Обработка различных причин неудачи
+        if (result.message === 'user_not_found') {
+          message = 'Пользователь не найден'
+          statusCode = HttpStatus.NOT_FOUND
+        } else if (result.message === 'subscription_not_found') {
+          message = 'Подписка не найдена или не принадлежит пользователю'
+          statusCode = HttpStatus.NOT_FOUND
+        }
+        
+        res.status(statusCode)
+        return {
+          data: {
+            success: false,
+            message,
+          },
+        }
+      }
+
+      const [subscriptions, userData] = await Promise.all([
+        this.xrayService.getSubscriptions(user.sub),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      this.logger.info(
+        `Подписка успешно удалена пользователем: ${user.telegramId}`,
+      )
+
+      return {
+        data: {
+          success: true,
+          message: 'Подписка успешно удалена',
+          subscriptions,
+          user: userData,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при удалении подписки: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при удалении подписки',
       )
     }
   }
