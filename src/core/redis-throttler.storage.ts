@@ -7,7 +7,14 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
 
   async getRecord(key: string): Promise<ThrottlerStorageRecord> {
     const record = await this.redis.get(`throttle:${key}`)
-    return record ? JSON.parse(record) : { totalHits: 0, timeToExpire: 0 }
+    return record
+      ? JSON.parse(record)
+      : {
+          totalHits: 0,
+          timeToExpire: 0,
+          isBlocked: false,
+          timeToBlockExpire: 0,
+        }
   }
 
   async setRecord(key: string, record: ThrottlerStorageRecord): Promise<void> {
