@@ -1,4 +1,4 @@
 {
-  "rewardReceived": "💰 You have received a referral reward!\n\n⭐ {starsAmount} STARS are now available in your balance\n\nReferral: {referralName}\nLevel: {level}",
-  "defaultName": "User"
+  "rewardReceived": "💰 You have received a referral reward!\n\n⭐ {starsAmount} STARS are now available in your balance\n\n👤 Referral: {referralName}\n🔝 Level: {level}",
+  "defaultName": "👤 User"
 }

@@ -1,25 +1,25 @@
 {
   "purchase": {
-    "success": "Subscription successfully purchased",
-    "failed": "Failed to purchase subscription",
-    "insufficient_balance": "Insufficient balance",
-    "subscription_limit_exceeded": "Subscription limit exceeded",
-    "user_not_found": "User not found"
+    "success": "✅ Subscription successfully purchased! Enjoy your premium access.",
+    "failed": "❌ Failed to purchase subscription. Please try again or contact support.",
+    "insufficient_balance": "⚠️ Insufficient balance to complete this purchase. Please top up your account.",
+    "subscription_limit_exceeded": "🛑 Subscription limit exceeded. You've reached the maximum number of active subscriptions.",
+    "user_not_found": "❓ User not found. Please ensure you're logged in correctly."
   },
   "free_plan": {
-    "activated": "Free plan successfully activated",
-    "failed": "Failed to activate free plan",
-    "not_available": "Free plan is not available"
+    "activated": "🎁 Free plan successfully activated! Enjoy your complimentary access.",
+    "failed": "❌ Failed to activate free plan. Please try again later.",
+    "not_available": "⛔ Free plan is not available at this time. Please check back later."
   },
   "auto_renewal": {
-    "enabled": "Subscription auto-renewal enabled",
-    "disabled": "Subscription auto-renewal disabled",
-    "success": "Subscription successfully renewed",
-    "failed": "Failed to renew subscription",
-    "insufficient_balance": "Insufficient balance for automatic renewal"
+    "enabled": "🔄 Subscription auto-renewal has been enabled. Your subscription will renew automatically.",
+    "disabled": "⏹️ Subscription auto-renewal has been disabled. Remember to renew manually before expiration.",
+    "success": "✅ Subscription successfully renewed! Your access continues uninterrupted.",
+    "failed": "❌ Failed to renew subscription. Please check your payment method.",
+    "insufficient_balance": "⚠️ Insufficient balance for automatic renewal. Please top up your account."
   },
   "expiration": {
-    "notification": "Your subscription expires in {days} {days, plural, one {day} other {days}}",
-    "expired": "Your subscription has expired"
+    "notification": "⏰ Your subscription expires in {days} {days, plural, one {day} other {days}}. Don't forget to renew!",
+    "expired": "⌛ Your subscription has expired. Renew now to continue enjoying our services!"
   }
 }
