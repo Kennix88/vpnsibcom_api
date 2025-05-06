@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "Subscription successfully purchased",
+    "failed": "Failed to purchase subscription",
+    "insufficient_balance": "Insufficient balance",
+    "subscription_limit_exceeded": "Subscription limit exceeded",
+    "user_not_found": "User not found"
+  },
+  "free_plan": {
+    "activated": "Free plan successfully activated",
+    "failed": "Failed to activate free plan",
+    "not_available": "Free plan is not available"
+  },
+  "auto_renewal": {
+    "enabled": "Subscription auto-renewal enabled",
+    "disabled": "Subscription auto-renewal disabled",
+    "success": "Subscription successfully renewed",
+    "failed": "Failed to renew subscription",
+    "insufficient_balance": "Insufficient balance for automatic renewal"
+  },
+  "expiration": {
+    "notification": "Your subscription expires in {days} {days, plural, one {day} other {days}}",
+    "expired": "Your subscription has expired"
+  }
+}

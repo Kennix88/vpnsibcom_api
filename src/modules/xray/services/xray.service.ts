@@ -617,4 +617,260 @@ export class XrayService {
       return false
     }
   }
+
+  /**
+   * Покупка подписки пользователем
+   * @param telegramId - Telegram ID пользователя
+   * @param period - Период подписки
+   * @param isAutoRenewal - Флаг автопродления (опционально)
+   * @returns Результат покупки подписки или false в случае ошибки
+   */
+  public async purchaseSubscription(
+    telegramId: string,
+    period: SubscriptionPeriodEnum,
+    isAutoRenewal: boolean = false,
+  ) {
+    try {
+      this.logger.info({
+        msg: `Покупка подписки для пользователя с Telegram ID: ${telegramId}, период: ${period}`,
+        service: this.serviceName,
+      })
+
+      const user = await this.userService.getUserByTgId(telegramId)
+      if (!user) {
+        this.logger.warn({
+          msg: `Пользователь с Telegram ID ${telegramId} не найден`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'user_not_found' }
+      }
+
+      if (user.subscriptions.length >= user.role.limitSubscriptions) {
+        this.logger.warn({
+          msg: `Превышен лимит подписок для пользователя с Telegram ID ${telegramId}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'subscription_limit_exceeded' }
+      }
+
+      // Расчет стоимости подписки
+      const settings = await this.prismaService.settings.findFirst()
+      if (!settings) {
+        this.logger.error({
+          msg: 'Настройки не найдены',
+          service: this.serviceName,
+        })
+        return { success: false, message: 'settings_not_found' }
+      }
+
+      // Расчет стоимости с учетом периода и скидки пользователя
+      const cost = await this.calculateSubscriptionCost(period, user.role.discount)
+      
+      // Проверка баланса пользователя
+      if (user.balance.paymentBalance < cost) {
+        this.logger.warn({
+          msg: `Недостаточно средств для покупки подписки. Требуется: ${cost}, доступно: ${user.balance.paymentBalance}`,
+          service: this.serviceName,
+        })
+        return { 
+          success: false, 
+          message: 'insufficient_balance',
+          requiredAmount: cost,
+          currentBalance: user.balance.paymentBalance
+        }
+      }
+
+      // Создание подписки и списание средств в транзакции
+      const subscription = await this.prismaService.$transaction(async (tx) => {
+        // Списание средств с баланса
+        await tx.userBalance.update({
+          where: {
+            id: user.balance.id,
+          },
+          data: {
+            paymentBalance: {
+              decrement: cost,
+            },
+          },
+        })
+
+        // Создание записи о транзакции
+        await tx.transactions.create({
+          data: {
+            amount: cost,
+            type: TransactionTypeEnum.MINUS,
+            reason: TransactionReasonEnum.SUBSCRIPTIONS,
+            balanceType: BalanceTypeEnum.PAYMENT,
+            isHold: false,
+            balanceId: user.balance.id,
+          },
+        })
+
+        // Создание подписки
+        const token = genToken()
+        const username = `${user.telegramId}_${Math.random()
+          .toString(36)
+          .substring(2)}`
+
+        // Подготовка данных для Marzban
+        const marbanDataStart: UserCreate = {
+          username,
+          proxies: {
+            vless: {
+              flow: 'xtls-rprx-vision',
+            },
+          },
+          inbounds: {
+            vless: ['VLESS'],
+          },
+          status: 'active',
+          note: `${user.id}/${user.telegramId}/${
+            user.telegramData?.username || ''
+          }/${user.telegramData?.firstName || ''}/${
+            user.telegramData?.lastName || ''
+          }`,
+        }
+
+        // Добавление пользователя в Marzban
+        const marbanData = await this.marzbanService.addUser(marbanDataStart)
+        if (!marbanData) {
+          throw new Error(`Не удалось добавить пользователя в Marzban для Telegram ID: ${telegramId}`)
+        }
+
+        // Расчет времени истечения подписки
+        const periodHours = this.periodHours(period)
+        if (periodHours <= 0) {
+          throw new Error(`Некорректный период подписки: ${period}`)
+        }
+
+        // Создание подписки в базе данных
+        return await tx.subscriptions.create({
+          data: {
+            username,
+            userId: user.id,
+            period,
+            isActive: true,
+            isAutoRenewal,
+            token,
+            expiredAt: addHours(new Date(), periodHours),
+          },
+        })
+      })
+
+      // Отправка уведомления пользователю в Telegram о покупке подписки
+      try {
+        const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
+        const subscriptionUrl = `${allowedOrigin}/sub/${subscription.token}`
+        const periodText = await this.getLocalizedPeriodText(
+          period,
+          user.language.iso6391,
+        )
+
+        const message = await this.i18n.t('subscription.purchased', {
+          lang: user.language.iso6391,
+          args: {
+            period: periodText,
+            cost,
+            expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
+            subscriptionUrl: subscriptionUrl,
+          },
+        })
+
+        await this.bot.telegram.sendMessage(telegramId, message)
+
+        this.logger.info({
+          msg: `Уведомление о покупке подписки отправлено пользователю с Telegram ID: ${telegramId}`,
+          service: this.serviceName,
+        })
+      } catch (error) {
+        this.logger.error({
+          msg: `Ошибка при отправке уведомления о покупке подписки пользователю с Telegram ID: ${telegramId}`,
+          error,
+          stack: error instanceof Error ? error.stack : undefined,
+          service: this.serviceName,
+        })
+        // Не прерываем выполнение, так как основная операция покупки подписки уже выполнена
+      }
+
+      this.logger.info({
+        msg: `Подписка успешно куплена пользователем с Telegram ID: ${telegramId}`,
+        subscriptionId: subscription.id,
+        service: this.serviceName,
+      })
+
+      return { success: true, subscription }
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при покупке подписки для пользователя с Telegram ID: ${telegramId}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return { success: false, message: error instanceof Error ? error.message : 'unknown_error' }
+    }
+  }
+
+  /**
+   * Расчет стоимости подписки на основе периода и скидки пользователя
+   * @param period - Период подписки
+   * @param userDiscount - Скидка пользователя
+   * @returns Стоимость в Stars
+   * @private
+   */
+  private async calculateSubscriptionCost(
+    period: SubscriptionPeriodEnum,
+    userDiscount: number = 1,
+  ): Promise<number> {
+    // Получение цен из настроек
+    const settings = await this.prismaService.settings.findFirst()
+
+    if (!settings) {
+      this.logger.warn({
+        msg: 'Настройки не найдены, используем цену по умолчанию',
+        service: this.serviceName,
+      })
+      return 699 // Цена по умолчанию, если настройки не найдены
+    }
+
+    // Базовая цена за месяц
+    const basePrice = settings.priceSubscriptionStars
+
+    // Применение коэффициента периода
+    let periodRatio = 1
+    switch (period) {
+      case SubscriptionPeriodEnum.HOUR:
+        periodRatio = settings.hourRatioPayment
+        break
+      case SubscriptionPeriodEnum.DAY:
+        periodRatio = settings.dayRatioPayment
+        break
+      case SubscriptionPeriodEnum.MONTH:
+        periodRatio = 1 // Базовая цена уже за 1 месяц
+        break
+      case SubscriptionPeriodEnum.THREE_MONTH:
+        periodRatio = settings.threeMouthesRatioPayment * 3
+        break
+      case SubscriptionPeriodEnum.SIX_MONTH:
+        periodRatio = settings.sixMouthesRatioPayment * 6
+        break
+      case SubscriptionPeriodEnum.YEAR:
+        periodRatio = settings.oneYearRatioPayment * 12
+        break
+      case SubscriptionPeriodEnum.TWO_YEAR:
+        periodRatio = settings.twoYearRatioPayment * 24
+        break
+      case SubscriptionPeriodEnum.THREE_YEAR:
+        periodRatio = settings.threeYearRatioPayment * 36
+        break
+      case SubscriptionPeriodEnum.TRIAL:
+        return 0 // Пробный период бесплатный
+      default:
+        periodRatio = 1
+    }
+
+    // Расчет цены с учетом коэффициента периода и скидки пользователя
+    const price = basePrice * periodRatio * userDiscount
+
+    return Math.round(price) // Округление до ближайшего целого
+  }
 }
