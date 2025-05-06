@@ -1,5 +1,6 @@
 {
   "deleted": "🗑️ Your subscription (period: {{period}}) has been successfully deleted. Thank you for using our service! We hope to see you again soon.",
+  "deleted_auto": "🗑️ Your subscription (period: {period}) has been deleted from the system as it has been inactive for more than a month. If you wish to continue using our service, please purchase a new subscription.",
   "created": "🎉 Congratulations! Your subscription has been successfully created!\n\n📆 Period: {period}\n⏱ Valid until: {expiredAt}\n\n🔗 Subscription link: {subscriptionUrl}",
   "period": {
     "hour": "⏱️ 1 hour",

@@ -12,6 +12,8 @@ export interface I18nTranslations {
     renewed: string
     renewal_failed_balance: string
     deactivated: string
+    deleted: string
+    deleted_auto: string
     expiration_reminder: string
     expiration_reminder_low_balance: string
     purchased: string

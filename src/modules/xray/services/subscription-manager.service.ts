@@ -107,7 +107,9 @@ export class SubscriptionManagerService {
         if (subscription.isAutoRenewal) {
           await this.processAutoRenewal(subscription as SubscriptionWithUser)
         } else {
-          await this.deactivateSubscription(subscription as SubscriptionWithUser)
+          await this.deactivateSubscription(
+            subscription as SubscriptionWithUser,
+          )
         }
       }
 
@@ -603,6 +605,150 @@ export class SubscriptionManagerService {
         userId: user.id,
         subscriptionId: subscription.id,
         daysLeft,
+        error,
+        service: this.serviceName,
+      })
+    }
+  }
+
+  /**
+   * Cron job to delete inactive subscriptions that haven't been renewed for more than a month
+   * Runs every day at 3:00 AM
+   */
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  async deleteInactiveSubscriptions() {
+    this.logger.info({
+      msg: 'Starting inactive subscriptions cleanup',
+      service: this.serviceName,
+    })
+
+    try {
+      // Calculate date one month ago
+      const oneMonthAgo = new Date()
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+
+      // Get all inactive subscriptions that expired more than a month ago
+      const inactiveSubscriptions =
+        await this.prismaService.subscriptions.findMany({
+          where: {
+            isActive: false,
+            expiredAt: {
+              lt: oneMonthAgo,
+            },
+          },
+          include: {
+            user: {
+              include: {
+                language: true,
+              },
+            },
+          },
+        })
+
+      this.logger.info({
+        msg: `Found ${inactiveSubscriptions.length} inactive subscriptions to delete`,
+        service: this.serviceName,
+      })
+
+      for (const subscription of inactiveSubscriptions) {
+        await this.deleteInactiveSubscription(subscription)
+      }
+
+      this.logger.info({
+        msg: 'Inactive subscriptions cleanup completed',
+        service: this.serviceName,
+      })
+    } catch (error) {
+      this.logger.error({
+        msg: 'Error cleaning up inactive subscriptions',
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+    }
+  }
+
+  /**
+   * Delete an inactive subscription
+   * @param subscription - The subscription to delete
+   * @private
+   */
+  private async deleteInactiveSubscription(subscription: any) {
+    this.logger.info({
+      msg: `Deleting inactive subscription ${subscription.id}`,
+      userId: subscription.userId,
+      service: this.serviceName,
+    })
+
+    try {
+      // Try to remove user from Marzban
+      const marzbanResult = await this.marzbanService.removeUser(
+        subscription.username,
+      )
+
+      if (!marzbanResult) {
+        this.logger.warn({
+          msg: `Failed to remove user ${subscription.username} from Marzban, continuing with database deletion`,
+          service: this.serviceName,
+        })
+        // Continue with deletion even if Marzban removal fails
+      }
+
+      // Delete subscription from database
+      await this.prismaService.subscriptions.delete({
+        where: {
+          id: subscription.id,
+        },
+      })
+
+      // Send notification to user
+      await this.sendSubscriptionDeletedNotification(
+        subscription.user,
+        subscription,
+      )
+
+      this.logger.info({
+        msg: `Successfully deleted inactive subscription ${subscription.id}`,
+        userId: subscription.userId,
+        service: this.serviceName,
+      })
+    } catch (error) {
+      this.logger.error({
+        msg: `Error deleting inactive subscription ${subscription.id}`,
+        userId: subscription.userId,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+    }
+  }
+
+  /**
+   * Send notification about subscription deletion
+   * @param user - User to notify
+   * @param subscription - Deleted subscription
+   * @private
+   */
+  private async sendSubscriptionDeletedNotification(
+    user: any,
+    subscription: any,
+  ) {
+    try {
+      const message = await this.i18n.t('subscription.deleted_auto', {
+        lang: user.language.iso6391,
+        args: {
+          period: await this.xrayService.getLocalizedPeriodText(
+            subscription.period,
+            user.language.iso6391,
+          ),
+        },
+      })
+
+      await this.bot.telegram.sendMessage(user.telegramId, message)
+    } catch (error) {
+      this.logger.error({
+        msg: 'Error sending subscription deletion notification',
+        userId: user.id,
         error,
         service: this.serviceName,
       })
