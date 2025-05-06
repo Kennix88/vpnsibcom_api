@@ -480,7 +480,7 @@ export class XrayService {
    * @returns Количество часов
    * @private
    */
-  private periodHours(
+  public periodHours(
     period: SubscriptionPeriodEnum,
     trialDays?: number,
   ): number {
@@ -520,7 +520,7 @@ export class XrayService {
    * @returns Локализованное текстовое описание периода
    * @private
    */
-  private async getLocalizedPeriodText(
+  public async getLocalizedPeriodText(
     period: SubscriptionPeriodEnum,
     lang: string,
     trialDays?: number,
@@ -551,7 +551,7 @@ export class XrayService {
    * @returns Индекс склонения (0, 1 или 2)
    * @private
    */
-  private getDeclension(count: number): number {
+  public getDeclension(count: number): number {
     // Для русского языка
     const lastDigit = count % 10
     const lastTwoDigits = count % 100

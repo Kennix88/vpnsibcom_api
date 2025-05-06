@@ -20,4 +20,14 @@ export class RedisService extends Redis implements OnModuleInit {
       console.error('Redis connection failed:', err)
     }
   }
+
+  /**
+   * Установка значения с временем жизни
+   * @param key - Ключ
+   * @param value - Значение
+   * @param ttlSeconds - Время жизни в секундах
+   */
+  async setWithExpiry(key: string, value: string, ttlSeconds: number): Promise<string> {
+    return await this.set(key, value, 'EX', ttlSeconds);
+  }
 }

@@ -44,6 +44,14 @@ export type I18nTranslations = {
       level_label: string
     }
   }
+  'subscription.renewed': string
+  'subscription.renewal_failed_balance': string
+  'subscription.deactivated': string
+  'subscription.expiration_reminder': string
+  'subscription.expiration_reminder_low_balance': string
+  'time.days.0': string
+  'time.days.1': string
+  'time.days.2': string
 }
 /* prettier-ignore */
 export type I18nPath = Path<I18nTranslations>;

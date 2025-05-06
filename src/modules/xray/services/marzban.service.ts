@@ -632,4 +632,20 @@ export class MarzbanService {
       this.client.put(`/api/user/${username}/owner`, ownerData),
     )
   }
+
+	
+  /**
+   * Деактивация пользователя
+   * @param username - Имя пользователя
+   * @returns Результат операции
+   */
+  async deactivateUser(username: string): Promise<UserResponse> {
+    this.logger.info({
+      msg: `Деактивация пользователя: ${username}`,
+      service: this.serviceName,
+    })
+    return await this.modifyUser(username, { status: 'disabled' })
+  }
 }
+
+

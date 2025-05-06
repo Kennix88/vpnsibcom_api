@@ -11,5 +11,10 @@
     "three_year": "3 years",
     "trial": "Trial period",
     "trial_with_days": "Trial period ({days} {daysText})"
-  }
+  },
+  "renewed": "Your subscription has been successfully renewed for the period: {{period}}. New expiration date: {{expiredAt}}.",
+  "renewal_failed_balance": "Failed to automatically renew your subscription for the period {{period}}. Insufficient funds in your balance. Required: {{requiredAmount}} STARS, current balance: {{currentBalance}} STARS. Please top up your balance to renew your subscription.",
+  "deactivated": "Your subscription for the period {{period}} has been deactivated due to expiration.",
+  "expiration_reminder": "We remind you that your subscription expires in {{days}} {{daysText}}. Expiration date: {{expiredAt}}. The subscription will be automatically renewed for the period {{period}}.",
+  "expiration_reminder_low_balance": "Attention! Your subscription expires in {{days}} {{daysText}}. Expiration date: {{expiredAt}}. To automatically renew for the period {{period}}, {{requiredAmount}} STARS are required, but your balance only has {{currentBalance}} STARS. Please top up your balance to renew your subscription."
 }
