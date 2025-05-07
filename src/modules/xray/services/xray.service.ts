@@ -1273,7 +1273,7 @@ export class XrayService {
       if (!allowedOrigin) {
         throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
       }
-      
+
       const subscriptionUrl = `${allowedOrigin}/sub/${newToken}`
 
       // Отправляем уведомление пользователю
@@ -1330,6 +1330,107 @@ export class XrayService {
         stack: error instanceof Error ? error.stack : undefined,
         service: this.serviceName,
       })
+    }
+  }
+
+  /**
+   * Переключает статус автоматического продления подписки
+   * @param subscriptionId - ID подписки
+   * @param telegramId - Telegram ID пользователя
+   * @returns Объект с результатом операции
+   */
+  public async toggleAutoRenewal(subscriptionId: string, telegramId: string) {
+    try {
+      this.logger.info({
+        msg: `Переключение статуса автопродления для подписки с ID: ${subscriptionId}, пользователь: ${telegramId}`,
+        service: this.serviceName,
+      })
+
+      const user = await this.userService.getUserByTgId(telegramId)
+      if (!user) {
+        this.logger.warn({
+          msg: `Пользователь с Telegram ID ${telegramId} не найден`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'user_not_found' }
+      }
+
+      // Проверяем, принадлежит ли подписка пользователю
+      const subscription = await this.prismaService.subscriptions.findFirst({
+        where: {
+          id: subscriptionId,
+          userId: user.id,
+        },
+      })
+
+      if (!subscription) {
+        this.logger.warn({
+          msg: `Подписка с ID ${subscriptionId} не найдена или не принадлежит пользователю ${telegramId}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'subscription_not_found' }
+      }
+
+      // Переключаем статус автопродления
+      const updatedSubscription = await this.prismaService.subscriptions.update(
+        {
+          where: {
+            id: subscriptionId,
+          },
+          data: {
+            isAutoRenewal: !subscription.isAutoRenewal,
+          },
+        },
+      )
+
+      // Отправляем уведомление пользователю
+      try {
+        const userLang = user.language.iso6391 || 'ru'
+
+        const messageKey = updatedSubscription.isAutoRenewal
+          ? 'subscription.auto_renewal_enabled'
+          : 'subscription.auto_renewal_disabled'
+
+        const message = await this.i18n.t(messageKey, {
+          lang: userLang,
+        })
+
+        await this.bot.telegram.sendMessage(telegramId, message)
+
+        this.logger.info({
+          msg: `Уведомление о смене статуса автопродления отправлено пользователю ${telegramId}`,
+          service: this.serviceName,
+        })
+      } catch (notificationError) {
+        this.logger.error({
+          msg: `Ошибка при отправке уведомления пользователю ${telegramId}`,
+          error: notificationError,
+          stack:
+            notificationError instanceof Error
+              ? notificationError.stack
+              : undefined,
+          service: this.serviceName,
+        })
+        // Продолжаем выполнение, даже если уведомление не отправлено
+      }
+
+      this.logger.info({
+        msg: `Статус автопродления успешно изменен для подписки ${subscriptionId}, новое значение: ${updatedSubscription.isAutoRenewal}`,
+        service: this.serviceName,
+      })
+
+      return {
+        success: true,
+        isAutoRenewal: updatedSubscription.isAutoRenewal,
+      }
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при переключении статуса автопродления для подписки ${subscriptionId}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return { success: false, message: 'internal_error' }
     }
   }
 }

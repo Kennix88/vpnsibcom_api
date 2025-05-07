@@ -24,6 +24,7 @@ import { DeleteSubscriptionDto } from '../types/delete-subscription.dto'
 import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
 import { RenewSubscriptionDto } from '../types/renew-subscription.dto'
 import { ResetSubscriptionTokenDto } from '../types/reset-subscription-token.dto'
+import { ToggleAutoRenewalDto } from '../types/toggle-auto-renewal.dto'
 
 interface SubscriptionResponse {
   data: {
@@ -479,6 +480,89 @@ export class SubscriptionsController {
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при сбросе токена подписки',
+      )
+    }
+  }
+
+  @Post('toggle-auto-renewal')
+  @Throttle({ defaults: { limit: 10, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async toggleAutoRenewal(
+    @CurrentUser() user: JwtPayload,
+    @Body() toggleDto: ToggleAutoRenewalDto,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ): Promise<SubscriptionResponse> {
+    try {
+      this.logger.info(
+        `Запрос на изменение статуса автопродления от пользователя: ${user.telegramId}, подписка: ${toggleDto.subscriptionId}`,
+      )
+
+      const token = req.headers.authorization?.split(' ')[1]
+      if (!token) {
+        throw new BadRequestException('Токен авторизации отсутствует')
+      }
+
+      await this.authService.updateUserActivity(token)
+
+      const result = await this.xrayService.toggleAutoRenewal(
+        toggleDto.subscriptionId,
+        user.telegramId,
+      )
+
+      if (!result.success) {
+        this.logger.warn(
+          `Не удалось изменить статус автопродления для пользователя: ${user.telegramId}, причина: ${result.message}`,
+        )
+
+        let statusCode = HttpStatus.BAD_REQUEST
+        let message = 'Не удалось изменить статус автопродления'
+
+        // Обработка различных причин неудачи
+        if (result.message === 'user_not_found') {
+          message = 'Пользователь не найден'
+          statusCode = HttpStatus.NOT_FOUND
+        } else if (result.message === 'subscription_not_found') {
+          message = 'Подписка не найдена или не принадлежит пользователю'
+          statusCode = HttpStatus.NOT_FOUND
+        }
+
+        res.status(statusCode)
+        return {
+          data: {
+            success: false,
+            message,
+          },
+        }
+      }
+
+      const [subscriptions, userData] = await Promise.all([
+        this.xrayService.getSubscriptions(user.sub),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      this.logger.info(
+        `Статус автопродления успешно изменен для пользователя: ${user.telegramId}`,
+      )
+
+      return {
+        data: {
+          success: true,
+          message: result.isAutoRenewal 
+            ? 'Автопродление подписки включено' 
+            : 'Автопродление подписки отключено',
+          subscriptions,
+          user: userData,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при изменении статуса автопродления: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при изменении статуса автопродления',
       )
     }
   }

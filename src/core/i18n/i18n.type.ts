@@ -21,6 +21,8 @@ export interface I18nTranslations {
       trial_with_days: string
     }
     token_reset: string;
+    auto_renewal_enabled: string;
+    auto_renewal_disabled: string;
   }
   subscriptions: {
     purchase: {

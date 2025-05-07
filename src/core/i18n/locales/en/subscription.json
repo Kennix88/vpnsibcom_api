@@ -20,5 +20,7 @@
   "deactivated": "⏹️ Your subscription for the period {{period}} has been deactivated due to expiration. We hope you enjoyed our service!",
   "expiration_reminder": "⏰ Reminder! Your subscription expires in {{days}} {{daysText}}. Expiration date: {{expiredAt}}. The subscription will be automatically renewed for the period {{period}}.",
   "expiration_reminder_low_balance": "⚠️ Attention! Your subscription expires in {{days}} {{daysText}}. Expiration date: {{expiredAt}}. To automatically renew for the period {{period}}, {{requiredAmount}} STARS are required, but your balance only has {{currentBalance}} STARS. Please top up your balance to renew your subscription.",
-  "token_reset": "🔄 Subscription token has been reset!\n\n⚠️ You need to reconnect your subscription in the client application.\n\n📱 New connection link: {subscriptionUrl}\n\n⏱️ Subscription expiration: until {expiredAt}\n\nIf you have any questions, please contact support."
+  "token_reset": "🔄 Subscription token has been reset!\n\n⚠️ You need to reconnect your subscription in the client application.\n\n📱 New connection link: {subscriptionUrl}\n\n⏱️ Subscription expiration: until {expiredAt}\n\nIf you have any questions, please contact support.",
+  "auto_renewal_enabled": "✅ Subscription auto-renewal enabled!\n\nYour subscription will now be automatically renewed if you have sufficient funds in your balance.",
+  "auto_renewal_disabled": "❌ Subscription auto-renewal disabled!\n\nYour subscription will not be renewed automatically. Don't forget to renew it manually before it expires."
 }
