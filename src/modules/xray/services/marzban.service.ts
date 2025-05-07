@@ -443,6 +443,7 @@ export class MarzbanService {
     )
   }
 
+  
   /**
    * Получение ссылки на подписку пользователя
    */
@@ -651,7 +652,6 @@ export class MarzbanService {
     )
   }
 
-	
   /**
    * Деактивация пользователя
    * @param username - Имя пользователя
@@ -664,6 +664,35 @@ export class MarzbanService {
     })
     return await this.modifyUser(username, { status: 'disabled' })
   }
+	
+	/**
+	 * Revokes subscription for a user
+	 * @param username - Username of the user
+	 * @returns True if successful, false otherwise
+	 */
+	public async revokeSubscription(username: string): Promise<boolean> {
+		try {
+			this.logger.info({
+				msg: `Отзыв подписки для пользователя ${username}`,
+				service: this.serviceName,
+			})
+	
+			await this.client.post(`/api/user/${username}/revoke_sub`)
+			
+			this.logger.info({
+				msg: `Подписка успешно отозвана для пользователя ${username}`,
+				service: this.serviceName,
+			})
+			
+			return true
+		} catch (error) {
+			this.logger.error({
+				msg: `Ошибка при отзыве подписки для пользователя ${username}`,
+				error,
+				stack: error instanceof Error ? error.stack : undefined,
+				service: this.serviceName,
+			})
+			return false
+		}
+	}
 }
-
-
