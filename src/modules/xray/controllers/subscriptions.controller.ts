@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -19,10 +20,10 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { PinoLogger } from 'nestjs-pino'
 import { UsersService } from '../../users/users.service'
 import { XrayService } from '../services/xray.service'
-import { Body } from '@nestjs/common'
-import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
 import { DeleteSubscriptionDto } from '../types/delete-subscription.dto'
+import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
 import { RenewSubscriptionDto } from '../types/renew-subscription.dto'
+import { ResetSubscriptionTokenDto } from '../types/reset-subscription-token.dto'
 
 interface SubscriptionResponse {
   data: {
@@ -178,10 +179,10 @@ export class SubscriptionsController {
         this.logger.warn(
           `Не удалось купить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
-        
+
         let statusCode = HttpStatus.BAD_REQUEST
         let message = 'Не удалось купить подписку'
-        
+
         // Обработка различных причин неудачи
         if (result.message === 'insufficient_balance') {
           message = 'Недостаточно средств на балансе'
@@ -193,7 +194,7 @@ export class SubscriptionsController {
           message = 'Пользователь не найден'
           statusCode = HttpStatus.NOT_FOUND
         }
-        
+
         res.status(statusCode)
         return {
           data: {
@@ -263,10 +264,10 @@ export class SubscriptionsController {
         this.logger.warn(
           `Не удалось удалить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
-        
+
         let statusCode = HttpStatus.BAD_REQUEST
         let message = 'Не удалось удалить подписку'
-        
+
         // Обработка различных причин неудачи
         if (result.message === 'user_not_found') {
           message = 'Пользователь не найден'
@@ -275,7 +276,7 @@ export class SubscriptionsController {
           message = 'Подписка не найдена или не принадлежит пользователю'
           statusCode = HttpStatus.NOT_FOUND
         }
-        
+
         res.status(statusCode)
         return {
           data: {
@@ -344,10 +345,10 @@ export class SubscriptionsController {
         this.logger.warn(
           `Не удалось продлить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
-        
+
         let statusCode = HttpStatus.BAD_REQUEST
         let message = 'Не удалось продлить подписку'
-        
+
         // Обработка различных причин неудачи
         if (result.message === 'insufficient_balance') {
           message = 'Недостаточно средств на балансе'
@@ -362,7 +363,7 @@ export class SubscriptionsController {
           message = 'Некорректный период подписки'
           statusCode = HttpStatus.BAD_REQUEST
         }
-        
+
         res.status(statusCode)
         return {
           data: {
@@ -397,6 +398,87 @@ export class SubscriptionsController {
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при продлении подписки',
+      )
+    }
+  }
+
+  @Post('reset-token')
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async resetSubscriptionToken(
+    @CurrentUser() user: JwtPayload,
+    @Body() resetTokenDto: ResetSubscriptionTokenDto,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ): Promise<SubscriptionResponse> {
+    try {
+      this.logger.info(
+        `Запрос на сброс токена подписки от пользователя: ${user.telegramId}, ID подписки: ${resetTokenDto.subscriptionId}`,
+      )
+
+      const token = req.headers.authorization?.split(' ')[1]
+      if (!token) {
+        throw new BadRequestException('Токен авторизации отсутствует')
+      }
+
+      await this.authService.updateUserActivity(token)
+
+      const result = await this.xrayService.resetSubscriptionToken(
+        user.telegramId,
+        resetTokenDto.subscriptionId,
+      )
+
+      if (!result.success) {
+        this.logger.warn(
+          `Не удалось сбросить токен подписки для пользователя: ${user.telegramId}, причина: ${result.message}`,
+        )
+
+        let statusCode = HttpStatus.BAD_REQUEST
+        let message = 'Не удалось сбросить токен подписки'
+
+        // Обработка различных причин неудачи
+        if (result.message === 'user_not_found') {
+          message = 'Пользователь не найден'
+          statusCode = HttpStatus.NOT_FOUND
+        } else if (result.message === 'subscription_not_found') {
+          message = 'Подписка не найдена или не принадлежит пользователю'
+          statusCode = HttpStatus.NOT_FOUND
+        }
+
+        res.status(statusCode)
+        return {
+          data: {
+            success: false,
+            message,
+          },
+        }
+      }
+
+      const [subscriptions, userData] = await Promise.all([
+        this.xrayService.getSubscriptions(user.sub),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      this.logger.info(
+        `Токен подписки успешно сброшен пользователем: ${user.telegramId}`,
+      )
+
+      return {
+        data: {
+          success: true,
+          message: 'Токен подписки успешно сброшен',
+          subscriptions,
+          user: userData,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при сбросе токена подписки: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при сбросе токена подписки',
       )
     }
   }

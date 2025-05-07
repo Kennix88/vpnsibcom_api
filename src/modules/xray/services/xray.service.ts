@@ -16,7 +16,10 @@ import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { UserCreate } from '../types/marzban.types'
-import { SubscriptionDataInterface } from '../types/subscription-data.interface'
+import {
+  SubscriptionDataInterface,
+  SubscriptionDataListInterface,
+} from '../types/subscription-data.interface'
 import { MarzbanService } from './marzban.service'
 
 /**
@@ -108,7 +111,7 @@ export class XrayService {
    */
   public async getSubscriptions(
     userId: string,
-  ): Promise<SubscriptionDataInterface[]> {
+  ): Promise<SubscriptionDataInterface> {
     try {
       this.logger.info({
         msg: `Получение подписок для пользователя с ID: ${userId}`,
@@ -126,7 +129,7 @@ export class XrayService {
           msg: `Подписки для пользователя с ID ${userId} не найдены`,
           service: this.serviceName,
         })
-        return []
+        return
       }
 
       const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
@@ -134,7 +137,7 @@ export class XrayService {
         throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
       }
 
-      const result: SubscriptionDataInterface[] = subscriptions.map(
+      const result: SubscriptionDataListInterface[] = subscriptions.map(
         (subscription) => ({
           id: subscription.id,
           period: subscription.period as SubscriptionPeriodEnum,
@@ -152,7 +155,30 @@ export class XrayService {
         service: this.serviceName,
       })
 
-      return result
+      const settings = await this.prismaService.settings.findUnique({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+      if (!settings) {
+        this.logger.warn({
+          msg: 'Настройки по умолчанию не найдены',
+          service: this.serviceName,
+        })
+        return
+      }
+
+      return {
+        priceSubscriptionStars: settings.priceSubscriptionStars,
+        hourRatioPayment: settings.hourRatioPayment,
+        dayRatioPayment: settings.dayRatioPayment,
+        threeMouthesRatioPayment: settings.threeMouthesRatioPayment,
+        sixMouthesRatioPayment: settings.sixMouthesRatioPayment,
+        oneYearRatioPayment: settings.oneYearRatioPayment,
+        twoYearRatioPayment: settings.twoYearRatioPayment,
+        threeYearRatioPayment: settings.threeYearRatioPayment,
+        list: result,
+      }
     } catch (error) {
       this.logger.error({
         msg: `Ошибка при получении подписок для пользователя с ID: ${userId}`,
@@ -1172,6 +1198,138 @@ export class XrayService {
         success: false,
         message: error instanceof Error ? error.message : 'unknown_error',
       }
+    }
+  }
+
+  /**
+   * Сбрасывает токен подписки пользователя
+   * @param telegramId - Telegram ID пользователя
+   * @param subscriptionId - ID подписки
+   * @returns Объект с результатом операции
+   */
+  public async resetSubscriptionToken(
+    telegramId: string,
+    subscriptionId: string,
+  ): Promise<{ success: boolean; message?: string; subscriptionUrl?: string }> {
+    try {
+      this.logger.info({
+        msg: `Запрос на сброс токена подписки ${subscriptionId} от пользователя с Telegram ID: ${telegramId}`,
+        service: this.serviceName,
+      })
+
+      // Проверяем существование пользователя
+      const user = await this.userService.getUserByTgId(telegramId)
+      if (!user) {
+        this.logger.warn({
+          msg: `Пользователь с Telegram ID ${telegramId} не найден`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'user_not_found' }
+      }
+
+      // Находим подписку и проверяем, принадлежит ли она пользователю
+      const subscription = await this.prismaService.subscriptions.findFirst({
+        where: {
+          id: subscriptionId,
+          userId: user.id,
+        },
+      })
+
+      if (!subscription) {
+        this.logger.warn({
+          msg: `Подписка ${subscriptionId} не найдена или не принадлежит пользователю ${telegramId}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'subscription_not_found' }
+      }
+
+      // Отзываем подписку в Marzban
+      const marzbanResult = await this.marzbanService.revokeSubscription(
+        subscription.username,
+      )
+      if (!marzbanResult) {
+        this.logger.error({
+          msg: `Не удалось отозвать подписку для пользователя ${subscription.username} в Marzban`,
+          service: this.serviceName,
+        })
+        // Продолжаем сброс токена даже если не удалось отозвать подписку в Marzban
+      }
+
+      // Генерируем новый токен
+      const newToken = genToken()
+
+      // Обновляем токен в базе данных
+      await this.prismaService.subscriptions.update({
+        where: {
+          id: subscriptionId,
+        },
+        data: {
+          token: newToken,
+        },
+      })
+
+      // Формируем новый URL подписки
+      const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
+      if (!allowedOrigin) {
+        throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
+      }
+      
+      const subscriptionUrl = `${allowedOrigin}/sub/${newToken}`
+
+      // Отправляем уведомление пользователю
+      await this.sendTokenResetNotification(user, subscription, subscriptionUrl)
+
+      this.logger.info({
+        msg: `Токен подписки ${subscriptionId} успешно сброшен для пользователя ${telegramId}`,
+        service: this.serviceName,
+      })
+
+      return { success: true, subscriptionUrl }
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при сбросе токена подписки для пользователя с Telegram ID: ${telegramId}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return { success: false, message: 'internal_error' }
+    }
+  }
+
+  /**
+   * Отправляет уведомление о сбросе токена подписки
+   * @param user - Пользователь
+   * @param subscription - Подписка
+   * @param subscriptionUrl - Новый URL подписки
+   * @private
+   */
+  private async sendTokenResetNotification(
+    user: any,
+    subscription: any,
+    subscriptionUrl: string,
+  ): Promise<void> {
+    try {
+      const message = await this.i18n.t('subscription.token_reset', {
+        lang: user.language.iso6391,
+        args: {
+          subscriptionUrl,
+          expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
+        },
+      })
+
+      await this.bot.telegram.sendMessage(user.telegramId, message)
+
+      this.logger.info({
+        msg: `Уведомление о сбросе токена подписки отправлено пользователю с Telegram ID: ${user.telegramId}`,
+        service: this.serviceName,
+      })
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при отправке уведомления о сбросе токена подписки пользователю с Telegram ID: ${user.telegramId}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
     }
   }
 }

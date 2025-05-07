@@ -20,6 +20,7 @@ export interface I18nTranslations {
     period: {
       trial_with_days: string
     }
+    token_reset: string;
   }
   subscriptions: {
     purchase: {
