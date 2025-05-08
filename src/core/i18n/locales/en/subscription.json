@@ -1,5 +1,5 @@
 {
-  "deleted": "🗑️ Your subscription (period: {{period}}) has been successfully deleted. Thank you for using our service! We hope to see you again soon.",
+  "deleted": "🗑️ Your subscription (period: {period}) has been successfully deleted. Thank you for using our service! We hope to see you again soon.",
   "deleted_auto": "🗑️ Your subscription (period: {period}) has been deleted from the system as it has been inactive for more than a month. If you wish to continue using our service, please purchase a new subscription.",
   "created": "🎉 Congratulations! Your subscription has been successfully created!\n\n📆 Period: {period}\n⏱ Valid until: {expiredAt}\n\n🔗 Subscription link: {subscriptionUrl}",
   "period": {
@@ -14,12 +14,12 @@
     "trial": "🔍 Trial period",
     "trial_with_days": "🔍 Trial period ({days} {daysText})"
   },
-  "renewed": "🔄 Your subscription has been successfully renewed for the period: {{period}}. ⏱️ New expiration date: {{expiredAt}}. Enjoy your continued access!",
-  "renewed_user": "✅ Your subscription has been successfully renewed!\n\n📆 Period: {{period}}\n💰 Cost: {{cost}} STARS\n⏱️ Valid until: {{expiredAt}}\n\n🔗 Your connection link: {{subscriptionUrl}}",
-  "renewal_failed_balance": "⚠️ Failed to automatically renew your subscription for the period {{period}}. Insufficient funds in your balance. Required: {{requiredAmount}} STARS, current balance: {{currentBalance}} STARS. Please top up your balance to renew your subscription.",
-  "deactivated": "⏹️ Your subscription for the period {{period}} has been deactivated due to expiration. We hope you enjoyed our service!",
-  "expiration_reminder": "⏰ Reminder! Your subscription expires in {{days}} {{daysText}}. Expiration date: {{expiredAt}}. The subscription will be automatically renewed for the period {{period}}.",
-  "expiration_reminder_low_balance": "⚠️ Attention! Your subscription expires in {{days}} {{daysText}}. Expiration date: {{expiredAt}}. To automatically renew for the period {{period}}, {{requiredAmount}} STARS are required, but your balance only has {{currentBalance}} STARS. Please top up your balance to renew your subscription.",
+  "renewed": "🔄 Your subscription has been successfully renewed for the period: {period}. ⏱️ New expiration date: {expiredAt}. Enjoy your continued access!",
+  "renewed_user": "✅ Your subscription has been successfully renewed!\n\n📆 Period: {period}\n💰 Cost: {cost} STARS\n⏱️ Valid until: {expiredAt}\n\n🔗 Your connection link: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ Failed to automatically renew your subscription for the period {period}. Insufficient funds in your balance. Required: {requiredAmount} STARS, current balance: {currentBalance} STARS. Please top up your balance to renew your subscription.",
+  "deactivated": "⏹️ Your subscription for the period {period} has been deactivated due to expiration. We hope you enjoyed our service!",
+  "expiration_reminder": "⏰ Reminder! Your subscription expires in {days} {daysText}. Expiration date: {expiredAt}. The subscription will be automatically renewed for the period {period}.",
+  "expiration_reminder_low_balance": "⚠️ Attention! Your subscription expires in {days} {daysText}. Expiration date: {expiredAt}. To automatically renew for the period {period}, {requiredAmount} STARS are required, but your balance only has {currentBalance} STARS. Please top up your balance to renew your subscription.",
   "token_reset": "🔄 Subscription token has been reset!\n\n⚠️ You need to reconnect your subscription in the client application.\n\n📱 New connection link: {subscriptionUrl}\n\n⏱️ Subscription expiration: until {expiredAt}\n\nIf you have any questions, please contact support.",
   "auto_renewal_enabled": "✅ Subscription auto-renewal enabled!\n\nYour subscription will now be automatically renewed if you have sufficient funds in your balance.",
   "auto_renewal_disabled": "❌ Subscription auto-renewal disabled!\n\nYour subscription will not be renewed automatically. Don't forget to renew it manually before it expires."

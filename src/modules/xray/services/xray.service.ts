@@ -897,7 +897,7 @@ export class XrayService {
         periodRatio = settings.threeYearRatioPayment * 36
         break
       case SubscriptionPeriodEnum.TRIAL:
-        return 0 // Пробный период бесплатный
+        return 1 // Пробный период бесплатный
       default:
         periodRatio = 1
     }
@@ -1063,7 +1063,9 @@ export class XrayService {
 
       // Расчет стоимости подписки
       const cost = await this.calculateSubscriptionCost(
-        subscription.period as SubscriptionPeriodEnum,
+        subscription.period == SubscriptionPeriodEnum.TRIAL
+          ? SubscriptionPeriodEnum.MONTH
+          : (subscription.period as SubscriptionPeriodEnum),
         user.role.discount,
       )
 
@@ -1083,7 +1085,9 @@ export class XrayService {
 
       // Расчет времени истечения подписки
       const periodHours = this.periodHours(
-        subscription.period as SubscriptionPeriodEnum,
+        subscription.period == SubscriptionPeriodEnum.TRIAL
+          ? SubscriptionPeriodEnum.MONTH
+          : (subscription.period as SubscriptionPeriodEnum),
       )
       if (periodHours <= 0) {
         this.logger.error({
@@ -1135,6 +1139,10 @@ export class XrayService {
               id: subscription.id,
             },
             data: {
+              period:
+                subscription.period == SubscriptionPeriodEnum.TRIAL
+                  ? SubscriptionPeriodEnum.MONTH
+                  : (subscription.period as SubscriptionPeriodEnum),
               expiredAt: newExpiredAt,
               isActive: true, // Активируем подписку, если она была неактивна
             },
