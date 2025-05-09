@@ -695,45 +695,88 @@ export class XrayService {
         user.role.discount,
       )
 
-      // Проверка баланса пользователя
-      if (user.balance.paymentBalance < cost) {
+      // Проверка баланса пользователя с учетом возможности использования withdrawalBalance
+      const totalAvailableBalance =
+        user.balance.paymentBalance +
+        (user.balance.isUseWithdrawalBalance
+          ? user.balance.withdrawalBalance
+          : 0)
+
+      if (totalAvailableBalance < cost) {
         this.logger.warn({
-          msg: `Недостаточно средств для покупки подписки. Требуется: ${cost}, доступно: ${user.balance.paymentBalance}`,
+          msg: `Недостаточно средств для покупки подписки. Требуется: ${cost}, доступно: ${totalAvailableBalance}`,
           service: this.serviceName,
         })
         return {
           success: false,
           message: 'insufficient_balance',
           requiredAmount: cost,
-          currentBalance: user.balance.paymentBalance,
+          currentBalance: totalAvailableBalance,
         }
       }
 
       // Создание подписки и списание средств в транзакции
       const subscription = await this.prismaService.$transaction(async (tx) => {
-        // Списание средств с баланса
-        await tx.userBalance.update({
-          where: {
-            id: user.balance.id,
-          },
-          data: {
-            paymentBalance: {
-              decrement: cost,
-            },
-          },
-        })
+        // Определяем сколько списать с каждого баланса
+        const paymentAmount = Math.min(cost, user.balance.paymentBalance)
+        let withdrawalAmount = 0
 
-        // Создание записи о транзакции
-        await tx.transactions.create({
-          data: {
-            amount: cost,
-            type: TransactionTypeEnum.MINUS,
-            reason: TransactionReasonEnum.SUBSCRIPTIONS,
-            balanceType: BalanceTypeEnum.PAYMENT,
-            isHold: false,
-            balanceId: user.balance.id,
-          },
-        })
+        // Если не хватает paymentBalance и включено использование withdrawalBalance
+        if (paymentAmount < cost && user.balance.isUseWithdrawalBalance) {
+          withdrawalAmount = cost - paymentAmount
+        }
+
+        // Списание средств с paymentBalance
+        if (paymentAmount > 0) {
+          await tx.userBalance.update({
+            where: {
+              id: user.balance.id,
+            },
+            data: {
+              paymentBalance: {
+                decrement: paymentAmount,
+              },
+            },
+          })
+
+          // Создание записи о транзакции для paymentBalance
+          await tx.transactions.create({
+            data: {
+              amount: paymentAmount,
+              type: TransactionTypeEnum.MINUS,
+              reason: TransactionReasonEnum.SUBSCRIPTIONS,
+              balanceType: BalanceTypeEnum.PAYMENT,
+              isHold: false,
+              balanceId: user.balance.id,
+            },
+          })
+        }
+
+        // Списание средств с withdrawalBalance если необходимо
+        if (withdrawalAmount > 0) {
+          await tx.userBalance.update({
+            where: {
+              id: user.balance.id,
+            },
+            data: {
+              withdrawalBalance: {
+                decrement: withdrawalAmount,
+              },
+            },
+          })
+
+          // Создание записи о транзакции для withdrawalBalance
+          await tx.transactions.create({
+            data: {
+              amount: withdrawalAmount,
+              type: TransactionTypeEnum.MINUS,
+              reason: TransactionReasonEnum.SUBSCRIPTIONS,
+              balanceType: BalanceTypeEnum.WITHDRAWAL,
+              isHold: false,
+              balanceId: user.balance.id,
+            },
+          })
+        }
 
         // Создание подписки
         const token = genToken()
@@ -1066,17 +1109,23 @@ export class XrayService {
         user.role.discount,
       )
 
-      // Проверка баланса пользователя
-      if (user.balance.paymentBalance < cost) {
+      // Проверка баланса пользователя с учетом возможности использования withdrawalBalance
+      const totalAvailableBalance =
+        user.balance.paymentBalance +
+        (user.balance.isUseWithdrawalBalance
+          ? user.balance.withdrawalBalance
+          : 0)
+
+      if (totalAvailableBalance < cost) {
         this.logger.warn({
-          msg: `Insufficient balance for subscription renewal. Required: ${cost}, available: ${user.balance.paymentBalance}`,
+          msg: `Insufficient balance for subscription renewal. Required: ${cost}, available: ${totalAvailableBalance}`,
           service: this.serviceName,
         })
         return {
           success: false,
           message: 'insufficient_balance',
           requiredAmount: cost,
-          currentBalance: user.balance.paymentBalance,
+          currentBalance: totalAvailableBalance,
         }
       }
 
@@ -1106,29 +1155,66 @@ export class XrayService {
       // Продление подписки и списание средств в транзакции
       const updatedSubscription = await this.prismaService.$transaction(
         async (tx) => {
-          // Списание средств с баланса
-          await tx.userBalance.update({
-            where: {
-              id: user.balance.id,
-            },
-            data: {
-              paymentBalance: {
-                decrement: cost,
-              },
-            },
-          })
+          // Определяем сколько списать с каждого баланса
+          const paymentAmount = Math.min(cost, user.balance.paymentBalance)
+          let withdrawalAmount = 0
 
-          // Создание записи о транзакции
-          await tx.transactions.create({
-            data: {
-              amount: cost,
-              type: TransactionTypeEnum.MINUS,
-              reason: TransactionReasonEnum.SUBSCRIPTIONS,
-              balanceType: BalanceTypeEnum.PAYMENT,
-              isHold: false,
-              balanceId: user.balance.id,
-            },
-          })
+          // Если не хватает paymentBalance и включено использование withdrawalBalance
+          if (paymentAmount < cost && user.balance.isUseWithdrawalBalance) {
+            withdrawalAmount = cost - paymentAmount
+          }
+
+          // Списание средств с paymentBalance
+          if (paymentAmount > 0) {
+            await tx.userBalance.update({
+              where: {
+                id: user.balance.id,
+              },
+              data: {
+                paymentBalance: {
+                  decrement: paymentAmount,
+                },
+              },
+            })
+
+            // Создание записи о транзакции для paymentBalance
+            await tx.transactions.create({
+              data: {
+                amount: paymentAmount,
+                type: TransactionTypeEnum.MINUS,
+                reason: TransactionReasonEnum.SUBSCRIPTIONS,
+                balanceType: BalanceTypeEnum.PAYMENT,
+                isHold: false,
+                balanceId: user.balance.id,
+              },
+            })
+          }
+
+          // Списание средств с withdrawalBalance если необходимо
+          if (withdrawalAmount > 0) {
+            await tx.userBalance.update({
+              where: {
+                id: user.balance.id,
+              },
+              data: {
+                withdrawalBalance: {
+                  decrement: withdrawalAmount,
+                },
+              },
+            })
+
+            // Создание записи о транзакции для withdrawalBalance
+            await tx.transactions.create({
+              data: {
+                amount: withdrawalAmount,
+                type: TransactionTypeEnum.MINUS,
+                reason: TransactionReasonEnum.SUBSCRIPTIONS,
+                balanceType: BalanceTypeEnum.WITHDRAWAL,
+                isHold: false,
+                balanceId: user.balance.id,
+              },
+            })
+          }
 
           // Обновление даты истечения подписки
           return await tx.subscriptions.update({
