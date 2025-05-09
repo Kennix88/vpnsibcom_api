@@ -36,6 +36,8 @@ interface SubscriptionWithUser {
     balance: {
       id: string
       paymentBalance: number
+      isUseWithdrawalBalance: boolean
+      withdrawalBalance: number
     }
     role: {
       discount: number
@@ -155,33 +157,88 @@ export class SubscriptionManagerService {
         user.role.discount,
       )
 
-      // Check if user has enough balance
-      if (user.balance.paymentBalance >= cost) {
+      // Check if user has enough payment balance
+      const hasEnoughPaymentBalance = user.balance.paymentBalance >= cost
+      // Check if user wants to use withdrawal balance and has enough combined balance
+      const canUseWithdrawalBalance =
+        user.balance.isUseWithdrawalBalance &&
+        user.balance.paymentBalance + user.balance.withdrawalBalance >= cost
+
+      if (hasEnoughPaymentBalance || canUseWithdrawalBalance) {
         // Deduct balance and extend subscription
         await this.prismaService.$transaction(async (tx) => {
-          // Update user balance
-          await tx.userBalance.update({
-            where: {
-              id: user.balance.id,
-            },
-            data: {
-              paymentBalance: {
-                decrement: cost,
-              },
-            },
-          })
+          let remainingCost = cost
 
-          // Create transaction record
-          await tx.transactions.create({
-            data: {
-              amount: cost,
-              type: TransactionTypeEnum.MINUS,
-              reason: TransactionReasonEnum.SUBSCRIPTIONS,
-              balanceType: BalanceTypeEnum.PAYMENT,
-              isHold: false,
-              balanceId: user.balance.id,
-            },
-          })
+          // First, use payment balance
+          if (user.balance.paymentBalance > 0) {
+            const paymentAmount = Math.min(user.balance.paymentBalance, cost)
+            remainingCost -= paymentAmount
+
+            // Update user payment balance
+            await tx.userBalance.update({
+              where: {
+                id: user.balance.id,
+              },
+              data: {
+                paymentBalance: {
+                  decrement: paymentAmount,
+                },
+              },
+            })
+
+            // Create transaction record for payment balance
+            await tx.transactions.create({
+              data: {
+                amount: paymentAmount,
+                type: TransactionTypeEnum.MINUS,
+                reason: TransactionReasonEnum.SUBSCRIPTIONS,
+                balanceType: BalanceTypeEnum.PAYMENT,
+                isHold: false,
+                balanceId: user.balance.id,
+              },
+            })
+
+            this.logger.info({
+              msg: `Used ${paymentAmount} from payment balance for subscription renewal`,
+              userId: user.id,
+              subscriptionId: subscription.id,
+              service: this.serviceName,
+            })
+          }
+
+          // If needed and allowed, use withdrawal balance for the remaining cost
+          if (remainingCost > 0 && user.balance.isUseWithdrawalBalance) {
+            // Update user withdrawal balance
+            await tx.userBalance.update({
+              where: {
+                id: user.balance.id,
+              },
+              data: {
+                withdrawalBalance: {
+                  decrement: remainingCost,
+                },
+              },
+            })
+
+            // Create separate transaction record for withdrawal balance
+            await tx.transactions.create({
+              data: {
+                amount: remainingCost,
+                type: TransactionTypeEnum.MINUS,
+                reason: TransactionReasonEnum.SUBSCRIPTIONS,
+                balanceType: BalanceTypeEnum.WITHDRAWAL,
+                isHold: false,
+                balanceId: user.balance.id,
+              },
+            })
+
+            this.logger.info({
+              msg: `Used ${remainingCost} from withdrawal balance for subscription renewal`,
+              userId: user.id,
+              subscriptionId: subscription.id,
+              service: this.serviceName,
+            })
+          }
 
           // Update subscription expiration date and period if it was TRIAL
           await tx.subscriptions.update({
