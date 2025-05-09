@@ -6,7 +6,7 @@ export const SettingsData = {
   adsTaskRewardStars: 10,
   hourRatioPayment: 1.39,
   dayRatioPayment: 1.31,
-  threeMouthesRatioPayment: 0.93,
+  threeMouthesRatioPayment: 0.97,
   sixMouthesRatioPayment: 0.94,
   oneYearRatioPayment: 0.88,
   twoYearRatioPayment: 0.76,

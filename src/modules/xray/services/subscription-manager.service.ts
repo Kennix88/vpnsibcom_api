@@ -150,7 +150,7 @@ export class SubscriptionManagerService {
           : subscription.period
 
       // Calculate the cost based on subscription period and user role discount
-      const cost = await this.calculateSubscriptionCost(
+      const cost = await this.xrayService.calculateSubscriptionCost(
         renewalPeriod,
         user.role.discount,
       )
@@ -286,70 +286,6 @@ export class SubscriptionManagerService {
       })
       throw error
     }
-  }
-
-  /**
-   * Calculate subscription cost based on period and user discount
-   * @param period - Subscription period
-   * @param userDiscount - User role discount
-   * @returns Cost in STARS
-   * @private
-   */
-  private async calculateSubscriptionCost(
-    period: SubscriptionPeriodEnum,
-    userDiscount: number = 1,
-  ): Promise<number> {
-    // Get pricing from settings
-    const settings = await this.prismaService.settings.findFirst()
-
-    if (!settings) {
-      this.logger.warn({
-        msg: 'Settings not found, using default pricing',
-        service: this.serviceName,
-      })
-      return 699 // Default price if settings not found
-    }
-
-    // Base price per month
-    const basePrice = settings.priceSubscriptionStars
-
-    // Apply period ratio
-    let periodRatio = 1
-    switch (period) {
-      case SubscriptionPeriodEnum.HOUR:
-        periodRatio = settings.hourRatioPayment
-        break
-      case SubscriptionPeriodEnum.DAY:
-        periodRatio = settings.dayRatioPayment
-        break
-      case SubscriptionPeriodEnum.MONTH:
-        periodRatio = 1 // Base price is already for 1 month
-        break
-      case SubscriptionPeriodEnum.THREE_MONTH:
-        periodRatio = settings.threeMouthesRatioPayment * 3
-        break
-      case SubscriptionPeriodEnum.SIX_MONTH:
-        periodRatio = settings.sixMouthesRatioPayment * 6
-        break
-      case SubscriptionPeriodEnum.YEAR:
-        periodRatio = settings.oneYearRatioPayment * 12
-        break
-      case SubscriptionPeriodEnum.TWO_YEAR:
-        periodRatio = settings.twoYearRatioPayment * 24
-        break
-      case SubscriptionPeriodEnum.THREE_YEAR:
-        periodRatio = settings.threeYearRatioPayment * 36
-        break
-      case SubscriptionPeriodEnum.TRIAL:
-        return 0 // Trial is free
-      default:
-        periodRatio = 1
-    }
-
-    // Calculate price with period ratio and user discount
-    const price = basePrice * periodRatio * userDiscount
-
-    return Math.round(price) // Round to nearest integer
   }
 
   /**
@@ -557,7 +493,7 @@ export class SubscriptionManagerService {
           ? SubscriptionPeriodEnum.MONTH
           : subscription.period
 
-      const requiredAmount = await this.calculateSubscriptionCost(
+      const requiredAmount = await this.xrayService.calculateSubscriptionCost(
         renewalPeriod,
         user.role.discount,
       )

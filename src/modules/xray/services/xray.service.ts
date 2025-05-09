@@ -851,7 +851,7 @@ export class XrayService {
    * @returns Стоимость в Stars
    * @private
    */
-  private async calculateSubscriptionCost(
+  public async calculateSubscriptionCost(
     period: SubscriptionPeriodEnum,
     userDiscount: number = 1,
   ): Promise<number> {
@@ -870,42 +870,39 @@ export class XrayService {
     const basePrice = settings.priceSubscriptionStars
 
     // Применение коэффициента периода
-    let periodRatio = 1
+    let price = basePrice * userDiscount
     switch (period) {
       case SubscriptionPeriodEnum.HOUR:
-        periodRatio = settings.hourRatioPayment
+        price = (basePrice / 30 / 24) * settings.hourRatioPayment * userDiscount
         break
       case SubscriptionPeriodEnum.DAY:
-        periodRatio = settings.dayRatioPayment
+        price = (basePrice / 30) * settings.dayRatioPayment * userDiscount
         break
       case SubscriptionPeriodEnum.MONTH:
-        periodRatio = 1 // Базовая цена уже за 1 месяц
+        price = basePrice * userDiscount
         break
       case SubscriptionPeriodEnum.THREE_MONTH:
-        periodRatio = settings.threeMouthesRatioPayment * 3
+        price = basePrice * 3 * settings.threeMouthesRatioPayment * userDiscount
         break
       case SubscriptionPeriodEnum.SIX_MONTH:
-        periodRatio = settings.sixMouthesRatioPayment * 6
+        price = basePrice * 6 * settings.sixMouthesRatioPayment * userDiscount
         break
       case SubscriptionPeriodEnum.YEAR:
-        periodRatio = settings.oneYearRatioPayment * 12
+        price = basePrice * 12 * settings.oneYearRatioPayment * userDiscount
         break
       case SubscriptionPeriodEnum.TWO_YEAR:
-        periodRatio = settings.twoYearRatioPayment * 24
+        price = basePrice * 24 * settings.twoYearRatioPayment * userDiscount
         break
       case SubscriptionPeriodEnum.THREE_YEAR:
-        periodRatio = settings.threeYearRatioPayment * 36
+        price = basePrice * 36 * settings.threeYearRatioPayment * userDiscount
         break
       case SubscriptionPeriodEnum.TRIAL:
         return 1 // Пробный период бесплатный
       default:
-        periodRatio = 1
+        price = basePrice * userDiscount
     }
 
-    // Расчет цены с учетом коэффициента периода и скидки пользователя
-    const price = basePrice * periodRatio * userDiscount
-
-    return Math.round(price) // Округление до ближайшего целого
+    return Number((price < 0.01 ? 0.01 : price).toFixed(2))
   }
 
   /**
