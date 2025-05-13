@@ -184,7 +184,6 @@ export class UsersService {
       return {
         id: user.id,
         telegramId: user.telegramId,
-        tonWallet: user.tonWallet,
         isFreePlanAvailable: user.isFreePlanAvailable,
         freePlanDays:
           user.inviters.length > 0
@@ -206,7 +205,6 @@ export class UsersService {
         photoUrl: user.telegramData.photoUrl,
         languageCode: user.language.iso6391,
         currencyCode: user.currency.key as CurrencyEnum,
-        giftsCount: user.activateGiftSubscriptions.length,
         referralsCount: user.referrals.length,
         balance: {
           paymentBalance: user.balance.paymentBalance,
@@ -233,8 +231,6 @@ export class UsersService {
         },
         include: {
           balance: true,
-          giftSubscriptions: true,
-          activateGiftSubscriptions: true,
           subscriptions: true,
           referrals: true,
           inviters: {
