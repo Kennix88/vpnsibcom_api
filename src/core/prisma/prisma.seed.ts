@@ -28,6 +28,13 @@ export async function PrismaSeed() {
 
   Logger.log('Settings: added successfully', 'Prisma-Seed')
 
+  await prisma.greenList.createMany({
+    data: GreenListData,
+    skipDuplicates: true,
+  })
+
+  Logger.log('GreenList: added successfully', 'Prisma-Seed')
+
   await prisma.roles.createMany({
     data: RolesData,
     skipDuplicates: true,
