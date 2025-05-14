@@ -309,14 +309,14 @@ model Subscriptions {
   token         String                 @unique @map("token")
   period        SubscriptionPeriodEnum @default(MONTH)
 
-  nextRenewalStars    Float?  @default(0) @map("next_renewal_stars")
+  nextRenewalStars    Float?  @map("next_renewal_stars")
   isPremium           Boolean @default(false) @map("is_premium")
   isFixedPrice        Boolean @default(false) @map("is_fixed_price")
-  fixedPriceStars     Float?  @default(1000) @map("fixed_price_stars")
+  fixedPriceStars     Float?  @map("fixed_price_stars")
   devicesCount        Int     @default(1) @map("devices_count")
   isAllServers        Boolean @default(false) @map("is_all_servers")
   isAllPremiumServers Boolean @default(false) @map("is_all_premium_servers")
-  trafficLimitGb      Float?  @default(0) @map("traffic_limit_gb")
+  trafficLimitGb      Float?  @map("traffic_limit_gb")
   isUnlimitTraffic    Boolean @default(false) @map("is_unlimit_traffic")
   mazbanData          Json?   @map("mazban_data") @db.JsonB
 
