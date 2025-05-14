@@ -1,44 +1,43 @@
-import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum';
-import { Logger } from '@nestjs/common';
+import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 
 /**
  * Subscription cost calculation settings interface
  */
 interface SubscriptionCostSettings {
-  devicesPriceStars: number;
-  serversPriceStars: number;
-  premiumServersPriceStars: number;
-  unlimitTrafficPriceStars: number;
-  trafficGbPriceStars: number;
-  allServersPriceStars: number;
-  allPremiumServersPriceStars: number;
-  hourRatioPayment: number;
-  dayRatioPayment: number;
-  weekRatioPayment: number;
-  threeMouthesRatioPayment: number;
-  sixMouthesRatioPayment: number;
-  oneYearRatioPayment: number;
-  twoYearRatioPayment: number;
-  threeYearRatioPayment: number;
-  indefinitelyRatio: number;
-  telegramPremiumRatio: number;
+  devicesPriceStars: number
+  serversPriceStars: number
+  premiumServersPriceStars: number
+  unlimitTrafficPriceStars: number
+  trafficGbPriceStars: number
+  allServersPriceStars: number
+  allPremiumServersPriceStars: number
+  hourRatioPayment: number
+  dayRatioPayment: number
+  weekRatioPayment: number
+  threeMouthesRatioPayment: number
+  sixMouthesRatioPayment: number
+  oneYearRatioPayment: number
+  twoYearRatioPayment: number
+  threeYearRatioPayment: number
+  indefinitelyRatio: number
+  telegramPremiumRatio: number
 }
 
 /**
  * Subscription cost calculation parameters
  */
 interface SubscriptionCostParams {
-  isPremium: boolean;
-  period: SubscriptionPeriodEnum;
-  devicesCount: number;
-  serversCount?: number;
-  premiumServersCount?: number;
-  trafficLimitGb?: number;
-  isAllServers: boolean;
-  isAllPremiumServers: boolean;
-  isUnlimitTraffic: boolean;
-  userDiscount: number;
-  settings: SubscriptionCostSettings;
+  isPremium: boolean
+  period: SubscriptionPeriodEnum
+  devicesCount: number
+  serversCount?: number
+  premiumServersCount?: number
+  trafficLimitGb?: number
+  isAllServers: boolean
+  isAllPremiumServers: boolean
+  isUnlimitTraffic: boolean
+  userDiscount: number
+  settings: SubscriptionCostSettings
 }
 
 /**
@@ -46,74 +45,86 @@ interface SubscriptionCostParams {
  * @param params - Subscription parameters object
  * @returns Cost in Stars
  */
-export async function calculateSubscriptionCost(params: SubscriptionCostParams): Promise<number> {
-  const logger = new Logger('CalculateSubscriptionCost');
-  
-  try {
-    const {
-      period,
-      isPremium,
-      devicesCount,
-      serversCount = 0,
-      premiumServersCount = 0,
-      trafficLimitGb = 0,
-      isAllServers,
-      isAllPremiumServers,
-      isUnlimitTraffic,
-      userDiscount = 1,
-      settings,
-    } = params;
+export function calculateSubscriptionCost(
+  params: SubscriptionCostParams,
+): number {
+  const {
+    period,
+    isPremium,
+    devicesCount,
+    serversCount = 0,
+    premiumServersCount = 0,
+    trafficLimitGb = 0,
+    isAllServers,
+    isAllPremiumServers,
+    isUnlimitTraffic,
+    userDiscount = 1,
+    settings,
+  } = params
 
-    // Validate input parameters
-    if (devicesCount < 0) {
-      logger.error(`Invalid devices count: ${devicesCount}`);
-      throw new Error('Devices count cannot be negative');
-    }
-
-    if ((serversCount < 0 && !isAllServers) || (premiumServersCount < 0 && !isAllPremiumServers)) {
-      logger.error(`Invalid servers configuration: serversCount=${serversCount}, premiumServersCount=${premiumServersCount}`);
-      throw new Error('Servers count cannot be negative');
-    }
-
-    if (trafficLimitGb < 0 && !isUnlimitTraffic) {
-      logger.error(`Invalid traffic limit: ${trafficLimitGb}`);
-      throw new Error('Traffic limit cannot be negative');
-    }
-
-    if (userDiscount <= 0 || userDiscount > 1) {
-      logger.warn(`Unusual user discount value: ${userDiscount}, expected between 0-1`);
-    }
-
-    // Calculate device price
-    const devicePrice = settings.devicesPriceStars * devicesCount;
-    
-    // Calculate servers price
-    const serversPrice = calculateServersPrice(isAllServers, isAllPremiumServers, serversCount, settings);
-    
-    // Calculate premium servers price
-    const premiumServersPrice = calculatePremiumServersPrice(isAllPremiumServers, isAllServers, premiumServersCount, settings);
-
-    // Calculate traffic price
-    const trafficPrice = isUnlimitTraffic
-      ? settings.unlimitTrafficPriceStars
-      : trafficLimitGb * settings.trafficGbPriceStars;
-
-    // Apply premium ratio if applicable
-    const premiumRatio = isPremium ? settings.telegramPremiumRatio : 1;
-
-    // Calculate base price
-    const basePrice = (devicePrice + serversPrice + premiumServersPrice + trafficPrice) * premiumRatio;
-
-    // Calculate final price based on subscription period
-    const finalPrice = calculatePriceByPeriod(period, basePrice, userDiscount, settings);
-    
-    logger.debug(`Subscription cost calculated: ${finalPrice} Stars (period: ${period}, basePrice: ${basePrice})`);
-    
-    return finalPrice;
-  } catch (error) {
-    logger.error(`Error calculating subscription cost: ${error.message}`, error.stack);
-    throw error;
+  // Validate input parameters
+  if (devicesCount < 0) {
+    throw new Error('Devices count cannot be negative')
   }
+
+  if (
+    (serversCount < 0 && !isAllServers) ||
+    (premiumServersCount < 0 && !isAllPremiumServers)
+  ) {
+    throw new Error('Servers count cannot be negative')
+  }
+
+  if (trafficLimitGb < 0 && !isUnlimitTraffic) {
+    throw new Error('Traffic limit cannot be negative')
+  }
+
+  if (userDiscount <= 0 || userDiscount > 1) {
+    console.warn(
+      `Unusual user discount value: ${userDiscount}, expected between 0-1`,
+    )
+  }
+
+  // Calculate device price
+  const devicePrice = settings.devicesPriceStars * devicesCount
+
+  // Calculate servers price
+  const serversPrice = calculateServersPrice(
+    isAllServers,
+    isAllPremiumServers,
+    serversCount,
+    settings,
+  )
+
+  // Calculate premium servers price
+  const premiumServersPrice = calculatePremiumServersPrice(
+    isAllPremiumServers,
+    isAllServers,
+    premiumServersCount,
+    settings,
+  )
+
+  // Calculate traffic price
+  const trafficPrice = isUnlimitTraffic
+    ? settings.unlimitTrafficPriceStars
+    : trafficLimitGb * settings.trafficGbPriceStars
+
+  // Apply premium ratio if applicable
+  const premiumRatio = isPremium ? settings.telegramPremiumRatio : 1
+
+  // Calculate base price
+  const basePrice =
+    (devicePrice + serversPrice + premiumServersPrice + trafficPrice) *
+    premiumRatio
+
+  // Calculate final price based on subscription period
+  const finalPrice = calculatePriceByPeriod(
+    period,
+    basePrice,
+    userDiscount,
+    settings,
+  )
+
+  return finalPrice
 }
 
 /**
@@ -123,14 +134,14 @@ function calculateServersPrice(
   isAllServers: boolean,
   isAllPremiumServers: boolean,
   serversCount: number,
-  settings: SubscriptionCostSettings
+  settings: SubscriptionCostSettings,
 ): number {
   if (isAllServers && !isAllPremiumServers) {
-    return settings.allServersPriceStars;
+    return settings.allServersPriceStars
   } else if (isAllServers && isAllPremiumServers) {
-    return 0; // When all premium servers are included, regular servers are free
+    return 0 // When all premium servers are included, regular servers are free
   } else {
-    return serversCount * settings.serversPriceStars;
+    return serversCount * settings.serversPriceStars
   }
 }
 
@@ -141,12 +152,12 @@ function calculatePremiumServersPrice(
   isAllPremiumServers: boolean,
   isAllServers: boolean,
   premiumServersCount: number,
-  settings: SubscriptionCostSettings
+  settings: SubscriptionCostSettings,
 ): number {
   if (isAllPremiumServers && isAllServers) {
-    return settings.allPremiumServersPriceStars;
+    return settings.allPremiumServersPriceStars
   } else {
-    return premiumServersCount * settings.premiumServersPriceStars;
+    return premiumServersCount * settings.premiumServersPriceStars
   }
 }
 
@@ -157,47 +168,47 @@ function calculatePriceByPeriod(
   period: SubscriptionPeriodEnum,
   basePrice: number,
   userDiscount: number,
-  settings: SubscriptionCostSettings
+  settings: SubscriptionCostSettings,
 ): number {
-  let price: number;
+  let price: number
 
   switch (period) {
     case SubscriptionPeriodEnum.HOUR:
-      price = (basePrice / 30 / 24) * settings.hourRatioPayment * userDiscount;
-      break;
+      price = (basePrice / 30 / 24) * settings.hourRatioPayment * userDiscount
+      break
     case SubscriptionPeriodEnum.DAY:
-      price = (basePrice / 30) * settings.dayRatioPayment * userDiscount;
-      break;
+      price = (basePrice / 30) * settings.dayRatioPayment * userDiscount
+      break
     case SubscriptionPeriodEnum.WEEK:
-      price = (basePrice / 4) * settings.weekRatioPayment * userDiscount;
-      break;
+      price = (basePrice / 4) * settings.weekRatioPayment * userDiscount
+      break
     case SubscriptionPeriodEnum.MONTH:
-      price = basePrice * userDiscount;
-      break;
+      price = basePrice * userDiscount
+      break
     case SubscriptionPeriodEnum.THREE_MONTH:
-      price = basePrice * 3 * settings.threeMouthesRatioPayment * userDiscount;
-      break;
+      price = basePrice * 3 * settings.threeMouthesRatioPayment * userDiscount
+      break
     case SubscriptionPeriodEnum.SIX_MONTH:
-      price = basePrice * 6 * settings.sixMouthesRatioPayment * userDiscount;
-      break;
+      price = basePrice * 6 * settings.sixMouthesRatioPayment * userDiscount
+      break
     case SubscriptionPeriodEnum.YEAR:
-      price = basePrice * 12 * settings.oneYearRatioPayment * userDiscount;
-      break;
+      price = basePrice * 12 * settings.oneYearRatioPayment * userDiscount
+      break
     case SubscriptionPeriodEnum.TWO_YEAR:
-      price = basePrice * 24 * settings.twoYearRatioPayment * userDiscount;
-      break;
+      price = basePrice * 24 * settings.twoYearRatioPayment * userDiscount
+      break
     case SubscriptionPeriodEnum.THREE_YEAR:
-      price = basePrice * 36 * settings.threeYearRatioPayment * userDiscount;
-      break;
+      price = basePrice * 36 * settings.threeYearRatioPayment * userDiscount
+      break
     case SubscriptionPeriodEnum.INDEFINITELY:
-      price = basePrice * settings.indefinitelyRatio * userDiscount;
-      break;
+      price = basePrice * settings.indefinitelyRatio * userDiscount
+      break
     case SubscriptionPeriodEnum.TRIAL:
-      return 1; // Trial period is free (minimum 1 Star)
+      return 1 // Trial period is free (minimum 1 Star)
     default:
-      price = basePrice * userDiscount;
+      price = basePrice * userDiscount
   }
 
   // Ensure minimum price is 0.01 Stars
-  return Number((price < 0.01 ? 0.01 : price).toFixed(2));
+  return Number((price < 0.01 ? 0.01 : price).toFixed(2))
 }
