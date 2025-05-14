@@ -47,8 +47,6 @@ model Settings {
   fixedPriceStars             Float @default(1000) @map("fixed_price_stars")
 
   // Настройки вывода средств
-  /// Минимальная сумма вывода в USD
-  minWithdrawalUsd      Float @default(10) @map("min_withdrawal_usd")
   /// Минимальная сумма вывода в Stars
   minWithdrawalStars    Float @default(1000) @map("min_withdrawal_stars")
   /// Комиссия при обмене Stars на USDT
@@ -259,24 +257,26 @@ enum AdsViewTypeEnum {
 
 /// Модель баланса пользователя
 model UserBalance {
-  id                           String         @id @default(uuid())
+  id                           String  @id @default(uuid())
   /// Баланс для оплаты
-  paymentBalance               Float          @default(0) @map("payment_balance")
+  paymentBalance               Float   @default(0) @map("payment_balance")
   /// Удерживаемый баланс
-  holdBalance                  Float          @default(0) @map("hold_balance")
+  holdBalance                  Float   @default(0) @map("hold_balance")
   /// Общая заработанная сумма для вывода
-  totalEarnedWithdrawalBalance Float          @default(0) @map("total_earned_withdrawal_balance")
+  totalEarnedWithdrawalBalance Float   @default(0) @map("total_earned_withdrawal_balance")
   /// Баланс для вывода
-  withdrawalBalance            Float          @default(0) @map("withdrawal_balance")
+  withdrawalBalance            Float   @default(0) @map("withdrawal_balance")
   /// Использовать ли баланс для вывода
-  isUseWithdrawalBalance       Boolean        @default(true) @map("is_use_withdrawal_balance")
-  ticketsBalance               Float          @default(0) @map("tickets_balance")
+  isUseWithdrawalBalance       Boolean @default(true) @map("is_use_withdrawal_balance")
+  ticketsBalance               Float   @default(0) @map("tickets_balance")
+  exchangeLimit                Float   @default(0) @map("exchange_limit")
+
   /// Дата обновления
-  updatedAt                    DateTime       @updatedAt @map("updated_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
   /// Связь с пользователем
-  user                         Users?
+  user         Users?
   /// Транзакции баланса
-  transactions                 Transactions[]
+  transactions Transactions[]
 
   @@map("user_balance")
 }
@@ -568,12 +568,13 @@ enum BalanceTypeEnum {
 /// Перечисление причин транзакций
 enum TransactionReasonEnum {
   WITHDRAWAL
-  GIFT_SUBSCRIPTIONS
   SUBSCRIPTIONS
   PAYMENT
   REWARD
   REFERRAL
   FINE
+  EXCHANGE
+  GAME
 }
 
 /// Модель выводов средств
