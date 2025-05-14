@@ -318,6 +318,11 @@ model Subscriptions {
   isAllPremiumServers Boolean @default(false) @map("is_all_premium_servers")
   trafficLimitGb      Float?  @map("traffic_limit_gb")
   isUnlimitTraffic    Boolean @default(false) @map("is_unlimit_traffic")
+  links               Json?   @map("links") @db.JsonB
+  lastUserAgent       String? @map("last_user_agent")
+  dataLimit           Int     @default(0) @map("data_limit")
+  usedTraffic         Int     @default(0) @map("used_traffic")
+  lifeTimeUsedTraffic Int     @default(0) @map("life_time_used_traffic")
   mazbanData          Json?   @map("mazban_data") @db.JsonB
 
   servers SubscriptionToGreenList[]
@@ -325,6 +330,7 @@ model Subscriptions {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   expiredAt DateTime? @map("expired_at")
+  onlineAt  DateTime? @map("online_at")
 
   user   Users  @relation(fields: [userId], references: [id])
   userId String @map("user_id")

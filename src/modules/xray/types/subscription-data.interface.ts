@@ -7,8 +7,8 @@ export interface SubscriptionResponseInterface {
   premiumServersPriceStars: number
   allServersPriceStars: number
   allPremiumServersPriceStars: number
-  traficGbPriceStars: number
-  unlimitTraficPriceStars: number
+  trafficGbPriceStars: number
+  unlimitTrafficPriceStars: number
   hourRatioPayment: number
   dayRatioPayment: number
   weekRatioPayment: number
@@ -19,7 +19,7 @@ export interface SubscriptionResponseInterface {
   threeYearRatioPayment: number
   indefinitelyRatio: number
   fixedPriceStars: number
-  list: SubscriptionDataInterface[]
+  subscriptions: SubscriptionDataInterface[]
 }
 
 export interface SubscriptionDataInterface {
@@ -40,9 +40,9 @@ export interface SubscriptionDataInterface {
   dataLimit?: number
   usedTraffic: number
   lifeTimeUsedTraffic: number
-  links: ServerDataInterface[]
+  links: string[]
 
-  servers: []
+  servers: ServerDataInterface[]
 
   createdAt: Date
   updatedAt: Date
