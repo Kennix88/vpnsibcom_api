@@ -2,8 +2,11 @@ import { RedisService } from '@core/redis/redis.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
+import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
+import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
+import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
 import { UserDataInterface } from '@shared/types/user-data.interface'
@@ -373,6 +376,261 @@ export class UsersService {
         msg: `Error while creating user`,
         e,
       })
+    }
+  }
+
+  /**
+   * Deducts funds from user balance considering balance type
+   * @param userId - User ID
+   * @param amount - Amount to deduct
+   * @param reason - Transaction reason
+   * @param balanceType - Type of balance to deduct from (PAYMENT, WITHDRAWAL, TICKETS)
+   * @param options - Additional options
+   * @returns Object with transaction information or null if error
+   */
+  public async deductUserBalance(
+    userId: string,
+    amount: number,
+    reason: TransactionReasonEnum,
+    balanceType: BalanceTypeEnum = BalanceTypeEnum.PAYMENT,
+    options?: {
+      forceUseWithdrawalBalance?: boolean
+    },
+  ): Promise<{
+    success: boolean
+    paymentAmount?: number
+    withdrawalAmount?: number
+    ticketsAmount?: number
+    transactions?: any[]
+  }> {
+    try {
+      // Get user data with balance information
+      const user = await this.prismaService.users.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          balance: {
+            select: {
+              id: true,
+              paymentBalance: true,
+              withdrawalBalance: true,
+              ticketsBalance: true,
+              isUseWithdrawalBalance: true,
+            },
+          },
+          language: {
+            select: {
+              iso6391: true,
+            },
+          },
+        },
+      })
+
+      if (!user || !user.balance) {
+        this.logger.error({
+          msg: `User or balance not found for deduction`,
+          userId,
+          balanceType,
+        })
+        return { success: false }
+      }
+
+      // Check if user has enough balance based on balance type
+      if (balanceType === BalanceTypeEnum.TICKETS) {
+        // Check tickets balance
+        if (user.balance.ticketsBalance < amount) {
+          return { success: false }
+        }
+      } else if (balanceType === BalanceTypeEnum.PAYMENT) {
+        // Check payment balance
+        const hasEnoughPaymentBalance = user.balance.paymentBalance >= amount
+
+        // Check if user can use withdrawal balance
+        const useWithdrawalBalance =
+          options?.forceUseWithdrawalBalance ||
+          user.balance.isUseWithdrawalBalance
+
+        // Check if user has enough combined balance
+        const canUseWithdrawalBalance =
+          useWithdrawalBalance &&
+          user.balance.paymentBalance + user.balance.withdrawalBalance >= amount
+
+        // If not enough funds, return error
+        if (!hasEnoughPaymentBalance && !canUseWithdrawalBalance) {
+          return { success: false }
+        }
+      } else if (balanceType === BalanceTypeEnum.WITHDRAWAL) {
+        // Check withdrawal balance
+        if (user.balance.withdrawalBalance < amount) {
+          return { success: false }
+        }
+      }
+
+      // Perform deduction in transaction
+      const result = await this.prismaService.$transaction(async (tx) => {
+        let paymentAmount = 0
+        let withdrawalAmount = 0
+        let ticketsAmount = 0
+        const transactions = []
+
+        if (balanceType === BalanceTypeEnum.TICKETS) {
+          // Deduct from tickets balance
+          ticketsAmount = amount
+
+          // Update tickets balance
+          await tx.userBalance.update({
+            where: { id: user.balance.id },
+            data: {
+              ticketsBalance: { decrement: ticketsAmount },
+            },
+          })
+
+          // Create transaction record for tickets balance
+          const ticketsTransaction = await tx.transactions.create({
+            data: {
+              amount: ticketsAmount,
+              type: TransactionTypeEnum.MINUS,
+              reason: reason,
+              balanceType: BalanceTypeEnum.TICKETS,
+              isHold: false,
+              balanceId: user.balance.id,
+            },
+          })
+
+          transactions.push(ticketsTransaction)
+
+          this.logger.info({
+            msg: `Deducted ${ticketsAmount} from tickets balance`,
+            userId: user.id,
+            reason,
+          })
+        } else if (balanceType === BalanceTypeEnum.PAYMENT) {
+          let remainingCost = amount
+
+          // First use payment balance
+          if (user.balance.paymentBalance > 0) {
+            paymentAmount = Math.min(user.balance.paymentBalance, amount)
+            remainingCost -= paymentAmount
+
+            // Update user payment balance
+            await tx.userBalance.update({
+              where: { id: user.balance.id },
+              data: {
+                paymentBalance: { decrement: paymentAmount },
+              },
+            })
+
+            // Create transaction record for payment balance
+            const paymentTransaction = await tx.transactions.create({
+              data: {
+                amount: paymentAmount,
+                type: TransactionTypeEnum.MINUS,
+                reason: reason,
+                balanceType: BalanceTypeEnum.PAYMENT,
+                isHold: false,
+                balanceId: user.balance.id,
+              },
+            })
+
+            transactions.push(paymentTransaction)
+
+            this.logger.info({
+              msg: `Deducted ${paymentAmount} from payment balance`,
+              userId: user.id,
+              reason,
+            })
+          }
+
+          // If needed and allowed, use withdrawal balance
+          const useWithdrawalBalance =
+            options?.forceUseWithdrawalBalance ||
+            user.balance.isUseWithdrawalBalance
+          if (remainingCost > 0 && useWithdrawalBalance) {
+            withdrawalAmount = remainingCost
+
+            // Update withdrawal balance
+            await tx.userBalance.update({
+              where: { id: user.balance.id },
+              data: {
+                withdrawalBalance: { decrement: withdrawalAmount },
+              },
+            })
+
+            // Create separate transaction record for withdrawal balance
+            const withdrawalTransaction = await tx.transactions.create({
+              data: {
+                amount: withdrawalAmount,
+                type: TransactionTypeEnum.MINUS,
+                reason: reason,
+                balanceType: BalanceTypeEnum.WITHDRAWAL,
+                isHold: false,
+                balanceId: user.balance.id,
+              },
+            })
+
+            transactions.push(withdrawalTransaction)
+
+            this.logger.info({
+              msg: `Deducted ${withdrawalAmount} from withdrawal balance`,
+              userId: user.id,
+              reason,
+            })
+          }
+        } else if (balanceType === BalanceTypeEnum.WITHDRAWAL) {
+          // Deduct from withdrawal balance
+          withdrawalAmount = amount
+
+          // Update withdrawal balance
+          await tx.userBalance.update({
+            where: { id: user.balance.id },
+            data: {
+              withdrawalBalance: { decrement: withdrawalAmount },
+            },
+          })
+
+          // Create transaction record for withdrawal balance
+          const withdrawalTransaction = await tx.transactions.create({
+            data: {
+              amount: withdrawalAmount,
+              type: TransactionTypeEnum.MINUS,
+              reason: reason,
+              balanceType: BalanceTypeEnum.WITHDRAWAL,
+              isHold: false,
+              balanceId: user.balance.id,
+            },
+          })
+
+          transactions.push(withdrawalTransaction)
+
+          this.logger.info({
+            msg: `Deducted ${withdrawalAmount} from withdrawal balance`,
+            userId: user.id,
+            reason,
+          })
+        }
+
+        return {
+          success: true,
+          paymentAmount,
+          withdrawalAmount,
+          ticketsAmount,
+          transactions,
+        }
+      })
+
+      return result
+    } catch (error) {
+      this.logger.error({
+        msg: `Error while deducting user balance`,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        userId,
+        amount,
+        reason,
+        balanceType,
+      })
+
+      return { success: false }
     }
   }
 }
