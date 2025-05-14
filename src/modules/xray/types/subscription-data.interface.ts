@@ -25,6 +25,7 @@ export interface SubscriptionResponseInterface {
 export interface SubscriptionDataInterface {
   id: string
   period: SubscriptionPeriodEnum
+  periodMultiplier: number
   isActive: boolean
   isAutoRenewal: boolean
   nextRenewalStars?: number

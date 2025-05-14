@@ -302,12 +302,13 @@ model GreenList {
 
 /// Модель подписок
 model Subscriptions {
-  id            String                 @id @default(uuid())
-  username      String                 @unique
-  isActive      Boolean                @default(false) @map("is_active")
-  isAutoRenewal Boolean                @default(true) @map("is_auto_renewal")
-  token         String                 @unique @map("token")
-  period        SubscriptionPeriodEnum @default(MONTH)
+  id               String                 @id @default(uuid())
+  username         String                 @unique
+  isActive         Boolean                @default(false) @map("is_active")
+  isAutoRenewal    Boolean                @default(true) @map("is_auto_renewal")
+  token            String                 @unique @map("token")
+  period           SubscriptionPeriodEnum @default(MONTH)
+  periodMultiplier Int                    @default(1) @map("period_multiplier")
 
   nextRenewalStars    Float?  @map("next_renewal_stars")
   isPremium           Boolean @default(false) @map("is_premium")
