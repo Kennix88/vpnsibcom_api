@@ -31,8 +31,8 @@ model Settings {
   premiumServersPriceStars    Float @default(50) @map("premium_servers_price_stars")
   allServersPriceStars        Float @default(17) @map("all_servers_price_stars")
   allPremiumServersPriceStars Float @default(40) @map("all_premium_servers_price_stars")
-  traficGbPriceStars          Float @default(60) @map("trafic_gb_price_stars")
-  unlimitTraficPriceStars     Float @default(100) @map("unlimit_trafic_price_stars")
+  trafficGbPriceStars         Float @default(60) @map("traffic_gb_price_stars")
+  unlimitTrafficPriceStars    Float @default(100) @map("unlimit_traffic_price_stars")
   // Коэффициенты оплаты для разных периодов подписки
   hourRatioPayment            Float @default(1.39) @map("hour_ratio_payment")
   dayRatioPayment             Float @default(1.31) @map("day_ratio_payment")
@@ -284,12 +284,16 @@ model UserBalance {
 /// Модель для белого списка
 model GreenList {
   green     String  @id
+  isActive  Boolean @default(true) @map("is_active")
   isPremium Boolean @default(false) @map("is_premium")
   code      String  @unique
   flagKey   String  @map("flag_key")
   flagEmoji String  @map("flag_emoji")
   name      String
   network   Float   @default(2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   subscriptions SubscriptionToGreenList[]
 
@@ -305,14 +309,15 @@ model Subscriptions {
   token         String                 @unique @map("token")
   period        SubscriptionPeriodEnum @default(MONTH)
 
+  nextRenewalStars    Float?  @default(0) @map("next_renewal_stars")
   isPremium           Boolean @default(false) @map("is_premium")
   isFixedPrice        Boolean @default(false) @map("is_fixed_price")
   fixedPriceStars     Float?  @default(1000) @map("fixed_price_stars")
   devicesCount        Int     @default(1) @map("devices_count")
   isAllServers        Boolean @default(false) @map("is_all_servers")
   isAllPremiumServers Boolean @default(false) @map("is_all_premium_servers")
-  traficGb            Float?  @default(0) @map("trafic_gb")
-  isUnlimitTrafic     Boolean @default(false) @map("is_unlimit_trafic")
+  trafficLimitGb      Float?  @default(0) @map("traffic_limit_gb")
+  isUnlimitTraffic    Boolean @default(false) @map("is_unlimit_traffic")
   mazbanData          Json?   @map("mazban_data") @db.JsonB
 
   servers SubscriptionToGreenList[]
