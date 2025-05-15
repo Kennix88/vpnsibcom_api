@@ -216,6 +216,8 @@ export class UsersService {
             user.balance.totalEarnedWithdrawalBalance,
           withdrawalBalance: user.balance.withdrawalBalance,
           isUseWithdrawalBalance: user.balance.isUseWithdrawalBalance,
+          exchangeLimit: user.balance.exchangeLimit,
+          ticketsBalance: user.balance.ticketsBalance,
         },
       }
     } catch (e) {

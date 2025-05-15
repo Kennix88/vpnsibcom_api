@@ -29,5 +29,7 @@ export interface UserBalanceInterface {
   holdBalance: number
   totalEarnedWithdrawalBalance: number
   withdrawalBalance: number
+  ticketsBalance: number
   isUseWithdrawalBalance: boolean
+  exchangeLimit: number
 }
