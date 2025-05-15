@@ -1,32 +1,29 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
+import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
+import { Subscriptions } from '@prisma/client'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
+import { DefaultEnum } from '@shared/enums/default.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
-import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
 import { differenceInDays, format } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
+import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
+import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 import { XrayService } from './xray.service'
 
 /**
  * Interface for subscription with user data
  */
-interface SubscriptionWithUser {
-  id: string
-  userId: string
-  username: string
-  period: SubscriptionPeriodEnum
-  isActive: boolean
-  isAutoRenewal: boolean
-  expiredAt: Date
+interface SubscriptionWithUser extends Subscriptions {
   user: {
     id: string
     telegramId: string
@@ -43,6 +40,9 @@ interface SubscriptionWithUser {
       discount: number
     }
   }
+  servers?: {
+    greenList: any[]
+  }[]
 }
 
 /**
@@ -65,6 +65,7 @@ export class SubscriptionManagerService {
     private readonly marzbanService: MarzbanService,
     private readonly xrayService: XrayService,
     private readonly configService: ConfigService,
+    private readonly userService: UsersService,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
 
@@ -90,6 +91,11 @@ export class SubscriptionManagerService {
             },
           },
           include: {
+            servers: {
+              include: {
+                greenList: true,
+              },
+            },
             user: {
               include: {
                 language: true,
@@ -106,11 +112,16 @@ export class SubscriptionManagerService {
       })
 
       for (const subscription of expiredSubscriptions) {
-        if (subscription.isAutoRenewal) {
-          await this.processAutoRenewal(subscription as SubscriptionWithUser)
+        if (
+          subscription.isAutoRenewal &&
+          subscription.period !== SubscriptionPeriodEnum.TRIAL
+        ) {
+          await this.processAutoRenewal(
+            subscription as unknown as SubscriptionWithUser,
+          )
         } else {
           await this.deactivateSubscription(
-            subscription as SubscriptionWithUser,
+            subscription as unknown as SubscriptionWithUser,
           )
         }
       }
@@ -143,114 +154,66 @@ export class SubscriptionManagerService {
 
     try {
       const user = subscription.user
-      const periodHours = this.xrayService.periodHours(subscription.period)
+      const renewalPeriod = subscription.period as SubscriptionPeriodEnum
+      const hours = periodHours(renewalPeriod, subscription.periodMultiplier)
 
-      // If subscription was TRIAL, change to MONTH for renewal
-      const renewalPeriod =
-        subscription.period === SubscriptionPeriodEnum.TRIAL
-          ? SubscriptionPeriodEnum.MONTH
-          : subscription.period
+      const settings = await this.prismaService.settings.findFirst({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
 
       // Calculate the cost based on subscription period and user role discount
-      const cost = await this.xrayService.calculateSubscriptionCost(
-        renewalPeriod,
-        user.role.discount,
+      const cost = await calculateSubscriptionCost({
+        period: renewalPeriod,
+        userDiscount: user.role.discount,
+        isPremium: subscription.isPremium,
+        devicesCount: subscription.devicesCount,
+        isAllServers: subscription.isAllServers,
+        isAllPremiumServers: subscription.isAllPremiumServers,
+        isUnlimitTraffic: subscription.isUnlimitTraffic,
+        settings: settings,
+      })
+
+      // Используем сервис UsersService для списания средств
+      const deductResult = await this.userService.deductUserBalance(
+        user.id,
+        cost,
+        TransactionReasonEnum.SUBSCRIPTIONS,
+        BalanceTypeEnum.PAYMENT,
+        { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
       )
 
-      // Check if user has enough payment balance
-      const hasEnoughPaymentBalance = user.balance.paymentBalance >= cost
-      // Check if user wants to use withdrawal balance and has enough combined balance
-      const canUseWithdrawalBalance =
-        user.balance.isUseWithdrawalBalance &&
-        user.balance.paymentBalance + user.balance.withdrawalBalance >= cost
-
-      if (hasEnoughPaymentBalance || canUseWithdrawalBalance) {
-        // Deduct balance and extend subscription
-        await this.prismaService.$transaction(async (tx) => {
-          let remainingCost = cost
-
-          // First, use payment balance
-          if (user.balance.paymentBalance > 0) {
-            const paymentAmount = Math.min(user.balance.paymentBalance, cost)
-            remainingCost -= paymentAmount
-
-            // Update user payment balance
-            await tx.userBalance.update({
-              where: {
-                id: user.balance.id,
-              },
-              data: {
-                paymentBalance: {
-                  decrement: paymentAmount,
-                },
-              },
-            })
-
-            // Create transaction record for payment balance
-            await tx.transactions.create({
-              data: {
-                amount: paymentAmount,
-                type: TransactionTypeEnum.MINUS,
-                reason: TransactionReasonEnum.SUBSCRIPTIONS,
-                balanceType: BalanceTypeEnum.PAYMENT,
-                isHold: false,
-                balanceId: user.balance.id,
-              },
-            })
-
-            this.logger.info({
-              msg: `Used ${paymentAmount} from payment balance for subscription renewal`,
-              userId: user.id,
-              subscriptionId: subscription.id,
-              service: this.serviceName,
-            })
-          }
-
-          // If needed and allowed, use withdrawal balance for the remaining cost
-          if (remainingCost > 0 && user.balance.isUseWithdrawalBalance) {
-            // Update user withdrawal balance
-            await tx.userBalance.update({
-              where: {
-                id: user.balance.id,
-              },
-              data: {
-                withdrawalBalance: {
-                  decrement: remainingCost,
-                },
-              },
-            })
-
-            // Create separate transaction record for withdrawal balance
-            await tx.transactions.create({
-              data: {
-                amount: remainingCost,
-                type: TransactionTypeEnum.MINUS,
-                reason: TransactionReasonEnum.SUBSCRIPTIONS,
-                balanceType: BalanceTypeEnum.WITHDRAWAL,
-                isHold: false,
-                balanceId: user.balance.id,
-              },
-            })
-
-            this.logger.info({
-              msg: `Used ${remainingCost} from withdrawal balance for subscription renewal`,
-              userId: user.id,
-              subscriptionId: subscription.id,
-              service: this.serviceName,
-            })
-          }
-
-          // Update subscription expiration date and period if it was TRIAL
-          await tx.subscriptions.update({
-            where: {
-              id: subscription.id,
-            },
-            data: {
-              expiredAt: new Date(Date.now() + periodHours * 60 * 60 * 1000),
-              period: renewalPeriod, // Update period if it was TRIAL
-            },
-          })
+      if (deductResult.success) {
+        // Успешное списание средств, продлеваем подписку
+        await this.prismaService.subscriptions.update({
+          where: {
+            id: subscription.id,
+          },
+          data: {
+            expiredAt: new Date(Date.now() + hours * 60 * 60 * 1000),
+            period: renewalPeriod, // Update period if it was TRIAL
+          },
         })
+
+        // Логируем информацию о списании средств
+        if (deductResult.paymentAmount > 0) {
+          this.logger.info({
+            msg: `Used ${deductResult.paymentAmount} from payment balance for subscription renewal`,
+            userId: user.id,
+            subscriptionId: subscription.id,
+            service: this.serviceName,
+          })
+        }
+
+        if (deductResult.withdrawalAmount > 0) {
+          this.logger.info({
+            msg: `Used ${deductResult.withdrawalAmount} from withdrawal balance for subscription renewal`,
+            userId: user.id,
+            subscriptionId: subscription.id,
+            service: this.serviceName,
+          })
+        }
 
         // Send notification about successful renewal
         await this.sendRenewalSuccessNotification(user, {
@@ -273,21 +236,15 @@ export class SubscriptionManagerService {
       }
     } catch (error) {
       this.logger.error({
-        msg: `Error processing auto-renewal for subscription ${subscription.id}`,
-        userId: subscription.userId,
-        error,
+        msg: `Error during auto-renewal of subscription ${subscription.id}`,
+        error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
+        userId: subscription.userId,
         service: this.serviceName,
       })
 
-      // If error occurs, try to deactivate subscription as a fallback
-      await this.deactivateSubscription(subscription).catch((err) => {
-        this.logger.error({
-          msg: `Failed to deactivate subscription ${subscription.id} after renewal error`,
-          error: err,
-          service: this.serviceName,
-        })
-      })
+      // В случае ошибки деактивируем подписку
+      await this.deactivateSubscription(subscription)
     }
   }
 
@@ -360,7 +317,7 @@ export class SubscriptionManagerService {
         lang: user.language.iso6391,
         args: {
           period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period,
+            subscription.period as SubscriptionPeriodEnum,
             user.language.iso6391,
           ),
           expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
@@ -395,7 +352,7 @@ export class SubscriptionManagerService {
         lang: user.language.iso6391,
         args: {
           period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period,
+            subscription.period as SubscriptionPeriodEnum,
             user.language.iso6391,
           ),
           requiredAmount,
@@ -429,7 +386,7 @@ export class SubscriptionManagerService {
         lang: user.language.iso6391,
         args: {
           period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period,
+            subscription.period as SubscriptionPeriodEnum,
             user.language.iso6391,
           ),
         },
@@ -555,7 +512,9 @@ export class SubscriptionManagerService {
         user.role.discount,
       )
 
-      const hasEnoughBalance = user.balance.paymentBalance >= requiredAmount
+      const hasEnoughBalance =
+        typeof requiredAmount === 'number' &&
+        user.balance.paymentBalance >= requiredAmount
 
       // Get appropriate message based on balance status
       const messageKey = hasEnoughBalance
@@ -573,7 +532,7 @@ export class SubscriptionManagerService {
             { lang: user.language.iso6391 },
           ),
           period: await this.xrayService.getLocalizedPeriodText(
-            renewalPeriod,
+            renewalPeriod as SubscriptionPeriodEnum,
             user.language.iso6391,
           ),
           expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
