@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { Subscriptions } from '@prisma/client'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
-import { DefaultEnum } from '@shared/enums/default.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { differenceInDays, format } from 'date-fns'
@@ -15,7 +14,6 @@ import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
-import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
 import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 import { XrayService } from './xray.service'
@@ -27,6 +25,9 @@ interface SubscriptionWithUser extends Subscriptions {
   user: {
     id: string
     telegramId: string
+    telegramData: {
+      isPremium: boolean
+    }
     language: {
       iso6391: string
     }
@@ -101,6 +102,7 @@ export class SubscriptionManagerService {
                 language: true,
                 balance: true,
                 role: true,
+                telegramData: true,
               },
             },
           },
@@ -157,23 +159,8 @@ export class SubscriptionManagerService {
       const renewalPeriod = subscription.period as SubscriptionPeriodEnum
       const hours = periodHours(renewalPeriod, subscription.periodMultiplier)
 
-      const settings = await this.prismaService.settings.findFirst({
-        where: {
-          key: DefaultEnum.DEFAULT,
-        },
-      })
-
       // Calculate the cost based on subscription period and user role discount
-      const cost = await calculateSubscriptionCost({
-        period: renewalPeriod,
-        userDiscount: user.role.discount,
-        isPremium: subscription.isPremium,
-        devicesCount: subscription.devicesCount,
-        isAllServers: subscription.isAllServers,
-        isAllPremiumServers: subscription.isAllPremiumServers,
-        isUnlimitTraffic: subscription.isUnlimitTraffic,
-        settings: settings,
-      })
+      const cost = subscription.nextRenewalStars
 
       // Используем сервис UsersService для списания средств
       const deductResult = await this.userService.deductUserBalance(
@@ -461,7 +448,7 @@ export class SubscriptionManagerService {
         // Check if we need to send a reminder for this subscription
         if (this.notificationDays.includes(daysUntilExpiration)) {
           await this.sendExpirationReminder(
-            subscription as SubscriptionWithUser,
+            subscription as unknown as SubscriptionWithUser,
             daysUntilExpiration,
           )
         }
@@ -507,10 +494,7 @@ export class SubscriptionManagerService {
           ? SubscriptionPeriodEnum.MONTH
           : subscription.period
 
-      const requiredAmount = await this.xrayService.calculateSubscriptionCost(
-        renewalPeriod,
-        user.role.discount,
-      )
+      const requiredAmount = subscription.nextRenewalStars
 
       const hasEnoughBalance =
         typeof requiredAmount === 'number' &&
@@ -564,7 +548,7 @@ export class SubscriptionManagerService {
   }
 
   /**
-   * Cron job to delete inactive subscriptions that haven't been renewed for more than a month
+   * Cron job to delete inactive subscriptions that haven't been renewed for more than a week
    * Runs every day at 3:00 AM
    */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
@@ -575,17 +559,17 @@ export class SubscriptionManagerService {
     })
 
     try {
-      // Calculate date one month ago
-      const oneMonthAgo = new Date()
-      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+      // Calculate date one week ago
+      const oneWeekAgo = new Date()
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
-      // Get all inactive subscriptions that expired more than a month ago
+      // Get all inactive subscriptions that expired more than a week ago
       const inactiveSubscriptions =
         await this.prismaService.subscriptions.findMany({
           where: {
             isActive: false,
             expiredAt: {
-              lt: oneMonthAgo,
+              lt: oneWeekAgo,
             },
           },
           include: {
@@ -598,7 +582,7 @@ export class SubscriptionManagerService {
         })
 
       this.logger.info({
-        msg: `Found ${inactiveSubscriptions.length} inactive subscriptions to delete`,
+        msg: `Found ${inactiveSubscriptions.length} inactive subscriptions to delete (expired more than a week ago)`,
         service: this.serviceName,
       })
 
