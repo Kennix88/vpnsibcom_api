@@ -1,4 +1,3 @@
-import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
@@ -9,7 +8,7 @@ import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
 import { genToken } from '@shared/utils/gen-token.util'
-import { addHours, format } from 'date-fns'
+import { addHours } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
@@ -17,9 +16,12 @@ import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { UserCreate } from '../types/marzban.types'
 import {
+  ServerDataInterface,
   SubscriptionDataInterface,
-  SubscriptionDataListInterface,
+  SubscriptionResponseInterface,
 } from '../types/subscription-data.interface'
+import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
+import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 
 /**
@@ -27,6 +29,9 @@ import { MarzbanService } from './marzban.service'
  */
 @Injectable()
 export class XrayService {
+  getLocalizedPeriodText(arg0: SubscriptionPeriodEnum, iso6391: string): any {
+    throw new Error('Method not implemented.')
+  }
   private readonly serviceName = 'XrayService'
 
   constructor(
@@ -70,11 +75,20 @@ export class XrayService {
         return false
       }
 
-      const subscription = await this.createSubscription(
+      const subscription = await this.createSubscription({
         telegramId,
-        SubscriptionPeriodEnum.TRIAL,
-        user.freePlanDays,
-      )
+        period: SubscriptionPeriodEnum.TRIAL,
+        periodMultiplier: 1,
+        isPremium: false,
+        isFixedPrice: false,
+        devicesCount: 1,
+        isAllServers: true,
+        isAllPremiumServers: true,
+        isUnlimitTraffic: false,
+        trafficLimitGb: 1,
+        trialDays: user.freePlanDays,
+        servers: [],
+      })
 
       if (!subscription) return false
 
@@ -111,7 +125,7 @@ export class XrayService {
    */
   public async getSubscriptions(
     userId: string,
-  ): Promise<SubscriptionDataInterface> {
+  ): Promise<SubscriptionResponseInterface> {
     try {
       this.logger.info({
         msg: `Получение подписок для пользователя с ID: ${userId}`,
@@ -121,6 +135,13 @@ export class XrayService {
       const subscriptions = await this.prismaService.subscriptions.findMany({
         where: {
           userId: userId,
+        },
+        include: {
+          servers: {
+            include: {
+              greenList: true,
+            },
+          },
         },
       })
 
@@ -137,15 +158,42 @@ export class XrayService {
         throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
       }
 
-      const result: SubscriptionDataListInterface[] = subscriptions.map(
+      const result: SubscriptionDataInterface[] = subscriptions.map(
         (subscription) => ({
           id: subscription.id,
           period: subscription.period as SubscriptionPeriodEnum,
+          periodMultiplier: subscription.periodMultiplier,
           isActive: subscription.isActive,
           isAutoRenewal: subscription.isAutoRenewal,
+          nextRenewalStars: subscription.nextRenewalStars,
+          isFixedPrice: subscription.isFixedPrice,
+          fixedPriceStars: subscription.fixedPriceStars,
+          devicesCount: subscription.devicesCount,
+          isAllServers: subscription.isAllServers,
+          isAllPremiumServers: subscription.isAllPremiumServers,
+          trafficLimitGb: subscription.trafficLimitGb,
+          isUnlimitTraffic: subscription.isUnlimitTraffic,
+          lastUserAgent: subscription.lastUserAgent,
+          dataLimit: subscription.dataLimit,
+          usedTraffic: subscription.usedTraffic,
+          lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
+          links: subscription.links as string[],
+          servers: subscription.servers.map(
+            (server): ServerDataInterface => ({
+              code: server.greenList.code,
+              name: server.greenList.name,
+              flagKey: server.greenList.flagKey,
+              flagEmoji: server.greenList.flagEmoji,
+              network: server.greenList.network,
+              isActive: server.greenList.isActive,
+              isPremium: server.greenList.isPremium,
+            }),
+          ),
           createdAt: subscription.createdAt,
           updatedAt: subscription.updatedAt,
           expiredAt: subscription.expiredAt,
+          onlineAt: subscription.onlineAt,
+          token: subscription.token,
           subscriptionUrl: `${allowedOrigin}/sub/${subscription.token}`,
         }),
       )
@@ -169,15 +217,25 @@ export class XrayService {
       }
 
       return {
-        priceSubscriptionStars: settings.priceSubscriptionStars,
+        telegramPremiumRatio: settings.telegramPremiumRatio,
+        devicesPriceStars: settings.devicesPriceStars,
+        serversPriceStars: settings.serversPriceStars,
+        premiumServersPriceStars: settings.premiumServersPriceStars,
+        allServersPriceStars: settings.allServersPriceStars,
+        allPremiumServersPriceStars: settings.allPremiumServersPriceStars,
+        trafficGbPriceStars: settings.trafficGbPriceStars,
+        unlimitTrafficPriceStars: settings.unlimitTrafficPriceStars,
         hourRatioPayment: settings.hourRatioPayment,
         dayRatioPayment: settings.dayRatioPayment,
+        weekRatioPayment: settings.weekRatioPayment,
         threeMouthesRatioPayment: settings.threeMouthesRatioPayment,
         sixMouthesRatioPayment: settings.sixMouthesRatioPayment,
         oneYearRatioPayment: settings.oneYearRatioPayment,
         twoYearRatioPayment: settings.twoYearRatioPayment,
         threeYearRatioPayment: settings.threeYearRatioPayment,
-        list: result,
+        indefinitelyRatio: settings.indefinitelyRatio,
+        fixedPriceStars: settings.fixedPriceStars,
+        subscriptions: result,
       }
     } catch (error) {
       this.logger.error({
@@ -192,16 +250,54 @@ export class XrayService {
 
   /**
    * Создает новую подписку для пользователя
-   * @param telegramId - Telegram ID пользователя
-   * @param period - Период подписки
-   * @param trialDays - Количество дней для пробного периода (опционально)
-   * @returns Созданная подписка или false в случае ошибки
+   * @param {Object} params - Параметры для создания подписки
+   * @param {string} params.telegramId - Telegram ID пользователя
+   * @param {SubscriptionPeriodEnum} params.period - Период подписки
+   * @param {number} params.periodMultiplier - Множитель периода подписки
+   * @param {boolean} params.isPremium - Флаг премиум-подписки
+   * @param {boolean} params.isFixedPrice - Флаг фиксированной цены
+   * @param {number} [params.fixedPriceStars] - Фиксированная цена в звездах (опционально)
+   * @param {number} params.devicesCount - Количество устройств
+   * @param {boolean} params.isAllServers - Флаг доступа ко всем серверам
+   * @param {boolean} params.isAllPremiumServers - Флаг доступа ко всем премиум-серверам
+   * @param {number} [params.trafficLimitGb] - Лимит трафика в ГБ (опционально)
+   * @param {boolean} params.isUnlimitTraffic - Флаг безлимитного трафика
+   * @param {number} [params.trialDays] - Количество дней для пробного периода (опционально)
+   * @returns {Promise<Subscriptions|false>} Созданная подписка или false в случае ошибки
    */
-  public async createSubscription(
-    telegramId: string,
-    period: SubscriptionPeriodEnum,
-    trialDays?: number,
-  ) {
+  public async createSubscription({
+    telegramId,
+    period,
+    periodMultiplier,
+    isPremium,
+    isFixedPrice,
+    fixedPriceStars,
+    nextRenewalStars,
+    devicesCount,
+    isAllServers,
+    isAllPremiumServers,
+    trafficLimitGb,
+    isUnlimitTraffic,
+    trialDays,
+    servers,
+    isAutoRenewal = true,
+  }: {
+    telegramId: string
+    period: SubscriptionPeriodEnum
+    periodMultiplier: number
+    isPremium: boolean
+    isFixedPrice: boolean
+    fixedPriceStars?: number
+    nextRenewalStars?: number
+    devicesCount: number
+    isAllServers: boolean
+    isAllPremiumServers: boolean
+    trafficLimitGb?: number
+    isUnlimitTraffic: boolean
+    servers: string[]
+    trialDays?: number
+    isAutoRenewal?: boolean
+  }) {
     try {
       this.logger.info({
         msg: `Создание подписки для пользователя с Telegram ID: ${telegramId}, период: ${period}`,
@@ -225,6 +321,14 @@ export class XrayService {
         return false
       }
 
+      const getServers = await this.prismaService.greenList.findMany({
+        where: {
+          code: {
+            in: servers,
+          },
+        },
+      })
+
       const token = genToken()
       const username = `${user.telegramId}_${Math.random()
         .toString(36)
@@ -242,6 +346,10 @@ export class XrayService {
           vless: ['VLESS'],
         },
         status: 'active',
+        ...(!isUnlimitTraffic && {
+          data_limit_reset_strategy: 'day',
+          data_limit: trafficLimitGb * 1024 * 1024 * 1024,
+        }),
         note: `${user.id}/${user.telegramId}/${
           user.telegramData?.username || ''
         }/${user.telegramData?.firstName || ''}/${
@@ -250,8 +358,8 @@ export class XrayService {
       }
 
       // Добавление пользователя в Marzban
-      const marbanData = await this.marzbanService.addUser(marbanDataStart)
-      if (!marbanData) {
+      const marzbanData = await this.marzbanService.addUser(marbanDataStart)
+      if (!marzbanData) {
         this.logger.error({
           msg: `Не удалось добавить пользователя в Marzban для Telegram ID: ${telegramId}`,
           service: this.serviceName,
@@ -259,9 +367,11 @@ export class XrayService {
         return false
       }
 
+      // TODO: Добавить Luip
+
       // Расчет времени истечения подписки
-      const periodHours = this.periodHours(period, trialDays)
-      if (periodHours <= 0) {
+      const hours = periodHours(period, periodMultiplier, trialDays)
+      if (hours <= 0) {
         this.logger.error({
           msg: `Некорректный период подписки: ${period}`,
           service: this.serviceName,
@@ -273,11 +383,31 @@ export class XrayService {
       const subscription = await this.prismaService.subscriptions.create({
         data: {
           username,
+          isPremium,
+          isAutoRenewal,
+          isFixedPrice,
+          fixedPriceStars,
+          devicesCount,
+          isAllServers,
+          isAllPremiumServers,
+          trafficLimitGb,
+          isUnlimitTraffic,
           userId: user.id,
           period,
+          periodMultiplier,
           isActive: true,
           token,
-          expiredAt: addHours(new Date(), periodHours),
+          links: marzbanData.links,
+          dataLimit: marzbanData.data_limit,
+          usedTraffic: marzbanData.used_traffic,
+          lifeTimeUsedTraffic: marzbanData.used_traffic,
+          expiredAt: addHours(new Date(), hours),
+          marzbanData: JSON.parse(JSON.stringify(marzbanData)),
+          servers: {
+            create: getServers.map((server) => ({
+              greenListId: server.green,
+            })),
+          },
         },
       })
 
@@ -291,41 +421,6 @@ export class XrayService {
 
       // Обработка реферальной системы
       await this.processReferrals(user)
-
-      // Отправка уведомления пользователю в Telegram о создании подписки
-      try {
-        const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
-        const subscriptionUrl = `${allowedOrigin}/sub/${token}`
-        const periodText = await this.getLocalizedPeriodText(
-          period,
-          user.language.iso6391,
-          trialDays,
-        )
-
-        const message = await this.i18n.t('subscription.created', {
-          lang: user.language.iso6391,
-          args: {
-            period: periodText,
-            expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
-            subscriptionUrl: subscriptionUrl,
-          },
-        })
-
-        await this.bot.telegram.sendMessage(telegramId, message)
-
-        this.logger.info({
-          msg: `Уведомление о создании подписки отправлено пользователю с Telegram ID: ${telegramId}`,
-          service: this.serviceName,
-        })
-      } catch (error) {
-        this.logger.error({
-          msg: `Ошибка при отправке уведомления о создании подписки пользователю с Telegram ID: ${telegramId}`,
-          error,
-          stack: error instanceof Error ? error.stack : undefined,
-          service: this.serviceName,
-        })
-        // Не прерываем выполнение, так как основная операция создания подписки уже выполнена
-      }
 
       this.logger.info({
         msg: `Подписка успешно создана для пользователя с Telegram ID: ${telegramId}`,
@@ -435,43 +530,6 @@ export class XrayService {
               })
             })
 
-            // Отправляем уведомление инвайтеру о полученном вознаграждении
-            try {
-              const inviterUser = await this.userService.getUserByTgId(
-                inviter.inviter.telegramId,
-              )
-              if (!inviterUser) {
-                throw new Error(
-                  `Инвайтер с Telegram ID ${inviter.inviter.telegramId} не найден`,
-                )
-              }
-
-              const inviterTelegramId = inviter.inviter.telegramId
-              const referralName =
-                user.telegramData.firstName ||
-                (await this.i18n.t('referral.defaultName', {
-                  lang: inviterUser.language.iso6391,
-                }))
-
-              const message = await this.i18n.t('referral.rewardReceived', {
-                lang: inviterUser.language.iso6391,
-                args: {
-                  starsAmount: plusPaymentsRewarded,
-                  referralName: referralName,
-                  level: inviter.level,
-                },
-              })
-
-              await this.bot.telegram.sendMessage(inviterTelegramId, message)
-            } catch (err) {
-              this.logger.error({
-                msg: `Error sending notification to inviter`,
-                error: err instanceof Error ? err.message : String(err),
-                inviterId: inviter.inviter.id,
-                service: this.serviceName,
-              })
-            }
-
             this.logger.info({
               msg: `Успешно обновлен реферальный баланс для инвайтера с ID: ${inviter.inviter?.id}`,
               reward: plusPaymentsRewarded,
@@ -497,78 +555,6 @@ export class XrayService {
         service: this.serviceName,
       })
     }
-  }
-
-  /**
-   * Рассчитывает количество часов для периода подписки
-   * @param period - Период подписки
-   * @param trialDays - Количество дней для пробного периода (опционально)
-   * @returns Количество часов
-   * @private
-   */
-  public periodHours(
-    period: SubscriptionPeriodEnum,
-    trialDays?: number,
-  ): number {
-    switch (period) {
-      case SubscriptionPeriodEnum.HOUR:
-        return 1
-      case SubscriptionPeriodEnum.DAY:
-        return 24
-      case SubscriptionPeriodEnum.MONTH:
-        return 30 * 24
-      case SubscriptionPeriodEnum.THREE_MONTH:
-        return 90 * 24
-      case SubscriptionPeriodEnum.SIX_MONTH:
-        return 180 * 24
-      case SubscriptionPeriodEnum.YEAR:
-        return 365 * 24
-      case SubscriptionPeriodEnum.TWO_YEAR:
-        return 365 * 2 * 24
-      case SubscriptionPeriodEnum.THREE_YEAR:
-        return 365 * 3 * 24
-      case SubscriptionPeriodEnum.TRIAL:
-        return trialDays && trialDays > 0 ? trialDays * 24 : 0
-      default:
-        this.logger.warn({
-          msg: `Неизвестный период подписки: ${period}`,
-          service: this.serviceName,
-        })
-        return 0
-    }
-  }
-
-  /**
-   * Возвращает локализованное текстовое описание периода подписки
-   * @param period - Период подписки
-   * @param lang - Код языка пользователя
-   * @param trialDays - Количество дней для пробного периода (опционально)
-   * @returns Локализованное текстовое описание периода
-   * @private
-   */
-  public async getLocalizedPeriodText(
-    period: SubscriptionPeriodEnum,
-    lang: string,
-    trialDays?: number,
-  ): Promise<string> {
-    const periodKey = `subscription.period.${period.toLowerCase()}`
-
-    if (period === SubscriptionPeriodEnum.TRIAL && trialDays && trialDays > 0) {
-      return this.i18n.t('subscription.period.trial_with_days', {
-        lang,
-        args: {
-          days: trialDays,
-          daysText: await this.i18n.t(
-            `time.days.${this.getDeclension(
-              trialDays,
-            )}` as keyof I18nTranslations,
-            { lang },
-          ),
-        },
-      })
-    }
-
-    return this.i18n.t(periodKey as keyof I18nTranslations, { lang })
   }
 
   /**
@@ -651,11 +637,31 @@ export class XrayService {
    * @param isAutoRenewal - Флаг автопродления (опционально)
    * @returns Результат покупки подписки или false в случае ошибки
    */
-  public async purchaseSubscription(
-    telegramId: string,
-    period: SubscriptionPeriodEnum,
-    isAutoRenewal: boolean = false,
-  ) {
+  public async purchaseSubscription({
+    telegramId,
+    period,
+    periodMultiplier,
+    isFixedPrice,
+    devicesCount,
+    isAllServers,
+    isAllPremiumServers,
+    trafficLimitGb,
+    isUnlimitTraffic,
+    servers = [],
+    isAutoRenewal = true,
+  }: {
+    telegramId: string
+    period: SubscriptionPeriodEnum
+    periodMultiplier: number
+    isFixedPrice: boolean
+    devicesCount: number
+    isAllServers: boolean
+    isAllPremiumServers: boolean
+    trafficLimitGb?: number
+    isUnlimitTraffic: boolean
+    servers?: string[]
+    isAutoRenewal?: boolean
+  }) {
     try {
       this.logger.info({
         msg: `Покупка подписки для пользователя с Telegram ID: ${telegramId}, период: ${period}`,
@@ -679,6 +685,17 @@ export class XrayService {
         return { success: false, message: 'subscription_limit_exceeded' }
       }
 
+      const getServers = await this.prismaService.greenList.findMany({
+        where: {
+          code: {
+            in: servers,
+          },
+        },
+      })
+
+      const baseServers = getServers.filter((server) => !server.isPremium)
+      const premiumServers = getServers.filter((server) => server.isPremium)
+
       // Расчет стоимости подписки
       const settings = await this.prismaService.settings.findFirst()
       if (!settings) {
@@ -690,12 +707,23 @@ export class XrayService {
       }
 
       // Расчет стоимости с учетом периода и скидки пользователя
-      const cost = await this.calculateSubscriptionCost(
-        period,
-        user.role.discount,
-      )
+      const cost = calculateSubscriptionCost({
+        period: period,
+        isPremium: user.telegramData.isPremium,
+        periodMultiplier,
+        devicesCount,
+        isAllServers,
+        isAllPremiumServers,
+        isUnlimitTraffic,
+        userDiscount: user.role.discount,
+        settings: settings,
+        serversCount: baseServers.length,
+        premiumServersCount: premiumServers.length,
+        trafficLimitGb,
+      })
 
-      // Проверка баланса пользователя с учетом возможности использования withdrawalBalance
+      // Проверяем баланс и списываем средства с помощью UsersService
+      // Предварительная проверка баланса для вывода информативного сообщения
       const totalAvailableBalance =
         user.balance.paymentBalance +
         (user.balance.isUseWithdrawalBalance
@@ -716,154 +744,57 @@ export class XrayService {
       }
 
       // Создание подписки и списание средств в транзакции
-      const subscription = await this.prismaService.$transaction(async (tx) => {
-        // Определяем сколько списать с каждого баланса
-        const paymentAmount = Math.min(cost, user.balance.paymentBalance)
-        let withdrawalAmount = 0
+      // Используем метод deductUserBalance из UsersService для списания средств
+      const deductResult = await this.userService.deductUserBalance(
+        user.id,
+        cost,
+        TransactionReasonEnum.SUBSCRIPTIONS,
+        BalanceTypeEnum.PAYMENT,
+        { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
+      )
 
-        // Если не хватает paymentBalance и включено использование withdrawalBalance
-        if (paymentAmount < cost && user.balance.isUseWithdrawalBalance) {
-          withdrawalAmount = cost - paymentAmount
-        }
-
-        // Списание средств с paymentBalance
-        if (paymentAmount > 0) {
-          await tx.userBalance.update({
-            where: {
-              id: user.balance.id,
-            },
-            data: {
-              paymentBalance: {
-                decrement: paymentAmount,
-              },
-            },
-          })
-
-          // Создание записи о транзакции для paymentBalance
-          await tx.transactions.create({
-            data: {
-              amount: paymentAmount,
-              type: TransactionTypeEnum.MINUS,
-              reason: TransactionReasonEnum.SUBSCRIPTIONS,
-              balanceType: BalanceTypeEnum.PAYMENT,
-              isHold: false,
-              balanceId: user.balance.id,
-            },
-          })
-        }
-
-        // Списание средств с withdrawalBalance если необходимо
-        if (withdrawalAmount > 0) {
-          await tx.userBalance.update({
-            where: {
-              id: user.balance.id,
-            },
-            data: {
-              withdrawalBalance: {
-                decrement: withdrawalAmount,
-              },
-            },
-          })
-
-          // Создание записи о транзакции для withdrawalBalance
-          await tx.transactions.create({
-            data: {
-              amount: withdrawalAmount,
-              type: TransactionTypeEnum.MINUS,
-              reason: TransactionReasonEnum.SUBSCRIPTIONS,
-              balanceType: BalanceTypeEnum.WITHDRAWAL,
-              isHold: false,
-              balanceId: user.balance.id,
-            },
-          })
-        }
-
-        // Создание подписки
-        const token = genToken()
-        const username = `${user.telegramId}_${Math.random()
-          .toString(36)
-          .substring(2)}`
-
-        // Подготовка данных для Marzban
-        const marbanDataStart: UserCreate = {
-          username,
-          proxies: {
-            vless: {
-              flow: 'xtls-rprx-vision',
-            },
-          },
-          inbounds: {
-            vless: ['VLESS'],
-          },
-          status: 'active',
-          note: `${user.id}/${user.telegramId}/${
-            user.telegramData?.username || ''
-          }/${user.telegramData?.firstName || ''}/${
-            user.telegramData?.lastName || ''
-          }`,
-        }
-
-        // Добавление пользователя в Marzban
-        const marbanData = await this.marzbanService.addUser(marbanDataStart)
-        if (!marbanData) {
-          throw new Error(
-            `Не удалось добавить пользователя в Marzban для Telegram ID: ${telegramId}`,
-          )
-        }
-
-        // Расчет времени истечения подписки
-        const periodHours = this.periodHours(period)
-        if (periodHours <= 0) {
-          throw new Error(`Некорректный период подписки: ${period}`)
-        }
-
-        // Создание подписки в базе данных
-        return await tx.subscriptions.create({
-          data: {
-            username,
-            userId: user.id,
-            period,
-            isActive: true,
-            isAutoRenewal,
-            token,
-            expiredAt: addHours(new Date(), periodHours),
-          },
+      if (!deductResult.success) {
+        this.logger.warn({
+          msg: `Недостаточно средств для покупки подписки`,
+          userId: user.id,
+          cost,
+          service: this.serviceName,
         })
+        return { success: false, message: 'insufficient_balance' }
+      }
+
+      // Логируем информацию о списании
+      this.logger.info({
+        msg: `Успешно списаны средства для подписки`,
+        userId: user.id,
+        paymentAmount: deductResult.paymentAmount,
+        withdrawalAmount: deductResult.withdrawalAmount,
+        service: this.serviceName,
       })
 
-      // Отправка уведомления пользователю в Telegram о покупке подписки
-      try {
-        const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
-        const subscriptionUrl = `${allowedOrigin}/sub/${subscription.token}`
-        const periodText = await this.getLocalizedPeriodText(
-          period,
-          user.language.iso6391,
-        )
+      const subscription = await this.createSubscription({
+        isPremium: user.telegramData.isPremium,
+        period,
+        periodMultiplier,
+        isFixedPrice,
+        fixedPriceStars: cost,
+        nextRenewalStars: cost,
+        devicesCount,
+        isAllServers,
+        isAllPremiumServers,
+        trafficLimitGb,
+        isUnlimitTraffic,
+        servers,
+        isAutoRenewal,
+        telegramId,
+      })
 
-        const message = await this.i18n.t('subscription.purchased', {
-          lang: user.language.iso6391,
-          args: {
-            period: periodText,
-            cost,
-            expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
-            subscriptionUrl: subscriptionUrl,
-          },
-        })
-
-        await this.bot.telegram.sendMessage(telegramId, message)
-
-        this.logger.info({
-          msg: `Уведомление о покупке подписки отправлено пользователю с Telegram ID: ${telegramId}`,
-          service: this.serviceName,
-        })
-      } catch (error) {
+      if (!subscription) {
         this.logger.error({
-          msg: `Ошибка при отправке уведомления о покупке подписки пользователю с Telegram ID: ${telegramId}`,
-          error,
-          stack: error instanceof Error ? error.stack : undefined,
+          msg: `Не удалось создать подписку для пользователя с Telegram ID: ${telegramId}`,
           service: this.serviceName,
         })
-        // Не прерываем выполнение, так как основная операция покупки подписки уже выполнена
+        return { success: false, message: 'subscription_creation_failed' }
       }
 
       this.logger.info({
@@ -885,67 +816,6 @@ export class XrayService {
         message: error instanceof Error ? error.message : 'unknown_error',
       }
     }
-  }
-
-  /**
-   * Расчет стоимости подписки на основе периода и скидки пользователя
-   * @param period - Период подписки
-   * @param userDiscount - Скидка пользователя
-   * @returns Стоимость в Stars
-   * @private
-   */
-  public async calculateSubscriptionCost(
-    period: SubscriptionPeriodEnum,
-    userDiscount: number = 1,
-  ): Promise<number> {
-    // Получение цен из настроек
-    const settings = await this.prismaService.settings.findFirst()
-
-    if (!settings) {
-      this.logger.warn({
-        msg: 'Настройки не найдены, используем цену по умолчанию',
-        service: this.serviceName,
-      })
-      return 699 // Цена по умолчанию, если настройки не найдены
-    }
-
-    // Базовая цена за месяц
-    const basePrice = settings.priceSubscriptionStars
-
-    // Применение коэффициента периода
-    let price = basePrice * userDiscount
-    switch (period) {
-      case SubscriptionPeriodEnum.HOUR:
-        price = (basePrice / 30 / 24) * settings.hourRatioPayment * userDiscount
-        break
-      case SubscriptionPeriodEnum.DAY:
-        price = (basePrice / 30) * settings.dayRatioPayment * userDiscount
-        break
-      case SubscriptionPeriodEnum.MONTH:
-        price = basePrice * userDiscount
-        break
-      case SubscriptionPeriodEnum.THREE_MONTH:
-        price = basePrice * 3 * settings.threeMouthesRatioPayment * userDiscount
-        break
-      case SubscriptionPeriodEnum.SIX_MONTH:
-        price = basePrice * 6 * settings.sixMouthesRatioPayment * userDiscount
-        break
-      case SubscriptionPeriodEnum.YEAR:
-        price = basePrice * 12 * settings.oneYearRatioPayment * userDiscount
-        break
-      case SubscriptionPeriodEnum.TWO_YEAR:
-        price = basePrice * 24 * settings.twoYearRatioPayment * userDiscount
-        break
-      case SubscriptionPeriodEnum.THREE_YEAR:
-        price = basePrice * 36 * settings.threeYearRatioPayment * userDiscount
-        break
-      case SubscriptionPeriodEnum.TRIAL:
-        return 1 // Пробный период бесплатный
-      default:
-        price = basePrice * userDiscount
-    }
-
-    return Number((price < 0.01 ? 0.01 : price).toFixed(2))
   }
 
   /**
@@ -1009,9 +879,6 @@ export class XrayService {
         },
       })
 
-      // Отправляем уведомление пользователю
-      await this.sendSubscriptionDeletedNotification(user, subscription)
-
       this.logger.info({
         msg: `Подписка ${subscriptionId} успешно удалена для пользователя ${telegramId}`,
         service: this.serviceName,
@@ -1026,39 +893,6 @@ export class XrayService {
         service: this.serviceName,
       })
       return { success: false, message: 'internal_error' }
-    }
-  }
-
-  /**
-   * Отправляет уведомление пользователю об удалении подписки
-   * @param user - Пользователь
-   * @param subscription - Удаленная подписка
-   * @private
-   */
-  private async sendSubscriptionDeletedNotification(
-    user: any,
-    subscription: any,
-  ): Promise<void> {
-    try {
-      const message = await this.i18n.t('subscription.deleted', {
-        lang: user.language.iso6391,
-        args: {
-          period: await this.getLocalizedPeriodText(
-            subscription.period,
-            user.language.iso6391,
-          ),
-        },
-      })
-
-      await this.bot.telegram.sendMessage(user.telegramId, message)
-    } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при отправке уведомления об удалении подписки`,
-        userId: user.id,
-        error,
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
     }
   }
 
@@ -1102,12 +936,7 @@ export class XrayService {
       }
 
       // Расчет стоимости подписки
-      const cost = await this.calculateSubscriptionCost(
-        subscription.period == SubscriptionPeriodEnum.TRIAL
-          ? SubscriptionPeriodEnum.MONTH
-          : (subscription.period as SubscriptionPeriodEnum),
-        user.role.discount,
-      )
+      const cost = subscription.nextRenewalStars
 
       // Проверка баланса пользователя с учетом возможности использования withdrawalBalance
       const totalAvailableBalance =
@@ -1130,12 +959,11 @@ export class XrayService {
       }
 
       // Расчет времени истечения подписки
-      const periodHours = this.periodHours(
-        subscription.period == SubscriptionPeriodEnum.TRIAL
-          ? SubscriptionPeriodEnum.MONTH
-          : (subscription.period as SubscriptionPeriodEnum),
+      const hours = periodHours(
+        subscription.period as SubscriptionPeriodEnum,
+        subscription.periodMultiplier,
       )
-      if (periodHours <= 0) {
+      if (hours <= 0) {
         this.logger.error({
           msg: `Invalid subscription period: ${subscription.period}`,
           service: this.serviceName,
@@ -1149,72 +977,37 @@ export class XrayService {
       const now = new Date()
       const newExpiredAt =
         subscription.expiredAt > now
-          ? addHours(subscription.expiredAt, periodHours)
-          : addHours(now, periodHours)
+          ? addHours(subscription.expiredAt, hours)
+          : addHours(now, hours)
 
       // Продление подписки и списание средств в транзакции
       const updatedSubscription = await this.prismaService.$transaction(
         async (tx) => {
-          // Определяем сколько списать с каждого баланса
-          const paymentAmount = Math.min(cost, user.balance.paymentBalance)
-          let withdrawalAmount = 0
+          const deductResult = await this.userService.deductUserBalance(
+            user.id,
+            cost,
+            TransactionReasonEnum.SUBSCRIPTIONS,
+            BalanceTypeEnum.PAYMENT,
+            { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
+          )
 
-          // Если не хватает paymentBalance и включено использование withdrawalBalance
-          if (paymentAmount < cost && user.balance.isUseWithdrawalBalance) {
-            withdrawalAmount = cost - paymentAmount
+          if (!deductResult.success) {
+            this.logger.warn({
+              msg: `Insufficient funds for subscription purchase`,
+              userId: user.id,
+              cost,
+              service: this.serviceName,
+            })
+            return { success: false, message: 'insufficient_balance' }
           }
 
-          // Списание средств с paymentBalance
-          if (paymentAmount > 0) {
-            await tx.userBalance.update({
-              where: {
-                id: user.balance.id,
-              },
-              data: {
-                paymentBalance: {
-                  decrement: paymentAmount,
-                },
-              },
-            })
-
-            // Создание записи о транзакции для paymentBalance
-            await tx.transactions.create({
-              data: {
-                amount: paymentAmount,
-                type: TransactionTypeEnum.MINUS,
-                reason: TransactionReasonEnum.SUBSCRIPTIONS,
-                balanceType: BalanceTypeEnum.PAYMENT,
-                isHold: false,
-                balanceId: user.balance.id,
-              },
-            })
-          }
-
-          // Списание средств с withdrawalBalance если необходимо
-          if (withdrawalAmount > 0) {
-            await tx.userBalance.update({
-              where: {
-                id: user.balance.id,
-              },
-              data: {
-                withdrawalBalance: {
-                  decrement: withdrawalAmount,
-                },
-              },
-            })
-
-            // Создание записи о транзакции для withdrawalBalance
-            await tx.transactions.create({
-              data: {
-                amount: withdrawalAmount,
-                type: TransactionTypeEnum.MINUS,
-                reason: TransactionReasonEnum.SUBSCRIPTIONS,
-                balanceType: BalanceTypeEnum.WITHDRAWAL,
-                isHold: false,
-                balanceId: user.balance.id,
-              },
-            })
-          }
+          this.logger.info({
+            msg: `Successfully deducted funds for subscription`,
+            userId: user.id,
+            paymentAmount: deductResult.paymentAmount,
+            withdrawalAmount: deductResult.withdrawalAmount,
+            service: this.serviceName,
+          })
 
           // Обновление даты истечения подписки
           return await tx.subscriptions.update({
@@ -1233,47 +1026,8 @@ export class XrayService {
         },
       )
 
-      // Отправка уведомления пользователю в Telegram о продлении подписки
-      try {
-        const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
-        const subscriptionUrl = `${allowedOrigin}/sub/${updatedSubscription.token}`
-        const periodText = await this.getLocalizedPeriodText(
-          updatedSubscription.period as SubscriptionPeriodEnum,
-          user.language.iso6391,
-        )
-
-        const message = await this.i18n.t('subscription.renewed_user', {
-          lang: user.language.iso6391,
-          args: {
-            period: periodText,
-            cost,
-            expiredAt: format(
-              updatedSubscription.expiredAt,
-              'dd.MM.yyyy HH:mm',
-            ),
-            subscriptionUrl: subscriptionUrl,
-          },
-        })
-
-        await this.bot.telegram.sendMessage(telegramId, message)
-
-        this.logger.info({
-          msg: `Renewal notification sent to user with Telegram ID: ${telegramId}`,
-          service: this.serviceName,
-        })
-      } catch (error) {
-        this.logger.error({
-          msg: `Error sending renewal notification to user with Telegram ID: ${telegramId}`,
-          error,
-          stack: error instanceof Error ? error.stack : undefined,
-          service: this.serviceName,
-        })
-        // Не прерываем выполнение, так как основная операция продления подписки уже выполнена
-      }
-
       this.logger.info({
         msg: `Subscription successfully renewed by user with Telegram ID: ${telegramId}`,
-        subscriptionId: updatedSubscription.id,
         service: this.serviceName,
       })
 
@@ -1356,26 +1110,16 @@ export class XrayService {
         },
         data: {
           token: newToken,
+          marzbanData: JSON.parse(JSON.stringify(marzbanResult)),
         },
       })
-
-      // Формируем новый URL подписки
-      const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
-      if (!allowedOrigin) {
-        throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
-      }
-
-      const subscriptionUrl = `${allowedOrigin}/sub/${newToken}`
-
-      // Отправляем уведомление пользователю
-      await this.sendTokenResetNotification(user, subscription, subscriptionUrl)
 
       this.logger.info({
         msg: `Токен подписки ${subscriptionId} успешно сброшен для пользователя ${telegramId}`,
         service: this.serviceName,
       })
 
-      return { success: true, subscriptionUrl }
+      return { success: true }
     } catch (error) {
       this.logger.error({
         msg: `Ошибка при сбросе токена подписки для пользователя с Telegram ID: ${telegramId}`,
@@ -1384,43 +1128,6 @@ export class XrayService {
         service: this.serviceName,
       })
       return { success: false, message: 'internal_error' }
-    }
-  }
-
-  /**
-   * Отправляет уведомление о сбросе токена подписки
-   * @param user - Пользователь
-   * @param subscription - Подписка
-   * @param subscriptionUrl - Новый URL подписки
-   * @private
-   */
-  private async sendTokenResetNotification(
-    user: any,
-    subscription: any,
-    subscriptionUrl: string,
-  ): Promise<void> {
-    try {
-      const message = await this.i18n.t('subscription.token_reset', {
-        lang: user.language.iso6391,
-        args: {
-          subscriptionUrl,
-          expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
-        },
-      })
-
-      await this.bot.telegram.sendMessage(user.telegramId, message)
-
-      this.logger.info({
-        msg: `Уведомление о сбросе токена подписки отправлено пользователю с Telegram ID: ${user.telegramId}`,
-        service: this.serviceName,
-      })
-    } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при отправке уведомления о сбросе токена подписки пользователю с Telegram ID: ${user.telegramId}`,
-        error,
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
     }
   }
 
@@ -1462,7 +1169,6 @@ export class XrayService {
         return { success: false, message: 'subscription_not_found' }
       }
 
-      // Переключаем статус автопродления
       const updatedSubscription = await this.prismaService.subscriptions.update(
         {
           where: {
@@ -1473,37 +1179,6 @@ export class XrayService {
           },
         },
       )
-
-      // Отправляем уведомление пользователю
-      try {
-        const userLang = user.language.iso6391 || 'ru'
-
-        const messageKey = updatedSubscription.isAutoRenewal
-          ? 'subscription.auto_renewal_enabled'
-          : 'subscription.auto_renewal_disabled'
-
-        const message = await this.i18n.t(messageKey, {
-          lang: userLang,
-        })
-
-        await this.bot.telegram.sendMessage(telegramId, message)
-
-        this.logger.info({
-          msg: `Уведомление о смене статуса автопродления отправлено пользователю ${telegramId}`,
-          service: this.serviceName,
-        })
-      } catch (notificationError) {
-        this.logger.error({
-          msg: `Ошибка при отправке уведомления пользователю ${telegramId}`,
-          error: notificationError,
-          stack:
-            notificationError instanceof Error
-              ? notificationError.stack
-              : undefined,
-          service: this.serviceName,
-        })
-        // Продолжаем выполнение, даже если уведомление не отправлено
-      }
 
       this.logger.info({
         msg: `Статус автопродления успешно изменен для подписки ${subscriptionId}, новое значение: ${updatedSubscription.isAutoRenewal}`,
