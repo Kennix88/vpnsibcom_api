@@ -31,9 +31,9 @@ interface SubscriptionCostParams {
   period: SubscriptionPeriodEnum
   periodMultiplier: number
   devicesCount: number
-  serversCount?: number
-  premiumServersCount?: number
-  trafficLimitGb?: number
+  serversCount: number
+  premiumServersCount: number
+  trafficLimitGb: number
   isAllServers: boolean
   isAllPremiumServers: boolean
   isUnlimitTraffic: boolean
@@ -247,7 +247,7 @@ function calculatePriceByPeriod(
     case SubscriptionPeriodEnum.TRIAL:
       return 1 // Trial period is free (minimum 1 Star)
     default:
-      price = basePrice * userDiscount
+      price = basePrice * userDiscount * periodMultiplier
   }
 
   // Ensure minimum price is 0.01 Stars
