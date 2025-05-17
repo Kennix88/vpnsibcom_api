@@ -170,11 +170,18 @@ export class SubscriptionsController {
 
       await this.authService.updateUserActivity(token)
 
-      const result = await this.xrayService.purchaseSubscription(
-        user.telegramId,
-        purchaseDto.period,
-        purchaseDto.isAutoRenewal,
-      )
+      const result = await this.xrayService.purchaseSubscription({
+        telegramId: user.telegramId,
+        period: purchaseDto.period,
+        periodMultiplier: purchaseDto.periodMultiplier,
+        isFixedPrice: purchaseDto.isFixedPrice,
+        devicesCount: purchaseDto.devicesCount,
+        isAllServers: purchaseDto.isAllServers,
+        isAllPremiumServers: purchaseDto.isAllPremiumServers,
+        trafficLimitGb: purchaseDto.trafficLimitGb,
+        isUnlimitTraffic: purchaseDto.isUnlimitTraffic,
+        servers: purchaseDto.servers,
+      })
 
       if (!result.success) {
         this.logger.warn(
@@ -549,8 +556,8 @@ export class SubscriptionsController {
       return {
         data: {
           success: true,
-          message: result.isAutoRenewal 
-            ? 'Автопродление подписки включено' 
+          message: result.isAutoRenewal
+            ? 'Автопродление подписки включено'
             : 'Автопродление подписки отключено',
           subscriptions,
           user: userData,
