@@ -142,6 +142,7 @@ export interface UserResponse {
   note: string
   sub_updated_at: string
   sub_last_user_agent: string
+  lifetime_used_traffic: number
   online_at: string
   on_hold: boolean
   status: string

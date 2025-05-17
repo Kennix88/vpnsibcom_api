@@ -14,6 +14,7 @@ import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
+import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
 import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 import { XrayService } from './xray.service'
@@ -42,7 +43,9 @@ interface SubscriptionWithUser extends Subscriptions {
     }
   }
   servers?: {
-    greenList: any[]
+    greenList: {
+      code: string
+    }
   }[]
 }
 
@@ -69,6 +72,161 @@ export class SubscriptionManagerService {
     private readonly userService: UsersService,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
+
+  /**
+   * Updates subscription data with information from Marzban service
+   * @returns Promise<void>
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async subscriptionsUpdater() {
+    this.logger.info({
+      msg: 'Starting subscriptions update process',
+      service: this.serviceName,
+    })
+
+    try {
+      const settings = await this.prismaService.settings.findFirst()
+      if (!settings) {
+        this.logger.error({
+          msg: 'Settings not found',
+          service: this.serviceName,
+        })
+        return
+      }
+
+      // Fetch data in parallel for better performance
+      const [marzbanUsers, subscriptions] = await Promise.all([
+        this.marzbanService.getUsers(),
+        this.prismaService.subscriptions.findMany({
+          include: {
+            user: {
+              include: {
+                language: true,
+                balance: true,
+                role: true,
+              },
+            },
+            servers: {
+              include: {
+                greenList: true,
+              },
+            },
+          },
+        }),
+      ])
+
+      this.logger.info({
+        msg: `Found ${subscriptions.length} subscriptions to update`,
+        service: this.serviceName,
+      })
+
+      // Process subscriptions in batches to avoid memory issues with large datasets
+      const batchSize = 50
+      const batches = []
+
+      for (let i = 0; i < subscriptions.length; i += batchSize) {
+        batches.push(subscriptions.slice(i, i + batchSize))
+      }
+
+      let updatedCount = 0
+
+      for (const batch of batches) {
+        const updatedBatch = await Promise.all(
+          batch.map(async (subscription) => {
+            const marzbanUser = marzbanUsers.users.find(
+              (user) => user.username === subscription.username,
+            )
+
+            if (!marzbanUser) {
+              this.logger.warn({
+                msg: `Marzban user not found for subscription ${subscription.id}`,
+                username: subscription.username,
+                service: this.serviceName,
+              })
+              return subscription
+            }
+
+            let baseServers = 0
+            let premiumServers = 0
+
+            const serverCodes =
+              subscription.servers
+                ?.flatMap((server) => {
+                  if (server.greenList.isPremium) premiumServers++
+                  else baseServers++
+                  return server.greenList.code
+                })
+                .filter(Boolean) || []
+
+            const filteredLinks = marzbanUser.links.filter((link) => {
+              if (!serverCodes.length) return true
+              return serverCodes.some((code) => link.includes(code))
+            })
+
+            const cost = calculateSubscriptionCost({
+              period: subscription.period as SubscriptionPeriodEnum,
+              isPremium: subscription.isPremium,
+              periodMultiplier: subscription.periodMultiplier,
+              devicesCount: subscription.devicesCount,
+              isAllServers: subscription.isAllServers,
+              isAllPremiumServers: subscription.isAllPremiumServers,
+              isUnlimitTraffic: subscription.isUnlimitTraffic,
+              userDiscount: subscription.user.role.discount,
+              settings: settings,
+              serversCount: baseServers,
+              premiumServersCount: premiumServers,
+              trafficLimitGb: subscription.trafficLimitGb,
+            })
+
+            const nextRenewalStars = subscription.isFixedPrice
+              ? subscription.fixedPriceStars
+              : cost
+
+            return {
+              ...subscription,
+              links: filteredLinks,
+              nextRenewalStars,
+              lastUserAgent: marzbanUser.sub_last_user_agent,
+              dataLimit: marzbanUser.data_limit,
+              lifeTimeUsedTraffic: marzbanUser.lifetime_used_traffic,
+              onlineAt: marzbanUser.online_at,
+              marzbanData: JSON.stringify(marzbanUser),
+            }
+          }),
+        )
+
+        const idsToUpdate = updatedBatch.map((user) => user.id)
+
+        await this.prismaService.subscriptions.updateMany({
+          where: {
+            id: {
+              in: idsToUpdate,
+            },
+          },
+          data: updatedBatch,
+        })
+
+        updatedCount += updatedBatch.length
+
+        this.logger.info({
+          msg: `Updated batch of ${updatedBatch.length} subscriptions`,
+          service: this.serviceName,
+        })
+      }
+
+      this.logger.info({
+        msg: `Successfully updated ${updatedCount} subscriptions`,
+        service: this.serviceName,
+      })
+    } catch (error) {
+      this.logger.error({
+        msg: 'Error updating subscriptions',
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+    }
+  }
 
   /**
    * Cron job to process expired subscriptions
