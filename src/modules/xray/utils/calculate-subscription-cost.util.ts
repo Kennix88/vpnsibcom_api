@@ -29,6 +29,7 @@ interface SubscriptionCostSettings {
 interface SubscriptionCostParams {
   isPremium: boolean
   period: SubscriptionPeriodEnum
+  periodMultiplier: number
   devicesCount: number
   serversCount?: number
   premiumServersCount?: number
@@ -50,6 +51,7 @@ export function calculateSubscriptionCost(
 ): number {
   const {
     period,
+    periodMultiplier,
     isPremium,
     devicesCount,
     serversCount = 0,
@@ -119,6 +121,7 @@ export function calculateSubscriptionCost(
   // Calculate final price based on subscription period
   const finalPrice = calculatePriceByPeriod(
     period,
+    periodMultiplier,
     basePrice,
     userDiscount,
     settings,
@@ -166,6 +169,7 @@ function calculatePremiumServersPrice(
  */
 function calculatePriceByPeriod(
   period: SubscriptionPeriodEnum,
+  periodMultiplier: number,
   basePrice: number,
   userDiscount: number,
   settings: SubscriptionCostSettings,
@@ -174,31 +178,68 @@ function calculatePriceByPeriod(
 
   switch (period) {
     case SubscriptionPeriodEnum.HOUR:
-      price = (basePrice / 30 / 24) * settings.hourRatioPayment * userDiscount
+      price =
+        (basePrice / 30 / 24) *
+        settings.hourRatioPayment *
+        userDiscount *
+        periodMultiplier
       break
     case SubscriptionPeriodEnum.DAY:
-      price = (basePrice / 30) * settings.dayRatioPayment * userDiscount
+      price =
+        (basePrice / 30) *
+        settings.dayRatioPayment *
+        userDiscount *
+        periodMultiplier
       break
     case SubscriptionPeriodEnum.WEEK:
-      price = (basePrice / 4) * settings.weekRatioPayment * userDiscount
+      price =
+        (basePrice / 4) *
+        settings.weekRatioPayment *
+        userDiscount *
+        periodMultiplier
       break
     case SubscriptionPeriodEnum.MONTH:
-      price = basePrice * userDiscount
+      price = basePrice * userDiscount * periodMultiplier
       break
     case SubscriptionPeriodEnum.THREE_MONTH:
-      price = basePrice * 3 * settings.threeMouthesRatioPayment * userDiscount
+      price =
+        basePrice *
+        3 *
+        settings.threeMouthesRatioPayment *
+        userDiscount *
+        periodMultiplier
       break
     case SubscriptionPeriodEnum.SIX_MONTH:
-      price = basePrice * 6 * settings.sixMouthesRatioPayment * userDiscount
+      price =
+        basePrice *
+        6 *
+        settings.sixMouthesRatioPayment *
+        userDiscount *
+        periodMultiplier
       break
     case SubscriptionPeriodEnum.YEAR:
-      price = basePrice * 12 * settings.oneYearRatioPayment * userDiscount
+      price =
+        basePrice *
+        12 *
+        settings.oneYearRatioPayment *
+        userDiscount *
+        periodMultiplier
       break
     case SubscriptionPeriodEnum.TWO_YEAR:
-      price = basePrice * 24 * settings.twoYearRatioPayment * userDiscount
+      price =
+        basePrice *
+        24 *
+        settings.twoYearRatioPayment *
+        userDiscount *
+        periodMultiplier
       break
     case SubscriptionPeriodEnum.THREE_YEAR:
-      price = basePrice * 36 * settings.threeYearRatioPayment * userDiscount
+      price =
+        basePrice *
+        36 *
+        settings.threeYearRatioPayment *
+        userDiscount *
+        periodMultiplier
       break
     case SubscriptionPeriodEnum.INDEFINITELY:
       price = basePrice * settings.indefinitelyRatio * userDiscount
