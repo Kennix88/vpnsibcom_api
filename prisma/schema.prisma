@@ -324,7 +324,7 @@ model Subscriptions {
   dataLimit           Int     @default(0) @map("data_limit")
   usedTraffic         Int     @default(0) @map("used_traffic")
   lifeTimeUsedTraffic Int     @default(0) @map("life_time_used_traffic")
-  mazbanData          Json?   @map("mazban_data") @db.JsonB
+  marzbanData         Json?   @map("marzban_data") @db.JsonB
 
   servers SubscriptionToGreenList[]
 

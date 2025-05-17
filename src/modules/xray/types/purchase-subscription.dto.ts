@@ -1,19 +1,40 @@
-import { IsBoolean, IsEnum, IsOptional } from 'class-validator'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
+import { IsBoolean, IsEnum, IsNumber, IsOptional } from 'class-validator'
 
 /**
  * DTO для покупки подписки
  */
 export class PurchaseSubscriptionDto {
-  /**
-   * Период подписки
-   */
   @IsEnum(SubscriptionPeriodEnum)
   period: SubscriptionPeriodEnum
 
-  /**
-   * Флаг автоматического продления подписки
-   */
+  @IsNumber()
+  @IsOptional()
+  periodMultiplier?: number = 1
+
+  @IsBoolean()
+  @IsOptional()
+  isFixedPrice?: boolean = false
+
+  @IsNumber()
+  devicesCount: number
+
+  @IsBoolean()
+  @IsOptional()
+  isAllServers?: boolean = false
+
+  @IsBoolean()
+  @IsOptional()
+  isAllPremiumServers?: boolean = false
+
+  @IsNumber()
+  @IsOptional()
+  trafficLimitGb?: number
+
+  @IsBoolean()
+  @IsOptional()
+  isUnlimitTraffic?: boolean = false
+
   @IsBoolean()
   @IsOptional()
   isAutoRenewal?: boolean = false
