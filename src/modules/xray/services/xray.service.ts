@@ -897,6 +897,289 @@ export class XrayService {
   }
 
   /**
+   * Изменяет условия существующей подписки пользователя
+   * @param telegramId - Telegram ID пользователя
+   * @param subscriptionId - ID подписки для изменения
+   * @param newConditions - Новые условия подписки
+   * @returns Результат операции изменения условий
+   */
+  public async changeSubscriptionConditions(
+    telegramId: string,
+    subscriptionId: string,
+    {
+      period,
+      periodMultiplier,
+      isFixedPrice,
+      devicesCount,
+      isAllServers,
+      isAllPremiumServers,
+      trafficLimitGb,
+      isUnlimitTraffic,
+      servers = [],
+      isAutoRenewal = true,
+    }: {
+      period: SubscriptionPeriodEnum
+      periodMultiplier: number
+      isFixedPrice: boolean
+      devicesCount: number
+      isAllServers: boolean
+      isAllPremiumServers: boolean
+      trafficLimitGb?: number
+      isUnlimitTraffic: boolean
+      servers?: string[]
+      isAutoRenewal?: boolean
+    },
+  ) {
+    try {
+      this.logger.info({
+        msg: `Запрос на изменение условий подписки ${subscriptionId} от пользователя с Telegram ID: ${telegramId}`,
+        service: this.serviceName,
+      })
+
+      // Получаем пользователя
+      const user = await this.userService.getUserByTgId(telegramId)
+      if (!user) {
+        this.logger.warn({
+          msg: `Пользователь с Telegram ID ${telegramId} не найден`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'user_not_found' }
+      }
+
+      // Получаем подписку и проверяем, принадлежит ли она пользователю
+      const subscription = await this.prismaService.subscriptions.findFirst({
+        where: {
+          id: subscriptionId,
+          userId: user.id,
+        },
+      })
+
+      if (!subscription) {
+        this.logger.warn({
+          msg: `Подписка с ID ${subscriptionId} не найдена или не принадлежит пользователю с Telegram ID ${telegramId}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'subscription_not_found' }
+      }
+
+      // Проверяем, истек ли срок подписки
+      const now = new Date()
+      if (subscription.expiredAt > now) {
+        this.logger.warn({
+          msg: `Невозможно изменить условия подписки ${subscriptionId}, так как срок её действия ещё не истек`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'subscription_not_expired' }
+      }
+
+      // Получаем серверы
+      const getServers = await this.prismaService.greenList.findMany({
+        where: {
+          code: {
+            in: servers,
+          },
+        },
+      })
+
+      const baseServers = getServers.filter((server) => !server.isPremium)
+      const premiumServers = getServers.filter((server) => server.isPremium)
+
+      // Расчет стоимости подписки
+      const settings = await this.prismaService.settings.findFirst()
+      if (!settings) {
+        this.logger.error({
+          msg: 'Настройки не найдены',
+          service: this.serviceName,
+        })
+        return { success: false, message: 'settings_not_found' }
+      }
+
+      // Расчет стоимости с учетом периода и скидки пользователя
+      const cost = calculateSubscriptionCost({
+        period: period,
+        isPremium: user.telegramData.isPremium,
+        periodMultiplier,
+        devicesCount,
+        isAllServers,
+        isAllPremiumServers,
+        isUnlimitTraffic,
+        userDiscount: user.role.discount,
+        settings: settings,
+        serversCount: baseServers.length,
+        premiumServersCount: premiumServers.length,
+        trafficLimitGb,
+      })
+
+      // Проверяем баланс и списываем средства с помощью UsersService
+      // Предварительная проверка баланса для вывода информативного сообщения
+      const totalAvailableBalance =
+        user.balance.paymentBalance +
+        (user.balance.isUseWithdrawalBalance
+          ? user.balance.withdrawalBalance
+          : 0)
+
+      if (totalAvailableBalance < cost) {
+        this.logger.warn({
+          msg: `Недостаточно средств для изменения условий подписки. Требуется: ${cost}, доступно: ${totalAvailableBalance}`,
+          service: this.serviceName,
+        })
+        return {
+          success: false,
+          message: 'insufficient_balance',
+          requiredAmount: cost,
+          currentBalance: totalAvailableBalance,
+        }
+      }
+
+      // Расчет времени истечения подписки
+      const hours = periodHours(period, periodMultiplier)
+      if (hours <= 0) {
+        this.logger.error({
+          msg: `Некорректный период подписки: ${period}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'invalid_period' }
+      }
+
+      // Удаляем пользователя из Marzban
+      const marzbanRemoveResult = await this.marzbanService.removeUser(
+        subscription.username,
+      )
+      if (!marzbanRemoveResult) {
+        this.logger.error({
+          msg: `Не удалось удалить пользователя ${subscription.username} из Marzban`,
+          service: this.serviceName,
+        })
+        // Продолжаем обновление, даже если не удалось удалить из Marzban
+      }
+
+      // Создаем нового пользователя в Marzban с тем же username
+      const marbanDataStart: UserCreate = {
+        username: subscription.username,
+        proxies: {
+          vless: {
+            flow: 'xtls-rprx-vision',
+          },
+        },
+        inbounds: {
+          vless: ['VLESS'],
+        },
+        status: 'active',
+        ...(!isUnlimitTraffic && {
+          data_limit_reset_strategy: 'day',
+          data_limit: trafficLimitGb * 1024 * 1024 * 1024,
+        }),
+        note: `${user.id}/${user.telegramId}/${
+          user.telegramData?.username || ''
+        }/${user.telegramData?.firstName || ''}/${
+          user.telegramData?.lastName || ''
+        }`,
+      }
+
+      // Добавление пользователя в Marzban
+      const marzbanData = await this.marzbanService.addUser(marbanDataStart)
+      if (!marzbanData) {
+        this.logger.error({
+          msg: `Не удалось добавить пользователя в Marzban для Telegram ID: ${telegramId}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'marzban_error' }
+      }
+
+      // Списание средств и обновление подписки в транзакции
+      const updatedSubscription = await this.prismaService.$transaction(
+        async (tx) => {
+          // Списываем средства
+          const deductResult = await this.userService.deductUserBalance(
+            user.id,
+            cost,
+            TransactionReasonEnum.SUBSCRIPTIONS,
+            BalanceTypeEnum.PAYMENT,
+            { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
+          )
+
+          if (!deductResult.success) {
+            this.logger.warn({
+              msg: `Недостаточно средств для изменения условий подписки`,
+              userId: user.id,
+              cost,
+              service: this.serviceName,
+            })
+            throw new Error('insufficient_balance')
+          }
+
+          // Логируем информацию о списании
+          this.logger.info({
+            msg: `Успешно списаны средства для изменения условий подписки`,
+            userId: user.id,
+            paymentAmount: deductResult.paymentAmount,
+            withdrawalAmount: deductResult.withdrawalAmount,
+            service: this.serviceName,
+          })
+
+          // Удаляем существующие связи с серверами
+          await tx.subscriptionToGreenList.deleteMany({
+            where: {
+              subscriptionId: subscription.id,
+            },
+          })
+
+          // Обновляем подписку
+          return await tx.subscriptions.update({
+            where: {
+              id: subscriptionId,
+            },
+            data: {
+              isPremium: user.telegramData.isPremium,
+              isAutoRenewal,
+              isFixedPrice,
+              fixedPriceStars: isFixedPrice ? cost : undefined,
+              nextRenewalStars: cost,
+              devicesCount,
+              isAllServers,
+              isAllPremiumServers,
+              trafficLimitGb,
+              isUnlimitTraffic,
+              period,
+              periodMultiplier,
+              isActive: true,
+              links: marzbanData.links,
+              dataLimit: marzbanData.data_limit,
+              usedTraffic: marzbanData.used_traffic,
+              lifeTimeUsedTraffic: marzbanData.used_traffic,
+              expiredAt: addHours(now, hours),
+              marzbanData: JSON.parse(JSON.stringify(marzbanData)),
+              servers: {
+                create: getServers.map((server) => ({
+                  greenListId: server.green,
+                })),
+              },
+            },
+          })
+        },
+      )
+
+      this.logger.info({
+        msg: `Условия подписки ${subscriptionId} успешно изменены для пользователя ${telegramId}`,
+        service: this.serviceName,
+      })
+
+      return { success: true, subscription: updatedSubscription }
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при изменении условий подписки для пользователя с Telegram ID: ${telegramId}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'internal_error',
+      }
+    }
+  }
+
+  /**
    * Продлевает существующую подписку пользователя
    * @param telegramId - Telegram ID пользователя
    * @param subscriptionId - ID подписки для продления
