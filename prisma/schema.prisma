@@ -69,12 +69,10 @@ model Settings {
   referralInvitePremiumRewardStars Float @default(10) @map("referral_invite_premiumreward_stars")
 
   // Ограничения и бонусы
-  /// Максимальное количество устройств на одного пользователя
-  limitDevices             Int @default(10) @map("limit_devices")
   /// Количество дней бесплатного периода для обычных пользователей
-  freePlanDays             Int @default(7) @map("free_plan_days")
+  freePlanDays             Int @default(3) @map("free_plan_days")
   /// Количество дней бесплатного периода для рефералов
-  freePlanDaysForReferrals Int @default(14) @map("free_plan_days_for_referrals")
+  freePlanDaysForReferrals Int @default(7) @map("free_plan_days_for_referrals")
 
   @@map("settings")
 }
