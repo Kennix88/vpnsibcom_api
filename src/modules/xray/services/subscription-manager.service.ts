@@ -163,24 +163,30 @@ export class SubscriptionManagerService {
               return serverCodes.some((code) => link.includes(code))
             })
 
-            const cost = calculateSubscriptionCost({
-              period: subscription.period as SubscriptionPeriodEnum,
-              isPremium: subscription.isPremium,
-              periodMultiplier: subscription.periodMultiplier,
-              devicesCount: subscription.devicesCount,
-              isAllServers: subscription.isAllServers,
-              isAllPremiumServers: subscription.isAllPremiumServers,
-              isUnlimitTraffic: subscription.isUnlimitTraffic,
-              userDiscount: subscription.user.role.discount,
-              settings: settings,
-              serversCount: baseServers,
-              premiumServersCount: premiumServers,
-              trafficLimitGb: subscription.trafficLimitGb,
-            })
+            // Для INDEFINITELY не рассчитываем стоимость продления
+            let nextRenewalStars = null
 
-            const nextRenewalStars = subscription.isFixedPrice
-              ? subscription.fixedPriceStars
-              : cost
+            // Только для подписок с периодом, отличным от INDEFINITELY
+            if (subscription.period !== SubscriptionPeriodEnum.INDEFINITELY) {
+              const cost = calculateSubscriptionCost({
+                period: subscription.period as SubscriptionPeriodEnum,
+                isPremium: subscription.isPremium,
+                periodMultiplier: subscription.periodMultiplier,
+                devicesCount: subscription.devicesCount,
+                isAllServers: subscription.isAllServers,
+                isAllPremiumServers: subscription.isAllPremiumServers,
+                isUnlimitTraffic: subscription.isUnlimitTraffic,
+                userDiscount: subscription.user.role.discount,
+                settings: settings,
+                serversCount: baseServers,
+                premiumServersCount: premiumServers,
+                trafficLimitGb: subscription.trafficLimitGb,
+              })
+
+              nextRenewalStars = subscription.isFixedPrice
+                ? subscription.fixedPriceStars
+                : cost
+            }
 
             return {
               ...subscription,
@@ -241,10 +247,14 @@ export class SubscriptionManagerService {
 
     try {
       // Get all active subscriptions that have expired
+      // Исключаем подписки с периодом INDEFINITELY, так как у них expiredAt = null
       const expiredSubscriptions =
         await this.prismaService.subscriptions.findMany({
           where: {
             isActive: true,
+            period: {
+              not: SubscriptionPeriodEnum.INDEFINITELY,
+            },
             expiredAt: {
               lt: new Date(),
             },

@@ -88,6 +88,7 @@ export class XrayService {
         trafficLimitGb: 1,
         trialDays: user.freePlanDays,
         servers: [],
+        isAutoRenewal: false,
       })
 
       if (!subscription) return false
@@ -371,7 +372,7 @@ export class XrayService {
 
       // Расчет времени истечения подписки
       const hours = periodHours(period, periodMultiplier, trialDays)
-      if (hours <= 0) {
+      if (period !== SubscriptionPeriodEnum.INDEFINITELY && hours <= 0) {
         this.logger.error({
           msg: `Некорректный период подписки: ${period}`,
           service: this.serviceName,
@@ -379,36 +380,45 @@ export class XrayService {
         return false
       }
 
+      // Для INDEFINITELY устанавливаем специальные параметры
+      const isIndefinitely = period === SubscriptionPeriodEnum.INDEFINITELY
+      const subscriptionData = {
+        username,
+        isPremium,
+        // Для INDEFINITELY всегда отключаем автопродление
+        isAutoRenewal: isIndefinitely ? false : isAutoRenewal,
+        isFixedPrice,
+        // Для INDEFINITELY обнуляем fixedPriceStars
+        fixedPriceStars: isIndefinitely ? null : fixedPriceStars,
+        devicesCount,
+        isAllServers,
+        isAllPremiumServers,
+        trafficLimitGb,
+        isUnlimitTraffic,
+        userId: user.id,
+        period,
+        periodMultiplier,
+        isActive: true,
+        token,
+        links: marzbanData.links,
+        dataLimit: marzbanData.data_limit,
+        usedTraffic: marzbanData.used_traffic,
+        lifeTimeUsedTraffic: marzbanData.used_traffic,
+        // Для INDEFINITELY устанавливаем expiredAt в null
+        expiredAt: isIndefinitely ? null : addHours(new Date(), hours),
+        // Для INDEFINITELY обнуляем nextRenewalStars
+        nextRenewalStars: isIndefinitely ? null : nextRenewalStars,
+        marzbanData: JSON.parse(JSON.stringify(marzbanData)),
+        servers: {
+          create: getServers.map((server) => ({
+            greenListId: server.green,
+          })),
+        },
+      }
+
       // Создание подписки в базе данных
       const subscription = await this.prismaService.subscriptions.create({
-        data: {
-          username,
-          isPremium,
-          isAutoRenewal,
-          isFixedPrice,
-          fixedPriceStars,
-          devicesCount,
-          isAllServers,
-          isAllPremiumServers,
-          trafficLimitGb,
-          isUnlimitTraffic,
-          userId: user.id,
-          period,
-          periodMultiplier,
-          isActive: true,
-          token,
-          links: marzbanData.links,
-          dataLimit: marzbanData.data_limit,
-          usedTraffic: marzbanData.used_traffic,
-          lifeTimeUsedTraffic: marzbanData.used_traffic,
-          expiredAt: addHours(new Date(), hours),
-          marzbanData: JSON.parse(JSON.stringify(marzbanData)),
-          servers: {
-            create: getServers.map((server) => ({
-              greenListId: server.green,
-            })),
-          },
-        },
+        data: subscriptionData,
       })
 
       if (!subscription) {
