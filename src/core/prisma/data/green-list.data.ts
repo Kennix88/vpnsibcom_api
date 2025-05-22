@@ -1,4 +1,4 @@
-const GreenListData = [
+export const GreenListData = [
   {
     green: '194.156.102.9',
     isPremium: false,

@@ -1,5 +1,6 @@
 import { AdsNetworksData } from '@core/prisma/data/ads-networks.data'
 import { CurrencyData } from '@core/prisma/data/currency.data'
+import { GreenListData } from '@core/prisma/data/green-list.data'
 import { LanguagesData } from '@core/prisma/data/languages.data'
 import { OldUsersData } from '@core/prisma/data/old-users.data'
 import { PaymentMethodsData } from '@core/prisma/data/payment-methods.data'

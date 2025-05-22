@@ -146,14 +146,6 @@ export class XrayService {
         },
       })
 
-      if (!subscriptions || subscriptions.length === 0) {
-        this.logger.info({
-          msg: `Подписки для пользователя с ID ${userId} не найдены`,
-          service: this.serviceName,
-        })
-        return
-      }
-
       const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
       if (!allowedOrigin) {
         throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')

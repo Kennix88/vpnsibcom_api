@@ -8,7 +8,7 @@ CREATE TYPE "AdsNetworkEnum" AS ENUM ('YANDEX', 'ADSGRAM', 'ONCLICKA', 'ADSONAR'
 CREATE TYPE "AdsViewTypeEnum" AS ENUM ('REWARD', 'TASK', 'VIEW');
 
 -- CreateEnum
-CREATE TYPE "SubscriptionPeriodEnum" AS ENUM ('TRIAL', 'HOUR', 'DAY', 'MONTH', 'THREE_MONTH', 'SIX_MONTH', 'YEAR', 'TWO_YEAR', 'THREE_YEAR');
+CREATE TYPE "SubscriptionPeriodEnum" AS ENUM ('TRIAL', 'HOUR', 'DAY', 'WEEK', 'MONTH', 'THREE_MONTH', 'SIX_MONTH', 'YEAR', 'TWO_YEAR', 'THREE_YEAR', 'INDEFINITELY');
 
 -- CreateEnum
 CREATE TYPE "UserRoleEnum" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'FRIEND', 'OLD_USER', 'USER');
@@ -23,10 +23,10 @@ CREATE TYPE "CurrencyEnum" AS ENUM ('RUB', 'USD', 'EUR', 'KZT', 'AED', 'ARS', 'A
 CREATE TYPE "TransactionTypeEnum" AS ENUM ('PLUS', 'MINUS');
 
 -- CreateEnum
-CREATE TYPE "BalanceTypeEnum" AS ENUM ('PAYMENT', 'WITHDRAWAL');
+CREATE TYPE "BalanceTypeEnum" AS ENUM ('PAYMENT', 'WITHDRAWAL', 'TICKETS');
 
 -- CreateEnum
-CREATE TYPE "TransactionReasonEnum" AS ENUM ('WITHDRAWAL', 'GIFT_SUBSCRIPTIONS', 'SUBSCRIPTIONS', 'PAYMENT', 'REWARD', 'REFERRAL', 'FINE');
+CREATE TYPE "TransactionReasonEnum" AS ENUM ('WITHDRAWAL', 'SUBSCRIPTIONS', 'PAYMENT', 'REWARD', 'REFERRAL', 'FINE', 'EXCHANGE', 'GAME');
 
 -- CreateEnum
 CREATE TYPE "WithdrawalStatusEnum" AS ENUM ('CONSIDERATION', 'REJECTED', 'SENT', 'EXPIRED');
@@ -47,25 +47,35 @@ CREATE TYPE "PaymentMethodEnum" AS ENUM ('STARS', 'TOME_CARD', 'TOME_SBP', 'PAYP
 CREATE TABLE "settings" (
     "key" "DefaultEnum" NOT NULL DEFAULT 'DEFAULT',
     "tg_stars_to_usd" DOUBLE PRECISION NOT NULL DEFAULT 0.013,
-    "price_subscription_stars" INTEGER NOT NULL DEFAULT 699,
-    "commission_stars_to_ton" DOUBLE PRECISION NOT NULL DEFAULT 0.90,
-    "ads_reward_stars" DOUBLE PRECISION NOT NULL DEFAULT 0.1,
-    "ads_task_reward_stars" DOUBLE PRECISION NOT NULL DEFAULT 10,
+    "telegram_premium_ratio" DOUBLE PRECISION NOT NULL DEFAULT 1.5,
+    "devices_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 50,
+    "servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 20,
+    "premium_servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 50,
+    "all_servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 17,
+    "all_premium_servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 40,
+    "traffic_gb_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 60,
+    "unlimit_traffic_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 100,
     "hour_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 1.39,
     "day_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 1.31,
+    "week_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 1.25,
     "three_mouthes_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 0.97,
     "six_mouthes_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 0.94,
     "one_year_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 0.88,
     "two_year_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 0.76,
     "three_year_ratio_payment" DOUBLE PRECISION NOT NULL DEFAULT 0.64,
+    "indefinitely_ratio" DOUBLE PRECISION NOT NULL DEFAULT 120,
+    "fixed_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 1000,
+    "min_withdrawal_stars" DOUBLE PRECISION NOT NULL DEFAULT 1000,
+    "commission_stars_to_usdt" DOUBLE PRECISION NOT NULL DEFAULT 0.90,
+    "ads_reward_stars" DOUBLE PRECISION NOT NULL DEFAULT 0.1,
+    "ads_task_reward_stars" DOUBLE PRECISION NOT NULL DEFAULT 10,
     "referral_one_level_percent" DOUBLE PRECISION NOT NULL DEFAULT 0.1,
     "referral_two_level_percent" DOUBLE PRECISION NOT NULL DEFAULT 0.05,
     "referral_three_level_percent" DOUBLE PRECISION NOT NULL DEFAULT 0.01,
-    "referral_invite_reward_stars" DOUBLE PRECISION NOT NULL DEFAULT 10,
-    "referral_invite_premiumreward_stars" DOUBLE PRECISION NOT NULL DEFAULT 50,
-    "limit_devices" INTEGER NOT NULL DEFAULT 10,
-    "free_plan_days" INTEGER NOT NULL DEFAULT 7,
-    "free_plan_days_for_referrals" INTEGER NOT NULL DEFAULT 14,
+    "referral_invite_reward_stars" DOUBLE PRECISION NOT NULL DEFAULT 2,
+    "referral_invite_premiumreward_stars" DOUBLE PRECISION NOT NULL DEFAULT 10,
+    "free_plan_days" INTEGER NOT NULL DEFAULT 3,
+    "free_plan_days_for_referrals" INTEGER NOT NULL DEFAULT 7,
 
     CONSTRAINT "settings_pkey" PRIMARY KEY ("key")
 );
@@ -109,7 +119,6 @@ CREATE TABLE "referrals" (
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "telegram_id" TEXT NOT NULL,
-    "ton_wallet" TEXT,
     "is_free_plan_available" BOOLEAN NOT NULL DEFAULT true,
     "is_banned" BOOLEAN NOT NULL DEFAULT false,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
@@ -155,27 +164,25 @@ CREATE TABLE "user_balance" (
     "total_earned_withdrawal_balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "withdrawal_balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "is_use_withdrawal_balance" BOOLEAN NOT NULL DEFAULT true,
+    "tickets_balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "exchange_limit" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "user_balance_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "gift_subscriptions" (
-    "id" TEXT NOT NULL,
-    "period" "SubscriptionPeriodEnum" NOT NULL DEFAULT 'MONTH',
-    "is_active" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "activate_user_id" TEXT,
-
-    CONSTRAINT "gift_subscriptions_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "green_list" (
     "green" TEXT NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "is_premium" BOOLEAN NOT NULL DEFAULT false,
+    "code" TEXT NOT NULL,
+    "flag_key" TEXT NOT NULL,
+    "flag_emoji" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "network" DOUBLE PRECISION NOT NULL DEFAULT 2,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "green_list_pkey" PRIMARY KEY ("green")
 );
@@ -188,12 +195,38 @@ CREATE TABLE "subscriptions" (
     "is_auto_renewal" BOOLEAN NOT NULL DEFAULT true,
     "token" TEXT NOT NULL,
     "period" "SubscriptionPeriodEnum" NOT NULL DEFAULT 'MONTH',
+    "period_multiplier" INTEGER NOT NULL DEFAULT 1,
+    "next_renewal_stars" DOUBLE PRECISION,
+    "is_premium" BOOLEAN NOT NULL DEFAULT false,
+    "is_fixed_price" BOOLEAN NOT NULL DEFAULT false,
+    "fixed_price_stars" DOUBLE PRECISION,
+    "devices_count" INTEGER NOT NULL DEFAULT 1,
+    "is_all_servers" BOOLEAN NOT NULL DEFAULT false,
+    "is_all_premium_servers" BOOLEAN NOT NULL DEFAULT false,
+    "traffic_limit_gb" DOUBLE PRECISION,
+    "is_unlimit_traffic" BOOLEAN NOT NULL DEFAULT false,
+    "links" JSONB,
+    "last_user_agent" TEXT,
+    "data_limit" INTEGER NOT NULL DEFAULT 0,
+    "used_traffic" INTEGER NOT NULL DEFAULT 0,
+    "life_time_used_traffic" INTEGER NOT NULL DEFAULT 0,
+    "marzban_data" JSONB,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "expired_at" TIMESTAMP(3),
+    "online_at" TIMESTAMP(3),
     "user_id" TEXT NOT NULL,
 
     CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "subscription_to_green_list" (
+    "subscription_id" TEXT NOT NULL,
+    "green_list_id" TEXT NOT NULL,
+    "assigned_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "subscription_to_green_list_pkey" PRIMARY KEY ("subscription_id","green_list_id")
 );
 
 -- CreateTable
@@ -252,8 +285,7 @@ CREATE TABLE "withdrawals" (
     "id" TEXT NOT NULL,
     "status" "WithdrawalStatusEnum" NOT NULL DEFAULT 'CONSIDERATION',
     "amount_stars" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "amount_usd" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "amount_ton" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "amount_usdt" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "commission" DOUBLE PRECISION NOT NULL DEFAULT 1,
     "address" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -313,9 +345,6 @@ CREATE INDEX "referrals_referral_id_idx" ON "referrals"("referral_id");
 CREATE UNIQUE INDEX "users_telegram_id_key" ON "users"("telegram_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_ton_wallet_key" ON "users"("ton_wallet");
-
--- CreateIndex
 CREATE UNIQUE INDEX "users_telegram_data_id_key" ON "users"("telegram_data_id");
 
 -- CreateIndex
@@ -340,16 +369,7 @@ CREATE INDEX "ads_views_user_id_idx" ON "ads_views"("user_id");
 CREATE INDEX "ads_views_network_key_idx" ON "ads_views"("network_key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "gift_subscriptions_user_id_key" ON "gift_subscriptions"("user_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "gift_subscriptions_activate_user_id_key" ON "gift_subscriptions"("activate_user_id");
-
--- CreateIndex
-CREATE INDEX "gift_subscriptions_user_id_idx" ON "gift_subscriptions"("user_id");
-
--- CreateIndex
-CREATE INDEX "gift_subscriptions_activate_user_id_idx" ON "gift_subscriptions"("activate_user_id");
+CREATE UNIQUE INDEX "green_list_code_key" ON "green_list"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "subscriptions_username_key" ON "subscriptions"("username");
@@ -365,6 +385,12 @@ CREATE INDEX "subscriptions_token_idx" ON "subscriptions"("token");
 
 -- CreateIndex
 CREATE INDEX "subscriptions_username_idx" ON "subscriptions"("username");
+
+-- CreateIndex
+CREATE INDEX "subscription_to_green_list_subscription_id_idx" ON "subscription_to_green_list"("subscription_id");
+
+-- CreateIndex
+CREATE INDEX "subscription_to_green_list_green_list_id_idx" ON "subscription_to_green_list"("green_list_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "language_iso_639_1_key" ON "language"("iso_639_1");
@@ -463,13 +489,13 @@ ALTER TABLE "ads_views" ADD CONSTRAINT "ads_views_network_key_fkey" FOREIGN KEY 
 ALTER TABLE "ads_views" ADD CONSTRAINT "ads_views_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "gift_subscriptions" ADD CONSTRAINT "gift_subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "gift_subscriptions" ADD CONSTRAINT "gift_subscriptions_activate_user_id_fkey" FOREIGN KEY ("activate_user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "subscription_to_green_list" ADD CONSTRAINT "subscription_to_green_list_subscription_id_fkey" FOREIGN KEY ("subscription_id") REFERENCES "subscriptions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "subscription_to_green_list" ADD CONSTRAINT "subscription_to_green_list_green_list_id_fkey" FOREIGN KEY ("green_list_id") REFERENCES "green_list"("green") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_balance_id_fkey" FOREIGN KEY ("balance_id") REFERENCES "user_balance"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
