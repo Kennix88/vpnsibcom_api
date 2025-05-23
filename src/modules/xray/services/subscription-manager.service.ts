@@ -167,7 +167,10 @@ export class SubscriptionManagerService {
             let nextRenewalStars = null
 
             // Только для подписок с периодом, отличным от INDEFINITELY
-            if (subscription.period !== SubscriptionPeriodEnum.INDEFINITELY) {
+            if (
+              subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
+              subscription.period !== SubscriptionPeriodEnum.TRIAL
+            ) {
               const cost = calculateSubscriptionCost({
                 period: subscription.period as SubscriptionPeriodEnum,
                 isPremium: subscription.isPremium,
@@ -192,6 +195,7 @@ export class SubscriptionManagerService {
               ...subscription,
               links: filteredLinks,
               nextRenewalStars,
+              usedTraffic: marzbanUser.used_traffic,
               lastUserAgent: marzbanUser.sub_last_user_agent,
               dataLimit: marzbanUser.data_limit,
               lifeTimeUsedTraffic: marzbanUser.lifetime_used_traffic,
@@ -201,16 +205,24 @@ export class SubscriptionManagerService {
           }),
         )
 
-        const idsToUpdate = updatedBatch.map((user) => user.id)
-
-        await this.prismaService.subscriptions.updateMany({
-          where: {
-            id: {
-              in: idsToUpdate,
-            },
-          },
-          data: updatedBatch,
-        })
+        // Используем транзакцию для обновления каждой подписки индивидуально
+        await this.prismaService.$transaction(
+          updatedBatch.map((subscription) =>
+            this.prismaService.subscriptions.update({
+              where: { id: subscription.id },
+              data: {
+                links: subscription.links,
+                nextRenewalStars: subscription.nextRenewalStars,
+                usedTraffic: subscription.usedTraffic,
+                lastUserAgent: subscription.lastUserAgent,
+                dataLimit: subscription.dataLimit,
+                lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
+                onlineAt: new Date(subscription.onlineAt),
+                marzbanData: subscription.marzbanData,
+              },
+            }),
+          ),
+        )
 
         updatedCount += updatedBatch.length
 

@@ -333,7 +333,7 @@ export class MarzbanService {
    */
   async getUsers(): Promise<UsersResponse> {
     const response = await this.logApiCall('getUsers', () =>
-      this.client.get<UsersResponse>('/api/user'),
+      this.client.get<UsersResponse>('/api/users'),
     )
     return response.data
   }
