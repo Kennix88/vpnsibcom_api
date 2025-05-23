@@ -521,6 +521,12 @@ export class MarzbanService {
     return response.data
   }
 
+  async restartCore(): Promise<void> {
+    await this.logApiCall('restartCore', () =>
+      this.client.post('/api/core/restart'),
+    )
+  }
+
   /**
    * Получение версии API
    */

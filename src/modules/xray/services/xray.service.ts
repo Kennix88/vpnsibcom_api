@@ -362,6 +362,8 @@ export class XrayService {
 
       // TODO: Добавить Luip
 
+      await this.marzbanService.restartCore()
+
       // Расчет времени истечения подписки
       const hours = periodHours(period, periodMultiplier, trialDays)
       if (period !== SubscriptionPeriodEnum.INDEFINITELY && hours <= 0) {
