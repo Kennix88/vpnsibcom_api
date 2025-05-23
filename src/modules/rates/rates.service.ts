@@ -136,14 +136,17 @@ export class RatesService {
       this.logger.info({
         msg: 'Retrieved cryptocurrencies from database',
         count: currencies.length,
-        currencies: currencies.map(c => c.key),
+        currencies: currencies.map((c) => c.key),
       })
 
       // Prepare API request with timeout
-      const coinmarketcapUrl = this.configService.getOrThrow<string>('COINMARKETCAP_URL')
-      const apiKey = this.configService.getOrThrow<string>('COINMARKETCAP_TOKEN')
-      const currencyIds = currencies.map(el => el.coinmarketcapUCID).join(',')
-      
+      const coinmarketcapUrl =
+        this.configService.getOrThrow<string>('COINMARKETCAP_URL')
+      const apiKey = this.configService.getOrThrow<string>(
+        'COINMARKETCAP_TOKEN',
+      )
+      const currencyIds = currencies.map((el) => el.coinmarketcapUCID).join(',')
+
       let coinmarketcapData: CoinmarketcapResponceDataInterface
       try {
         const response = await axios.get(
@@ -152,15 +155,15 @@ export class RatesService {
             params: {
               convert: 'USD',
               id: currencyIds,
-              aux: 'cmc_rank'
+              aux: 'cmc_rank',
             },
             headers: {
               'X-CMC_PRO_API_KEY': apiKey,
             },
             timeout: 10000, // 10 seconds timeout
-          }
+          },
         )
-        
+
         coinmarketcapData = response.data
       } catch (error) {
         this.logger.error({
@@ -193,8 +196,9 @@ export class RatesService {
 
       for (const currency of currencies) {
         try {
-          const currencyData = coinmarketcapData.data[currency.coinmarketcapUCID]
-          
+          const currencyData =
+            coinmarketcapData.data[currency.coinmarketcapUCID]
+
           if (!currencyData?.quote?.USD?.price) {
             this.logger.warn({
               msg: 'Missing price data for currency',
@@ -204,9 +208,9 @@ export class RatesService {
             errorCount++
             continue
           }
-          
+
           const price = Number(currencyData.quote.USD.price)
-          
+
           if (isNaN(price) || price <= 0) {
             this.logger.warn({
               msg: 'Invalid price value for currency',
@@ -216,24 +220,27 @@ export class RatesService {
             errorCount++
             continue
           }
-          
+
           // Calculate rate (1/price) with precision
           const rate = Number((1 / price).toFixed(15))
-          
+
           updatePromises.push(
-            this.prismaService.currency.update({
-              where: { key: currency.key },
-              data: { rate },
-            }).then(() => {
-              updatedCount++
-            }).catch(error => {
-              this.logger.error({
-                msg: 'Failed to update currency rate in database',
-                currency: currency.key,
-                error: error instanceof Error ? error.message : String(error),
+            this.prismaService.currency
+              .update({
+                where: { key: currency.key },
+                data: { rate },
               })
-              errorCount++
-            })
+              .then(() => {
+                updatedCount++
+              })
+              .catch((error) => {
+                this.logger.error({
+                  msg: 'Failed to update currency rate in database',
+                  currency: currency.key,
+                  error: error instanceof Error ? error.message : String(error),
+                })
+                errorCount++
+              }),
           )
         } catch (error) {
           this.logger.error({
@@ -294,7 +301,7 @@ export class RatesService {
       this.logger.info({
         msg: 'Retrieved FIAT currencies from database',
         count: fiatCurrencies.length,
-        currencies: fiatCurrencies.map(c => c.key),
+        currencies: fiatCurrencies.map((c) => c.key),
       })
 
       // Fetch XML data from CBRF
@@ -321,12 +328,14 @@ export class RatesService {
 
       let cbrfData: CBRFResponseInterface
       try {
-        cbrfData = await new Promise<CBRFResponseInterface>((resolve, reject) => {
-          parser.parseString(xmlResponse.data, (err, result) => {
-            if (err) reject(err)
-            else resolve(result as CBRFResponseInterface)
-          })
-        })
+        cbrfData = await new Promise<CBRFResponseInterface>(
+          (resolve, reject) => {
+            parser.parseString(xmlResponse.data, (err, result) => {
+              if (err) reject(err)
+              else resolve(result as CBRFResponseInterface)
+            })
+          },
+        )
       } catch (error) {
         this.logger.error({
           msg: 'Failed to parse CBRF XML response',
@@ -337,16 +346,29 @@ export class RatesService {
 
       this.logger.info({
         msg: 'Successfully parsed CBRF exchange rate data',
-        date: cbrfData.ValCurs.$.Date,
-        currencyCount: Array.isArray(cbrfData.ValCurs.Valute) 
-          ? cbrfData.ValCurs.Valute.length 
-          : 1,
+        date:
+          cbrfData.ValCurs && cbrfData.ValCurs.$
+            ? cbrfData.ValCurs.$.Date
+            : 'unknown',
+        currencyCount: Array.isArray(cbrfData.ValCurs?.Valute)
+          ? cbrfData.ValCurs.Valute.length
+          : cbrfData.ValCurs?.Valute
+          ? 1
+          : 0,
       })
 
       // Convert currency data to a more accessible format
       const currencyRates: Record<string, number> = {}
-      
+
       // Ensure Valute is always treated as an array
+      if (!cbrfData.ValCurs || !cbrfData.ValCurs.Valute) {
+        this.logger.error({
+          msg: 'Missing Valute data in CBRF response',
+          cbrfData,
+        })
+        return
+      }
+
       const valutes = Array.isArray(cbrfData.ValCurs.Valute)
         ? cbrfData.ValCurs.Valute
         : [cbrfData.ValCurs.Valute]
@@ -354,9 +376,20 @@ export class RatesService {
       // Process each currency from CBRF data
       for (const valute of valutes) {
         try {
+          // Check if all required properties exist
+          if (!valute || !valute.Nominal || !valute.Value || !valute.CharCode) {
+            this.logger.warn({
+              msg: 'Incomplete currency data from CBRF',
+              valute,
+            })
+            continue
+          }
+
           const nominal = Number(valute.Nominal)
-          const value = Number(valute.Value.replace(',', '.'))
-          
+          const value = Number(
+            (valute.Value || '').toString().replace(',', '.'),
+          )
+
           if (isNaN(nominal) || isNaN(value) || nominal === 0) {
             this.logger.warn({
               msg: 'Invalid currency data from CBRF',
@@ -370,7 +403,7 @@ export class RatesService {
           // Calculate rate (value per nominal)
           const rate = value / nominal
           currencyRates[valute.CharCode] = rate
-          
+
           // Log USD rate specifically as it's our base for calculations
           if (valute.CharCode === 'USD') {
             this.logger.info({
@@ -406,7 +439,7 @@ export class RatesService {
           // Calculate rate relative to USD (how many USD per 1 unit of currency)
           const rateToUSD = currencyRates[currency.key] / currencyRates.USD
           const finalRate = Number((1 / rateToUSD).toFixed(15))
-          
+
           if (isNaN(finalRate) || !isFinite(finalRate)) {
             this.logger.warn({
               msg: 'Invalid calculated rate',
@@ -418,35 +451,41 @@ export class RatesService {
           }
 
           updatePromises.push(
-            this.prismaService.currency.update({
-              where: { key: currency.key },
-              data: { rate: finalRate },
-            }).then(() => {
-              updatedCount++
-            }).catch(error => {
-              this.logger.error({
-                msg: 'Failed to update currency rate in database',
-                currency: currency.key,
-                error: error instanceof Error ? error.message : String(error),
+            this.prismaService.currency
+              .update({
+                where: { key: currency.key },
+                data: { rate: finalRate },
               })
-            })
+              .then(() => {
+                updatedCount++
+              })
+              .catch((error) => {
+                this.logger.error({
+                  msg: 'Failed to update currency rate in database',
+                  currency: currency.key,
+                  error: error instanceof Error ? error.message : String(error),
+                })
+              }),
           )
         }
       }
 
       // Update USD rate directly (1 USD = 1 USD)
       updatePromises.push(
-        this.prismaService.currency.update({
-          where: { key: 'USD' },
-          data: { rate: 1 },
-        }).then(() => {
-          updatedCount++
-        }).catch(error => {
-          this.logger.error({
-            msg: 'Failed to update USD rate in database',
-            error: error instanceof Error ? error.message : String(error),
+        this.prismaService.currency
+          .update({
+            where: { key: 'USD' },
+            data: { rate: 1 },
           })
-        })
+          .then(() => {
+            updatedCount++
+          })
+          .catch((error) => {
+            this.logger.error({
+              msg: 'Failed to update USD rate in database',
+              error: error instanceof Error ? error.message : String(error),
+            })
+          }),
       )
 
       // Wait for all updates to complete
