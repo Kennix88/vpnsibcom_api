@@ -182,6 +182,12 @@ export class XrayService {
               isPremium: server.greenList.isPremium,
             }),
           ),
+          baseServersCount: subscription.servers.filter(
+            (server) => !server.greenList.isPremium,
+          ).length,
+          premiumServersCount: subscription.servers.filter(
+            (server) => server.greenList.isPremium,
+          ).length,
           createdAt: subscription.createdAt,
           updatedAt: subscription.updatedAt,
           expiredAt: subscription.expiredAt,
