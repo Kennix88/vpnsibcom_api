@@ -6,14 +6,31 @@ export const pinoConfig: LoggerModuleAsyncParams = {
   useFactory: async (configService: ConfigService) => ({
     pinoHttp: {
       transport: {
-        target: 'pino-pretty',
-        options: {
-          colorize: false,
-          levelFirst: true,
-          translateTime: 'yyyy-mm-dd HH:MM:ss',
-          ignore: 'pid,hostname',
-          destination: join(process.cwd(), 'logs', 'app.log'),
-        },
+        targets: [
+          // Console output with colors
+          {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              levelFirst: true,
+              translateTime: 'yyyy-mm-dd HH:MM:ss',
+              ignore: 'pid,hostname',
+            },
+            level: 'info',
+          },
+          // File output
+          {
+            target: 'pino-pretty',
+            options: {
+              colorize: false,
+              levelFirst: true,
+              translateTime: 'yyyy-mm-dd HH:MM:ss',
+              ignore: 'pid,hostname',
+              destination: join(process.cwd(), 'logs', 'app.log'),
+            },
+            level: 'info',
+          },
+        ],
       },
       level: 'info',
     },
