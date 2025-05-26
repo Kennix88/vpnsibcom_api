@@ -9,8 +9,7 @@ import { RatesInterface } from '@shared/types/rates.inteface'
 import axios from 'axios'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
-import * as xml2js from 'xml2js'
-import { CBRFResponseInterface } from './types/cbrf.interface'
+import { ForexRateInterface } from './types/forexrateapi.interface'
 
 @Injectable()
 export class RatesService {
@@ -271,14 +270,15 @@ export class RatesService {
   }
 
   /**
-   * Updates currency rates from Central Bank of Russian Federation
-   * Runs every 12 hours
+   * Updates FIAT currency rates from Forexrateapi
+   * Runs every 8 hours
+   * @returns {Promise<void>}
    */
-  @Cron('0 0 */12 * * *')
-  async updateCBRFRates(): Promise<void> {
+  @Cron('0 0 */8 * * *')
+  async updateForexrateapiRates(): Promise<void> {
     try {
       this.logger.info({
-        msg: 'Starting CBRF exchange rate update process',
+        msg: 'Starting Forexrateapi exchange rate update process',
       })
 
       // Fetch all FIAT currencies from database
@@ -293,7 +293,7 @@ export class RatesService {
 
       if (!fiatCurrencies.length) {
         this.logger.info({
-          msg: 'No FIAT currencies found in database, skipping CBRF update',
+          msg: 'No FIAT currencies found in database, skipping Forexrateapi update',
         })
         return
       }
@@ -304,149 +304,86 @@ export class RatesService {
         currencies: fiatCurrencies.map((c) => c.key),
       })
 
-      // Fetch XML data from CBRF
-      let xmlResponse: { data: string }
+      // Prepare API request parameters
+      const forexrateapiUrl =
+        this.configService.getOrThrow<string>('FOREXRATEAPI_URL')
+      const apiKey = this.configService.getOrThrow<string>('FOREXRATEAPI_TOKEN')
+
+      // Make API request with proper URL formatting and timeout
+      let forexRates: ForexRateInterface
       try {
-        xmlResponse = await axios.get('https://cbr.ru/scripts/XML_daily.asp', {
+        const response = await axios.get(`${forexrateapiUrl}v1/latest`, {
+          params: {
+            api_key: apiKey,
+            base: 'USD',
+          },
           timeout: 10000, // 10 seconds timeout
         })
+        forexRates = response.data
       } catch (error) {
         this.logger.error({
-          msg: 'Failed to fetch data from CBRF API',
+          msg: 'Failed to fetch data from Forexrateapi API',
           error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
         })
-        throw new Error('CBRF API request failed')
+        throw new Error('Forexrateapi API request failed')
       }
 
-      // Parse XML to JavaScript object
-      const parser = new xml2js.Parser({
-        explicitArray: false,
-        mergeAttrs: true,
-        explicitRoot: true,
-        attrkey: '$',
-      })
-
-      let cbrfData: CBRFResponseInterface
-      try {
-        cbrfData = await new Promise<CBRFResponseInterface>(
-          (resolve, reject) => {
-            parser.parseString(xmlResponse.data, (err, result) => {
-              if (err) reject(err)
-              else resolve(result as CBRFResponseInterface)
-            })
-          },
-        )
-      } catch (error) {
+      // Validate API response
+      if (!forexRates?.success || !forexRates?.rates) {
         this.logger.error({
-          msg: 'Failed to parse CBRF XML response',
-          error: error instanceof Error ? error.message : String(error),
+          msg: 'Invalid response from Forexrateapi API',
+          response: forexRates,
         })
-        throw new Error('CBRF XML parsing failed')
+        throw new Error('Invalid Forexrateapi API response')
       }
 
       this.logger.info({
-        msg: 'Successfully parsed CBRF exchange rate data',
-        date:
-          cbrfData.ValCurs && cbrfData.ValCurs.$
-            ? cbrfData.ValCurs.$.Date
-            : 'unknown',
-        currencyCount: Array.isArray(cbrfData.ValCurs?.Valute)
-          ? cbrfData.ValCurs.Valute.length
-          : cbrfData.ValCurs?.Valute
-          ? 1
-          : 0,
+        msg: 'Successfully retrieved exchange rates from Forexrateapi',
+        timestamp: forexRates.timestamp,
+        base: forexRates.base,
+        ratesCount: Object.keys(forexRates.rates).length,
       })
-
-      // Convert currency data to a more accessible format
-      const currencyRates: Record<string, number> = {}
-
-      // Ensure Valute is always treated as an array
-      if (!cbrfData.ValCurs || !cbrfData.ValCurs.Valute) {
-        this.logger.error({
-          msg: 'Missing Valute data in CBRF response',
-          cbrfData,
-        })
-        return
-      }
-
-      const valutes = Array.isArray(cbrfData.ValCurs.Valute)
-        ? cbrfData.ValCurs.Valute
-        : [cbrfData.ValCurs.Valute]
-
-      // Process each currency from CBRF data
-      for (const valute of valutes) {
-        try {
-          // Check if all required properties exist
-          if (!valute || !valute.Nominal || !valute.Value || !valute.CharCode) {
-            this.logger.warn({
-              msg: 'Incomplete currency data from CBRF',
-              valute,
-            })
-            continue
-          }
-
-          const nominal = Number(valute.Nominal)
-          const value = Number(
-            (valute.Value || '').toString().replace(',', '.'),
-          )
-
-          if (isNaN(nominal) || isNaN(value) || nominal === 0) {
-            this.logger.warn({
-              msg: 'Invalid currency data from CBRF',
-              currency: valute.CharCode,
-              nominal,
-              value: valute.Value,
-            })
-            continue
-          }
-
-          // Calculate rate (value per nominal)
-          const rate = value / nominal
-          currencyRates[valute.CharCode] = rate
-
-          // Log USD rate specifically as it's our base for calculations
-          if (valute.CharCode === 'USD') {
-            this.logger.info({
-              msg: 'USD exchange rate retrieved',
-              rate,
-              nominal,
-              value,
-            })
-          }
-        } catch (error) {
-          this.logger.warn({
-            msg: 'Failed to process currency data',
-            currency: valute.CharCode,
-            error: error instanceof Error ? error.message : String(error),
-          })
-        }
-      }
-
-      // Check if USD rate is available (required for calculations)
-      if (!currencyRates.USD) {
-        this.logger.error({
-          msg: 'USD rate not found in CBRF data, cannot update rates',
-        })
-        return
-      }
 
       // Update rates in database
       const updatePromises: Promise<any>[] = []
       let updatedCount = 0
+      let errorCount = 0
+
+      // Make sure USD rate exists in the response
+      if (!forexRates.rates.USD) {
+        this.logger.error({
+          msg: 'USD rate missing in Forexrateapi response',
+          availableRates: Object.keys(forexRates.rates),
+        })
+        throw new Error('USD rate missing in Forexrateapi response')
+      }
 
       for (const currency of fiatCurrencies) {
-        if (currencyRates[currency.key] && currency.key !== 'USD') {
+        // Skip if currency not found in API response
+        if (!forexRates.rates[currency.key]) {
+          this.logger.warn({
+            msg: 'Currency rate not found in Forexrateapi response',
+            currency: currency.key,
+          })
+          errorCount++
+          continue
+        }
+
+        if (currency.key !== 'USD') {
           // Calculate rate relative to USD (how many USD per 1 unit of currency)
-          const rateToUSD = currencyRates[currency.key] / currencyRates.USD
+          const rateToUSD =
+            forexRates.rates[currency.key] / forexRates.rates.USD
           const finalRate = Number((1 / rateToUSD).toFixed(15))
 
-          if (isNaN(finalRate) || !isFinite(finalRate)) {
+          if (isNaN(finalRate) || !isFinite(finalRate) || finalRate <= 0) {
             this.logger.warn({
               msg: 'Invalid calculated rate',
               currency: currency.key,
               rateToUSD,
               finalRate,
             })
+            errorCount++
             continue
           }
 
@@ -465,6 +402,7 @@ export class RatesService {
                   currency: currency.key,
                   error: error instanceof Error ? error.message : String(error),
                 })
+                errorCount++
               }),
           )
         }
@@ -485,6 +423,7 @@ export class RatesService {
               msg: 'Failed to update USD rate in database',
               error: error instanceof Error ? error.message : String(error),
             })
+            errorCount++
           }),
       )
 
@@ -492,13 +431,14 @@ export class RatesService {
       await Promise.all(updatePromises)
 
       this.logger.info({
-        msg: 'CBRF exchange rates update completed',
+        msg: 'Forexrateapi exchange rates update completed',
         updatedCurrencies: updatedCount,
+        failedCurrencies: errorCount,
         date: new Date().toISOString(),
       })
     } catch (error) {
       this.logger.error({
-        msg: 'Error during CBRF exchange rate update process',
+        msg: 'Error during Forexrateapi exchange rate update process',
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       })
