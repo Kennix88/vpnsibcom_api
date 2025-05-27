@@ -151,6 +151,24 @@ export class XrayService {
         throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
       }
 
+      const getAllServers = await this.prismaService.greenList.findMany({
+        where: {
+          isActive: true,
+        },
+      })
+
+      const allServersMapped = getAllServers.map(
+        (server): ServerDataInterface => ({
+          code: server.code,
+          name: server.name,
+          flagKey: server.flagKey,
+          flagEmoji: server.flagEmoji,
+          network: server.network,
+          isActive: server.isActive,
+          isPremium: server.isPremium,
+        }),
+      )
+
       const result: SubscriptionDataInterface[] = subscriptions.map(
         (subscription) => ({
           id: subscription.id,
@@ -171,23 +189,34 @@ export class XrayService {
           usedTraffic: subscription.usedTraffic,
           lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
           links: subscription.links as string[],
-          servers: subscription.servers.map(
-            (server): ServerDataInterface => ({
-              code: server.greenList.code,
-              name: server.greenList.name,
-              flagKey: server.greenList.flagKey,
-              flagEmoji: server.greenList.flagEmoji,
-              network: server.greenList.network,
-              isActive: server.greenList.isActive,
-              isPremium: server.greenList.isPremium,
-            }),
-          ),
-          baseServersCount: subscription.servers.filter(
-            (server) => !server.greenList.isPremium,
-          ).length,
-          premiumServersCount: subscription.servers.filter(
-            (server) => server.greenList.isPremium,
-          ).length,
+          servers:
+            subscription.isAllServers && subscription.isAllPremiumServers
+              ? allServersMapped
+              : subscription.isAllServers && !subscription.isAllPremiumServers
+              ? allServersMapped.filter((server) => !server.isPremium)
+              : subscription.servers.map(
+                  (server): ServerDataInterface => ({
+                    code: server.greenList.code,
+                    name: server.greenList.name,
+                    flagKey: server.greenList.flagKey,
+                    flagEmoji: server.greenList.flagEmoji,
+                    network: server.greenList.network,
+                    isActive: server.greenList.isActive,
+                    isPremium: server.greenList.isPremium,
+                  }),
+                ),
+          baseServersCount: subscription.isAllServers
+            ? getAllServers.filter((server) => !server.isPremium).length
+            : subscription.servers.filter(
+                (server) =>
+                  !server.greenList.isPremium && server.greenList.isActive,
+              ).length,
+          premiumServersCount: subscription.isAllPremiumServers
+            ? getAllServers.filter((server) => server.isPremium).length
+            : subscription.servers.filter(
+                (server) =>
+                  server.greenList.isPremium && server.greenList.isActive,
+              ).length,
           createdAt: subscription.createdAt,
           updatedAt: subscription.updatedAt,
           expiredAt: subscription.expiredAt,
