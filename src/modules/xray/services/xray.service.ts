@@ -220,7 +220,7 @@ export class XrayService {
           createdAt: subscription.createdAt,
           updatedAt: subscription.updatedAt,
           expiredAt: subscription.expiredAt,
-          onlineAt: subscription.onlineAt,
+          onlineAt: subscription.onlineAt, // Already processed in subscription-manager.service.ts
           token: subscription.token,
           subscriptionUrl: `${allowedOrigin}/sub/${subscription.token}`,
         }),

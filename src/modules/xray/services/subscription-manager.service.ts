@@ -217,7 +217,9 @@ export class SubscriptionManagerService {
                 lastUserAgent: subscription.lastUserAgent,
                 dataLimit: subscription.dataLimit,
                 lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
-                onlineAt: new Date(subscription.onlineAt),
+                onlineAt: subscription.onlineAt
+                  ? new Date(subscription.onlineAt + 'Z')
+                  : null, // Adding 'Z' to indicate UTC timezone
                 marzbanData: subscription.marzbanData,
               },
             }),
