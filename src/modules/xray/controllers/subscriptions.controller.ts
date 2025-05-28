@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
+  Param,
   Post,
   Req,
   Res,
@@ -44,6 +45,108 @@ export class SubscriptionsController {
     private readonly logger: PinoLogger,
     private readonly userService: UsersService,
   ) {}
+
+  @Get('by-id/:id')
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getSubscriptionById(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    try {
+      this.logger.info(
+        `Получение подписки для пользователя: ${user.telegramId}`,
+      )
+
+      const token = req.headers.authorization?.split(' ')[1]
+      if (!token) {
+        throw new BadRequestException('Токен авторизации отсутствует')
+      }
+
+      await this.authService.updateUserActivity(token)
+
+      const subscription = await this.xrayService.getSubscriptionByTokenOrId({
+        isToken: false,
+        id,
+      })
+
+      if (!subscription) {
+        this.logger.warn(
+          `Не удалось получить подписку для пользователя: ${user.telegramId}`,
+        )
+        res.status(HttpStatus.NOT_FOUND)
+        return {
+          data: {
+            success: false,
+            message: 'Подписка не найдена',
+          },
+        }
+      }
+
+      return {
+        data: {
+          success: true,
+          subscription,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при получение подписки: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при получение подписки',
+      )
+    }
+  }
+
+  @Get('by-token/:token')
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  async getSubscriptionByToken(
+    @Param('token') token: string,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    try {
+      this.logger.info(`Получение подписки по токену: ${token}`)
+      await this.authService.updateUserActivity(token)
+
+      const subscription = await this.xrayService.getSubscriptionByTokenOrId({
+        isToken: true,
+        token,
+      })
+
+      if (!subscription) {
+        this.logger.warn(`Не удалось получить подписку по токену: ${token}`)
+        res.status(HttpStatus.NOT_FOUND)
+        return {
+          data: {
+            success: false,
+            message: 'Подписка не найдена',
+          },
+        }
+      }
+
+      return {
+        data: {
+          success: true,
+          subscription,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при получение подписки: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при получение подписки',
+      )
+    }
+  }
 
   @Post('free-plan-activated')
   @Throttle({ defaults: { limit: 5, ttl: 60 } })

@@ -119,6 +119,129 @@ export class XrayService {
     }
   }
 
+  public async getSubscriptionByTokenOrId({
+    token,
+    id,
+    isToken,
+  }: {
+    token?: string
+    id?: string
+    isToken: boolean
+  }): Promise<SubscriptionDataInterface> {
+    try {
+      this.logger.info({
+        msg: `Получение подписки: ${token || id}`,
+        service: this.serviceName,
+      })
+
+      const subscription = await this.prismaService.subscriptions.findUnique({
+        where: {
+          ...(isToken && token ? { token } : { id }),
+        },
+        include: {
+          servers: {
+            include: {
+              greenList: true,
+            },
+          },
+        },
+      })
+
+      if (!subscription) {
+        this.logger.warn({
+          msg: `Подписка  не найдена`,
+          service: this.serviceName,
+        })
+        return
+      }
+      const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
+      if (!allowedOrigin) {
+        throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
+      }
+
+      const getAllServers = await this.prismaService.greenList.findMany({
+        where: {
+          isActive: true,
+        },
+      })
+
+      const allServersMapped = getAllServers.map(
+        (server): ServerDataInterface => ({
+          code: server.code,
+          name: server.name,
+          flagKey: server.flagKey,
+          flagEmoji: server.flagEmoji,
+          network: server.network,
+          isActive: server.isActive,
+          isPremium: server.isPremium,
+        }),
+      )
+
+      return {
+        id: subscription.id,
+        period: subscription.period as SubscriptionPeriodEnum,
+        periodMultiplier: subscription.periodMultiplier,
+        isActive: subscription.isActive,
+        isAutoRenewal: subscription.isAutoRenewal,
+        nextRenewalStars: subscription.nextRenewalStars,
+        isFixedPrice: subscription.isFixedPrice,
+        fixedPriceStars: subscription.fixedPriceStars,
+        devicesCount: subscription.devicesCount,
+        isAllServers: subscription.isAllServers,
+        isAllPremiumServers: subscription.isAllPremiumServers,
+        trafficLimitGb: subscription.trafficLimitGb,
+        isUnlimitTraffic: subscription.isUnlimitTraffic,
+        lastUserAgent: subscription.lastUserAgent,
+        dataLimit: subscription.dataLimit,
+        usedTraffic: subscription.usedTraffic,
+        lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
+        links: subscription.links as string[],
+        servers:
+          subscription.isAllServers && subscription.isAllPremiumServers
+            ? allServersMapped
+            : subscription.isAllServers && !subscription.isAllPremiumServers
+            ? allServersMapped.filter((server) => !server.isPremium)
+            : subscription.servers.map(
+                (server): ServerDataInterface => ({
+                  code: server.greenList.code,
+                  name: server.greenList.name,
+                  flagKey: server.greenList.flagKey,
+                  flagEmoji: server.greenList.flagEmoji,
+                  network: server.greenList.network,
+                  isActive: server.greenList.isActive,
+                  isPremium: server.greenList.isPremium,
+                }),
+              ),
+        baseServersCount: subscription.isAllServers
+          ? getAllServers.filter((server) => !server.isPremium).length
+          : subscription.servers.filter(
+              (server) =>
+                !server.greenList.isPremium && server.greenList.isActive,
+            ).length,
+        premiumServersCount: subscription.isAllPremiumServers
+          ? getAllServers.filter((server) => server.isPremium).length
+          : subscription.servers.filter(
+              (server) =>
+                server.greenList.isPremium && server.greenList.isActive,
+            ).length,
+        createdAt: subscription.createdAt,
+        updatedAt: subscription.updatedAt,
+        expiredAt: subscription.expiredAt,
+        onlineAt: subscription.onlineAt,
+        token: subscription.token,
+        subscriptionUrl: `${allowedOrigin}/sub/${subscription.token}`,
+      }
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при получении подписки: ${token || id}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return
+    }
+  }
+
   /**
    * Получает список подписок пользователя
    * @param userId - ID пользователя
