@@ -30,6 +30,7 @@ import {
   UserUsageResponse,
   UserUsagesResponse,
 } from '../types/marzban.types'
+import { XrayConfigFromatType } from '../types/xray-config-format.type'
 
 @Injectable()
 export class MarzbanService {
@@ -418,6 +419,17 @@ export class MarzbanService {
       this.client.get<UserUsageResponse>(`/api/user/${username}/usage`),
     )
     return response.data
+  }
+
+  async getSubscriptionConfig(
+    token: string,
+    format: XrayConfigFromatType,
+  ): Promise<AxiosResponse> {
+    const response: AxiosResponse = await this.logApiCall(
+      'getSubscriptionConfig',
+      () => this.client.get(`/sub/${token}/${format}`),
+    )
+    return response
   }
 
   /**
