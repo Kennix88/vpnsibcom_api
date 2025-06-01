@@ -150,13 +150,15 @@ export class SubscriptionManagerService {
             let premiumServers = 0
 
             const serverCodes =
-              subscription.servers
-                ?.flatMap((server) => {
-                  if (server.greenList.isPremium) premiumServers++
-                  else baseServers++
-                  return server.greenList.code
-                })
-                .filter(Boolean) || []
+              subscription.isAllServers && subscription.isAllPremiumServers
+                ? []
+                : subscription.servers
+                    ?.flatMap((server) => {
+                      if (server.greenList.isPremium) premiumServers++
+                      else baseServers++
+                      return server.greenList.code
+                    })
+                    .filter(Boolean)
 
             const filteredLinks = marzbanUser.links.filter((link) => {
               if (!serverCodes.length) return true
