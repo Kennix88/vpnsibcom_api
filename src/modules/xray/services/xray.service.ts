@@ -14,13 +14,17 @@ import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
-import { UserCreate } from '../types/marzban.types'
+import { UserCreate, UserResponse } from '../types/marzban.types'
 import {
+  GetSubscriptionConfigResponseInterface,
+  MarzbanResponseInterface,
   ServerDataInterface,
   SubscriptionDataInterface,
   SubscriptionResponseInterface,
 } from '../types/subscription-data.interface'
 import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
+import { filterConfig } from '../utils/filter-config.util'
+import { getXrayConfigFormat } from '../utils/get-xray-config-fromat.util'
 import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 
@@ -123,11 +127,15 @@ export class XrayService {
     token,
     id,
     isToken,
+    accept,
+    agent,
   }: {
     token?: string
     id?: string
     isToken: boolean
-  }): Promise<SubscriptionDataInterface> {
+    agent: string
+    accept: string
+  }): Promise<GetSubscriptionConfigResponseInterface> {
     try {
       this.logger.info({
         msg: `Получение подписки: ${token || id}`,
@@ -154,6 +162,49 @@ export class XrayService {
         })
         return
       }
+
+      const serverCodes =
+        subscription.isAllServers && subscription.isAllPremiumServers
+          ? []
+          : subscription.servers
+              ?.flatMap((server) => server.greenList.code)
+              .filter(Boolean)
+
+      const regexAllClients = new RegExp(
+        /^([Cc]lash-verge|[Cc]lash[-.]?[Mm]eta|[Ff][Ll][Cc]lash|[Cc]lash|[Ss]tash|[Mm]ihomo|[Ss]tash|SFA|SFI|SFM|SFT|[Hh]app|[Ss]treisand|v2ray[Nn][Gg]|v2ray[Nn]|[Kk]aring|[Hh]iddify|v2ray|[Hh]iddify[Nn]ext|sing-box|SS|SSR|SSD|SSS|Outline|Shadowsocks|SSconf)/,
+      )
+
+      let marzbanSubRes: MarzbanResponseInterface
+
+      if (agent && accept && regexAllClients.test(agent!)) {
+        const marzbanData = JSON.parse(
+          JSON.stringify(subscription.marzbanData),
+        ) as UserResponse
+        if (!marzbanData || !marzbanData.subscription_url) return
+
+        const token = marzbanData.subscription_url.split('/sub/')[1]
+        const configFormat = getXrayConfigFormat(agent)
+
+        const marzbanRes = await this.marzbanService.getSubscriptionConfig(
+          token,
+          configFormat,
+        )
+        if (!marzbanRes) return
+        marzbanSubRes = {
+          headers: {
+            'content-disposition': marzbanRes.headers['content-disposition'],
+            'content-type': marzbanRes.headers['content-type'],
+          },
+          body: filterConfig(
+            configFormat == 'clash' || configFormat == 'clash-meta'
+              ? 'clash'
+              : 'base64',
+            marzbanRes.data,
+            serverCodes,
+          ),
+        }
+      }
+
       const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
       if (!allowedOrigin) {
         throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
@@ -178,58 +229,61 @@ export class XrayService {
       )
 
       return {
-        id: subscription.id,
-        period: subscription.period as SubscriptionPeriodEnum,
-        periodMultiplier: subscription.periodMultiplier,
-        isActive: subscription.isActive,
-        isAutoRenewal: subscription.isAutoRenewal,
-        nextRenewalStars: subscription.nextRenewalStars,
-        isFixedPrice: subscription.isFixedPrice,
-        fixedPriceStars: subscription.fixedPriceStars,
-        devicesCount: subscription.devicesCount,
-        isAllServers: subscription.isAllServers,
-        isAllPremiumServers: subscription.isAllPremiumServers,
-        trafficLimitGb: subscription.trafficLimitGb,
-        isUnlimitTraffic: subscription.isUnlimitTraffic,
-        lastUserAgent: subscription.lastUserAgent,
-        dataLimit: subscription.dataLimit,
-        usedTraffic: subscription.usedTraffic,
-        lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
-        links: subscription.links as string[],
-        servers:
-          subscription.isAllServers && subscription.isAllPremiumServers
-            ? allServersMapped
-            : subscription.isAllServers && !subscription.isAllPremiumServers
-            ? allServersMapped.filter((server) => !server.isPremium)
-            : subscription.servers.map(
-                (server): ServerDataInterface => ({
-                  code: server.greenList.code,
-                  name: server.greenList.name,
-                  flagKey: server.greenList.flagKey,
-                  flagEmoji: server.greenList.flagEmoji,
-                  network: server.greenList.network,
-                  isActive: server.greenList.isActive,
-                  isPremium: server.greenList.isPremium,
-                }),
-              ),
-        baseServersCount: subscription.isAllServers
-          ? getAllServers.filter((server) => !server.isPremium).length
-          : subscription.servers.filter(
-              (server) =>
-                !server.greenList.isPremium && server.greenList.isActive,
-            ).length,
-        premiumServersCount: subscription.isAllPremiumServers
-          ? getAllServers.filter((server) => server.isPremium).length
-          : subscription.servers.filter(
-              (server) =>
-                server.greenList.isPremium && server.greenList.isActive,
-            ).length,
-        createdAt: subscription.createdAt,
-        updatedAt: subscription.updatedAt,
-        expiredAt: subscription.expiredAt,
-        onlineAt: subscription.onlineAt,
-        token: subscription.token,
-        subscriptionUrl: `${allowedOrigin}/sub/${subscription.token}`,
+        subscription: {
+          id: subscription.id,
+          period: subscription.period as SubscriptionPeriodEnum,
+          periodMultiplier: subscription.periodMultiplier,
+          isActive: subscription.isActive,
+          isAutoRenewal: subscription.isAutoRenewal,
+          nextRenewalStars: subscription.nextRenewalStars,
+          isFixedPrice: subscription.isFixedPrice,
+          fixedPriceStars: subscription.fixedPriceStars,
+          devicesCount: subscription.devicesCount,
+          isAllServers: subscription.isAllServers,
+          isAllPremiumServers: subscription.isAllPremiumServers,
+          trafficLimitGb: subscription.trafficLimitGb,
+          isUnlimitTraffic: subscription.isUnlimitTraffic,
+          lastUserAgent: subscription.lastUserAgent,
+          dataLimit: subscription.dataLimit,
+          usedTraffic: subscription.usedTraffic,
+          lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
+          links: subscription.links as string[],
+          servers:
+            subscription.isAllServers && subscription.isAllPremiumServers
+              ? allServersMapped
+              : subscription.isAllServers && !subscription.isAllPremiumServers
+              ? allServersMapped.filter((server) => !server.isPremium)
+              : subscription.servers.map(
+                  (server): ServerDataInterface => ({
+                    code: server.greenList.code,
+                    name: server.greenList.name,
+                    flagKey: server.greenList.flagKey,
+                    flagEmoji: server.greenList.flagEmoji,
+                    network: server.greenList.network,
+                    isActive: server.greenList.isActive,
+                    isPremium: server.greenList.isPremium,
+                  }),
+                ),
+          baseServersCount: subscription.isAllServers
+            ? getAllServers.filter((server) => !server.isPremium).length
+            : subscription.servers.filter(
+                (server) =>
+                  !server.greenList.isPremium && server.greenList.isActive,
+              ).length,
+          premiumServersCount: subscription.isAllPremiumServers
+            ? getAllServers.filter((server) => server.isPremium).length
+            : subscription.servers.filter(
+                (server) =>
+                  server.greenList.isPremium && server.greenList.isActive,
+              ).length,
+          createdAt: subscription.createdAt,
+          updatedAt: subscription.updatedAt,
+          expiredAt: subscription.expiredAt,
+          onlineAt: subscription.onlineAt,
+          token: subscription.token,
+          subscriptionUrl: `${allowedOrigin}/sub/${subscription.token}`,
+        },
+        marzbanSubRes,
       }
     } catch (error) {
       this.logger.error({

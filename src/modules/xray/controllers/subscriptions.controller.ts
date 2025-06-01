@@ -71,6 +71,8 @@ export class SubscriptionsController {
       const subscription = await this.xrayService.getSubscriptionByTokenOrId({
         isToken: false,
         id,
+        accept: req.headers.accept,
+        agent: req.headers['user-agent'],
       })
 
       if (!subscription) {
@@ -89,7 +91,7 @@ export class SubscriptionsController {
       return {
         data: {
           success: true,
-          subscription,
+          ...subscription,
         },
       }
     } catch (error) {
@@ -118,6 +120,8 @@ export class SubscriptionsController {
       const subscription = await this.xrayService.getSubscriptionByTokenOrId({
         isToken: true,
         token,
+        accept: req.headers.accept,
+        agent: req.headers['user-agent'],
       })
 
       if (!subscription) {
@@ -134,7 +138,7 @@ export class SubscriptionsController {
       return {
         data: {
           success: true,
-          subscription,
+          ...subscription,
         },
       }
     } catch (error) {
