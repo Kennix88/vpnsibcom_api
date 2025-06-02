@@ -5,7 +5,7 @@ const REGEX_PATTERNS = {
   CLASH_META:
     /^([Cc]lash-verge|[Cc]lash[-.]?[Mm]eta|[Ff][Ll][Cc]lash|[Mm]ihomo)/,
   CLASH: /^([Cc]lash|[Ss]tash)/,
-  SING_BOX: /^(SFA|SFI|SFM|SFT|[Kk]aring|[Hh]iddify[Nn]ext)/,
+  SING_BOX: /^(SFA|SFI|SFM|SFT|[Kk]aring|[Hh]iddify[Nn]ext|[Hh]iddify)/,
   OUTLINE: /^(SS|SSR|SSD|SSS|Outline|Shadowsocks|SSconf)/,
   V2RAY_N: /^v2rayN\/(\d+\.\d+)/,
   V2RAY_NG: /^v2rayNG\/(\d+\.\d+\.\d+)/,
@@ -39,7 +39,7 @@ function getXrayConfigFormat(userAgent: string): XrayConfigFromatType {
       return 'clash'
 
     case REGEX_PATTERNS.SING_BOX.test(userAgent):
-      return 'sing-box'
+      return 'sing-box' // 'sing-box'
 
     case REGEX_PATTERNS.OUTLINE.test(userAgent):
       return 'outline'
