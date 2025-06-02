@@ -71,7 +71,6 @@ export class SubscriptionsController {
       const subscription = await this.xrayService.getSubscriptionByTokenOrId({
         isToken: false,
         id,
-        accept: req.headers.accept,
         agent: req.headers['user-agent'],
       })
 
@@ -114,23 +113,21 @@ export class SubscriptionsController {
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     try {
-      this.logger.info(`Получение подписки по токену: ${token}`)
-      await this.authService.updateUserActivity(token)
+      this.logger.info(`Getting a subscription using a token: ${token}`)
 
       const subscription = await this.xrayService.getSubscriptionByTokenOrId({
         isToken: true,
         token,
-        accept: req.headers.accept,
         agent: req.headers['user-agent'],
       })
 
       if (!subscription) {
-        this.logger.warn(`Не удалось получить подписку по токену: ${token}`)
+        this.logger.warn(`Couldn't get a token subscription: ${token}`)
         res.status(HttpStatus.NOT_FOUND)
         return {
           data: {
             success: false,
-            message: 'Подписка не найдена',
+            message: 'Subscription not found',
           },
         }
       }
@@ -143,11 +140,11 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при получение подписки: ${error.message}`,
+        `Error when receiving a subscription: ${error.message}`,
         error.stack,
       )
       throw new InternalServerErrorException(
-        'Произошла ошибка при получение подписки',
+        'Error when receiving a subscription',
       )
     }
   }

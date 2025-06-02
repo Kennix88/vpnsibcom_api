@@ -14,7 +14,7 @@ import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
-import { UserCreate, UserResponse } from '../types/marzban.types'
+import { UserCreate } from '../types/marzban.types'
 import {
   GetSubscriptionConfigResponseInterface,
   MarzbanResponseInterface,
@@ -127,25 +127,47 @@ export class XrayService {
     token,
     id,
     isToken,
-    accept,
     agent,
   }: {
     token?: string
     id?: string
     isToken: boolean
     agent: string
-    accept: string
   }): Promise<GetSubscriptionConfigResponseInterface> {
     try {
+      // Логируем входные параметры
       this.logger.info({
-        msg: `Получение подписки: ${token || id}`,
+        msg: `Get subscriptions - Input params: token=${token}, id=${id}, isToken=${isToken}, agent=${agent}`,
+        service: this.serviceName,
+      })
+
+      this.logger.info({
+        msg: `Get subscriptions: ${token || id}`,
+        service: this.serviceName,
+      })
+
+      // Логируем условие поиска
+      const whereCondition = isToken && token ? { token: token } : { id: id }
+      this.logger.info({
+        msg: `Search condition: ${JSON.stringify(whereCondition)}`,
+        service: this.serviceName,
+      })
+
+      this.logger.info({
+        msg: `Logick: ${JSON.stringify(isToken && token ? { token } : { id })}`,
+        service: this.serviceName,
+      })
+
+      // Выполняем запрос к базе данных
+      this.logger.info({
+        msg: `Executing database query with where: ${JSON.stringify(
+          whereCondition,
+        )}`,
         service: this.serviceName,
       })
 
       const subscription = await this.prismaService.subscriptions.findUnique({
-        where: {
-          ...(isToken && token ? { token } : { id }),
-        },
+        where: whereCondition,
         include: {
           servers: {
             include: {
@@ -155,14 +177,31 @@ export class XrayService {
         },
       })
 
-      if (!subscription) {
+      // Логируем результат поиска для отладки
+      this.logger.info({
+        msg: `Search result: ${
+          subscription ? 'Subscription found' : 'Subscription not found'
+        }`,
+        service: this.serviceName,
+      })
+
+      // Если подписка найдена, логируем её ID и токен
+      if (subscription) {
+        this.logger.info({
+          msg: `Found subscription with ID: ${subscription.id}, token: ${subscription.token}`,
+          service: this.serviceName,
+        })
+      } else {
         this.logger.warn({
-          msg: `Подписка  не найдена`,
+          msg: `Subscription not found with ${isToken ? 'token' : 'id'}: ${
+            isToken ? token : id
+          }`,
           service: this.serviceName,
         })
         return
       }
 
+      // Формируем список кодов серверов
       const serverCodes =
         subscription.isAllServers && subscription.isAllPremiumServers
           ? []
@@ -170,50 +209,208 @@ export class XrayService {
               ?.flatMap((server) => server.greenList.code)
               .filter(Boolean)
 
+      // Логируем информацию о серверах
+      this.logger.info({
+        msg: `Server configuration - isAllServers: ${subscription.isAllServers}, isAllPremiumServers: ${subscription.isAllPremiumServers}`,
+        service: this.serviceName,
+      })
+
+      this.logger.info({
+        msg: `Server codes: ${
+          serverCodes?.length ? serverCodes.join(', ') : 'all servers'
+        }`,
+        service: this.serviceName,
+      })
+
+      // Регулярное выражение для определения клиента
       const regexAllClients = new RegExp(
-        /^([Cc]lash-verge|[Cc]lash[-.]?[Mm]eta|[Ff][Ll][Cc]lash|[Cc]lash|[Ss]tash|[Mm]ihomo|[Ss]tash|SFA|SFI|SFM|SFT|[Hh]app|[Ss]treisand|v2ray[Nn][Gg]|v2ray[Nn]|[Kk]aring|[Hh]iddify|v2ray|[Hh]iddify[Nn]ext|sing-box|SS|SSR|SSD|SSS|Outline|Shadowsocks|SSconf)/,
+        /^([Cc]lash-verge|[Cc]lash[-.]?[Mm]eta|[Ff][Ll][Cc]lash|[Cc]lash|[Ss]tash|[Mm]ihomo|[Ss]tash|SFA|SFI|SFM|SFT|[Hh]app|[Ss]treisand|v2ray[Nn][Gg]|v2ray[Nn]|[Kk]aring|[Hh]iddify|v2ray|[Hh]iddify[Nn]ext|[Hh]iddify|sing-box|SS|SSR|SSD|SSS|Outline|Shadowsocks|SSconf)/,
       )
+
+      // Логируем информацию о клиенте
+      this.logger.info({
+        msg: `Client agent: ${agent}, matches regex: ${regexAllClients.test(
+          agent,
+        )}`,
+        service: this.serviceName,
+      })
 
       let marzbanSubRes: MarzbanResponseInterface
 
-      if (agent && accept && regexAllClients.test(agent!)) {
-        const marzbanData = JSON.parse(
-          JSON.stringify(subscription.marzbanData),
-        ) as UserResponse
-        if (!marzbanData || !marzbanData.subscription_url) return
+      if (agent && regexAllClients.test(agent!)) {
+        this.logger.info({
+          msg: `Processing Marzban configuration for agent: ${agent}`,
+          service: this.serviceName,
+        })
 
-        const token = marzbanData.subscription_url.split('/sub/')[1]
+        const marzbanData = subscription.marzbanData
+
+        // Проверяем наличие данных Marzban
+        if (!marzbanData) {
+          this.logger.warn({
+            msg: `Marzban data not found`,
+            service: this.serviceName,
+          })
+          return
+        }
+
+        // Преобразуем marzbanData в объект, если он строка JSON
+        let marzbanDataObj: Record<string, any>
+        try {
+          marzbanDataObj =
+            typeof marzbanData === 'string'
+              ? JSON.parse(marzbanData)
+              : (marzbanData as Record<string, any>)
+        } catch (error) {
+          this.logger.warn({
+            msg: `Failed to parse Marzban data: ${error.message}`,
+            service: this.serviceName,
+          })
+          return
+        }
+
+        // Проверяем наличие subscription_url в данных Marzban
+        if (!marzbanDataObj || !marzbanDataObj.subscription_url) {
+          this.logger.warn({
+            msg: `Invalid Marzban data format: subscription_url not found`,
+            service: this.serviceName,
+          })
+          return
+        }
+
+        // Логируем оригинальный subscription_url для отладки
+        this.logger.info({
+          msg: `Original subscription_url: ${marzbanDataObj.subscription_url}`,
+          service: this.serviceName,
+        })
+
+        // Очищаем subscription_url от лишних пробелов и кавычек
+        const cleanSubscriptionUrl = String(marzbanDataObj.subscription_url)
+          .trim()
+          .replace(/[`"'\s]+/g, '')
+
+        this.logger.info({
+          msg: `Cleaned subscription_url: ${cleanSubscriptionUrl}`,
+          service: this.serviceName,
+        })
+
+        // Проверяем, содержит ли очищенный URL '/sub/'
+        if (!cleanSubscriptionUrl.includes('/sub/')) {
+          this.logger.warn({
+            msg: `Invalid subscription_url format: ${cleanSubscriptionUrl}`,
+            service: this.serviceName,
+          })
+          return
+        }
+
+        const tokenSub = cleanSubscriptionUrl.split('/sub/')[1]
         const configFormat = getXrayConfigFormat(agent)
 
+        this.logger.info({
+          msg: `Marzban token: ${tokenSub}, config format: ${configFormat}`,
+          service: this.serviceName,
+        })
+
+        // Получаем конфигурацию от Marzban
+        this.logger.info({
+          msg: `Requesting Marzban subscription config`,
+          service: this.serviceName,
+        })
+
         const marzbanRes = await this.marzbanService.getSubscriptionConfig(
-          token,
+          tokenSub,
           configFormat,
         )
-        if (!marzbanRes) return
+
+        if (!marzbanRes) {
+          this.logger.warn({
+            msg: `Failed to get Marzban subscription config`,
+            service: this.serviceName,
+          })
+          return
+        }
+
+        this.logger.info({
+          msg: `Marzban response received, content-type: ${marzbanRes.headers['content-type']}`,
+          service: this.serviceName,
+        })
+
+        // Формируем ответ с конфигурацией
+        const filterType =
+          configFormat == 'clash' || configFormat == 'clash-meta'
+            ? 'clash'
+            : configFormat == 'sing-box'
+            ? 'sing-box'
+            : configFormat == 'v2ray-json'
+            ? 'json'
+            : 'base64'
+        this.logger.info({
+          msg: `Filtering config with type: ${filterType}, server codes count: ${
+            serverCodes?.length || 0
+          }`,
+          service: this.serviceName,
+        })
+
         marzbanSubRes = {
           headers: {
             'content-disposition': marzbanRes.headers['content-disposition'],
             'content-type': marzbanRes.headers['content-type'],
           },
-          body: filterConfig(
-            configFormat == 'clash' || configFormat == 'clash-meta'
-              ? 'clash'
-              : 'base64',
-            marzbanRes.data,
-            serverCodes,
-          ),
+          body: filterConfig(filterType, marzbanRes.data, serverCodes),
         }
+
+        this.logger.info({
+          msg: `Marzban configuration processed successfully`,
+          service: this.serviceName,
+        })
+      } else {
+        this.logger.info({
+          msg: `Skipping Marzban configuration - agent not matching or not provided`,
+          service: this.serviceName,
+        })
       }
+
+      // Получаем разрешенный источник из конфигурации
+      this.logger.info({
+        msg: `Getting allowed origin from config`,
+        service: this.serviceName,
+      })
 
       const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
       if (!allowedOrigin) {
+        this.logger.error({
+          msg: `ALLOWED_ORIGIN not configured`,
+          service: this.serviceName,
+        })
         throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
       }
+
+      this.logger.info({
+        msg: `Allowed origin: ${allowedOrigin}`,
+        service: this.serviceName,
+      })
+
+      // Получаем список всех активных серверов
+      this.logger.info({
+        msg: `Fetching all active servers from database`,
+        service: this.serviceName,
+      })
 
       const getAllServers = await this.prismaService.greenList.findMany({
         where: {
           isActive: true,
         },
+      })
+
+      this.logger.info({
+        msg: `Found ${getAllServers.length} active servers`,
+        service: this.serviceName,
+      })
+
+      // Преобразуем данные серверов в нужный формат
+      this.logger.info({
+        msg: `Mapping server data to response format`,
+        service: this.serviceName,
       })
 
       const allServersMapped = getAllServers.map(
@@ -227,6 +424,25 @@ export class XrayService {
           isPremium: server.isPremium,
         }),
       )
+
+      // Логируем количество базовых и премиум серверов
+      const baseServersCount = getAllServers.filter(
+        (server) => !server.isPremium,
+      ).length
+      const premiumServersCount = getAllServers.filter(
+        (server) => server.isPremium,
+      ).length
+
+      this.logger.info({
+        msg: `Server statistics - Total: ${getAllServers.length}, Base: ${baseServersCount}, Premium: ${premiumServersCount}`,
+        service: this.serviceName,
+      })
+
+      // Формируем итоговый ответ
+      this.logger.info({
+        msg: `Preparing final response for subscription ${subscription.id}`,
+        service: this.serviceName,
+      })
 
       return {
         subscription: {
@@ -286,14 +502,38 @@ export class XrayService {
         marzbanSubRes,
       }
     } catch (error) {
+      // Детальное логирование ошибки
       this.logger.error({
-        msg: `Ошибка при получении подписки: ${token || id}`,
+        msg: `Error when receiving a subscription: ${token || id}`,
         error,
         stack: error instanceof Error ? error.stack : undefined,
         service: this.serviceName,
       })
+
+      // Дополнительная информация об ошибке
+      if (error instanceof Error) {
+        this.logger.error({
+          msg: `Error details - Name: ${error.name}, Message: ${error.message}`,
+          service: this.serviceName,
+        })
+      }
+
+      // Логируем параметры запроса, которые привели к ошибке
+      this.logger.error({
+        msg: `Request parameters that caused error - token: ${token}, id: ${id}, isToken: ${isToken}, agent: ${agent}`,
+        service: this.serviceName,
+      })
+
       return
     }
+
+    // Логируем успешное завершение метода
+    this.logger.info({
+      msg: `Successfully completed getSubscriptionByTokenOrId for ${
+        token || id
+      }`,
+      service: this.serviceName,
+    })
   }
 
   /**
@@ -323,15 +563,47 @@ export class XrayService {
         },
       })
 
+      // Получаем разрешенный источник из конфигурации
+      this.logger.info({
+        msg: `Getting allowed origin from config`,
+        service: this.serviceName,
+      })
+
       const allowedOrigin = this.configService.get<string>('ALLOWED_ORIGIN')
       if (!allowedOrigin) {
+        this.logger.error({
+          msg: `ALLOWED_ORIGIN not configured`,
+          service: this.serviceName,
+        })
         throw new Error('ALLOWED_ORIGIN не настроен в конфигурации')
       }
+
+      this.logger.info({
+        msg: `Allowed origin: ${allowedOrigin}`,
+        service: this.serviceName,
+      })
+
+      // Получаем список всех активных серверов
+      this.logger.info({
+        msg: `Fetching all active servers from database`,
+        service: this.serviceName,
+      })
 
       const getAllServers = await this.prismaService.greenList.findMany({
         where: {
           isActive: true,
         },
+      })
+
+      this.logger.info({
+        msg: `Found ${getAllServers.length} active servers`,
+        service: this.serviceName,
+      })
+
+      // Преобразуем данные серверов в нужный формат
+      this.logger.info({
+        msg: `Mapping server data to response format`,
+        service: this.serviceName,
       })
 
       const allServersMapped = getAllServers.map(
@@ -345,6 +617,19 @@ export class XrayService {
           isPremium: server.isPremium,
         }),
       )
+
+      // Логируем количество базовых и премиум серверов
+      const baseServersCount = getAllServers.filter(
+        (server) => !server.isPremium,
+      ).length
+      const premiumServersCount = getAllServers.filter(
+        (server) => server.isPremium,
+      ).length
+
+      this.logger.info({
+        msg: `Server statistics - Total: ${getAllServers.length}, Base: ${baseServersCount}, Premium: ${premiumServersCount}`,
+        service: this.serviceName,
+      })
 
       const result: SubscriptionDataInterface[] = subscriptions.map(
         (subscription) => ({
