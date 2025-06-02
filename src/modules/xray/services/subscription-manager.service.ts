@@ -254,7 +254,7 @@ export class SubscriptionManagerService {
    * Cron job to process expired subscriptions
    * Runs every hour
    */
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async processExpiredSubscriptions() {
     this.logger.info({
       msg: 'Starting expired subscriptions processing',
