@@ -10,7 +10,7 @@ const REGEX_PATTERNS = {
   V2RAY_N: /^v2rayN\/(\d+\.\d+)/,
   V2RAY_NG: /^v2rayNG\/(\d+\.\d+\.\d+)/,
   STREISAND: /^[Ss]treisand/,
-  HAPP: /^Happ\/(\d+\.\d+\.\d+)/,
+  HAPP: /^Happ\/(\d+\.\d+\.\d+)(?:\/([A-Za-z]+))?/,
 }
 
 const VERSION_THRESHOLDS = {
@@ -75,13 +75,24 @@ function getXrayConfigFormat(userAgent: string): XrayConfigFromatType {
       return 'v2ray-json'
 
     case REGEX_PATTERNS.HAPP.test(userAgent): {
-      const versionMatch = userAgent.match(REGEX_PATTERNS.HAPP)
-      if (
-        versionMatch?.[1] &&
-        compareVersions(versionMatch[1], VERSION_THRESHOLDS.HAPP) >= 0
-      ) {
+      const match = userAgent.match(REGEX_PATTERNS.HAPP)
+      const version = match?.[1]
+      const platform = match?.[2]?.toLowerCase()
+
+      const isDesktopPlatform =
+        platform === 'windows' ||
+        platform === 'linux' ||
+        platform === 'mac' ||
+        platform === 'macos'
+
+      if (isDesktopPlatform) {
         return 'v2ray-json'
       }
+
+      if (version && compareVersions(version, VERSION_THRESHOLDS.HAPP) >= 0) {
+        return 'v2ray-json'
+      }
+
       return 'v2ray'
     }
 

@@ -320,6 +320,7 @@ export class XrayService {
         const marzbanRes = await this.marzbanService.getSubscriptionConfig(
           tokenSub,
           configFormat,
+          agent,
         )
 
         if (!marzbanRes) {

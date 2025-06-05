@@ -424,10 +424,16 @@ export class MarzbanService {
   async getSubscriptionConfig(
     token: string,
     format: XrayConfigFromatType,
+    userAgent: string,
   ): Promise<AxiosResponse> {
     const response: AxiosResponse = await this.logApiCall(
       'getSubscriptionConfig',
-      () => this.client.get(`/sub/${token}/${format}`),
+      () =>
+        this.client.get(`/sub/${token}/${format}`, {
+          headers: {
+            'User-Agent': userAgent,
+          },
+        }),
     )
     return response
   }
