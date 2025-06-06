@@ -64,10 +64,13 @@ export class ServersController {
         }
       }
 
+      const userData = await this.userService.getResUserByTgId(user.telegramId)
+
       return {
         data: {
           success: true,
           ...servers,
+          user: userData,
         },
       }
     } catch (error) {

@@ -1,6 +1,6 @@
 import { AuthModule } from '@core/auth/auth.module'
 import { UsersModule } from '@modules/users/users.module'
-import { ServersController } from '@modules/xray/controllers/xray.controller'
+import { ServersController } from '@modules/xray/controllers/servers.controller'
 import { XrayService } from '@modules/xray/services/xray.service'
 import { Global, Module } from '@nestjs/common'
 import { SubscriptionsController } from './controllers/subscriptions.controller'
