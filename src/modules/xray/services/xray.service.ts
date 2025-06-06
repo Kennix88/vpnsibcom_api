@@ -15,10 +15,10 @@ import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { UserCreate } from '../types/marzban.types'
+import { ServerDataInterface } from '../types/servers-data.interface'
 import {
   GetSubscriptionConfigResponseInterface,
   MarzbanResponseInterface,
-  ServerDataInterface,
   SubscriptionDataInterface,
   SubscriptionResponseInterface,
 } from '../types/subscription-data.interface'
@@ -1083,53 +1083,6 @@ export class XrayService {
     }
 
     return 2 // много (дней)
-  }
-
-  /**
-   * Проверяет, находится ли IP в зеленом списке
-   * @param ip - IP-адрес для проверки
-   * @returns true, если IP в зеленом списке, иначе false
-   */
-  public async greenCheck(ip: string): Promise<boolean> {
-    try {
-      if (!ip || typeof ip !== 'string') {
-        this.logger.warn({
-          msg: `Некорректный IP-адрес для проверки: ${ip}`,
-          service: this.serviceName,
-        })
-        return false
-      }
-
-      this.logger.info({
-        msg: `Проверка IP в зеленом списке: ${ip}`,
-        service: this.serviceName,
-      })
-
-      const getIp = await this.prismaService.greenList.findUnique({
-        where: {
-          green: ip,
-        },
-      })
-
-      const result = !!getIp
-
-      this.logger.info({
-        msg: `Результат проверки IP ${ip} в зеленом списке: ${
-          result ? 'найден' : 'не найден'
-        }`,
-        service: this.serviceName,
-      })
-
-      return result
-    } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при проверке IP в зеленом списке: ${ip}`,
-        error,
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
-      return false
-    }
   }
 
   /**
