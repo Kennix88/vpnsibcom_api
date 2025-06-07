@@ -133,34 +133,34 @@ export function calculateSubscriptionCost(
 /**
  * Calculate servers price based on configuration
  */
-function calculateServersPrice(
+export function calculateServersPrice(
   isAllServers: boolean,
   isAllPremiumServers: boolean,
   serversCount: number,
   settings: SubscriptionCostSettings,
 ): number {
   if (isAllServers && !isAllPremiumServers) {
-    return serversCount * settings.allServersPriceStars
-  } else if (isAllServers && isAllPremiumServers) {
-    return 0 // When all premium servers are included, regular servers are free
-  } else {
     return serversCount * settings.serversPriceStars
+  } else if (isAllServers && isAllPremiumServers) {
+    return serversCount * settings.serversPriceStars
+  } else {
+    return 0
   }
 }
 
 /**
  * Calculate premium servers price based on configuration
  */
-function calculatePremiumServersPrice(
+export function calculatePremiumServersPrice(
   isAllPremiumServers: boolean,
   isAllServers: boolean,
   premiumServersCount: number,
   settings: SubscriptionCostSettings,
 ): number {
   if (isAllPremiumServers && isAllServers) {
-    return premiumServersCount * settings.allPremiumServersPriceStars
-  } else {
     return premiumServersCount * settings.premiumServersPriceStars
+  } else {
+    return 0
   }
 }
 
