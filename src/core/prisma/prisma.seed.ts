@@ -10,6 +10,7 @@ import { Logger } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
+import { PlansData } from './data/plans.data'
 
 const prisma = new PrismaClient({
   transactionOptions: {
@@ -42,6 +43,13 @@ export async function PrismaSeed() {
   })
 
   Logger.log('Roles: added successfully', 'Prisma-Seed')
+
+  await prisma.plans.createMany({
+    data: PlansData,
+    skipDuplicates: true,
+  })
+
+  Logger.log('Plans: added successfully', 'Prisma-Seed')
 
   await prisma.language.createMany({
     data: LanguagesData,
