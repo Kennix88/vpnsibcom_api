@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
+import { PlansEnum } from '@shared/enums/plans.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
@@ -81,12 +82,13 @@ export class XrayService {
 
       const subscription = await this.createSubscription({
         telegramId,
+        planKey: PlansEnum.CUSTOM,
         period: SubscriptionPeriodEnum.TRIAL,
         periodMultiplier: 1,
         isPremium: false,
         isFixedPrice: false,
         devicesCount: 1,
-        isAllServers: true,
+        isAllBaseServers: true,
         isAllPremiumServers: true,
         isUnlimitTraffic: false,
         trafficLimitGb: 1,
@@ -203,7 +205,7 @@ export class XrayService {
 
       // Формируем список кодов серверов
       const serverCodes =
-        subscription.isAllServers && subscription.isAllPremiumServers
+        subscription.isAllBaseServers && subscription.isAllPremiumServers
           ? []
           : subscription.servers
               ?.flatMap((server) => server.greenList.code)
@@ -211,7 +213,7 @@ export class XrayService {
 
       // Логируем информацию о серверах
       this.logger.info({
-        msg: `Server configuration - isAllServers: ${subscription.isAllServers}, isAllPremiumServers: ${subscription.isAllPremiumServers}`,
+        msg: `Server configuration - isAllServers: ${subscription.isAllBaseServers}, isAllPremiumServers: ${subscription.isAllPremiumServers}`,
         service: this.serviceName,
       })
 
@@ -448,6 +450,7 @@ export class XrayService {
       return {
         subscription: {
           id: subscription.id,
+          planKey: subscription.planKey as PlansEnum,
           period: subscription.period as SubscriptionPeriodEnum,
           periodMultiplier: subscription.periodMultiplier,
           isActive: subscription.isActive,
@@ -456,7 +459,7 @@ export class XrayService {
           isFixedPrice: subscription.isFixedPrice,
           fixedPriceStars: subscription.fixedPriceStars,
           devicesCount: subscription.devicesCount,
-          isAllServers: subscription.isAllServers,
+          isAllBaseServers: subscription.isAllBaseServers,
           isAllPremiumServers: subscription.isAllPremiumServers,
           trafficLimitGb: subscription.trafficLimitGb,
           isUnlimitTraffic: subscription.isUnlimitTraffic,
@@ -466,9 +469,10 @@ export class XrayService {
           lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
           links: subscription.links as string[],
           servers:
-            subscription.isAllServers && subscription.isAllPremiumServers
+            subscription.isAllBaseServers && subscription.isAllPremiumServers
               ? allServersMapped
-              : subscription.isAllServers && !subscription.isAllPremiumServers
+              : subscription.isAllBaseServers &&
+                !subscription.isAllPremiumServers
               ? allServersMapped.filter((server) => !server.isPremium)
               : subscription.servers.map(
                   (server): ServerDataInterface => ({
@@ -481,7 +485,7 @@ export class XrayService {
                     isPremium: server.greenList.isPremium,
                   }),
                 ),
-          baseServersCount: subscription.isAllServers
+          baseServersCount: subscription.isAllBaseServers
             ? getAllServers.filter((server) => !server.isPremium).length
             : subscription.servers.filter(
                 (server) =>
@@ -635,6 +639,7 @@ export class XrayService {
       const result: SubscriptionDataInterface[] = subscriptions.map(
         (subscription) => ({
           id: subscription.id,
+          planKey: subscription.planKey as PlansEnum,
           period: subscription.period as SubscriptionPeriodEnum,
           periodMultiplier: subscription.periodMultiplier,
           isActive: subscription.isActive,
@@ -643,7 +648,7 @@ export class XrayService {
           isFixedPrice: subscription.isFixedPrice,
           fixedPriceStars: subscription.fixedPriceStars,
           devicesCount: subscription.devicesCount,
-          isAllServers: subscription.isAllServers,
+          isAllBaseServers: subscription.isAllBaseServers,
           isAllPremiumServers: subscription.isAllPremiumServers,
           trafficLimitGb: subscription.trafficLimitGb,
           isUnlimitTraffic: subscription.isUnlimitTraffic,
@@ -653,9 +658,10 @@ export class XrayService {
           lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
           links: subscription.links as string[],
           servers:
-            subscription.isAllServers && subscription.isAllPremiumServers
+            subscription.isAllBaseServers && subscription.isAllPremiumServers
               ? allServersMapped
-              : subscription.isAllServers && !subscription.isAllPremiumServers
+              : subscription.isAllBaseServers &&
+                !subscription.isAllPremiumServers
               ? allServersMapped.filter((server) => !server.isPremium)
               : subscription.servers.map(
                   (server): ServerDataInterface => ({
@@ -668,7 +674,7 @@ export class XrayService {
                     isPremium: server.greenList.isPremium,
                   }),
                 ),
-          baseServersCount: subscription.isAllServers
+          baseServersCount: subscription.isAllBaseServers
             ? getAllServers.filter((server) => !server.isPremium).length
             : subscription.servers.filter(
                 (server) =>
@@ -712,7 +718,7 @@ export class XrayService {
         devicesPriceStars: settings.devicesPriceStars,
         serversPriceStars: settings.serversPriceStars,
         premiumServersPriceStars: settings.premiumServersPriceStars,
-        allServersPriceStars: settings.allServersPriceStars,
+        allBaseServersPriceStars: settings.allBaseServersPriceStars,
         allPremiumServersPriceStars: settings.allPremiumServersPriceStars,
         trafficGbPriceStars: settings.trafficGbPriceStars,
         unlimitTrafficPriceStars: settings.unlimitTrafficPriceStars,
@@ -758,6 +764,7 @@ export class XrayService {
    */
   public async createSubscription({
     telegramId,
+    planKey,
     period,
     periodMultiplier,
     isPremium,
@@ -765,7 +772,7 @@ export class XrayService {
     fixedPriceStars,
     nextRenewalStars,
     devicesCount,
-    isAllServers,
+    isAllBaseServers,
     isAllPremiumServers,
     trafficLimitGb,
     isUnlimitTraffic,
@@ -774,6 +781,7 @@ export class XrayService {
     isAutoRenewal = true,
   }: {
     telegramId: string
+    planKey: PlansEnum
     period: SubscriptionPeriodEnum
     periodMultiplier: number
     isPremium: boolean
@@ -781,7 +789,7 @@ export class XrayService {
     fixedPriceStars?: number
     nextRenewalStars?: number
     devicesCount: number
-    isAllServers: boolean
+    isAllBaseServers: boolean
     isAllPremiumServers: boolean
     trafficLimitGb?: number
     isUnlimitTraffic: boolean
@@ -877,13 +885,14 @@ export class XrayService {
       const subscriptionData = {
         username,
         isPremium,
+        planKey,
         // Для INDEFINITELY всегда отключаем автопродление
         isAutoRenewal: isIndefinitely ? false : isAutoRenewal,
         isFixedPrice,
         // Для INDEFINITELY обнуляем fixedPriceStars
         fixedPriceStars: isIndefinitely ? null : fixedPriceStars,
         devicesCount,
-        isAllServers,
+        isAllBaseServers,
         isAllPremiumServers,
         trafficLimitGb,
         isUnlimitTraffic,
@@ -1094,11 +1103,12 @@ export class XrayService {
    */
   public async purchaseSubscription({
     telegramId,
+    planKey,
     period,
     periodMultiplier,
     isFixedPrice,
     devicesCount,
-    isAllServers,
+    isAllBaseServers,
     isAllPremiumServers,
     trafficLimitGb,
     isUnlimitTraffic,
@@ -1106,11 +1116,12 @@ export class XrayService {
     isAutoRenewal = true,
   }: {
     telegramId: string
+    planKey: PlansEnum
     period: SubscriptionPeriodEnum
     periodMultiplier: number
     isFixedPrice: boolean
     devicesCount: number
-    isAllServers: boolean
+    isAllBaseServers: boolean
     isAllPremiumServers: boolean
     trafficLimitGb?: number
     isUnlimitTraffic: boolean
@@ -1167,7 +1178,7 @@ export class XrayService {
         isPremium: user.telegramData.isPremium,
         periodMultiplier,
         devicesCount,
-        isAllServers,
+        isAllBaseServers,
         isAllPremiumServers,
         isUnlimitTraffic,
         userDiscount: user.role.discount,
@@ -1229,13 +1240,14 @@ export class XrayService {
 
       const subscription = await this.createSubscription({
         isPremium: user.telegramData.isPremium,
+        planKey,
         period,
         periodMultiplier,
         isFixedPrice,
         fixedPriceStars: cost,
         nextRenewalStars: cost,
         devicesCount,
-        isAllServers,
+        isAllBaseServers,
         isAllPremiumServers,
         trafficLimitGb,
         isUnlimitTraffic,
@@ -1366,7 +1378,7 @@ export class XrayService {
       periodMultiplier,
       isFixedPrice,
       devicesCount,
-      isAllServers,
+      isAllBaseServers,
       isAllPremiumServers,
       trafficLimitGb,
       isUnlimitTraffic,
@@ -1377,7 +1389,7 @@ export class XrayService {
       periodMultiplier: number
       isFixedPrice: boolean
       devicesCount: number
-      isAllServers: boolean
+      isAllBaseServers: boolean
       isAllPremiumServers: boolean
       trafficLimitGb?: number
       isUnlimitTraffic: boolean
@@ -1455,7 +1467,7 @@ export class XrayService {
         isPremium: user.telegramData.isPremium,
         periodMultiplier,
         devicesCount,
-        isAllServers,
+        isAllBaseServers,
         isAllPremiumServers,
         isUnlimitTraffic,
         userDiscount: user.role.discount,
@@ -1591,7 +1603,7 @@ export class XrayService {
               fixedPriceStars: isFixedPrice ? cost : undefined,
               nextRenewalStars: cost,
               devicesCount,
-              isAllServers,
+              isAllBaseServers,
               isAllPremiumServers,
               trafficLimitGb,
               isUnlimitTraffic,

@@ -277,11 +277,12 @@ export class SubscriptionsController {
 
       const result = await this.xrayService.purchaseSubscription({
         telegramId: user.telegramId,
+        planKey: purchaseDto.planKey,
         period: purchaseDto.period,
         periodMultiplier: purchaseDto.periodMultiplier,
         isFixedPrice: purchaseDto.isFixedPrice,
         devicesCount: purchaseDto.devicesCount,
-        isAllServers: purchaseDto.isAllServers,
+        isAllBaseServers: purchaseDto.isAllBaseServers,
         isAllPremiumServers: purchaseDto.isAllPremiumServers,
         trafficLimitGb: purchaseDto.trafficLimitGb,
         isUnlimitTraffic: purchaseDto.isUnlimitTraffic,
@@ -626,7 +627,7 @@ export class SubscriptionsController {
           periodMultiplier: changeDto.periodMultiplier,
           isFixedPrice: changeDto.isFixedPrice,
           devicesCount: changeDto.devicesCount,
-          isAllServers: changeDto.isAllServers,
+          isAllBaseServers: changeDto.isAllBaseServers,
           isAllPremiumServers: changeDto.isAllPremiumServers,
           trafficLimitGb: changeDto.trafficLimitGb,
           isUnlimitTraffic: changeDto.isUnlimitTraffic,

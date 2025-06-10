@@ -150,7 +150,7 @@ export class SubscriptionManagerService {
             let premiumServers = 0
 
             const serverCodes =
-              subscription.isAllServers && subscription.isAllPremiumServers
+              subscription.isAllBaseServers && subscription.isAllPremiumServers
                 ? []
                 : subscription.servers
                     ?.flatMap((server) => {
@@ -178,7 +178,7 @@ export class SubscriptionManagerService {
                 isPremium: subscription.isPremium,
                 periodMultiplier: subscription.periodMultiplier,
                 devicesCount: subscription.devicesCount,
-                isAllServers: subscription.isAllServers,
+                isAllBaseServers: subscription.isAllBaseServers,
                 isAllPremiumServers: subscription.isAllPremiumServers,
                 isUnlimitTraffic: subscription.isUnlimitTraffic,
                 userDiscount: subscription.user.role.discount,

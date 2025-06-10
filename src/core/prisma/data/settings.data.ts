@@ -4,7 +4,7 @@ export const SettingsData = {
   devicesPriceStars: 50,
   serversPriceStars: 20,
   premiumServersPriceStars: 50,
-  allServersPriceStars: 10,
+  allBaseServersPriceStars: 10,
   allPremiumServersPriceStars: 25,
   trafficGbPriceStars: 60,
   unlimitTrafficPriceStars: 200,
