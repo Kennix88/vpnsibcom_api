@@ -29,7 +29,7 @@ model Settings {
   devicesPriceStars           Float @default(50) @map("devices_price_stars")
   serversPriceStars           Float @default(20) @map("servers_price_stars")
   premiumServersPriceStars    Float @default(50) @map("premium_servers_price_stars")
-  allServersPriceStars        Float @default(17) @map("all_servers_price_stars")
+  allBaseServersPriceStars    Float @default(17) @map("all_base_servers_price_stars")
   allPremiumServersPriceStars Float @default(40) @map("all_premium_servers_price_stars")
   trafficGbPriceStars         Float @default(60) @map("traffic_gb_price_stars")
   unlimitTrafficPriceStars    Float @default(100) @map("unlimit_traffic_price_stars")
@@ -298,10 +298,49 @@ model GreenList {
   @@map("green_list")
 }
 
+model Plans {
+  key                 PlansEnum                   @id
+  isActive            Boolean                     @default(true) @map("is_active")
+  name                String
+  priceStars          Float?                      @default(0) @map("price_stars")
+  isCustom            Boolean                     @default(false) @map("is_custom")
+  devicesCount        Int                         @default(1) @map("devices_count")
+  isAllBaseServers    Boolean                     @default(false) @map("is_all_base_servers")
+  isAllPremiumServers Boolean                     @default(false) @map("is_all_premium_servers")
+  trafficLimitGb      Float?                      @map("traffic_limit_gb")
+  isUnlimitTraffic    Boolean                     @default(false) @map("is_unlimit_traffic")
+  serversSelectTypes  PlansServersSelectTypesEnum @default(NOT_SELECTED) @map("servers_select_types")
+
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  Subscriptions Subscriptions[]
+
+  @@map("plans")
+}
+
+enum PlansServersSelectTypesEnum {
+  ONE_BASE
+  ONE_BASE_OR_PREMIUM
+  CUSTOM
+  NOT_SELECTED
+}
+
+enum PlansEnum {
+  START // Всё по минимуму (1 устройство, 1 базовый сервер на выбор, 1ГБ трафика) цена 100 Stars
+  BASE // (3 устройства, 1 базовый сервер на выбор, 3ГБ трафика) цена 150 Stars
+  PLUS // (5 устройств, 1 базовый или премиум сервер на выбор, 5ГБ трафика) цена 200 Stars
+  PRO // (7 устройства, все базовые сервера, 7ГБ трафика) цена 400 Stars
+  PREMIUM // (10 устройства, все базовые и премиум сервера, 10ГБ трафика) цена 500 Stars
+  ULTIMATE // (20 устройств, все базовые и премиум сервера, Безлимит) цена 700 Stars
+  CUSTOM
+}
+
 /// Модель подписок
 model Subscriptions {
   id               String                 @id @default(uuid())
   username         String                 @unique
+  plan             Plans                  @relation(fields: [planKey], references: [key])
+  planKey          PlansEnum              @default(CUSTOM) @map("plan_key")
   isActive         Boolean                @default(false) @map("is_active")
   isAutoRenewal    Boolean                @default(true) @map("is_auto_renewal")
   token            String                 @unique @map("token")
@@ -313,7 +352,7 @@ model Subscriptions {
   isFixedPrice        Boolean @default(false) @map("is_fixed_price")
   fixedPriceStars     Float?  @map("fixed_price_stars")
   devicesCount        Int     @default(1) @map("devices_count")
-  isAllServers        Boolean @default(false) @map("is_all_servers")
+  isAllBaseServers    Boolean @default(false) @map("is_all_base_servers")
   isAllPremiumServers Boolean @default(false) @map("is_all_premium_servers")
   trafficLimitGb      Float?  @map("traffic_limit_gb")
   isUnlimitTraffic    Boolean @default(false) @map("is_unlimit_traffic")
@@ -331,8 +370,9 @@ model Subscriptions {
   expiredAt DateTime? @map("expired_at")
   onlineAt  DateTime? @map("online_at")
 
-  user   Users  @relation(fields: [userId], references: [id])
-  userId String @map("user_id")
+  user    Users      @relation(fields: [userId], references: [id])
+  userId  String     @map("user_id")
+  payment Payments[]
 
   @@index([userId])
   @@index([token])
@@ -662,6 +702,9 @@ model Payments {
   /// Связь с транзакцией
   transacrion   Transactions?     @relation(fields: [transactionId], references: [id])
   transactionId String?           @unique @map("transaction_id")
+
+  subscription   Subscriptions? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String?        @map("subscription_id")
 
   @@index([userId])
   @@index([status])
