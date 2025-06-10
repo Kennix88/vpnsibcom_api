@@ -1,4 +1,4 @@
-import { PlansEnum } from '@shared/enums/plans.enum'
+import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import {
   IsArray,

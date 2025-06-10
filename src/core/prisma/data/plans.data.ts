@@ -1,5 +1,5 @@
-import { PlansServersSelectTypeEnum } from '@shared/enums/plans-servers-select-type.enum'
-import { PlansEnum } from '@shared/enums/plans.enum'
+import { PlansServersSelectTypeEnum } from '@modules/plans/types/plans-servers-select-type.enum'
+import { PlansEnum } from '@modules/plans/types/plans.enum'
 
 export const PlansData = [
   {
