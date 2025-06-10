@@ -8,6 +8,12 @@ CREATE TYPE "AdsNetworkEnum" AS ENUM ('YANDEX', 'ADSGRAM', 'ONCLICKA', 'ADSONAR'
 CREATE TYPE "AdsViewTypeEnum" AS ENUM ('REWARD', 'TASK', 'VIEW');
 
 -- CreateEnum
+CREATE TYPE "PlansServersSelectTypesEnum" AS ENUM ('ONE_BASE', 'ONE_BASE_OR_PREMIUM', 'CUSTOM', 'NOT_SELECTED');
+
+-- CreateEnum
+CREATE TYPE "PlansEnum" AS ENUM ('START', 'BASE', 'PLUS', 'PRO', 'PREMIUM', 'ULTIMATE', 'CUSTOM');
+
+-- CreateEnum
 CREATE TYPE "SubscriptionPeriodEnum" AS ENUM ('TRIAL', 'HOUR', 'DAY', 'WEEK', 'MONTH', 'THREE_MONTH', 'SIX_MONTH', 'YEAR', 'TWO_YEAR', 'THREE_YEAR', 'INDEFINITELY');
 
 -- CreateEnum
@@ -51,7 +57,7 @@ CREATE TABLE "settings" (
     "devices_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 50,
     "servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 20,
     "premium_servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 50,
-    "all_servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 17,
+    "all_base_servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 17,
     "all_premium_servers_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 40,
     "traffic_gb_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 60,
     "unlimit_traffic_price_stars" DOUBLE PRECISION NOT NULL DEFAULT 100,
@@ -188,9 +194,29 @@ CREATE TABLE "green_list" (
 );
 
 -- CreateTable
+CREATE TABLE "plans" (
+    "key" "PlansEnum" NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "name" TEXT NOT NULL,
+    "price_stars" DOUBLE PRECISION DEFAULT 0,
+    "is_custom" BOOLEAN NOT NULL DEFAULT false,
+    "devices_count" INTEGER NOT NULL DEFAULT 1,
+    "is_all_base_servers" BOOLEAN NOT NULL DEFAULT false,
+    "is_all_premium_servers" BOOLEAN NOT NULL DEFAULT false,
+    "traffic_limit_gb" DOUBLE PRECISION,
+    "is_unlimit_traffic" BOOLEAN NOT NULL DEFAULT false,
+    "servers_select_types" "PlansServersSelectTypesEnum" NOT NULL DEFAULT 'NOT_SELECTED',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "plans_pkey" PRIMARY KEY ("key")
+);
+
+-- CreateTable
 CREATE TABLE "subscriptions" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
+    "plan_key" "PlansEnum" NOT NULL DEFAULT 'CUSTOM',
     "is_active" BOOLEAN NOT NULL DEFAULT false,
     "is_auto_renewal" BOOLEAN NOT NULL DEFAULT true,
     "token" TEXT NOT NULL,
@@ -201,7 +227,7 @@ CREATE TABLE "subscriptions" (
     "is_fixed_price" BOOLEAN NOT NULL DEFAULT false,
     "fixed_price_stars" DOUBLE PRECISION,
     "devices_count" INTEGER NOT NULL DEFAULT 1,
-    "is_all_servers" BOOLEAN NOT NULL DEFAULT false,
+    "is_all_base_servers" BOOLEAN NOT NULL DEFAULT false,
     "is_all_premium_servers" BOOLEAN NOT NULL DEFAULT false,
     "traffic_limit_gb" DOUBLE PRECISION,
     "is_unlimit_traffic" BOOLEAN NOT NULL DEFAULT false,
@@ -313,6 +339,7 @@ CREATE TABLE "payments" (
     "currency_key" "CurrencyEnum" NOT NULL,
     "method_key" "PaymentMethodEnum" NOT NULL,
     "transaction_id" TEXT,
+    "subscription_id" TEXT,
 
     CONSTRAINT "payments_pkey" PRIMARY KEY ("id")
 );
@@ -489,6 +516,9 @@ ALTER TABLE "ads_views" ADD CONSTRAINT "ads_views_network_key_fkey" FOREIGN KEY 
 ALTER TABLE "ads_views" ADD CONSTRAINT "ads_views_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_plan_key_fkey" FOREIGN KEY ("plan_key") REFERENCES "plans"("key") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -517,6 +547,9 @@ ALTER TABLE "payments" ADD CONSTRAINT "payments_method_key_fkey" FOREIGN KEY ("m
 
 -- AddForeignKey
 ALTER TABLE "payments" ADD CONSTRAINT "payments_transaction_id_fkey" FOREIGN KEY ("transaction_id") REFERENCES "transactions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "payments" ADD CONSTRAINT "payments_subscription_id_fkey" FOREIGN KEY ("subscription_id") REFERENCES "subscriptions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "payment_methods" ADD CONSTRAINT "payment_methods_currency_key_fkey" FOREIGN KEY ("currency_key") REFERENCES "currency"("key") ON DELETE RESTRICT ON UPDATE CASCADE;

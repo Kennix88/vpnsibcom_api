@@ -14,6 +14,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
     "db:seed": "nest build && cross-env SEED_MOD=true nest start"
   },

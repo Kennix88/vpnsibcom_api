@@ -299,17 +299,17 @@ model GreenList {
 }
 
 model Plans {
-  key                 PlansEnum                   @id
-  isActive            Boolean                     @default(true) @map("is_active")
+  key                 PlansEnum                  @id
+  isActive            Boolean                    @default(true) @map("is_active")
   name                String
-  priceStars          Float?                      @default(0) @map("price_stars")
-  isCustom            Boolean                     @default(false) @map("is_custom")
-  devicesCount        Int                         @default(1) @map("devices_count")
-  isAllBaseServers    Boolean                     @default(false) @map("is_all_base_servers")
-  isAllPremiumServers Boolean                     @default(false) @map("is_all_premium_servers")
-  trafficLimitGb      Float?                      @map("traffic_limit_gb")
-  isUnlimitTraffic    Boolean                     @default(false) @map("is_unlimit_traffic")
-  serversSelectTypes  PlansServersSelectTypesEnum @default(NOT_SELECTED) @map("servers_select_types")
+  priceStars          Float?                     @default(0) @map("price_stars")
+  isCustom            Boolean                    @default(false) @map("is_custom")
+  devicesCount        Int                        @default(1) @map("devices_count")
+  isAllBaseServers    Boolean                    @default(false) @map("is_all_base_servers")
+  isAllPremiumServers Boolean                    @default(false) @map("is_all_premium_servers")
+  trafficLimitGb      Float?                     @map("traffic_limit_gb")
+  isUnlimitTraffic    Boolean                    @default(false) @map("is_unlimit_traffic")
+  serversSelectType   PlansServersSelectTypeEnum @default(NOT_SELECTED) @map("servers_select_type")
 
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
@@ -318,7 +318,7 @@ model Plans {
   @@map("plans")
 }
 
-enum PlansServersSelectTypesEnum {
+enum PlansServersSelectTypeEnum {
   ONE_BASE
   ONE_BASE_OR_PREMIUM
   CUSTOM
