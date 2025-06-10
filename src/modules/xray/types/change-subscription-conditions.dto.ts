@@ -25,7 +25,7 @@ export class ChangeSubscriptionConditionsDto {
   devicesCount: number
 
   @IsBoolean()
-  isAllServers: boolean
+  isAllBaseServers: boolean
 
   @IsBoolean()
   isAllPremiumServers: boolean

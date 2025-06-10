@@ -1,3 +1,4 @@
+import { PlansEnum } from '@shared/enums/plans.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import {
   IsArray,
@@ -14,6 +15,9 @@ export class PurchaseSubscriptionDto {
   @IsEnum(SubscriptionPeriodEnum)
   period: SubscriptionPeriodEnum
 
+  @IsEnum(PlansEnum)
+  planKey: PlansEnum
+
   @IsNumber()
   @IsOptional()
   periodMultiplier?: number = 1
@@ -27,7 +31,7 @@ export class PurchaseSubscriptionDto {
 
   @IsBoolean()
   @IsOptional()
-  isAllServers?: boolean = false
+  isAllBaseServers?: boolean = false
 
   @IsBoolean()
   @IsOptional()
