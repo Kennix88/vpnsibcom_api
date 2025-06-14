@@ -1,5 +1,6 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
+import { PlansInterface } from '@modules/plans/types/plans.interface'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -106,6 +107,7 @@ export class SubscriptionManagerService {
                 role: true,
               },
             },
+            plan: true,
             servers: {
               include: {
                 greenList: true,
@@ -174,6 +176,7 @@ export class SubscriptionManagerService {
               subscription.period !== SubscriptionPeriodEnum.TRIAL
             ) {
               const cost = calculateSubscriptionCost({
+                plan: subscription.plan as PlansInterface,
                 period: subscription.period as SubscriptionPeriodEnum,
                 isPremium: subscription.isPremium,
                 periodMultiplier: subscription.periodMultiplier,
