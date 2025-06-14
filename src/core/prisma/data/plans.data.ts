@@ -76,7 +76,7 @@ export const PlansData = [
   },
   {
     key: PlansEnum.CUSTOM,
-    name: 'CUSTOM',
+    name: 'CUSTOMIZE',
     priceStars: null,
     isCustom: true,
     devicesCount: 1,
