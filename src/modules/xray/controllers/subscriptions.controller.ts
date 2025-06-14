@@ -623,6 +623,7 @@ export class SubscriptionsController {
         user.telegramId,
         changeDto.subscriptionId,
         {
+          planKey: changeDto.planKey,
           period: changeDto.period,
           periodMultiplier: changeDto.periodMultiplier,
           isFixedPrice: changeDto.isFixedPrice,

@@ -1,3 +1,4 @@
+import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import {
   IsArray,
@@ -11,6 +12,9 @@ import {
 export class ChangeSubscriptionConditionsDto {
   @IsString()
   subscriptionId: string
+
+  @IsEnum(PlansEnum)
+  planKey: PlansEnum
 
   @IsEnum(SubscriptionPeriodEnum)
   period: SubscriptionPeriodEnum
