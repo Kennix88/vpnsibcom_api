@@ -1,5 +1,6 @@
 import { RedisService } from '@core/redis/redis.service'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
+import { PlansInterface } from '@modules/plans/types/plans.interface'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -1172,9 +1173,20 @@ export class XrayService {
         return { success: false, message: 'settings_not_found' }
       }
 
+      const getPlan = await this.prismaService.plans.findUnique({
+        where: {
+          key: planKey,
+        },
+      })
+
+      if (!getPlan) {
+        return { success: false, message: 'plan_not_found' }
+      }
+
       // Расчет стоимости с учетом периода и скидки пользователя
       const cost = calculateSubscriptionCost({
         period: period,
+        plan: getPlan as PlansInterface,
         isPremium: user.telegramData.isPremium,
         periodMultiplier,
         devicesCount,
@@ -1374,6 +1386,7 @@ export class XrayService {
     telegramId: string,
     subscriptionId: string,
     {
+      planKey,
       period,
       periodMultiplier,
       isFixedPrice,
@@ -1385,6 +1398,7 @@ export class XrayService {
       servers = [],
       isAutoRenewal = true,
     }: {
+      planKey: PlansEnum
       period: SubscriptionPeriodEnum
       periodMultiplier: number
       isFixedPrice: boolean
@@ -1461,9 +1475,20 @@ export class XrayService {
         return { success: false, message: 'settings_not_found' }
       }
 
+      const getPlan = await this.prismaService.plans.findUnique({
+        where: {
+          key: planKey,
+        },
+      })
+
+      if (!getPlan) {
+        return { success: false, message: 'plan_not_found' }
+      }
+
       // Расчет стоимости с учетом периода и скидки пользователя
       const cost = calculateSubscriptionCost({
         period: period,
+        plan: getPlan as PlansInterface,
         isPremium: user.telegramData.isPremium,
         periodMultiplier,
         devicesCount,
