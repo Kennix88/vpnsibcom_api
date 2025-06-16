@@ -50,7 +50,8 @@ function getXrayConfigFormat(userAgent: string): XrayConfigFromatType {
         versionMatch?.[1] &&
         compareVersions(versionMatch[1], VERSION_THRESHOLDS.V2RAY_N) >= 0
       ) {
-        return 'v2ray-json'
+        return 'v2ray'
+        // return 'v2ray-json'
       }
       return 'v2ray'
     }
@@ -66,13 +67,15 @@ function getXrayConfigFormat(userAgent: string): XrayConfigFromatType {
         compareVersions(version, VERSION_THRESHOLDS.V2RAY_NG_HIGH) >= 0 ||
         compareVersions(version, VERSION_THRESHOLDS.V2RAY_NG_MID) >= 0
       ) {
-        return 'v2ray-json'
+        return 'v2ray'
+        // return 'v2ray-json'
       }
       return 'v2ray'
     }
 
     case REGEX_PATTERNS.STREISAND.test(userAgent):
-      return 'v2ray-json'
+      return 'v2ray'
+    // return 'v2ray-json'
 
     case REGEX_PATTERNS.HAPP.test(userAgent): {
       const match = userAgent.match(REGEX_PATTERNS.HAPP)
@@ -86,11 +89,13 @@ function getXrayConfigFormat(userAgent: string): XrayConfigFromatType {
         platform === 'macos'
 
       if (isDesktopPlatform) {
-        return 'v2ray-json'
+        return 'v2ray'
+        // return 'v2ray-json'
       }
 
       if (version && compareVersions(version, VERSION_THRESHOLDS.HAPP) >= 0) {
-        return 'v2ray-json'
+        return 'v2ray'
+        // return 'v2ray-json'
       }
 
       return 'v2ray'
