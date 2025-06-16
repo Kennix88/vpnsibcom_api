@@ -16,7 +16,8 @@ export function filterConfig(
 ): string {
   // Если список серверов пуст, возвращаем исходную строку без изменений
   if (servers.length === 0) {
-    return body
+    if (format == 'base64') return body
+    else return JSON.stringify(JSON.parse(JSON.stringify(body)), null, 2)
   }
 
   switch (format) {
@@ -24,7 +25,7 @@ export function filterConfig(
       // Парсим строку как JSON
       let cfg: any
       try {
-        cfg = JSON.parse(body)
+        cfg = JSON.parse(JSON.stringify(body))
       } catch {
         throw new Error('Invalid JSON for sing-box format')
       }
@@ -66,7 +67,7 @@ export function filterConfig(
       // Парсим как JSON-массив
       let arr: any
       try {
-        arr = JSON.parse(body)
+        arr = JSON.parse(JSON.stringify(body))
       } catch {
         throw new Error('Invalid JSON')
       }
