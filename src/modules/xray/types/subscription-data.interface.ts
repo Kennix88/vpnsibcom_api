@@ -76,12 +76,12 @@ export interface CreateSubscriptionDataInterface {
   planKey: PlansEnum
   period: SubscriptionPeriodEnum
   periodMultiplier: number
-  isAutoRenewal: boolean
+  isAutoRenewal?: boolean
   isFixedPrice: boolean
   devicesCount: number
   isAllBaseServers: boolean
   isAllPremiumServers: boolean
-  servers: string[]
+  servers?: string[]
   trafficLimitGb?: number
   isUnlimitTraffic: boolean
 }
@@ -89,4 +89,9 @@ export interface CreateSubscriptionDataInterface {
 export interface ChangeSubscriptionConditionsDataInterface
   extends CreateSubscriptionDataInterface {
   subscriptionId: string
+}
+
+export interface CreateSubscriptionDataAddTgIdInterface
+  extends CreateSubscriptionDataInterface {
+  telegramId: string
 }
