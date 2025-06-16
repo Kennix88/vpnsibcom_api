@@ -227,7 +227,7 @@ export class XrayService {
 
       // Регулярное выражение для определения клиента
       const regexAllClients = new RegExp(
-        /^([Cc]lash-verge|[Cc]lash[-.]?[Mm]eta|[Ff][Ll][Cc]lash|[Cc]lash|[Ss]tash|[Mm]ihomo|[Ss]tash|SFA|SFI|SFM|SFT|[Hh]app|[Ss]treisand|v2ray[Nn][Gg]|v2ray[Nn]|[Kk]aring|[Hh]iddify|v2ray|[Hh]iddify[Nn]ext|[Hh]iddify|sing-box|SS|SSR|SSD|SSS|Outline|Shadowsocks|SSconf)/,
+        /^([Cc]lash-verge|[Cc]lash[-.]?[Mm]eta|[Ff][Ll][Cc]lash|[Cc]lash|[Ss]tash|[Mm]ihomo|[Ss]tash|SFA|SFI|SFM|SFT|[Hh]app|[Ss]treisand|v2box|v2ray[Nn][Gg]|v2ray[Nn]|[Kk]aring|[Hh]iddify|v2ray|[Hh]iddify[Nn]ext|[Hh]iddify|sing-box|SS|SSR|SSD|SSS|Outline|Shadowsocks|SSconf|TelegramBot|TwitterBot|NekoBox)/,
       )
 
       // Логируем информацию о клиенте
@@ -345,9 +345,9 @@ export class XrayService {
             ? 'clash'
             : configFormat == 'sing-box'
             ? 'sing-box'
-            : configFormat == 'v2ray-json'
-            ? 'json'
             : 'base64'
+        // : configFormat == 'v2ray-json'
+        // 'json'
         this.logger.info({
           msg: `Filtering config with type: ${filterType}, server codes count: ${
             serverCodes?.length || 0
@@ -366,6 +366,7 @@ export class XrayService {
         this.logger.info({
           msg: `Marzban configuration processed successfully`,
           service: this.serviceName,
+          marzbanSubRes,
         })
       } else {
         this.logger.info({
