@@ -218,10 +218,11 @@ export class SubscriptionManagerService {
               data: {
                 links: subscription.links,
                 nextRenewalStars: subscription.nextRenewalStars,
-                usedTraffic: subscription.usedTraffic,
+                usedTraffic: subscription.usedTraffic / 1024 / 1024,
                 lastUserAgent: subscription.lastUserAgent,
-                dataLimit: subscription.dataLimit,
-                lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
+                dataLimit: subscription.dataLimit / 1024 / 1024,
+                lifeTimeUsedTraffic:
+                  subscription.lifeTimeUsedTraffic / 1024 / 1024,
                 onlineAt: subscription.onlineAt
                   ? new Date(subscription.onlineAt + 'Z')
                   : null, // Adding 'Z' to indicate UTC timezone

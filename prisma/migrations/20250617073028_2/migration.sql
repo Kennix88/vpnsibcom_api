@@ -8,7 +8,7 @@ CREATE TYPE "AdsNetworkEnum" AS ENUM ('YANDEX', 'ADSGRAM', 'ONCLICKA', 'ADSONAR'
 CREATE TYPE "AdsViewTypeEnum" AS ENUM ('REWARD', 'TASK', 'VIEW');
 
 -- CreateEnum
-CREATE TYPE "PlansServersSelectTypesEnum" AS ENUM ('ONE_BASE', 'ONE_BASE_OR_PREMIUM', 'CUSTOM', 'NOT_SELECTED');
+CREATE TYPE "PlansServersSelectTypeEnum" AS ENUM ('ONE_BASE', 'ONE_BASE_OR_PREMIUM', 'CUSTOM', 'NOT_SELECTED');
 
 -- CreateEnum
 CREATE TYPE "PlansEnum" AS ENUM ('START', 'BASE', 'PLUS', 'PRO', 'PREMIUM', 'ULTIMATE', 'CUSTOM');
@@ -205,7 +205,7 @@ CREATE TABLE "plans" (
     "is_all_premium_servers" BOOLEAN NOT NULL DEFAULT false,
     "traffic_limit_gb" DOUBLE PRECISION,
     "is_unlimit_traffic" BOOLEAN NOT NULL DEFAULT false,
-    "servers_select_types" "PlansServersSelectTypesEnum" NOT NULL DEFAULT 'NOT_SELECTED',
+    "servers_select_type" "PlansServersSelectTypeEnum" NOT NULL DEFAULT 'NOT_SELECTED',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 

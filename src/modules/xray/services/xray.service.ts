@@ -466,9 +466,9 @@ export class XrayService {
           trafficLimitGb: subscription.trafficLimitGb,
           isUnlimitTraffic: subscription.isUnlimitTraffic,
           lastUserAgent: subscription.lastUserAgent,
-          dataLimit: subscription.dataLimit,
-          usedTraffic: subscription.usedTraffic,
-          lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
+          dataLimit: subscription.dataLimit * 1024 * 1024,
+          usedTraffic: subscription.usedTraffic * 1024 * 1024,
+          lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic * 1024 * 1024,
           links: subscription.links as string[],
           servers:
             subscription.isAllBaseServers && subscription.isAllPremiumServers
@@ -655,9 +655,9 @@ export class XrayService {
           trafficLimitGb: subscription.trafficLimitGb,
           isUnlimitTraffic: subscription.isUnlimitTraffic,
           lastUserAgent: subscription.lastUserAgent,
-          dataLimit: subscription.dataLimit,
-          usedTraffic: subscription.usedTraffic,
-          lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
+          dataLimit: subscription.dataLimit * 1024 * 1024,
+          usedTraffic: subscription.usedTraffic * 1024 * 1024,
+          lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic * 1024 * 1024,
           links: subscription.links as string[],
           servers:
             subscription.isAllBaseServers && subscription.isAllPremiumServers
@@ -904,9 +904,9 @@ export class XrayService {
         isActive: true,
         token,
         links: marzbanData.links,
-        dataLimit: marzbanData.data_limit,
-        usedTraffic: marzbanData.used_traffic,
-        lifeTimeUsedTraffic: marzbanData.used_traffic,
+        dataLimit: marzbanData.data_limit / 1024 / 1024,
+        usedTraffic: marzbanData.used_traffic / 1024 / 1024,
+        lifeTimeUsedTraffic: marzbanData.used_traffic / 1024 / 1024,
         // Для INDEFINITELY устанавливаем expiredAt в null
         expiredAt: isIndefinitely ? null : addHours(new Date(), hours),
         // Для INDEFINITELY обнуляем nextRenewalStars
