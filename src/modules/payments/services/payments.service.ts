@@ -44,6 +44,7 @@ export class PaymentsService {
     amount: number,
     method: PaymentMethodEnum,
     tgId: string,
+    subscriptionId: string = null,
   ): Promise<{
     linkPay: string
     isTmaIvoice: boolean
@@ -134,6 +135,7 @@ export class PaymentsService {
           data: {
             ...paymentObject,
             linkPay,
+            subscriptionId,
           },
         })
 
