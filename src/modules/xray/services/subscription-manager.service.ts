@@ -272,6 +272,7 @@ export class SubscriptionManagerService {
         await this.prismaService.subscriptions.findMany({
           where: {
             isActive: true,
+            isInvoicing: false,
             period: {
               not: SubscriptionPeriodEnum.INDEFINITELY,
             },
@@ -437,14 +438,17 @@ export class SubscriptionManagerService {
 
     try {
       // First, deactivate in Marzban
-      const marzbanResult = await this.marzbanService.deactivateUser(
-        subscription.username,
-      )
 
-      if (!marzbanResult) {
-        throw new Error(
-          `Failed to deactivate user ${subscription.username} in Marzban`,
+      if (subscription.isCreated) {
+        const marzbanResult = await this.marzbanService.deactivateUser(
+          subscription.username,
         )
+
+        if (!marzbanResult) {
+          throw new Error(
+            `Failed to deactivate user ${subscription.username} in Marzban`,
+          )
+        }
       }
 
       // Then update database status
