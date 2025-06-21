@@ -263,7 +263,7 @@ export class SubscriptionsController {
     @Body() purchaseDto: PurchaseInvoiceSubscriptionDto,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<SubscriptionResponse> {
+  ) {
     try {
       this.logger.info(
         `Запрос на покупку подписки от пользователя: ${user.telegramId}, период: ${purchaseDto.period}`,
@@ -293,13 +293,13 @@ export class SubscriptionsController {
         isAutoRenewal: purchaseDto.isAutoRenewal,
       })
 
-      if (!result.success) {
+      if (!result.success || !result.invoice) {
         this.logger.warn(
-          `Не удалось купить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
+          `Не удалось создать инвойс на подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
 
         let statusCode = HttpStatus.BAD_REQUEST
-        let message = 'Не удалось купить подписку'
+        let message = 'Не удалось создать инвойс на подписку'
 
         // Обработка различных причин неудачи
         if (result.message === 'insufficient_balance') {
@@ -329,13 +329,15 @@ export class SubscriptionsController {
       ])
 
       this.logger.info(
-        `Подписка успешно куплена пользователем: ${user.telegramId}`,
+        `Инфойс на покупку попдиски успешно создан пользователем: ${user.telegramId}`,
       )
 
       return {
         data: {
           success: true,
-          message: 'Подписка успешно куплена',
+          message: 'Invoice created',
+          linkPay: result.invoice.linkPay,
+          isTmaIvoice: result.invoice.isTmaIvoice,
           subscriptions,
           user: userData,
         },
@@ -388,7 +390,7 @@ export class SubscriptionsController {
         isAutoRenewal: purchaseDto.isAutoRenewal,
       })
 
-      if (!result.success) {
+      if (!result.success || !result.subscription) {
         this.logger.warn(
           `Не удалось купить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
