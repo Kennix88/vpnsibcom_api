@@ -3,7 +3,7 @@ import { PaymentsService } from '@modules/payments/services/payments.service'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
 import { UsersService } from '@modules/users/users.service'
-import { Injectable } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
@@ -49,7 +49,7 @@ export class XrayService {
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
     private readonly marzbanService: MarzbanService,
-    private readonly paymentsService: PaymentsService,
+    @Inject(forwardRef(() => PaymentsService)) private readonly paymentsService: PaymentsService,
     private readonly i18n: I18nService,
     @InjectBot() private readonly bot: Telegraf,
   ) {}

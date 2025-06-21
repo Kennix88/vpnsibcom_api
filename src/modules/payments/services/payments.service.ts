@@ -6,7 +6,7 @@ import { MarzbanService } from '@modules/xray/services/marzban.service'
 import { XrayService } from '@modules/xray/services/xray.service'
 import { UserCreate } from '@modules/xray/types/marzban.types'
 import { periodHours } from '@modules/xray/utils/period-hours.util'
-import { Injectable } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma } from '@prisma/client'
 import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
@@ -42,7 +42,7 @@ export class PaymentsService {
     private readonly ratesService: RatesService,
     private readonly telegramPaymentsService: TelegramPaymentsService,
     private readonly marzbanService: MarzbanService,
-    private readonly xrayService: XrayService,
+    @Inject(forwardRef(() => XrayService)) private readonly xrayService: XrayService,
     private readonly i18n: I18nService<I18nTranslations>,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
