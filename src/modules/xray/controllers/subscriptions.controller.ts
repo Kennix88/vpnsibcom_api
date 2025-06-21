@@ -23,6 +23,7 @@ import { UsersService } from '../../users/users.service'
 import { XrayService } from '../services/xray.service'
 import { ChangeSubscriptionConditionsDto } from '../types/change-subscription-conditions.dto'
 import { DeleteSubscriptionDto } from '../types/delete-subscription.dto'
+import { PurchaseInvoiceSubscriptionDto } from '../types/purchase-invoice-subscription.dto'
 import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
 import { RenewSubscriptionDto } from '../types/renew-subscription.dto'
 import { ResetSubscriptionTokenDto } from '../types/reset-subscription-token.dto'
@@ -253,6 +254,103 @@ export class SubscriptionsController {
     }
   }
 
+  @Post('purchase-invoice')
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async purchaseInvoiceSubscription(
+    @CurrentUser() user: JwtPayload,
+    @Body() purchaseDto: PurchaseInvoiceSubscriptionDto,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ): Promise<SubscriptionResponse> {
+    try {
+      this.logger.info(
+        `Запрос на покупку подписки от пользователя: ${user.telegramId}, период: ${purchaseDto.period}`,
+      )
+
+      const token = req.headers.authorization?.split(' ')[1]
+      if (!token) {
+        throw new BadRequestException('Токен авторизации отсутствует')
+      }
+
+      await this.authService.updateUserActivity(token)
+
+      const result = await this.xrayService.purchaseSubscription({
+        telegramId: user.telegramId,
+        planKey: purchaseDto.planKey,
+        period: purchaseDto.period,
+        periodMultiplier: purchaseDto.periodMultiplier,
+        isFixedPrice: purchaseDto.isFixedPrice,
+        devicesCount: purchaseDto.devicesCount,
+        isAllBaseServers: purchaseDto.isAllBaseServers,
+        isAllPremiumServers: purchaseDto.isAllPremiumServers,
+        trafficLimitGb: purchaseDto.trafficLimitGb,
+        isUnlimitTraffic: purchaseDto.isUnlimitTraffic,
+        servers: purchaseDto.servers,
+        isInvoice: true,
+        method: purchaseDto.method,
+        isAutoRenewal: purchaseDto.isAutoRenewal,
+      })
+
+      if (!result.success) {
+        this.logger.warn(
+          `Не удалось купить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
+        )
+
+        let statusCode = HttpStatus.BAD_REQUEST
+        let message = 'Не удалось купить подписку'
+
+        // Обработка различных причин неудачи
+        if (result.message === 'insufficient_balance') {
+          message = 'Недостаточно средств на балансе'
+          statusCode = HttpStatus.PAYMENT_REQUIRED
+        } else if (result.message === 'subscription_limit_exceeded') {
+          message = 'Превышен лимит подписок'
+          statusCode = HttpStatus.FORBIDDEN
+        } else if (result.message === 'user_not_found') {
+          message = 'Пользователь не найден'
+          statusCode = HttpStatus.NOT_FOUND
+        }
+
+        res.status(statusCode)
+        return {
+          data: {
+            success: false,
+            message,
+            ...result,
+          },
+        }
+      }
+
+      const [subscriptions, userData] = await Promise.all([
+        this.xrayService.getSubscriptions(user.sub),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      this.logger.info(
+        `Подписка успешно куплена пользователем: ${user.telegramId}`,
+      )
+
+      return {
+        data: {
+          success: true,
+          message: 'Подписка успешно куплена',
+          subscriptions,
+          user: userData,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при покупке подписки: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при покупке подписки',
+      )
+    }
+  }
+
   @Post('purchase')
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
@@ -287,6 +385,7 @@ export class SubscriptionsController {
         trafficLimitGb: purchaseDto.trafficLimitGb,
         isUnlimitTraffic: purchaseDto.isUnlimitTraffic,
         servers: purchaseDto.servers,
+        isAutoRenewal: purchaseDto.isAutoRenewal,
       })
 
       if (!result.success) {
