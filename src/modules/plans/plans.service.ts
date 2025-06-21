@@ -17,7 +17,13 @@ export class PlansService {
   ) {}
 
   public async getPlans(): Promise<PlansInterface[]> {
-    const plans = await this.prismaService.plans.findMany()
+    const plans = await this.prismaService.plans.findMany({
+      where: {
+        key: {
+          not: PlansEnum.TRIAL,
+        },
+      },
+    })
 
     const plansMapped = plans.map(
       (plan): PlansInterface => ({
