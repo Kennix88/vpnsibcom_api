@@ -1,3 +1,4 @@
+import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
 import { RatesService } from '@modules/rates/rates.service'
 import { UsersService } from '@modules/users/users.service'
@@ -18,13 +19,12 @@ import { DefaultEnum } from '@vpnsibcom/src/shared/enums/default.enum'
 import { TransactionReasonEnum } from '@vpnsibcom/src/shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@vpnsibcom/src/shared/enums/transaction-type.enum'
 import { addDays } from 'date-fns'
+import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { TelegramPaymentsService } from './telegram-payments.service'
-import { I18nService } from 'nestjs-i18n'
-import { I18nTranslations } from '@core/i18n/i18n.type'
 
 @Injectable()
 export class PaymentsService {
@@ -109,11 +109,14 @@ export class PaymentsService {
             args: { amount },
             lang: getUser.language.iso6391,
           })
-          const description = await this.i18n.translate('payments.invoice.description', {
-            args: { amount },
-            lang: getUser.language.iso6391,
-          })
-          
+          const description = await this.i18n.translate(
+            'payments.invoice.description',
+            {
+              args: { amount },
+              lang: getUser.language.iso6391,
+            },
+          )
+
           linkPay = await this.telegramPaymentsService.createTelegramInvoice(
             amount,
             token,
@@ -160,7 +163,12 @@ export class PaymentsService {
       })
 
       const payment = (await this.prismaService.payments.findUnique({
-        where: { token },
+        where: {
+          token,
+          status: {
+            not: PaymentStatusEnum.COMPLETED,
+          },
+        },
         include: {
           user: {
             include: {
@@ -208,6 +216,7 @@ export class PaymentsService {
         payment,
         status,
         details,
+        payment.subscriptionId !== null,
       )
 
       return { amountStars: payment.amountStars }
@@ -232,13 +241,18 @@ export class PaymentsService {
     payment: PaymentWithRelations,
     status: PaymentStatusEnum,
     details?: object,
+    isSubscription: boolean = false,
   ) {
     return this.prismaService.$transaction(async (tx: PrismaTransaction) => {
       // 1. Обновляем баланс пользователя
-      await this.updateUserBalance(tx, payment)
+      if (!isSubscription) await this.updateUserBalance(tx, payment)
 
       // 2. Создаем транзакцию платежа
-      const transaction = await this.createPaymentTransaction(tx, payment)
+      const transaction = await this.createPaymentTransaction(
+        tx,
+        payment,
+        isSubscription,
+      )
 
       // 3. Обновляем статус платежа
       await this.updatePaymentStatus(
@@ -285,15 +299,20 @@ export class PaymentsService {
   private async createPaymentTransaction(
     tx: PrismaTransaction,
     payment: PaymentWithRelations,
+    isSubscription: boolean = false,
   ): Promise<Transaction> {
     const transaction = await tx.transactions.create({
       data: {
         amount: payment.amountStars,
-        type: TransactionTypeEnum.PLUS,
+        type: isSubscription
+          ? TransactionTypeEnum.SUBSCRIPTIONS
+          : TransactionTypeEnum.PLUS,
         reason: TransactionReasonEnum.PAYMENT,
-        balanceType: BalanceTypeEnum.PAYMENT,
+        balanceType: isSubscription
+          ? BalanceTypeEnum.NOT_BALANCE
+          : BalanceTypeEnum.PAYMENT,
         isHold: false,
-        balanceId: payment.user.balanceId,
+        balanceId: isSubscription ? null : payment.user.balanceId,
       },
     })
 
@@ -449,46 +468,61 @@ export class PaymentsService {
     try {
       const inviterTelegramId = referrer.inviter.telegramId
       const referralName = payment.user.telegramData.firstName || 'Пользователь'
-      
+
       // Получаем язык пользователя
       const inviter = await tx.users.findUnique({
         where: { id: referrer.inviter.id },
         include: { language: true },
       })
-      
+
       const userLang = inviter?.language?.iso6391 || 'ru'
-      
+
       // Локализованные сообщения
-      const messageTitle = await this.i18n.translate('payments.referral.reward_title', {
-        lang: userLang,
-      })
-      
+      const messageTitle = await this.i18n.translate(
+        'payments.referral.reward_title',
+        {
+          lang: userLang,
+        },
+      )
+
       let message = `${messageTitle}\n\n`
 
       if (referralCommission > 0) {
-        const holdMessage = await this.i18n.translate('payments.referral.hold_reward', {
-          args: { amount: referralCommission, days: 21 },
-          lang: userLang,
-        })
+        const holdMessage = await this.i18n.translate(
+          'payments.referral.hold_reward',
+          {
+            args: { amount: referralCommission, days: 21 },
+            lang: userLang,
+          },
+        )
         message += `${holdMessage}\n`
       }
 
       if (plusPaymentsRewarded > 0) {
-        const availableMessage = await this.i18n.translate('payments.referral.available_reward', {
-          args: { amount: plusPaymentsRewarded },
-          lang: userLang,
-        })
+        const availableMessage = await this.i18n.translate(
+          'payments.referral.available_reward',
+          {
+            args: { amount: plusPaymentsRewarded },
+            lang: userLang,
+          },
+        )
         message += `${availableMessage}\n`
       }
 
-      const referralLabel = await this.i18n.translate('payments.referral.referral_label', {
-        lang: userLang,
-      })
-      
-      const levelLabel = await this.i18n.translate('payments.referral.level_label', {
-        lang: userLang,
-      })
-      
+      const referralLabel = await this.i18n.translate(
+        'payments.referral.referral_label',
+        {
+          lang: userLang,
+        },
+      )
+
+      const levelLabel = await this.i18n.translate(
+        'payments.referral.level_label',
+        {
+          lang: userLang,
+        },
+      )
+
       message += `\n${referralLabel}: ${referralName}\n${levelLabel}: ${referrer.level}`
 
       await this.bot.telegram.sendMessage(inviterTelegramId, message)
