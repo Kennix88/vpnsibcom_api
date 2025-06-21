@@ -884,6 +884,7 @@ export class XrayService {
           dataLimit: 0,
           usedTraffic: 0,
           lifeTimeUsedTraffic: 0,
+          nextRenewalStars: isIndefinitely ? null : nextRenewalStars,
           servers: {
             create: getServers.map((server) => ({
               greenListId: server.green,
@@ -1287,8 +1288,8 @@ export class XrayService {
           period,
           periodMultiplier,
           isFixedPrice,
-          fixedPriceStars: finalCost,
-          nextRenewalStars: finalCost,
+          fixedPriceStars: cost,
+          nextRenewalStars: isFixedPrice ? cost : cost,
           devicesCount,
           isAllBaseServers,
           isAllPremiumServers,
