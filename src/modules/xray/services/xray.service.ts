@@ -81,18 +81,32 @@ export class XrayService {
         return false
       }
 
+      const plan = await this.prismaService.plans.findUnique({
+        where: {
+          key: PlansEnum.TRIAL,
+        },
+      })
+
+      if (!plan) {
+        this.logger.error({
+          msg: `План ${PlansEnum.TRIAL} не найден`,
+          service: this.serviceName,
+        })
+        return false
+      }
+
       const subscription = await this.createSubscription({
         telegramId,
-        planKey: PlansEnum.CUSTOM,
+        planKey: PlansEnum.TRIAL,
         period: SubscriptionPeriodEnum.TRIAL,
         periodMultiplier: 1,
         isPremium: false,
         isFixedPrice: false,
-        devicesCount: 1,
-        isAllBaseServers: true,
-        isAllPremiumServers: true,
-        isUnlimitTraffic: false,
-        trafficLimitGb: 1,
+        devicesCount: plan.devicesCount,
+        isAllBaseServers: plan.isAllBaseServers,
+        isAllPremiumServers: plan.isAllPremiumServers,
+        isUnlimitTraffic: plan.isUnlimitTraffic,
+        trafficLimitGb: plan.trafficLimitGb,
         trialDays: user.freePlanDays,
         servers: [],
         isAutoRenewal: false,
