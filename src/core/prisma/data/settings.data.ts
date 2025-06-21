@@ -25,8 +25,8 @@ export const SettingsData = {
   referralOneLevelPercent: 0.1,
   referralTwoLevelPercent: 0.05,
   referralThreeLevelPercent: 0.01,
-  referralInviteRewardStars: 10,
-  referralInvitePremiumRewardStars: 50,
+  referralInviteRewardStars: 5,
+  referralInvitePremiumRewardStars: 15,
   freePlanDays: 3,
   freePlanDaysForReferrals: 7,
 }
