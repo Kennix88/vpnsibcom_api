@@ -3,6 +3,18 @@ import { PlansEnum } from '@modules/plans/types/plans.enum'
 
 export const PlansData = [
   {
+    key: PlansEnum.TRIAL,
+    name: 'TRIAL',
+    priceStars: null,
+    isCustom: false,
+    devicesCount: 1,
+    isAllBaseServers: true,
+    isAllPremiumServers: true,
+    trafficLimitGb: 2,
+    isUnlimitTraffic: false,
+    serversSelectType: PlansServersSelectTypeEnum.NOT_SELECTED,
+  },
+  {
     key: PlansEnum.START,
     name: 'START',
     priceStars: 100,
