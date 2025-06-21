@@ -1028,7 +1028,7 @@ export class XrayService {
    * @param user - Пользователь
    * @private
    */
-  private async processReferrals(user: any) {
+  public async processReferrals(user: any) {
     try {
       if (!user.inviters || user.inviters.length === 0) {
         return

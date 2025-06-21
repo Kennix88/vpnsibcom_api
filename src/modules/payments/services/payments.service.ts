@@ -2,6 +2,10 @@ import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
 import { RatesService } from '@modules/rates/rates.service'
 import { UsersService } from '@modules/users/users.service'
+import { MarzbanService } from '@modules/xray/services/marzban.service'
+import { XrayService } from '@modules/xray/services/xray.service'
+import { UserCreate } from '@modules/xray/types/marzban.types'
+import { periodHours } from '@modules/xray/utils/period-hours.util'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma } from '@prisma/client'
@@ -11,6 +15,7 @@ import { PaymentMethodTypeEnum } from '@shared/enums/payment-method-type.enum'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { PaymentSystemEnum } from '@shared/enums/payment-system.enum'
+import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { PaymentMethodsDataInterface } from '@shared/types/payment-methods-data.interface'
 import { fxUtil } from '@shared/utils/fx.util'
 import { genToken } from '@shared/utils/gen-token.util'
@@ -18,7 +23,7 @@ import { BalanceTypeEnum } from '@vpnsibcom/src/shared/enums/balance-type.enum'
 import { DefaultEnum } from '@vpnsibcom/src/shared/enums/default.enum'
 import { TransactionReasonEnum } from '@vpnsibcom/src/shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@vpnsibcom/src/shared/enums/transaction-type.enum'
-import { addDays } from 'date-fns'
+import { addDays, addHours } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
@@ -36,6 +41,8 @@ export class PaymentsService {
     private readonly redis: RedisService,
     private readonly ratesService: RatesService,
     private readonly telegramPaymentsService: TelegramPaymentsService,
+    private readonly marzbanService: MarzbanService,
+    private readonly xrayService: XrayService,
     private readonly i18n: I18nService<I18nTranslations>,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
@@ -172,6 +179,11 @@ export class PaymentsService {
           },
         },
         include: {
+          subscription: {
+            include: {
+              plan: true,
+            },
+          },
           user: {
             include: {
               inviters: {
@@ -213,12 +225,107 @@ export class PaymentsService {
         status,
       })
 
+      const isSubscription = payment.subscriptionId !== null
+
+      if (isSubscription) {
+        // Подготовка данных для Marzban
+        const marbanDataStart: UserCreate = {
+          username: payment.subscription.username,
+          proxies: {
+            vless: {
+              flow: 'xtls-rprx-vision',
+            },
+          },
+          inbounds: {
+            vless: ['VLESS'],
+          },
+          status: 'active',
+          ...(!payment.subscription.isUnlimitTraffic && {
+            data_limit_reset_strategy: 'day',
+            data_limit:
+              payment.subscription.trafficLimitGb * 1024 * 1024 * 1024,
+          }),
+          note: `${payment.user.id}/${payment.user.telegramId}/${
+            payment.user.telegramData?.username || ''
+          }/${payment.user.telegramData?.firstName || ''}/${
+            payment.user.telegramData?.lastName || ''
+          }`,
+        }
+
+        // Добавление пользователя в Marzban
+        const marzbanData = await this.marzbanService.addUser(marbanDataStart)
+        if (!marzbanData) {
+          this.logger.error({
+            msg: `Не удалось добавить пользователя в Marzban для Telegram ID: ${payment.user.telegramId}`,
+          })
+          return
+        }
+
+        await this.marzbanService.restartCore()
+
+        const settings = await this.prismaService.settings.findUnique({
+          where: {
+            key: DefaultEnum.DEFAULT,
+          },
+        })
+
+        // Расчет времени истечения подписки
+        const hours = periodHours(
+          payment.subscription.period as SubscriptionPeriodEnum,
+          payment.subscription.periodMultiplier,
+        )
+        if (
+          payment.subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
+          hours <= 0
+        ) {
+          this.logger.error({
+            msg: `Некорректный период подписки: ${payment.subscription.period}`,
+          })
+          return
+        }
+
+        const isIndefinitely =
+          payment.subscription.period === SubscriptionPeriodEnum.INDEFINITELY
+
+        const subscription = await this.prismaService.subscriptions.update({
+          where: {
+            id: payment.subscriptionId,
+          },
+          data: {
+            isActive: true,
+            isInvoicing: false,
+            isCreated: true,
+            links: marzbanData.links,
+            dataLimit: marzbanData.data_limit / 1024 / 1024,
+            usedTraffic: marzbanData.used_traffic / 1024 / 1024,
+            lifeTimeUsedTraffic: marzbanData.used_traffic / 1024 / 1024,
+            expiredAt: isIndefinitely ? null : addHours(new Date(), hours),
+            marzbanData: JSON.parse(JSON.stringify(marzbanData)),
+          },
+        })
+
+        if (!subscription) {
+          this.logger.error({
+            msg: `Не удалось создать подписку в базе данных для пользователя с Telegram ID: ${payment.user.telegramId}`,
+          })
+          return
+        }
+
+        // Обработка реферальной системы
+        await this.xrayService.processReferrals(payment.user)
+
+        this.logger.info({
+          msg: `Подписка успешно создана для пользователя с Telegram ID: ${payment.user.telegramId}`,
+          subscriptionId: subscription.id,
+        })
+      }
+
       // Обрабатываем успешный платеж в транзакции
       const result = await this.processCompletedPayment(
         payment,
         status,
         details,
-        payment.subscriptionId !== null,
+        isSubscription,
       )
 
       return { amountStars: payment.amountStars }
@@ -659,6 +766,11 @@ type PrismaTransaction = Omit<
 // Тип для платежа с включенными связями
 type PaymentWithRelations = Prisma.PaymentsGetPayload<{
   include: {
+    subscription: {
+      include: {
+        plan: true
+      }
+    }
     user: {
       include: {
         inviters: {
