@@ -589,8 +589,8 @@ model Transactions {
   holdExpiredAt DateTime?             @map("hold_expired_at")
 
   /// Связь с балансом
-  balance    UserBalance  @relation(fields: [balanceId], references: [id])
-  balanceId  String       @map("balance_id")
+  balance    UserBalance? @relation(fields: [balanceId], references: [id])
+  balanceId  String?      @map("balance_id")
   /// Связь с выводом средств
   withdrawal Withdrawals?
   /// Связь с платежом
