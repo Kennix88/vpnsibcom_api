@@ -1130,6 +1130,7 @@ export class XrayService {
     isUnlimitTraffic,
     servers = [],
     isAutoRenewal = true,
+    isInvoice = false,
   }: {
     telegramId: string
     planKey: PlansEnum
@@ -1143,6 +1144,7 @@ export class XrayService {
     isUnlimitTraffic: boolean
     servers?: string[]
     isAutoRenewal?: boolean
+    isInvoice?: boolean
   }) {
     try {
       this.logger.info({
@@ -1215,6 +1217,8 @@ export class XrayService {
         trafficLimitGb,
       })
 
+      const finalCost = isFixedPrice ? cost + settings.fixedPriceStars : cost
+
       // Проверяем баланс и списываем средства с помощью UsersService
       // Предварительная проверка баланса для вывода информативного сообщения
       const totalAvailableBalance =
@@ -1223,15 +1227,15 @@ export class XrayService {
           ? user.balance.withdrawalBalance
           : 0)
 
-      if (totalAvailableBalance < cost) {
+      if (totalAvailableBalance < finalCost) {
         this.logger.warn({
-          msg: `Недостаточно средств для покупки подписки. Требуется: ${cost}, доступно: ${totalAvailableBalance}`,
+          msg: `Недостаточно средств для покупки подписки. Требуется: ${finalCost}, доступно: ${totalAvailableBalance}`,
           service: this.serviceName,
         })
         return {
           success: false,
           message: 'insufficient_balance',
-          requiredAmount: cost,
+          requiredAmount: finalCost,
           currentBalance: totalAvailableBalance,
         }
       }
@@ -1240,7 +1244,7 @@ export class XrayService {
       // Используем метод deductUserBalance из UsersService для списания средств
       const deductResult = await this.userService.deductUserBalance(
         user.id,
-        cost,
+        finalCost,
         TransactionReasonEnum.SUBSCRIPTIONS,
         BalanceTypeEnum.PAYMENT,
         { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
@@ -1271,8 +1275,8 @@ export class XrayService {
         period,
         periodMultiplier,
         isFixedPrice,
-        fixedPriceStars: cost,
-        nextRenewalStars: cost,
+        fixedPriceStars: finalCost,
+        nextRenewalStars: finalCost,
         devicesCount,
         isAllBaseServers,
         isAllPremiumServers,
