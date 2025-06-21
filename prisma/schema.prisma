@@ -606,6 +606,7 @@ model Transactions {
 enum TransactionTypeEnum {
   PLUS
   MINUS
+  SUBSCRIPTIONS
 }
 
 /// Перечисление типов баланса
@@ -613,6 +614,7 @@ enum BalanceTypeEnum {
   PAYMENT
   WITHDRAWAL
   TICKETS
+  NOT_BALANCE
 }
 
 /// Перечисление причин транзакций
