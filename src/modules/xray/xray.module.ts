@@ -1,4 +1,5 @@
 import { AuthModule } from '@core/auth/auth.module'
+import { PaymentsModule } from '@modules/payments/payments.module'
 import { UsersModule } from '@modules/users/users.module'
 import { ServersController } from '@modules/xray/controllers/servers.controller'
 import { XrayService } from '@modules/xray/services/xray.service'
@@ -10,7 +11,7 @@ import { SubscriptionManagerService } from './services/subscription-manager.serv
 
 @Global()
 @Module({
-  imports: [AuthModule, UsersModule],
+  imports: [AuthModule, UsersModule, PaymentsModule],
   controllers: [ServersController, SubscriptionsController],
   providers: [
     XrayService,

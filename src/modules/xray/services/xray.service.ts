@@ -1,4 +1,5 @@
 import { RedisService } from '@core/redis/redis.service'
+import { PaymentsService } from '@modules/payments/services/payments.service'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
 import { UsersService } from '@modules/users/users.service'
@@ -6,6 +7,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
+import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
@@ -47,6 +49,7 @@ export class XrayService {
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
     private readonly marzbanService: MarzbanService,
+    private readonly paymentsService: PaymentsService,
     private readonly i18n: I18nService,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
@@ -184,7 +187,7 @@ export class XrayService {
       })
 
       const subscription = await this.prismaService.subscriptions.findUnique({
-        where: whereCondition,
+        where: { ...whereCondition, isCreated: true, isInvoicing: false },
         include: {
           servers: {
             include: {
@@ -470,6 +473,8 @@ export class XrayService {
           period: subscription.period as SubscriptionPeriodEnum,
           periodMultiplier: subscription.periodMultiplier,
           isActive: subscription.isActive,
+          isInvoicing: subscription.isInvoicing,
+          isCreated: subscription.isCreated,
           isAutoRenewal: subscription.isAutoRenewal,
           nextRenewalStars: subscription.nextRenewalStars,
           isFixedPrice: subscription.isFixedPrice,
@@ -574,6 +579,8 @@ export class XrayService {
       const subscriptions = await this.prismaService.subscriptions.findMany({
         where: {
           userId: userId,
+          isCreated: true,
+          isInvoicing: false,
         },
         include: {
           servers: {
@@ -659,6 +666,8 @@ export class XrayService {
           period: subscription.period as SubscriptionPeriodEnum,
           periodMultiplier: subscription.periodMultiplier,
           isActive: subscription.isActive,
+          isInvoicing: subscription.isInvoicing,
+          isCreated: subscription.isCreated,
           isAutoRenewal: subscription.isAutoRenewal,
           nextRenewalStars: subscription.nextRenewalStars,
           isFixedPrice: subscription.isFixedPrice,
@@ -795,6 +804,7 @@ export class XrayService {
     trialDays,
     servers,
     isAutoRenewal = true,
+    isInvoice = false,
   }: {
     telegramId: string
     planKey: PlansEnum
@@ -812,6 +822,7 @@ export class XrayService {
     servers: string[]
     trialDays?: number
     isAutoRenewal?: boolean
+    isInvoice?: boolean
   }) {
     try {
       this.logger.info({
@@ -848,6 +859,52 @@ export class XrayService {
       const username = `${user.telegramId}_${Math.random()
         .toString(36)
         .substring(2)}`
+      const isIndefinitely = period === SubscriptionPeriodEnum.INDEFINITELY
+
+      if (isInvoice) {
+        const subscriptionData = {
+          username,
+          isPremium,
+          planKey,
+          isAutoRenewal: isIndefinitely ? false : isAutoRenewal,
+          isFixedPrice,
+          fixedPriceStars: isIndefinitely ? null : fixedPriceStars,
+          devicesCount,
+          isAllBaseServers,
+          isAllPremiumServers,
+          trafficLimitGb,
+          isUnlimitTraffic,
+          userId: user.id,
+          period,
+          periodMultiplier,
+          isActive: false,
+          isInvoicing: true,
+          isCreated: false,
+          token,
+          dataLimit: 0,
+          usedTraffic: 0,
+          lifeTimeUsedTraffic: 0,
+          servers: {
+            create: getServers.map((server) => ({
+              greenListId: server.green,
+            })),
+          },
+        }
+        // Создание подписки в базе данных
+        const subscription = await this.prismaService.subscriptions.create({
+          data: subscriptionData,
+        })
+
+        if (!subscription) {
+          this.logger.error({
+            msg: `Не удалось создать подписку в базе данных для пользователя с Telegram ID: ${telegramId}`,
+            service: this.serviceName,
+          })
+          return false
+        }
+
+        return subscription
+      }
 
       // Подготовка данных для Marzban
       const marbanDataStart: UserCreate = {
@@ -882,8 +939,6 @@ export class XrayService {
         return false
       }
 
-      // TODO: Добавить Luip
-
       await this.marzbanService.restartCore()
 
       // Расчет времени истечения подписки
@@ -896,8 +951,6 @@ export class XrayService {
         return false
       }
 
-      // Для INDEFINITELY устанавливаем специальные параметры
-      const isIndefinitely = period === SubscriptionPeriodEnum.INDEFINITELY
       const subscriptionData = {
         username,
         isPremium,
@@ -916,6 +969,8 @@ export class XrayService {
         period,
         periodMultiplier,
         isActive: true,
+        isInvoicing: false,
+        isCreated: true,
         token,
         links: marzbanData.links,
         dataLimit: marzbanData.data_limit / 1024 / 1024,
@@ -1130,6 +1185,7 @@ export class XrayService {
     isUnlimitTraffic,
     servers = [],
     isAutoRenewal = true,
+    method,
     isInvoice = false,
   }: {
     telegramId: string
@@ -1144,6 +1200,7 @@ export class XrayService {
     isUnlimitTraffic: boolean
     servers?: string[]
     isAutoRenewal?: boolean
+    method?: PaymentMethodEnum
     isInvoice?: boolean
   }) {
     try {
@@ -1218,6 +1275,47 @@ export class XrayService {
       })
 
       const finalCost = isFixedPrice ? cost + settings.fixedPriceStars : cost
+
+      if (isInvoice) {
+        if (!method) {
+          return { success: false, message: 'payment_method_required' }
+        }
+
+        const subscription = await this.createSubscription({
+          isPremium: user.telegramData.isPremium,
+          planKey,
+          period,
+          periodMultiplier,
+          isFixedPrice,
+          fixedPriceStars: finalCost,
+          nextRenewalStars: finalCost,
+          devicesCount,
+          isAllBaseServers,
+          isAllPremiumServers,
+          trafficLimitGb,
+          isUnlimitTraffic,
+          servers,
+          isAutoRenewal,
+          telegramId,
+        })
+
+        if (!subscription) {
+          this.logger.error({
+            msg: `Не удалось создать инвойс на подписку для пользователя с Telegram ID: ${telegramId}`,
+            service: this.serviceName,
+          })
+          return { success: false, message: 'subscription_creation_failed' }
+        }
+
+        const invoice = await this.paymentsService.createInvoice(
+          finalCost,
+          method,
+          user.telegramId,
+          subscription.id,
+        )
+
+        return { success: true, invoice }
+      }
 
       // Проверяем баланс и списываем средства с помощью UsersService
       // Предварительная проверка баланса для вывода информативного сообщения
