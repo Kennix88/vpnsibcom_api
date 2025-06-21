@@ -343,6 +343,8 @@ model Subscriptions {
   plan             Plans                  @relation(fields: [planKey], references: [key])
   planKey          PlansEnum              @default(CUSTOM) @map("plan_key")
   isActive         Boolean                @default(false) @map("is_active")
+  isInvoicing      Boolean                @default(false) @map("is_invoicing")
+  isCreated        Boolean                @default(false) @map("is_created")
   isAutoRenewal    Boolean                @default(true) @map("is_auto_renewal")
   token            String                 @unique @map("token")
   period           SubscriptionPeriodEnum @default(MONTH)
