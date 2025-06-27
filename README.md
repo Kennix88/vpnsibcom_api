@@ -14,6 +14,7 @@
 [![REPO](https://img.shields.io/github/stars/Kennix88/vpnsibcom_web?style=for-the-badge&color=0891b2&labelColor=1c1917&logo=github&label=vpnsibcom_web)](https://github.com/Kennix88/vpnsibcom_web)
 [![REPO](https://img.shields.io/github/stars/Kennix88/vpnsibcom_api?style=for-the-badge&color=0891b2&labelColor=1c1917&logo=github&label=vpnsibcom_api)](https://github.com/Kennix88/vpnsibcom_api)
 
+[![Telegram Open Dev Community](https://img.shields.io/endpoint?label=open%20dev%20community&style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fodevcmty)](https://t.me/odevcmty)
 ![Title](https://img.shields.io/badge/Repository%3A-blue?style=for-the-badge&color=3C5280)
 [![release](https://img.shields.io/github/package-json/v/Kennix88/vpnsibcom_api?style=for-the-badge&color=0891b2&labelColor=1c1917)](https://github.com/Kennix88/vpnsibcom_api/releases)
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
@@ -27,7 +28,6 @@
 [![Github followers](https://img.shields.io/github/followers/Kennix88?logo=github&style=for-the-badge&color=0891b2&labelColor=1c1917)](https://www.github.com/Kennix88)
 [![Telegram Channel](https://img.shields.io/endpoint?style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fkennixdev&label=Channel)](https://t.me/KennixDev)
 [![Telegram Group](https://img.shields.io/endpoint?label=Group&style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2FKennixDevGroup)](https://t.me/KennixDevGroup)
-[![Telegram Open Dev Community](https://img.shields.io/endpoint?label=open%20dev%20community&style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fodevcmty)](https://t.me/odevcmty)
 
 </div>
 
