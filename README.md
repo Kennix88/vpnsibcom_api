@@ -1,4 +1,3 @@
-
 <div align="center">
 
 <a href="https://t.me/vpnsibcom_bot" target='_blank'>
@@ -6,7 +5,9 @@
 </a>
 
 # VPNsibcom_api
+
 #### **Repository**: This repository contains the source code of the VPNsib.com. Contains: API, Telegram Bot, Integrations.
+
 #### **Description**: VPNsibcom is an open source VPN service. It is based on [Xray-core](https://github.com/XTLS/Xray-core/) with [Marzban](https://github.com/Gozargah/Marzban).
 
 ![Title](https://img.shields.io/badge/Project%20Repositories%3A-blue?style=for-the-badge&color=005386)
@@ -26,13 +27,16 @@
 [![Github followers](https://img.shields.io/github/followers/Kennix88?logo=github&style=for-the-badge&color=0891b2&labelColor=1c1917)](https://www.github.com/Kennix88)
 [![Telegram Channel](https://img.shields.io/endpoint?style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fkennixdev&label=Channel)](https://t.me/KennixDev)
 [![Telegram Group](https://img.shields.io/endpoint?label=Group&style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2FKennixDevGroup)](https://t.me/KennixDevGroup)
+[![Telegram Open Dev Community](https://img.shields.io/endpoint?label=open%20dev%20community&style=for-the-badge&color=0891b2&labelColor=1c1917&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fodevcmty)](https://t.me/odevcmty)
 
 </div>
 
 ## 📈 Project Statistics
 
 ### ⭐ Stargazers:
+
 [![Stargazers repo roster for @Kennix88/vpnsibcom_api](https://reporoster.com/stars/dark/Kennix88/vpnsibcom_api)](https://github.com/Kennix88/vpnsibcom_api/stargazers)
+
 ### ⭐ Star History
 
 <a href="https://www.star-history.com/#kennix88/vpnsibcom_api&Date">
@@ -44,8 +48,8 @@
 </a>
 
 ### 🍴 Forkers:
-[![Forkers repo roster for @Kennix88/vpnsibcom_api](https://reporoster.com/forks/dark/Kennix88/vpnsibcom_api)](https://github.com/Kennix88/vpnsibcom_api/network/members)
 
+[![Forkers repo roster for @Kennix88/vpnsibcom_api](https://reporoster.com/forks/dark/Kennix88/vpnsibcom_api)](https://github.com/Kennix88/vpnsibcom_api/network/members)
 
 ## 🤝 Contributing
 
@@ -55,7 +59,6 @@ We welcome any contributions to VPNsibcom! If you want to help:
 2. Create a branch for your changes
 3. Make and test your changes
 4. Create a Pull Request
-
 
 <div align="center">
 Thanks to the all contributors who have helped improve VPNsibcom:
@@ -73,13 +76,13 @@ Made with <a rel="noopener noreferrer" target="_blank" href="https://contrib.roc
 </div>
 
 ## © License
+
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
 
 This repository is available under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](cc-by-nc-sa). Commercial use is prohibited!
 
-
-
 ## 💵 Sponsorship
+
 If you want to support me, I will be very happy about it. 🥺👉👈
 
 - TON or Jettons(NOT, DOGS, X, HMSTR, STON, GEM, JETTON etc) or TON NFT or TG-Names: `UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ`
