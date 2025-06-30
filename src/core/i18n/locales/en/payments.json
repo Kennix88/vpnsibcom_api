@@ -3,7 +3,7 @@
     "title": "💳 Balance top-up for {amount} Stars",
     "description": "⭐ Add {amount} Stars to your account balance"
   },
-  "payment_success": "✅ Success! Your payment of {amount} Stars has been processed! 💰 The funds have been credited to your balance and are ready to use.",
+  "payment_success": "✅ Success! Your payment of {amount} Stars has been processed!",
   "payment_failed": "❌ Payment failed! An error occurred while processing your payment. 🔄 Please try again or contact our support team for assistance.",
   "payment_expired": "⏱️ Your payment of {amount} has expired. 🔄 Please create a new payment if you want to continue with your purchase.",
   "referral": {

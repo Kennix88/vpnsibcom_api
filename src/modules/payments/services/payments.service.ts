@@ -42,7 +42,8 @@ export class PaymentsService {
     private readonly ratesService: RatesService,
     private readonly telegramPaymentsService: TelegramPaymentsService,
     private readonly marzbanService: MarzbanService,
-    @Inject(forwardRef(() => XrayService)) private readonly xrayService: XrayService,
+    @Inject(forwardRef(() => XrayService))
+    private readonly xrayService: XrayService,
     private readonly i18n: I18nService<I18nTranslations>,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
@@ -113,17 +114,18 @@ export class PaymentsService {
         let linkPay: string | null = null
         let isTmaIvoice = false
         if (getMethod.key === PaymentMethodEnum.STARS) {
-          const title = await this.i18n.translate('payments.invoice.title', {
-            args: { amount },
-            lang: getUser.language.iso6391,
-          })
-          const description = await this.i18n.translate(
-            'payments.invoice.description',
-            {
-              args: { amount },
-              lang: getUser.language.iso6391,
-            },
-          )
+          const title = subscriptionId
+            ? 'Subscription payment'
+            : await this.i18n.translate('payments.invoice.title', {
+                args: { amount },
+                lang: getUser.language.iso6391,
+              })
+          const description = subscriptionId
+            ? 'Subscription payment'
+            : await this.i18n.translate('payments.invoice.description', {
+                args: { amount },
+                lang: getUser.language.iso6391,
+              })
 
           linkPay = await this.telegramPaymentsService.createTelegramInvoice(
             amount,
