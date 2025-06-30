@@ -49,7 +49,8 @@ export class XrayService {
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
     private readonly marzbanService: MarzbanService,
-    @Inject(forwardRef(() => PaymentsService)) private readonly paymentsService: PaymentsService,
+    @Inject(forwardRef(() => PaymentsService))
+    private readonly paymentsService: PaymentsService,
     private readonly i18n: I18nService,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
@@ -1309,7 +1310,7 @@ export class XrayService {
         }
 
         const invoice = await this.paymentsService.createInvoice(
-          finalCost,
+          Math.ceil(finalCost),
           method,
           user.telegramId,
           subscription.id,
