@@ -39,6 +39,14 @@ export class PlansService {
         serversSelectType: plan.serversSelectType as PlansServersSelectTypeEnum,
       }),
     )
-    return plansMapped
+    return plansMapped.sort((a, b) => {
+      const indexA = Object.values(PlansEnum).indexOf(a.key)
+      const indexB = Object.values(PlansEnum).indexOf(b.key)
+
+      const safeIndexA = indexA === -1 ? Infinity : indexA
+      const safeIndexB = indexB === -1 ? Infinity : indexB
+
+      return safeIndexA - safeIndexB
+    })
   }
 }
