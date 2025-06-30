@@ -1,4 +1,5 @@
 import { PlansEnum } from '@prisma/client'
+import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { ServerDataInterface } from './servers-data.interface'
 
@@ -86,6 +87,11 @@ export interface CreateSubscriptionDataInterface {
   servers?: string[]
   trafficLimitGb?: number
   isUnlimitTraffic: boolean
+}
+
+export interface CreateInvoiceSubscriptionDataInterface
+  extends CreateSubscriptionDataInterface {
+  method: PaymentMethodEnum
 }
 
 export interface ChangeSubscriptionConditionsDataInterface
