@@ -1299,6 +1299,7 @@ export class XrayService {
           servers,
           isAutoRenewal,
           telegramId,
+          isInvoice: true,
         })
 
         if (!subscription) {
