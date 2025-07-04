@@ -135,7 +135,7 @@ export function filterConfig(
         return match !== null && servers.some((s) => match[1].includes(s))
       })
       const outStr = lines.join('\n')
-      return Buffer.from(outStr).toString('base64')
+      return outStr // Buffer.from(outStr).toString('base64')
     }
 
     default:

@@ -33,16 +33,16 @@ function getXrayConfigFormat(userAgent: string): XrayConfigFromatType {
 
   switch (true) {
     case REGEX_PATTERNS.CLASH_META.test(userAgent):
-      return 'clash-meta'
+      return 'v2ray' // 'clash-meta'
 
     case REGEX_PATTERNS.CLASH.test(userAgent):
-      return 'clash'
+      return 'v2ray' // 'clash'
 
     case REGEX_PATTERNS.SING_BOX.test(userAgent):
-      return 'sing-box' // 'sing-box'
+      return 'v2ray' // 'sing-box' // 'sing-box'
 
     case REGEX_PATTERNS.OUTLINE.test(userAgent):
-      return 'outline'
+      return 'v2ray' // 'outline'
 
     case REGEX_PATTERNS.V2RAY_N.test(userAgent): {
       const versionMatch = userAgent.match(REGEX_PATTERNS.V2RAY_N)
