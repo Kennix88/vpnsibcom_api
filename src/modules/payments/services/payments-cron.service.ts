@@ -1,3 +1,4 @@
+import { XrayService } from '@modules/xray/services/xray.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
@@ -17,6 +18,7 @@ export class PaymentsCronService {
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
+    private readonly xrayService: XrayService,
     private readonly i18n: I18nService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
@@ -182,13 +184,22 @@ export class PaymentsCronService {
 
       // Обновляем статус каждого платежа
       for (const payment of expiredPayments) {
-        await this.prismaService.payments.update({
-          where: {
-            id: payment.id,
-          },
-          data: {
-            status: PaymentStatusEnum.FAILED,
-          },
+        await this.prismaService.$transaction(async (tx) => {
+          await tx.payments.update({
+            where: {
+              id: payment.id,
+            },
+            data: {
+              status: PaymentStatusEnum.FAILED,
+            },
+          })
+
+          if (payment.subscriptionId) {
+            await this.xrayService.deleteSubscription(
+              payment.user.telegramId,
+              payment.subscriptionId,
+            )
+          }
         })
 
         this.logger.info({
