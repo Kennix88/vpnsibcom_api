@@ -10,13 +10,13 @@ export const RolesData: {
     key: UserRolesEnum.SUPER_ADMIN,
     name: 'Super admin',
     discount: 0,
-    limitSubscriptions: 50,
+    limitSubscriptions: 10,
   },
   {
     key: UserRolesEnum.ADMIN,
     name: 'Admin',
     discount: 0.5,
-    limitSubscriptions: 20,
+    limitSubscriptions: 10,
   },
   {
     key: UserRolesEnum.USER,
@@ -28,7 +28,7 @@ export const RolesData: {
     key: UserRolesEnum.FRIEND,
     name: 'Friend',
     discount: 0,
-    limitSubscriptions: 10,
+    limitSubscriptions: 3,
   },
   {
     key: UserRolesEnum.OLD_USER,
