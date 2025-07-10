@@ -1,7 +1,7 @@
 export interface TelegramInitDataInterface {
   auth_date: Date | number
   can_send_after?: number
-  start_param?: 'startattach' | 'startapp'
+  start_param?: string
   chat_type?: 'group' | 'supergroup' | 'private' | 'channel' | 'sender'
   chat_instance?: string
   hash: string

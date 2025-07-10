@@ -12,6 +12,7 @@ import { TokenService } from './token.service'
 
 @Injectable()
 export class AuthService {
+  private readonly serviceName = 'AuthService'
   constructor(
     private jwtService: JwtService,
     private tokenService: TokenService,
@@ -43,12 +44,24 @@ export class AuthService {
   }> {
     const userData = parse(initData) as TelegramInitDataInterface
 
+    this.logger.info({
+      msg: `Telegram login InitData`,
+      userData,
+      service: this.serviceName,
+    })
+
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
+
+    const startParam = userData.start_param ?? ''
+    const refId = startParam.match(/r-([a-zA-Z0-9]+)/)?.[1] ?? null
 
     if (!user) {
       user = await this.userService.createUser({
         telegramId: userData.user.id.toString(),
         initData: userData,
+        ...(refId && {
+          referralKey: refId,
+        }),
       })
     }
 
