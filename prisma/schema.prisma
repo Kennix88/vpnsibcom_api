@@ -68,6 +68,11 @@ model Settings {
   /// Награда за приглашение премиум-пользователя в Stars
   referralInvitePremiumRewardStars Float @default(10) @map("referral_invite_premiumreward_stars")
 
+  isActiveTgPartnerProgram        Boolean @default(true) @map("is_active_tg_partner_program")
+  commissionRatioTgPartnerProgram Float   @default(0.30) @map("commission_ratio_tg_partner_program")
+  mouthesCountTgPartnerProgram    Int?    @map("mouthes_count_tg_partner_program")
+  telegramPartnerProgramRatio     Float   @default(1.3) @map("telegram_partner_program_ratio")
+
   // Ограничения и бонусы
   /// Количество дней бесплатного периода для обычных пользователей
   freePlanDays             Int @default(3) @map("free_plan_days")
@@ -150,6 +155,7 @@ model Users {
   id                  String  @id @default(uuid())
   /// Telegram ID пользователя
   telegramId          String  @unique @map("telegram_id")
+  isTgProgramPartner  Boolean @default(false) @map("is_tg_program_partner")
   /// Доступен ли бесплатный план
   isFreePlanAvailable Boolean @default(true) @map("is_free_plan_available")
   /// Заблокирован ли пользователь
@@ -158,43 +164,43 @@ model Users {
   isDeleted           Boolean @default(false) @map("is_deleted")
 
   /// Дата создания
-  createdAt     DateTime  @default(now()) @map("created_at")
+  createdAt                 DateTime          @default(now()) @map("created_at")
   /// Дата обновления
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  updatedAt                 DateTime          @updatedAt @map("updated_at")
   /// Дата последнего входа
-  lastStartedAt DateTime? @map("last_started_at")
+  lastStartedAt             DateTime?         @map("last_started_at")
   /// Дата истечения бана
-  banExpiredAt  DateTime? @map("banned_expired_at")
+  banExpiredAt              DateTime?         @map("banned_expired_at")
   /// Дата удаления
-  deletedAt     DateTime? @map("deleted_at")
-
+  deletedAt                 DateTime?         @map("deleted_at")
+  tgProgramPartnerExpiredAt DateTime?         @map("tg_program_partner_expired_at")
   /// Роль пользователя
-  role           Roles             @relation(fields: [roleId], references: [key])
-  roleId         UserRoleEnum      @default(USER) @map("role_id")
+  role                      Roles             @relation(fields: [roleId], references: [key])
+  roleId                    UserRoleEnum      @default(USER) @map("role_id")
   /// Платежи пользователя
-  payments       Payments[]
+  payments                  Payments[]
   /// Рефералы, приглашенные пользователем
-  referrals      Referrals[]       @relation("inviter")
+  referrals                 Referrals[]       @relation("inviter")
   /// Пользователи, пригласившие данного пользователя
-  inviters       Referrals[]       @relation("referral")
+  inviters                  Referrals[]       @relation("referral")
   /// Данные Telegram пользователя
-  telegramData   UserTelegramData? @relation(fields: [telegramDataId], references: [id])
-  telegramDataId String?           @unique @map("telegram_data_id")
+  telegramData              UserTelegramData? @relation(fields: [telegramDataId], references: [id])
+  telegramDataId            String?           @unique @map("telegram_data_id")
   /// Баланс пользователя
-  balance        UserBalance?      @relation(fields: [balanceId], references: [id])
-  balanceId      String?           @unique @map("balance_id")
+  balance                   UserBalance?      @relation(fields: [balanceId], references: [id])
+  balanceId                 String?           @unique @map("balance_id")
   /// Язык пользователя
-  language       Language          @relation(fields: [languageId], references: [id])
-  languageId     String            @map("language_id")
+  language                  Language          @relation(fields: [languageId], references: [id])
+  languageId                String            @map("language_id")
   /// Валюта пользователя
-  currency       Currency          @relation(fields: [currencyKey], references: [key])
-  currencyKey    CurrencyEnum      @default(USD) @map("currency_key")
+  currency                  Currency          @relation(fields: [currencyKey], references: [key])
+  currencyKey               CurrencyEnum      @default(USD) @map("currency_key")
   /// Подписки пользователя
-  subscriptions  Subscriptions[]
+  subscriptions             Subscriptions[]
   /// Выводы средств пользователя
-  withdrawals    Withdrawals[]
+  withdrawals               Withdrawals[]
   /// Просмотры рекламы пользователем
-  adsViews       AdsViews[]
+  adsViews                  AdsViews[]
 
   @@index([telegramId])
   @@index([roleId])
@@ -672,23 +678,25 @@ enum WithdrawalStatusEnum {
 
 /// Модель платежей
 model Payments {
-  id           String            @id @default(uuid())
+  id                      String            @id @default(uuid())
   /// Статус платежа
-  status       PaymentStatusEnum @default(PENDING)
+  status                  PaymentStatusEnum @default(PENDING)
   /// Сумма платежа
-  amount       Float             @default(0)
+  amount                  Float             @default(0)
   /// Сумма в Stars
-  amountStars  Float             @default(0) @map("amount_stars")
+  amountStars             Float             @default(0) @map("amount_stars")
   /// Курс обмена
-  exchangeRate Float             @default(0) @map("exchange_rate")
+  exchangeRate            Float             @default(0) @map("exchange_rate")
   /// Комиссия
-  commission   Float             @default(1)
+  commission              Float             @default(1)
+  isTgPartnerProgram      Boolean           @default(false) @map("is_tg_partner_program")
+  amountStarsFeeTgPartner Float             @default(0) @map("amount_stars_fee_tg_partner")
   /// Токен платежа
-  token        String            @unique
+  token                   String            @unique
   /// Ссылка для оплаты
-  linkPay      String?           @map("link_pay")
+  linkPay                 String?           @map("link_pay")
   /// Дополнительные детали платежа
-  details      Json?             @db.JsonB
+  details                 Json?             @db.JsonB
 
   /// Дата создания
   createdAt DateTime @default(now()) @map("created_at")
