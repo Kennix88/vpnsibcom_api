@@ -308,12 +308,10 @@ export class UsersService {
   public async createUser({
     telegramId,
     referralKey,
-    giftKey,
     initData,
   }: {
     telegramId: string
     referralKey?: string
-    giftKey?: string
     initData?: TelegramInitDataInterface
   }) {
     try {
@@ -351,9 +349,7 @@ export class UsersService {
           },
         })
 
-        // TODO: Add referral logic and gift logic
-
-        return tx.users.create({
+        const createUser = await tx.users.create({
           data: {
             telegramId,
             languageId: language.id,
@@ -364,6 +360,62 @@ export class UsersService {
             lastStartedAt: new Date(),
           },
         })
+
+        const referrals = []
+        const isPremium = tdata.isPremium
+
+        if (referralKey) {
+          const inviterLvl1 = await tx.users.findUnique({
+            where: { telegramId: referralKey },
+            include: {
+              inviters: {
+                include: {
+                  inviter: {
+                    include: {
+                      inviters: true,
+                    },
+                  },
+                },
+              },
+            },
+          })
+
+          if (inviterLvl1) {
+            referrals.push({
+              level: 1,
+              inviterId: inviterLvl1.id,
+              referralId: createUser.id,
+              isPremium,
+            })
+
+            for (const lvl2 of inviterLvl1.inviters) {
+              referrals.push({
+                level: 2,
+                inviterId: lvl2.inviter.id,
+                referralId: createUser.id,
+                isPremium,
+              })
+
+              for (const lvl3 of lvl2.inviter.inviters) {
+                referrals.push({
+                  level: 3,
+                  inviterId: lvl3.inviterId,
+                  referralId: createUser.id,
+                  isPremium,
+                })
+              }
+            }
+          }
+        }
+
+        if (referrals.length > 0) {
+          await tx.referrals.createMany({
+            data: referrals,
+            skipDuplicates: true,
+          })
+        }
+
+        return createUser
       })
 
       if (!user) {
