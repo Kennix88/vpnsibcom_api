@@ -1,6 +1,6 @@
 export const SettingsData = {
   tgStarsToUSD: 0.013,
-  telegramPremiumRatio: 1.2,
+  telegramPremiumRatio: 1.47,
   devicesPriceStars: 20,
   serversPriceStars: 60,
   premiumServersPriceStars: 80,
@@ -29,4 +29,8 @@ export const SettingsData = {
   referralInvitePremiumRewardStars: 15,
   freePlanDays: 3,
   freePlanDaysForReferrals: 7,
+  isActiveTgPartnerProgram: true,
+  commissionRatioTgPartnerProgram: 0.3,
+  mouthesCountTgPartnerProgram: null,
+  telegramPartnerProgramRatio: 1.3,
 }
