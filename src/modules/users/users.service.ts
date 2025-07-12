@@ -1,4 +1,5 @@
 import { RedisService } from '@core/redis/redis.service'
+import { UserInBotInterface } from '@integrations/telegram/types/user-in-bot.interface'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
@@ -311,10 +312,14 @@ export class UsersService {
     telegramId,
     referralKey,
     initData,
+    userInBotData,
+    isTelegramPartner,
   }: {
     telegramId: string
     referralKey?: string
     initData?: TelegramInitDataInterface
+    userInBotData?: UserInBotInterface
+    isTelegramPartner?: boolean
   }) {
     try {
       const user = await this.prismaService.$transaction(async (tx) => {
@@ -325,25 +330,44 @@ export class UsersService {
           ? false
           : isRtl([initData?.user.first_name, initData?.user.last_name])
         const tdata = await tx.userTelegramData.create({
-          data: !initData
-            ? {
-                firstName: 'ANONIM',
-                languageCode: 'ru',
-                isLive: true,
-              }
-            : {
-                isLive: true,
-                isRtl: isRTL,
-                firstName: initData.user.first_name,
-                lastName: initData.user.last_name,
-                username: initData.user.username,
-                languageCode: initData.user.language_code,
-                isPremium: initData.user.is_premium,
-                isBot: initData.user.is_bot,
-                photoUrl: initData.user.photo_url,
-                addedToAttachmentMenu: initData.user.added_to_attachment_menu,
-                allowsWriteToPm: initData.user.allows_write_to_pm,
-              },
+          data:
+            !initData && !userInBotData
+              ? {
+                  firstName: 'ANONIM',
+                  languageCode: 'ru',
+                  isLive: true,
+                }
+              : initData && !userInBotData
+              ? {
+                  isLive: true,
+                  isRtl: isRTL,
+                  firstName: initData.user.first_name,
+                  lastName: initData.user.last_name,
+                  username: initData.user.username,
+                  languageCode: initData.user.language_code,
+                  isPremium: initData.user.is_premium,
+                  isBot: initData.user.is_bot,
+                  photoUrl: initData.user.photo_url,
+                  addedToAttachmentMenu: initData.user.added_to_attachment_menu,
+                  allowsWriteToPm: initData.user.allows_write_to_pm,
+                }
+              : userInBotData && !initData
+              ? {
+                  isLive: true,
+                  isRtl: isRTL,
+                  firstName: userInBotData.first_name,
+                  lastName: userInBotData.last_name,
+                  username: userInBotData.username,
+                  languageCode: userInBotData.language_code,
+                  isPremium: userInBotData.is_premium,
+                  isBot: userInBotData.is_bot,
+                  addedToAttachmentMenu: userInBotData.added_to_attachment_menu,
+                }
+              : {
+                  firstName: 'ANONIM',
+                  languageCode: 'ru',
+                  isLive: true,
+                },
         })
         const language = await tx.language.findUnique({
           where: {
@@ -360,6 +384,7 @@ export class UsersService {
             telegramDataId: tdata.id,
             currencyKey: CurrencyEnum.USD,
             lastStartedAt: new Date(),
+            isTgProgramPartner: isTelegramPartner,
           },
         })
 
