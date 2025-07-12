@@ -5,6 +5,7 @@ import { RatesService } from '@modules/rates/rates.service'
 import { ReferralsService } from '@modules/referrals/referrals.service'
 import { UsersService } from '@modules/users/users.service'
 import { ConfigService } from '@nestjs/config'
+import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { Ctx, Start, Update } from 'nestjs-telegraf'
@@ -64,17 +65,43 @@ export class StartUpdate {
         // console.log(JSON.stringify(rates, null, 2))
       }
 
-      await ctx.replyWithHTML(
-        this.i18n.t('telegraf.start.welcome', {
-          ...(ctx.from.language_code && { lang: ctx.from.language_code }),
-        }),
+      // await ctx.replyWithHTML(
+      //   this.i18n.t('telegraf.start.welcome', {
+      //     ...(ctx.from.language_code && { lang: ctx.from.language_code }),
+      //   }),
+      await ctx.sendPhoto(
+        { source: createReadStream('assets/welcome.png') },
         {
+          caption: `<b>Привет, ${ctx.from.first_name}!</b>
+Добро пожаловать в VPNsib!
+Для подключения к VPN, пожалуйста, нажмите кнопку ниже.`,
+          parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [
               [
+                Markup.button.webApp(
+                  'Подключиться',
+                  this.configService.get<string>('WEBAPP_URL'),
+                ),
+              ],
+              [
                 Markup.button.url(
-                  'App',
-                  'https://t.me/dev_vpnsibcom_bot/testapp',
+                  'Канал',
+                  this.configService.get<string>('CHANNEL_URL'),
+                ),
+                Markup.button.url(
+                  'Чат',
+                  this.configService.get<string>('CHAT_URL'),
+                ),
+              ],
+              [
+                Markup.button.url(
+                  'Open-Source',
+                  this.configService.get<string>('OPENSOURCE_URL'),
+                ),
+                Markup.button.url(
+                  'by KennixDev',
+                  this.configService.get<string>('KENNIXDEV_URL'),
                 ),
               ],
             ],
