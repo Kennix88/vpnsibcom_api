@@ -187,6 +187,7 @@ export class UsersService {
       return {
         id: user.id,
         telegramId: user.telegramId,
+        isTgProgramPartner: user.isTgProgramPartner,
         isFreePlanAvailable: user.isFreePlanAvailable,
         freePlanDays:
           user.inviters.length > 0
@@ -196,6 +197,7 @@ export class UsersService {
         isDeleted: user.isDeleted,
         banExpiredAt: user.banExpiredAt,
         deletedAt: user.deletedAt,
+        tgProgramPartnerExpiredAt: user.tgProgramPartnerExpiredAt,
         role: user.role.key as UserRolesEnum,
         roleName: user.role.name,
         roleDiscount: user.role.discount,
