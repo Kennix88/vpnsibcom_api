@@ -758,6 +758,7 @@ export class XrayService {
         threeYearRatioPayment: settings.threeYearRatioPayment,
         indefinitelyRatio: settings.indefinitelyRatio,
         fixedPriceStars: settings.fixedPriceStars,
+        telegramPartnerProgramRatio: settings.telegramPartnerProgramRatio,
         subscriptions: result,
       }
     } catch (error) {
@@ -1277,6 +1278,13 @@ export class XrayService {
       })
 
       const finalCost = isFixedPrice ? cost + settings.fixedPriceStars : cost
+      const nextFinalCost = user.isTgProgramPartner
+        ? finalCost * settings.telegramPartnerProgramRatio
+        : finalCost
+
+      const partnerCost = user.isTgProgramPartner
+        ? cost * settings.telegramPartnerProgramRatio
+        : cost
 
       if (isInvoice) {
         if (!method) {
@@ -1289,8 +1297,8 @@ export class XrayService {
           period,
           periodMultiplier,
           isFixedPrice,
-          fixedPriceStars: cost,
-          nextRenewalStars: isFixedPrice ? cost : cost,
+          fixedPriceStars: partnerCost,
+          nextRenewalStars: partnerCost,
           devicesCount,
           isAllBaseServers,
           isAllPremiumServers,
@@ -1311,7 +1319,7 @@ export class XrayService {
         }
 
         const invoice = await this.paymentsService.createInvoice(
-          Math.ceil(finalCost),
+          Math.ceil(nextFinalCost),
           method,
           user.telegramId,
           subscription.id,
@@ -1328,15 +1336,15 @@ export class XrayService {
           ? user.balance.withdrawalBalance
           : 0)
 
-      if (totalAvailableBalance < finalCost) {
+      if (totalAvailableBalance < nextFinalCost) {
         this.logger.warn({
-          msg: `Недостаточно средств для покупки подписки. Требуется: ${finalCost}, доступно: ${totalAvailableBalance}`,
+          msg: `Недостаточно средств для покупки подписки. Требуется: ${nextFinalCost}, доступно: ${totalAvailableBalance}`,
           service: this.serviceName,
         })
         return {
           success: false,
           message: 'insufficient_balance',
-          requiredAmount: finalCost,
+          requiredAmount: nextFinalCost,
           currentBalance: totalAvailableBalance,
         }
       }
@@ -1345,7 +1353,7 @@ export class XrayService {
       // Используем метод deductUserBalance из UsersService для списания средств
       const deductResult = await this.userService.deductUserBalance(
         user.id,
-        finalCost,
+        nextFinalCost,
         TransactionReasonEnum.SUBSCRIPTIONS,
         BalanceTypeEnum.PAYMENT,
         { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
@@ -1376,8 +1384,8 @@ export class XrayService {
         period,
         periodMultiplier,
         isFixedPrice,
-        fixedPriceStars: finalCost,
-        nextRenewalStars: finalCost,
+        fixedPriceStars: partnerCost,
+        nextRenewalStars: partnerCost,
         devicesCount,
         isAllBaseServers,
         isAllPremiumServers,
