@@ -191,9 +191,13 @@ export class SubscriptionManagerService {
                 trafficLimitGb: subscription.trafficLimitGb,
               })
 
+              const partnerCost = subscription.user.isTgProgramPartner
+                ? cost * settings.telegramPartnerProgramRatio
+                : cost
+
               nextRenewalStars = subscription.isFixedPrice
                 ? subscription.fixedPriceStars
-                : cost
+                : partnerCost
             }
 
             return {
