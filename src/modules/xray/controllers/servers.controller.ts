@@ -18,6 +18,7 @@ import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { PinoLogger } from 'nestjs-pino'
 import { ServersService } from '../services/servers.service'
+import { getClientIp } from '../utils/get-client-ip.util'
 
 @Controller('servers')
 export class ServersController {
@@ -91,12 +92,7 @@ export class ServersController {
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const ip =
-      req.ip == '::1' || req.ip == '127.0.0.1'
-        ? req.headers['cf-connecting-ip']
-          ? (req.headers['cf-connecting-ip'] as string)
-          : (req.headers['x-forwarded-for'] as string)
-        : req.ip
+    const ip = getClientIp(req)
     const isGreen = await this.serversService.greenCheck(ip)
 
     return {
