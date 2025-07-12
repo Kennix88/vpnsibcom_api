@@ -1,6 +1,7 @@
 import { Scenes } from 'telegraf'
 
 export interface Context extends Scenes.SceneContext {
+  startPayload?: string
   session: Scenes.SceneSession & {
     a: string
   }
