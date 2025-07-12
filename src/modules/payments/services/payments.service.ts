@@ -459,7 +459,7 @@ export class PaymentsService {
     transactionId: string,
     details?: object,
   ) {
-    await tx.payments.update({
+    const updatedPayment = await tx.payments.update({
       where: {
         token,
       },
@@ -469,6 +469,46 @@ export class PaymentsService {
         ...(details && { details: details as Prisma.JsonObject }),
       },
     })
+
+    try {
+      await this.bot.telegram
+        .sendMessage(
+          Number(process.env.TELEGRAM_LOG_CHAT_ID),
+          `<b>НОВЫЙ УСПЕШНЫЙ ПЛАТЕЖ</b>
+<b>Статус:</b> <code>${updatedPayment.status}</code>
+<b>Пользователь:</b> <code>${updatedPayment.userId}</code>
+<b>Сумма Stars:</b> <code>${updatedPayment.amountStars} ⭐</code>
+<b>Сумма в валюте:</b> <code>${updatedPayment.amount}</code>
+<b>Метод:</b> <code>${updatedPayment.methodKey}</code>
+<b>Валюта:</b> <code>${updatedPayment.currencyKey}</code>
+<b>Rate:</b> <code>${updatedPayment.exchangeRate}</code>
+<b>Комиссия:</b> <code>${updatedPayment.commission}</code>
+<b>Партнер телеграм:</b> <code>${updatedPayment.isTgPartnerProgram}</code>
+<b>Потеря на партнерку:</b> <code>${updatedPayment.amountStarsFeeTgPartner} ⭐</code>
+<b>Подписка:</b> <code>${updatedPayment.subscriptionId}</code>
+`,
+          {
+            parse_mode: 'HTML',
+            message_thread_id: Number(process.env.TELEGRAM_THREAD_ID_PAYMENTS),
+          },
+        )
+        .catch((e) => {
+          this.logger.error({
+            msg: `Error while sending message to telegram`,
+            e,
+          })
+        })
+        .then(() => {
+          this.logger.info({
+            msg: `Message sent to telegram`,
+          })
+        })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error while sending message to telegram`,
+        e,
+      })
+    }
 
     this.logger.info({
       msg: `Payment status updated`,

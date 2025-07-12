@@ -1,4 +1,5 @@
 import { AuthModule } from '@core/auth/auth.module'
+import { TelegramModule } from '@integrations/telegram/telegram.module'
 import { PaymentsController } from '@modules/payments/payments.controller'
 import { PaymentsCronService } from '@modules/payments/services/payments-cron.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
@@ -9,7 +10,13 @@ import { forwardRef, Global, Module } from '@nestjs/common'
 
 @Global()
 @Module({
-  imports: [AuthModule, UsersModule, RatesModule, forwardRef(() => XrayModule)],
+  imports: [
+    AuthModule,
+    UsersModule,
+    RatesModule,
+    forwardRef(() => XrayModule),
+    forwardRef(() => TelegramModule),
+  ],
   controllers: [PaymentsController],
   providers: [PaymentsService, PaymentsCronService],
   exports: [PaymentsService, PaymentsCronService],

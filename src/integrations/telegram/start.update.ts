@@ -8,8 +8,8 @@ import { ConfigService } from '@nestjs/config'
 import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { Ctx, Start, Update } from 'nestjs-telegraf'
-import { Markup } from 'telegraf'
+import { Ctx, InjectBot, Start, Update } from 'nestjs-telegraf'
+import { Markup, Telegraf } from 'telegraf'
 
 @Update()
 export class StartUpdate {
@@ -21,6 +21,7 @@ export class StartUpdate {
     private readonly telegramLogger: LoggerTelegramService,
     private readonly ratesService: RatesService,
     private readonly userService: UsersService,
+    @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(StartUpdate.name)
   }
@@ -69,6 +70,7 @@ export class StartUpdate {
       //   this.i18n.t('telegraf.start.welcome', {
       //     ...(ctx.from.language_code && { lang: ctx.from.language_code }),
       //   }),
+
       await ctx.sendPhoto(
         { source: createReadStream('assets/welcome.png') },
         {
@@ -77,6 +79,7 @@ export class StartUpdate {
 Для подключения к VPN, пожалуйста, нажмите кнопку ниже.`,
           parse_mode: 'HTML',
           reply_markup: {
+            remove_keyboard: true,
             inline_keyboard: [
               [
                 Markup.button.webApp(

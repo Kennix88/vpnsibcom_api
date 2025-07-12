@@ -39,14 +39,18 @@ export class PaymentsUpdate {
       // Обязательно отвечаем в течение 10 секунд
       await ctx.answerPreCheckoutQuery(true)
     } catch (err) {
-      this.logger.error({ 
-        msg: 'Error in pre_checkout_query handler', 
+      this.logger.error({
+        msg: 'Error in pre_checkout_query handler',
         error: err instanceof Error ? err.message : String(err),
-        stack: err instanceof Error ? err.stack : undefined 
+        stack: err instanceof Error ? err.stack : undefined,
       })
-      
+
       // Отправляем уведомление об ошибке в Telegram-логгер
-      await this.telegramLogger.error(`Error in pre_checkout_query handler: ${err instanceof Error ? err.message : String(err)}`)
+      await this.telegramLogger.error(
+        `Error in pre_checkout_query handler: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
     }
   }
 
@@ -62,11 +66,11 @@ export class PaymentsUpdate {
 
       const payment = msg.successful_payment as SuccessfulPayment
       const userId = ctx.from?.id.toString()
-      
+
       this.logger.info({
         msg: 'SuccessfulPayment received',
         payment: JSON.stringify(payment),
-        userId
+        userId,
       })
 
       // Получаем язык пользователя
@@ -85,29 +89,36 @@ export class PaymentsUpdate {
       )
 
       if (!updatePayment) {
-        const errorMessage = await this.i18n.translate('payments.payment_failed', {
-          lang: userLang
-        })
-        
+        const errorMessage = await this.i18n.translate(
+          'payments.payment_failed',
+          {
+            lang: userLang,
+          },
+        )
+
         await ctx.reply(errorMessage)
         return
       }
 
-      const successMessage = await this.i18n.translate('payments.payment_success', {
-        args: { amount: updatePayment.amountStars },
-        lang: userLang
-      })
-      
-      await ctx.reply(successMessage)
+      // const successMessage = await this.i18n.translate('payments.payment_success', {
+      //   args: { amount: updatePayment.amountStars },
+      //   lang: userLang
+      // })
+
+      // await ctx.reply(successMessage)
     } catch (err) {
-      this.logger.error({ 
-        msg: 'Error in successful_payment handler', 
+      this.logger.error({
+        msg: 'Error in successful_payment handler',
         error: err instanceof Error ? err.message : String(err),
-        stack: err instanceof Error ? err.stack : undefined 
+        stack: err instanceof Error ? err.stack : undefined,
       })
-      
+
       // Отправляем уведомление об ошибке в Telegram-логгер
-      await this.telegramLogger.error(`Error in successful_payment handler: ${err instanceof Error ? err.message : String(err)}`)
+      await this.telegramLogger.error(
+        `Error in successful_payment handler: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
     }
   }
 }
