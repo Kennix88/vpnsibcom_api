@@ -3,6 +3,7 @@ import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
 import { RatesService } from '@modules/rates/rates.service'
 import { ReferralsService } from '@modules/referrals/referrals.service'
+import { UsersService } from '@modules/users/users.service'
 import { ConfigService } from '@nestjs/config'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
@@ -18,6 +19,7 @@ export class StartUpdate {
     private readonly referralsService: ReferralsService,
     private readonly telegramLogger: LoggerTelegramService,
     private readonly ratesService: RatesService,
+    private readonly userService: UsersService,
   ) {
     this.logger.setContext(StartUpdate.name)
   }
@@ -27,7 +29,31 @@ export class StartUpdate {
     try {
       if (ctx.chat?.type !== 'private' || !ctx.from) return
 
-      console.log(JSON.stringify(ctx.from, null, 2))
+      const startParam = ctx.startPayload
+
+      // можно выделить реф. ID и партнёрский флаг
+      const isTelegramPartner = /^_tgr_[\w-]+$/.test(startParam ?? '')
+      const referralKey = startParam?.match(/r-([a-zA-Z0-9]+)/)?.[1] ?? null
+
+      this.logger.info({
+        msg: `Start command`,
+        telegramId: ctx.from.id,
+        startParam,
+        isTelegramPartner,
+        referralKey,
+        // ctx,
+      })
+
+      const user = await this.userService.getUserByTgId(ctx.from.id.toString())
+
+      if (!user) {
+        await this.userService.createUser({
+          telegramId: ctx.from.id.toString(),
+          referralKey: referralKey,
+          userInBotData: ctx.from,
+          isTelegramPartner,
+        })
+      }
 
       if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
         // await this.ratesService.updateApilayerRates()
