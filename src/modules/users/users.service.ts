@@ -371,7 +371,10 @@ export class UsersService {
         })
         const language = await tx.language.findUnique({
           where: {
-            iso6391: initData.user.language_code || 'en',
+            iso6391:
+              initData.user.language_code ||
+              userInBotData.language_code ||
+              'en',
           },
         })
 
