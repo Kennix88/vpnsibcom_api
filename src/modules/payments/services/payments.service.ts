@@ -78,6 +78,12 @@ export class PaymentsService {
           },
         })
 
+        const settings = await tx.settings.findUnique({
+          where: {
+            key: DefaultEnum.DEFAULT,
+          },
+        })
+
         if (!getUser) {
           throw new Error(`User not found`)
         }
@@ -96,17 +102,23 @@ export class PaymentsService {
                 rates,
               )
 
+        const amountStars =
+          getMethod.key === PaymentMethodEnum.STARS
+            ? Number(amount.toFixed(0))
+            : amount
+
         const paymentObject = {
           status: PaymentStatusEnum.PENDING,
           amount: convertedAmount,
-          amountStars:
-            getMethod.key === PaymentMethodEnum.STARS
-              ? Number(amount.toFixed(0))
-              : amount,
+          amountStars,
           currencyKey: getMethod.currencyKey,
           methodKey: getMethod.key,
           exchangeRate: rates.rates[getMethod.currencyKey],
           commission: getMethod.commission,
+          isTgPartnerProgram: getUser.isTgProgramPartner,
+          amountStarsFeeTgPartner: getUser.isTgProgramPartner
+            ? amountStars * settings.commissionRatioTgPartnerProgram
+            : 0,
           token,
           userId: getUser.id,
         }
@@ -516,8 +528,12 @@ export class PaymentsService {
       referrer.level,
       settings,
     )
+    const tgPartnerCommission =
+      payment.isTgPartnerProgram && payment.methodKey == PaymentMethodEnum.STARS
+        ? payment.amountStarsFeeTgPartner
+        : 0
     const referralCommission = Number(
-      (payment.amountStars * commissionLvl).toFixed(3),
+      ((payment.amountStars - tgPartnerCommission) * commissionLvl).toFixed(3),
     )
 
     this.logger.info({
