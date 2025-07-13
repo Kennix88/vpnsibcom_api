@@ -464,9 +464,7 @@ export class UsersService {
 `,
               {
                 parse_mode: 'HTML',
-                message_thread_id: Number(
-                  process.env.TELEGRAM_THREAD_ID_PAYMENTS,
-                ),
+                message_thread_id: Number(process.env.TELEGRAM_THREAD_ID_USERS),
               },
             )
             .catch((e) => {

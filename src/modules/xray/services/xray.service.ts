@@ -1038,7 +1038,7 @@ export class XrayService {
               {
                 parse_mode: 'HTML',
                 message_thread_id: Number(
-                  process.env.TELEGRAM_THREAD_ID_PAYMENTS,
+                  process.env.TELEGRAM_THREAD_ID_SUBSCRIPTIONS,
                 ),
               },
             )
