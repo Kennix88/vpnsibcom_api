@@ -14,6 +14,8 @@ import { UserDataInterface } from '@shared/types/user-data.interface'
 import { isRtl } from '@shared/utils/is-rtl.util'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
+import { InjectBot } from 'nestjs-telegraf'
+import { Telegraf } from 'telegraf'
 
 @Injectable()
 export class UsersService {
@@ -23,6 +25,7 @@ export class UsersService {
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
+    @InjectBot() private readonly bot: Telegraf,
   ) {}
 
   public async updateLanguage(tgId: string, language: string) {
@@ -442,6 +445,45 @@ export class UsersService {
           await tx.referrals.createMany({
             data: referrals,
             skipDuplicates: true,
+          })
+        }
+
+        try {
+          await this.bot.telegram
+            .sendMessage(
+              Number(process.env.TELEGRAM_LOG_CHAT_ID),
+              `<b>😁 НОВЫЙ ПОЛЬЗОВАТЕЛЬ</b>
+<b>Пользователь:</b> <code>${createUser.id}</code>
+<b>Telegram ID:</b> <code>${createUser.telegramId}</code>
+<b>По партнерке телеграм:</b> <code>${createUser.isTgProgramPartner}</code>
+<b>По рефералке:</b> <code>${referrals.length !== 0}</code>
+<b>Премиум:</b> <code>${tdata.isPremium}</code>
+<b>Имя:</b> <code>${tdata.firstName}</code>
+<b>Фамилия:</b> <code>${tdata.lastName}</code>
+<b>Username:</b> @${tdata.username}
+`,
+              {
+                parse_mode: 'HTML',
+                message_thread_id: Number(
+                  process.env.TELEGRAM_THREAD_ID_PAYMENTS,
+                ),
+              },
+            )
+            .catch((e) => {
+              this.logger.error({
+                msg: `Error while sending message to telegram`,
+                e,
+              })
+            })
+            .then(() => {
+              this.logger.info({
+                msg: `Message sent to telegram`,
+              })
+            })
+        } catch (e) {
+          this.logger.error({
+            msg: `Error while sending message to telegram`,
+            e,
           })
         }
 
