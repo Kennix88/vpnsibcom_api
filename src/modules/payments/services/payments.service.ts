@@ -325,6 +325,53 @@ export class PaymentsService {
           return
         }
 
+        try {
+          if (subscription.isActive && !subscription.isInvoicing)
+            await this.bot.telegram
+              .sendMessage(
+                Number(process.env.TELEGRAM_LOG_CHAT_ID),
+                `<b>👍 НОВАЯ ПОДПИСКА СОЗДАНА</b>
+<b>Пользователь:</b> <code>${subscription.userId}</code>
+<b>Username :</b> <code>${subscription.username}</code>
+<b>Тариф:</b> <code>${subscription.planKey}</code>
+<b>Дата истечения:</b> <code>${subscription.expiredAt}</code>
+<b>Автопродление:</b> <code>${subscription.isAutoRenewal}</code>
+<b>Множитель периода:</b> <code>${subscription.periodMultiplier}</code>
+<b>Цена следующей оплаты:</b> <code>${subscription.nextRenewalStars}</code>
+<b>Премиум:</b> <code>${subscription.isPremium}</code>
+<b>Цена фиксирована:</b> <code>${subscription.isFixedPrice}</code>
+<b>Фикс цена:</b> <code>${subscription.fixedPriceStars}</code>
+<b>Устройства:</b> <code>${subscription.devicesCount}</code>
+<b>Все базовые сервера:</b> <code>${subscription.isAllBaseServers}</code>
+<b>Все премиум сервера:</b> <code>${subscription.isAllPremiumServers}</code>
+<b>Лимит трафика:</b> <code>${subscription.trafficLimitGb}</code>
+<b>Безлимит:</b> <code>${subscription.isUnlimitTraffic}</code>
+`,
+                {
+                  parse_mode: 'HTML',
+                  message_thread_id: Number(
+                    process.env.TELEGRAM_THREAD_ID_PAYMENTS,
+                  ),
+                },
+              )
+              .catch((e) => {
+                this.logger.error({
+                  msg: `Error while sending message to telegram`,
+                  e,
+                })
+              })
+              .then(() => {
+                this.logger.info({
+                  msg: `Message sent to telegram`,
+                })
+              })
+        } catch (e) {
+          this.logger.error({
+            msg: `Error while sending message to telegram`,
+            e,
+          })
+        }
+
         // Обработка реферальной системы
         await this.xrayService.processReferrals(payment.user)
 
