@@ -2,14 +2,14 @@ import { AdsNetworksData } from '@core/prisma/data/ads-networks.data'
 import { CurrencyData } from '@core/prisma/data/currency.data'
 import { GreenListData } from '@core/prisma/data/green-list.data'
 import { LanguagesData } from '@core/prisma/data/languages.data'
-import { OldUsersData } from '@core/prisma/data/old-users.data'
 import { PaymentMethodsData } from '@core/prisma/data/payment-methods.data'
 import { RolesData } from '@core/prisma/data/roles.data'
 import { SettingsData } from '@core/prisma/data/settings.data'
 import { Logger } from '@nestjs/common'
-import { PrismaClient } from '@prisma/client'
-import { CurrencyEnum } from '@shared/enums/currency.enum'
+import { CurrencyEnum, PrismaClient } from '@prisma/client'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
+import { FriendsListData } from './data/friends-list.data'
+import { OldUsersData } from './data/old-users.data'
 import { PlansData } from './data/plans.data'
 
 const prisma = new PrismaClient({
@@ -109,7 +109,13 @@ export async function PrismaSeed() {
             telegramId: el.telegramId,
             languageId: language.id,
             balanceId: balance.id,
-            roleId: UserRolesEnum.OLD_USER,
+            roleId:
+              el.telegramId.toString() ==
+              process.env.TELEGRAM_ADMIN_ID.toString()
+                ? UserRolesEnum.SUPER_ADMIN
+                : FriendsListData.includes(el.telegramId.toString())
+                ? UserRolesEnum.FRIEND
+                : UserRolesEnum.OLD_USER,
             telegramDataId: tdata.id,
             currencyKey: CurrencyEnum.USD,
           },
