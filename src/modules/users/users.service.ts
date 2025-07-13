@@ -461,6 +461,7 @@ export class UsersService {
 <b>Имя:</b> <code>${tdata.firstName}</code>
 <b>Фамилия:</b> <code>${tdata.lastName}</code>
 <b>Username:</b> @${tdata.username}
+<b>Язык:</b> <code>${tdata.languageCode}</code>
 `,
               {
                 parse_mode: 'HTML',
