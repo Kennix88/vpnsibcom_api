@@ -6,6 +6,7 @@ import cookie from '@fastify/cookie'
 import fastifyCsrf from '@fastify/csrf-protection'
 import helmet from '@fastify/helmet'
 import * as fastifyJwt from '@fastify/jwt'
+import fastifyRateLimit from '@fastify/rate-limit'
 import session from '@fastify/session'
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -83,17 +84,25 @@ async function bootstrap() {
     }),
   })
 
+  // Настройка Rate Limiting
+  await app.register(fastifyRateLimit, {
+    max: 100, // максимальное количество запросов
+    timeWindow: '1 minute', // за 1 минуту
+    cache: 10000, // размер кэша для хранения IP-адресов
+    whitelist: ['127.0.0.1'], // белый список IP-адресов
+    errorResponseBuilder: (req, context) => ({
+      code: 429,
+      error: 'Too Many Requests',
+      message: `Слишком много запросов, пожалуйста, попробуйте снова через ${context.after}`,
+      date: Date.now(),
+      expiresIn: context.after,
+    }),
+  })
+
   app.enableCors({
     origin: [
       config.getOrThrow<string>('ALLOWED_ORIGIN'),
-      'https://telegram.org',
-      'https://*.telegram.org',
-      'https://*.t.me',
       'https://127.0.0.1:3000',
-      'https://localhost:3000',
-      'https://172.19.0.1:3000',
-      'https://192.168.3.16:3000',
-      'https://192.168.3.19:3000',
     ],
     credentials: true,
     exposedHeaders: ['set-cookie'],
@@ -116,7 +125,10 @@ async function bootstrap() {
 
   app.enableShutdownHooks()
 
-  await app.listen(config.getOrThrow<number>('APPLICATION_PORT') || 3000)
+  await app.listen(
+    config.getOrThrow<number>('APPLICATION_PORT') || 3000,
+    '0.0.0.0',
+  )
 
   return app.getUrl()
 }

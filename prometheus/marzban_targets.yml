@@ -1,0 +1,4 @@
+- targets:
+    - 'panel1.example.com:9180'
+  labels:
+    group: marzban

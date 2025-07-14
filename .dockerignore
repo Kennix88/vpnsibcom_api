@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE files
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tests
+test
+coverage
+
+# Temporary files
+tmp
+temp
+
+# Documentation
+docs
+*.md
+LICENSE
+CONTRIBUTING.md
+SECURITY.md
+
+# Other
+.github
+.husky
+.eslintrc
+.prettierrc
+.prettierignore

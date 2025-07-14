@@ -1,63 +1,247 @@
 version: '3.9'
 
 services:
-    db:
-        container_name: postgres-vpn
-        image: postgres:latest
-        restart: unless-stopped
-        environment:
-            - POSTGRES_USER=${POSTGRES_USER}
-            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            - POSTGRES_DB=${POSTGRES_DATABASE}
-            - PGDATA=/var/lib/postgresql/data/pgdata
-        ports:
-            - "5437:5432"
-        volumes:
-            - postgres_data:/var/lib/postgresql/data/pgdata
-        networks:
-            - token-backend
-        healthcheck:
-            test: [ "CMD-SHELL", "pg_isready -U postgres_user -d postgres_db" ]
-            interval: 30s
-            timeout: 10s
-            retries: 5
-        tty: true
-        stdin_open: true
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    environment:
+      # Все твои переменные окружения
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - ACCESS_TOKEN_EXPIRY=${ACCESS_TOKEN_EXPIRY}
+      - REFRESH_TOKEN_EXPIRY=${REFRESH_TOKEN_EXPIRY}
+      - APPLICATION_PORT=4000
+      - APPLICATION_URL=${APPLICATION_URL}
+      - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
+      - COOKIES_SECRET=${COOKIES_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - SESSION_NAME=${SESSION_NAME}
+      - SESSION_DOMAIN=${SESSION_DOMAIN}
+      - SESSION_MAX_AGE=${SESSION_MAX_AGE}
+      - SESSION_HTTP_ONLY=${SESSION_HTTP_ONLY}
+      - SESSION_SECURE=${SESSION_SECURE}
+      - SESSION_FOLDER=${SESSION_FOLDER}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DATABASE}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_URL=redis://${REDIS_USER}:${REDIS_PASSWORD}@redis:6379
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_LOG_CHAT_ID=${TELEGRAM_LOG_CHAT_ID}
+      - TELEGRAM_THREAD_ID_DEBUG=${TELEGRAM_THREAD_ID_DEBUG}
+      - TELEGRAM_THREAD_ID_INFO=${TELEGRAM_THREAD_ID_INFO}
+      - TELEGRAM_THREAD_ID_WARN=${TELEGRAM_THREAD_ID_WARN}
+      - TELEGRAM_THREAD_ID_ERROR=${TELEGRAM_THREAD_ID_ERROR}
+      - TELEGRAM_THREAD_ID_PAYMENTS=${TELEGRAM_THREAD_ID_PAYMENTS}
+      - TELEGRAM_THREAD_ID_SUBSCRIPTIONS=${TELEGRAM_THREAD_ID_SUBSCRIPTIONS}
+      - TELEGRAM_THREAD_ID_USERS=${TELEGRAM_THREAD_ID_USERS}
+      - TELEGRAM_THREAD_ID_BACKUPS=${TELEGRAM_THREAD_ID_BACKUPS}
+      - XRAY_MARZBAN_URL=${XRAY_MARZBAN_URL}
+      - XRAY_MARZBAN_LOGIN=${XRAY_MARZBAN_LOGIN}
+      - XRAY_MARZBAN_PASSWORD=${XRAY_MARZBAN_PASSWORD}
+      - COINMARKETCAP_TOKEN=${COINMARKETCAP_TOKEN}
+      - COINMARKETCAP_URL=${COINMARKETCAP_URL}
+      - FOREXRATEAPI_URL=${FOREXRATEAPI_URL}
+      - FOREXRATEAPI_TOKEN=${FOREXRATEAPI_TOKEN}
+      - CRYPTOMUS_MERCHANT=${CRYPTOMUS_MERCHANT}
+      - CRYPTOMUS_TOKEN=${CRYPTOMUS_TOKEN}
+      - CRYPTOMUS_URL=${CRYPTOMUS_URL}
+      - PAYPALYCH_ID=${PAYPALYCH_ID}
+      - PAYPALYCH_TOKEN=${PAYPALYCH_TOKEN}
+      - PAYPALYCH_URL=${PAYPALYCH_URL}
+    volumes:
+      - api_logs:/app/logs
+    networks:
+      - token-backend
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:4000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    tty: true
+    stdin_open: true
 
-    redis:
-        container_name: redis-vpn
-        image: redis:latest
-        restart: unless-stopped
-        environment:
-            - REDIS_PASSWORD=${REDIS_PASSWORD}
-        ports:
-            - "6382:6379"
-        command: >
-            sh -c '
-              mkdir -p /usr/local/etc/redis &&
-              echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
-              echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
-              echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
-              echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
-              echo "user default on nopass ~* +@all" > /usr/local/etc/redis/users.acl &&
-              redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
-            '
-        volumes:
-            - redis_data:/data
-        networks:
-            - token-backend
-        healthcheck:
-            test: [ "CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping" ]
-            interval: 30s
-            timeout: 10s
-            retries: 5
-        tty: true
-        stdin_open: true
+  frontend:
+    container_name: frontend
+    build:
+      context: F:/projects/vpnsibcom_web # ⚠️ путь к фронту, укажи точно
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_API_PORT=${NEXT_PUBLIC_API_PORT}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - NEXT_PUBLIC_APP_PORT=${NEXT_PUBLIC_APP_PORT}
+      - NEXT_PUBLIC_TELEGRAM_KENNIXDEV_URL=${NEXT_PUBLIC_TELEGRAM_KENNIXDEV_URL}
+      - NEXT_PUBLIC_TELEGRAM_CHANNEL_URL=${NEXT_PUBLIC_TELEGRAM_CHANNEL_URL}
+      - NEXT_PUBLIC_TELEGRAM_CHAT_URL=${NEXT_PUBLIC_TELEGRAM_CHAT_URL}
+      - NEXT_PUBLIC_GITHUBREPO_URL=${NEXT_PUBLIC_GITHUBREPO_URL}
+      - NEXT_PUBLIC_CONNECT_MANIFEST_URL=${NEXT_PUBLIC_CONNECT_MANIFEST_URL}
+      - NEXT_PUBLIC_SPLIT_TG_REF_URL=${NEXT_PUBLIC_SPLIT_TG_REF_URL}
+      - NEXT_PUBLIC_BOT_URL=${NEXT_PUBLIC_BOT_URL}
+    networks:
+      - token-backend
+    expose:
+      - '3000'
+    tty: true
+    stdin_open: true
 
-volumes:
-    postgres_data:
-        driver: local
-    redis_data:
+  db:
+    container_name: postgres
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+    networks:
+      - token-backend
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE}']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    tty: true
+    stdin_open: true
+
+  redis:
+    container_name: redis-vpn-dev
+    image: redis:latest
+    restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: >
+      sh -c '
+        mkdir -p /usr/local/etc/redis &&
+        echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+        echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+        echo "user default on nopass ~* +@all" > /usr/local/etc/redis/users.acl &&
+        redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+      '
+    volumes:
+      - redis_data:/data
+    networks:
+      - token-backend
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '$REDIS_PASSWORD', 'ping']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    tty: true
+    stdin_open: true
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - token-backend
+    expose:
+      - '5000'
+    ports:
+      - '5000:3000' # Внутри контейнера 3000, наружу — 5000
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    tty: true
+    stdin_open: true
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/marzban_targets.yml:/etc/prometheus/marzban_targets.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - token-backend
+    expose:
+      - '9090'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:9090/-/healthy']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    tty: true
+    stdin_open: true
+
+  caddy:
+    container_name: caddy
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - token-backend
+    depends_on:
+      - api
+      - frontend
+      - grafana
+      - prometheus
+      - xray-checker
+
+  xray-checker:
+    container_name: xray-checker
+    image: kutovoys/xray-checker
+    environment:
+      - SUBSCRIPTION_URL=${XRAY_CHECHER_SUBSCRIPTION_URL}
+      - METRICS_PROTECTED=true
+      - METRICS_USERNAME=${XRAY_CHECHER_USERNAME}
+      - METRICS_PASSWORD=${XRAY_CHECHER_PASSWORD}
+    ports:
+      - '2112:2112'
 
 networks:
-    token-backend:
+  token-backend:
+    driver: bridge
+    name: token-backend
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  api_logs:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+  grafana_data:
+    driver: local
+  prometheus_data:
+    driver: local
