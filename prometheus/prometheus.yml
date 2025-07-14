@@ -58,7 +58,7 @@ scrape_configs:
   - job_name: 'xray-checker'
     metrics_path: '/metrics'
     basic_auth:
-      username: 'metricsUser'
-      password: 'MetricsVeryHardPassword'
+      username: 'metricsUser228'
+      password: 'MetricsVeryHardPassword228'
     static_configs:
       - targets: ['localhost:2112']
