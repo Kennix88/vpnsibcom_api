@@ -33,7 +33,15 @@ fasti.fun {
         X-Frame-Options "SAMEORIGIN"
         X-XSS-Protection "1; mode=block"
         X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' fasti.fun api.fasti.fun; frame-ancestors 'self';"
+        Content-Security-Policy "
+					default-src 'self';
+					script-src 'self' 'unsafe-inline';
+					style-src 'self' 'unsafe-inline';
+					connect-src 'self' fasti.fun api.fasti.fun raw.githubusercontent.com ton.org;
+					img-src 'self' data: telegram.org ton.org githubusercontent.com raw.githubusercontent.com;
+					frame-ancestors 'self';
+					object-src 'none';
+				"
         Referrer-Policy "strict-origin-when-cross-origin"
         -Server
     }
@@ -70,7 +78,7 @@ api.fasti.fun {
         X-Frame-Options "SAMEORIGIN"
         X-XSS-Protection "1; mode=block"
         X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' api.fasti.fun; frame-ancestors 'self';"
+        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' fasti.fun api.fasti.fun; frame-ancestors 'self';"
         Referrer-Policy "strict-origin-when-cross-origin"
         -Server
     }
