@@ -92,15 +92,26 @@ export class ServersController {
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const ip = getClientIp(req)
-    const isGreen = await this.serversService.greenCheck(ip)
+    try {
+      const ip = getClientIp(req) ?? 'unknown'
+      const isGreen = await this.serversService.greenCheck(ip)
 
-    return {
-      data: {
-        success: true,
-        isGreen: isGreen,
-        ip: ip,
-      },
+      return {
+        data: {
+          success: true,
+          isGreen,
+          ip,
+        },
+      }
+    } catch (error) {
+      this.logger.error(error, 'GreenCheckError')
+      return {
+        data: {
+          success: false,
+          isGreen: false,
+          ip: 'unknown',
+        },
+      }
     }
   }
 }
