@@ -53,9 +53,13 @@ async function bootstrap() {
 
   await app.register(compression)
   await app.register(cookie)
-  await app.register(fastifyCsrf)
+  if (!isProduction) {
+    await app.register(fastifyCsrf)
+  }
 
-  await app.register(helmet)
+  await app.register(helmet, {
+    contentSecurityPolicy: false, // если ломает Telegram
+  })
 
   await app.register(fastifyJwt, {
     secret: config.getOrThrow<string>('JWT_ACCESS_SECRET'),
@@ -89,7 +93,7 @@ async function bootstrap() {
     max: 100, // максимальное количество запросов
     timeWindow: '1 minute', // за 1 минуту
     cache: 10000, // размер кэша для хранения IP-адресов
-    whitelist: ['127.0.0.1'], // белый список IP-адресов
+    whitelist: ['127.0.0.1', '::1', '172.18.0.0/16'], // белый список IP-адресов
     errorResponseBuilder: (req, context) => ({
       code: 429,
       error: 'Too Many Requests',
@@ -155,3 +159,12 @@ void (async () => {
     Logger.error(error, 'Bootstrap')
   }
 })()
+
+process.on('uncaughtException', (err) => {
+  Logger.error(err, 'UncaughtException')
+  process.exit(1)
+})
+
+process.on('unhandledRejection', (reason) => {
+  Logger.error(reason, 'UnhandledRejection')
+})

@@ -20,6 +20,7 @@ import { APP_FILTER } from '@nestjs/core'
 import { ScheduleModule } from '@nestjs/schedule'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
+import { PrometheusModule } from '@willsoto/nestjs-prometheus'
 import {
   AcceptLanguageResolver,
   HeaderResolver,
@@ -29,6 +30,7 @@ import {
 } from 'nestjs-i18n'
 import { Logger, LoggerModule } from 'nestjs-pino'
 import { join } from 'path'
+import { CoreController } from './core.controller'
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { join } from 'path'
       ignoreEnvFile: !IS_DEV_ENV,
       isGlobal: true,
     }),
+    PrometheusModule.register(),
     // CacheModule.registerAsync({
     //   isGlobal: true,
     //   useFactory: async (configService: ConfigService) => ({
@@ -71,7 +74,7 @@ import { join } from 'path'
           fallbackLanguage: 'en',
           loaderOptions: {
             path: join(__dirname, 'i18n/locales'),
-            watch: true,
+            watch: process.env.NODE_ENV === 'development',
             includeSubfolders: true,
           },
           typesOutputPath: join(__dirname, 'i18n/i18n.type.ts'),
@@ -100,7 +103,7 @@ import { join } from 'path'
     PaymentsModule,
     PlansModule,
   ],
-  controllers: [],
+  controllers: [CoreController],
   providers: [
     LogRotationService,
     LoggerTelegramService,

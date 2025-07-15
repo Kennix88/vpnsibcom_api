@@ -7,33 +7,20 @@ export const pinoConfig: LoggerModuleAsyncParams = {
     pinoHttp: {
       transport: {
         targets: [
-          // Console output with colors
           {
             target: 'pino-pretty',
+            level: 'info',
             options: {
               colorize: true,
               levelFirst: true,
               translateTime: 'yyyy-mm-dd HH:MM:ss',
               ignore: 'pid,hostname',
             },
-            level: 'info',
-          },
-          // File output
-          {
-            target: 'pino-pretty',
-            options: {
-              colorize: false,
-              levelFirst: true,
-              translateTime: 'yyyy-mm-dd HH:MM:ss',
-              ignore: 'pid,hostname',
-              destination: join(process.cwd(), 'logs', 'app.log'),
-            },
-            level: 'info',
           },
         ],
       },
-      level: 'info',
     },
+    // Это отдельный логгер, используемый через `Logger` из `nestjs-pino`
     pino: {
       transport: {
         targets: [
@@ -51,34 +38,35 @@ export const pinoConfig: LoggerModuleAsyncParams = {
             target: 'pino/file',
             level: 'info',
             options: {
-              destination: 'logs/info.log',
+              destination: join(process.cwd(), 'logs', 'info.log'),
               mkdir: true,
-              maxSize: '1m',
-              maxFiles: 3,
+              maxSize: '5m',
+              maxFiles: 5,
             },
           },
           {
             target: 'pino/file',
             level: 'error',
             options: {
-              destination: 'logs/error.log',
+              destination: join(process.cwd(), 'logs', 'error.log'),
               mkdir: true,
-              maxSize: '1m',
-              maxFiles: 3,
+              maxSize: '5m',
+              maxFiles: 5,
             },
           },
           {
             target: 'pino/file',
             level: 'debug',
             options: {
-              destination: 'logs/debug.log',
+              destination: join(process.cwd(), 'logs', 'debug.log'),
               mkdir: true,
-              maxSize: '1m',
-              maxFiles: 3,
+              maxSize: '5m',
+              maxFiles: 5,
             },
           },
         ],
       },
+      level: 'debug',
     },
   }),
   inject: [ConfigService],
