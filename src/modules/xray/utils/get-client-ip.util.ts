@@ -3,14 +3,26 @@ import { FastifyRequest } from 'fastify'
 export function getClientIp(req: FastifyRequest): string {
   const headers = req.headers
 
-  // Сначала пробуем Cloudflare
+  // Cloudflare IP
   const cfConnectingIp = headers['cf-connecting-ip']
-  if (cfConnectingIp) return cfConnectingIp.toString().split(',')[0].trim()
+  if (cfConnectingIp) return cleanIp(cfConnectingIp.toString())
 
-  // Затем стандартный x-forwarded-for
+  // x-forwarded-for (первый IP из списка)
   const xForwardedFor = headers['x-forwarded-for']
-  if (xForwardedFor) return xForwardedFor.toString().split(',')[0].trim()
+  if (xForwardedFor) return cleanIp(xForwardedFor.toString().split(',')[0])
 
-  // Fallback: req.ip (может быть 127.0.0.1 за прокси)
-  return req.ip
+  // Fallback
+  return cleanIp(req.ip)
+}
+
+function cleanIp(ip: string): string {
+  ip = ip.trim()
+
+  // IPv6 в формате [::1]:port
+  const ipv6Match = ip.match(/^\[([^\]]+)](?::\d+)?$/)
+  if (ipv6Match) return ipv6Match[1]
+
+  // IPv4 с портом: 192.168.0.1:12345 → 192.168.0.1
+  const [cleanedIp] = ip.split(':')
+  return cleanedIp
 }
