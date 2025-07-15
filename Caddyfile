@@ -33,7 +33,7 @@ fasti.fun {
         X-Frame-Options "SAMEORIGIN"
         X-XSS-Protection "1; mode=block"
         X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' fasti.fun; frame-ancestors 'self';"
+        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' fasti.fun api.fasti.fun; frame-ancestors 'self';"
         Referrer-Policy "strict-origin-when-cross-origin"
         -Server
     }
@@ -78,7 +78,7 @@ api.fasti.fun {
 
 # Grafana
 grafana.fasti.fun {
-    reverse_proxy grafana:5000 {
+    reverse_proxy grafana:3000 {
         header_up Host {host}
         header_up X-Real-IP {remote}
         header_up X-Forwarded-For {remote}

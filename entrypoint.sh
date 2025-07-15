@@ -11,6 +11,8 @@ for var in $required_vars; do
   fi
 done
 
+# echo "📦 Running Prisma push..."
+# npx prisma db push
 echo "📦 Running Prisma migrations..."
 npx prisma migrate deploy
 
