@@ -4,7 +4,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common'
-import { Queue } from 'async'
+import { queue, QueueObject } from 'async'
 import * as crypto from 'crypto'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
@@ -30,15 +30,14 @@ export class LoggerTelegramService implements OnModuleInit, OnModuleDestroy {
     fatal: Number(process.env.TELEGRAM_THREAD_ID_ERROR),
   }
 
-  private queue: Queue<LogTask>
+  private queue: QueueObject<LogTask>
   private recentHashes = new Map<string, number>()
 
   constructor(@InjectBot() private readonly bot: Telegraf) {
-    this.queue = new Queue(async (task: LogTask) => {
+    this.queue = queue(async (task: LogTask) => {
       const hash = this.hashText(task.level, task.text)
       const now = Date.now()
 
-      // Avoid spamming identical messages within 10s
       if (
         this.recentHashes.has(hash) &&
         now - this.recentHashes.get(hash)! < 10_000
@@ -98,7 +97,7 @@ export class LoggerTelegramService implements OnModuleInit, OnModuleDestroy {
   }
 
   private escapeMarkdown(text: string): string {
-    return text.replace(/([_\-*\[\]()~`>#+=|{}.!])/g, '\\$1')
+    return text.replace(/([_\-*[\]()~`>#+=|{}.!])/g, '\\$1')
   }
 
   private hashText(level: LogLevel, text: string): string {
