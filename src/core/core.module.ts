@@ -1,3 +1,20 @@
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { APP_FILTER } from '@nestjs/core'
+import { ScheduleModule } from '@nestjs/schedule'
+import { join } from 'path'
+
+import { ThrottlerModule } from '@nestjs/throttler'
+import { PrometheusModule } from '@willsoto/nestjs-prometheus'
+import {
+  AcceptLanguageResolver,
+  HeaderResolver,
+  I18nJsonLoader,
+  I18nModule,
+  QueryResolver,
+} from 'nestjs-i18n'
+import { Logger, LoggerModule } from 'nestjs-pino'
+
 import { AuthModule } from '@core/auth/auth.module'
 import { pinoConfig } from '@core/configs/pino.config'
 import { GlobalExceptionFilter } from '@core/filters/global-exception.filter'
@@ -8,80 +25,63 @@ import { RedisThrottlerStorage } from '@core/redis-throttler.storage'
 import { RedisModule } from '@core/redis/redis.module'
 import { RedisService } from '@core/redis/redis.service'
 import { TelegramModule } from '@integrations/telegram/telegram.module'
+
 import { PaymentsModule } from '@modules/payments/payments.module'
 import { PlansModule } from '@modules/plans/plans.module'
 import { RatesModule } from '@modules/rates/rates.module'
 import { ReferralsModule } from '@modules/referrals/referrals.module'
 import { UsersModule } from '@modules/users/users.module'
 import { XrayModule } from '@modules/xray/xray.module'
-import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
-import { APP_FILTER } from '@nestjs/core'
-import { ScheduleModule } from '@nestjs/schedule'
-import { ThrottlerModule } from '@nestjs/throttler'
+
 import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
-import { PrometheusModule } from '@willsoto/nestjs-prometheus'
-import {
-  AcceptLanguageResolver,
-  HeaderResolver,
-  I18nJsonLoader,
-  I18nModule,
-  QueryResolver,
-} from 'nestjs-i18n'
-import { Logger, LoggerModule } from 'nestjs-pino'
-import { join } from 'path'
 import { CoreController } from './core.controller'
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
+
     LoggerModule.forRootAsync(pinoConfig),
+
     ConfigModule.forRoot({
-      ignoreEnvFile: !IS_DEV_ENV,
       isGlobal: true,
+      ignoreEnvFile: !IS_DEV_ENV,
     }),
-    PrometheusModule.register(),
-    // CacheModule.registerAsync({
-    //   isGlobal: true,
-    //   useFactory: async (configService: ConfigService) => ({
-    //     ttl: 7 * 24 * 60 * 60 * 1000,
-    //     stores: [
-    //       new Keyv({
-    //         store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
-    //       }),
-    //       createKeyv(configService.getOrThrow<string>('REDIS_URL')),
-    //     ],
-    //   }),
-    //   inject: [ConfigService],
-    // }),
+
+    PrometheusModule.register({
+      defaultLabels: {
+        service: 'backend',
+        environment: process.env.NODE_ENV || 'development',
+        buildId: process.env.BUILD_ID || 'local',
+      },
+    }),
+
     ThrottlerModule.forRootAsync({
-      useFactory: (redis: RedisService) => ({
+      useFactory: (redisService: RedisService) => ({
         throttlers: [
           {
-            ttl: 60_000,
-            limit: 100,
+            ttl: 60 * 1000, // 1 минута
+            limit: 100, // 100 запросов
           },
         ],
-        storage: new RedisThrottlerStorage(redis),
+        storage: new RedisThrottlerStorage(redisService),
       }),
       inject: [RedisService],
     }),
+
     I18nModule.forRootAsync({
       useFactory: (logger: Logger) => {
-        logger.log('Initializing I18n module', 'I18nModule')
+        logger.log('Initializing i18n...', 'I18nModule')
         return {
-          disableMiddleware: true,
           fallbackLanguage: 'en',
+          disableMiddleware: true,
           loaderOptions: {
             path: join(__dirname, 'i18n/locales'),
-            watch: process.env.NODE_ENV === 'development',
+            watch: IS_DEV_ENV,
             includeSubfolders: true,
           },
           typesOutputPath: join(__dirname, 'i18n/i18n.type.ts'),
           generateTypes: true,
-          errorHandler: (error: any) => {
-            logger.error('I18n error:', error)
-          },
+          errorHandler: (err) => logger.error('I18n error:', err),
         }
       },
       inject: [Logger],
@@ -92,18 +92,23 @@ import { CoreController } from './core.controller'
       ],
       loader: I18nJsonLoader,
     }),
+
     RedisModule,
     PrismaConnectModule,
+
+    // Модули проекта
     TelegramModule,
-    RatesModule,
     AuthModule,
     UsersModule,
     XrayModule,
     ReferralsModule,
     PaymentsModule,
     PlansModule,
+    RatesModule,
   ],
+
   controllers: [CoreController],
+
   providers: [
     LogRotationService,
     LoggerTelegramService,
