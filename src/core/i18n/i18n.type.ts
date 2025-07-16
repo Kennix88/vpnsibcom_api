@@ -3,6 +3,16 @@ import { Path } from 'nestjs-i18n'
 
 export interface I18nTranslations {
   TOO_MANY_REQUESTS: string;
+  ERROR_MESSAGES: {
+    INTERNAL_SERVER_ERROR: string;
+    RECORD_NOT_FOUND: string;
+    UNIQUE_CONSTRAINT_FAILED: string;
+    FOREIGN_KEY_CONSTRAINT_FAILED: string;
+    INPUT_DATA_TOO_LONG: string;
+    RECORD_DOES_NOT_EXIST: string;
+    DATABASE_ERROR_OCCURRED: string;
+    VALIDATION_ERROR: string;
+  };
   telegraf: {
     start: {
       welcome: string
