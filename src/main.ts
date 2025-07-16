@@ -92,7 +92,7 @@ async function bootstrap() {
   await app.register(fastifyRateLimit, {
     max: 100, // максимальное количество запросов
     timeWindow: '1 minute', // за 1 минуту
-    cache: 10000, // размер кэша для хранения IP-адресов
+    redis: redis.client, // размер кэша для хранения IP-адресов
     whitelist: ['127.0.0.1', '::1', '172.18.0.0/16'], // белый список IP-адресов
     errorResponseBuilder: (req, context) => ({
       code: 429,
@@ -104,10 +104,14 @@ async function bootstrap() {
   })
 
   app.enableCors({
-    origin: [
-      config.getOrThrow<string>('ALLOWED_ORIGIN'),
-      'https://127.0.0.1:3000',
-    ],
+    origin: (origin, cb) => {
+      const whitelist = [
+        config.getOrThrow<string>('ALLOWED_ORIGIN'),
+        'https://127.0.0.1:3000',
+      ]
+      if (!origin || whitelist.includes(origin)) return cb(null, true)
+      return cb(new Error('Not allowed by CORS'), false)
+    },
     credentials: true,
     exposedHeaders: ['set-cookie'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Set-Cookie'],
@@ -120,7 +124,7 @@ async function bootstrap() {
     'authenticate',
     async function (req: FastifyRequest, res: FastifyReply) {
       try {
-        await req.jwtVerify({ onlyCookie: true }) // <--- важно
+        await req.jwtVerify({ onlyCookie: false }) // <--- важно
       } catch (err) {
         res.code(401).send({ message: 'Unauthorized' })
       }
@@ -129,10 +133,8 @@ async function bootstrap() {
 
   app.enableShutdownHooks()
 
-  await app.listen(
-    config.getOrThrow<number>('APPLICATION_PORT') || 3000,
-    '0.0.0.0',
-  )
+  const port = config.get<number>('APPLICATION_PORT') ?? 3000
+  await app.listen(port, '0.0.0.0')
 
   return app.getUrl()
 }
