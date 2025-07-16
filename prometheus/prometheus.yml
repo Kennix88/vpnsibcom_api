@@ -61,4 +61,4 @@ scrape_configs:
       username: 'metricsUser228'
       password: 'MetricsVeryHardPassword228'
     static_configs:
-      - targets: ['localhost:2112']
+      - targets: ['xray-checker:2112']
