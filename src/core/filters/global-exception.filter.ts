@@ -18,36 +18,58 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse()
     const request = ctx.getRequest()
 
-    // Определяем статус и сообщение
     let status = 500
     let message = 'Internal server error'
+    let errorName = 'UnknownError'
 
     if (exception instanceof HttpException) {
       status = exception.getStatus()
       message = exception.message
+      errorName = exception.name
     } else if (exception instanceof Error) {
       message = exception.message
+      errorName = exception.name
     }
 
-    // Локально логируем в консоль и в файлы через Pino
-    this.logger.error(message, (exception as Error)?.stack)
+    const logContext = {
+      req: {
+        id: request.id,
+        method: request.method,
+        url: request.url,
+        query: request.query,
+        headers: request.headers,
+        remoteAddress: request.ip || request.socket?.remoteAddress,
+        remotePort: request.socket?.remotePort,
+      },
+      context: GlobalExceptionFilter.name,
+    }
 
-    // Отправляем в Telegram подп-чат для ошибок
-    await this.telegramLogger.error(`🚨 [${status}] ${message}`)
+    this.logger.error(message, (exception as Error)?.stack, logContext)
 
-    // Возвращаем стандартный ответ клиенту
-    if (response && typeof response.status === 'function') {
-      try {
-        const responseObj = response.status(status)
-        if (responseObj && typeof responseObj.json === 'function') {
-          responseObj.json({ statusCode: status, message })
-        } else if (typeof response.send === 'function') {
-          // Альтернативный способ отправки ответа
-          response.send({ statusCode: status, message })
-        }
-      } catch (err) {
-        this.logger.error(`Ошибка при отправке ответа: ${err.message}`)
+    try {
+      await this.telegramLogger.error(
+        `🚨 [${status}] ${message}\n` +
+          `🌐 ${request.method} ${request.url}\n` +
+          `📡 IP: ${request.ip || request.headers['x-forwarded-for']}\n` +
+          `📦 UA: ${request.headers['user-agent']}`,
+      )
+    } catch (tgErr) {
+      this.logger.warn(`Ошибка при отправке в Telegram: ${tgErr.message}`)
+    }
+
+    try {
+      const responseObj = response.status(status)
+      if (responseObj && typeof responseObj.json === 'function') {
+        responseObj.json({
+          statusCode: status,
+          message,
+          error: errorName,
+        })
+      } else {
+        response.send({ statusCode: status, message, error: errorName })
       }
+    } catch (resErr) {
+      this.logger.error(`Ошибка при отправке ответа: ${resErr.message}`)
     }
   }
 }
