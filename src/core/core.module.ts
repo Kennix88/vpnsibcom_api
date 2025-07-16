@@ -33,7 +33,6 @@ import { ReferralsModule } from '@modules/referrals/referrals.module'
 import { UsersModule } from '@modules/users/users.module'
 import { XrayModule } from '@modules/xray/xray.module'
 
-import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
 import { CoreController } from './core.controller'
 
 @Module({
@@ -44,7 +43,7 @@ import { CoreController } from './core.controller'
 
     ConfigModule.forRoot({
       isGlobal: true,
-      ignoreEnvFile: !IS_DEV_ENV,
+      ignoreEnvFile: process.env.NODE_ENV !== 'development',
     }),
 
     PrometheusModule.register(),
@@ -77,7 +76,7 @@ import { CoreController } from './core.controller'
           disableMiddleware: true,
           loaderOptions: {
             path: join(__dirname, 'i18n/locales'),
-            watch: IS_DEV_ENV,
+            watch: process.env.NODE_ENV === 'development',
             includeSubfolders: true,
           },
           typesOutputPath: join(__dirname, 'i18n/i18n.type.ts'),
