@@ -92,7 +92,7 @@ services:
   frontend:
     container_name: frontend
     build:
-      context: F:/projects/vpnsibcom_web # ⚠️ путь к фронту, укажи точно
+      context: ${WEB_PATH} # ⚠️ путь к фронту, укажи точно
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
