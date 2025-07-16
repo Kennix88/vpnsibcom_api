@@ -255,6 +255,50 @@ services:
     networks:
       - token-backend
 
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: postgres_exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: 'postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DATABASE}?sslmode=disable'
+    networks:
+      - token-backend
+    ports:
+      - '9187:9187'
+
+  redis_exporter:
+    image: oliver006/redis_exporter
+    container_name: redis_exporter
+    restart: unless-stopped
+    command: --redis.addr=redis://redis:6379 --redis.password=${REDIS_PASSWORD}
+    networks:
+      - token-backend
+    ports:
+      - '9121:9121'
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - token-backend
+
+  node_exporter:
+    image: prom/node-exporter
+    container_name: node_exporter
+    restart: unless-stopped
+    ports:
+      - '9100:9100'
+    networks:
+      - token-backend
+
 networks:
   token-backend:
     driver: bridge
