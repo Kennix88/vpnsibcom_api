@@ -134,7 +134,14 @@ async function bootstrap() {
   app.enableShutdownHooks()
 
   const port = config.get<number>('APPLICATION_PORT') ?? 3000
-  await app.listen(port, '0.0.0.0')
+  Logger.log(`Attempting to listen on port ${port}`, 'Bootstrap')
+  try {
+    await app.listen(port, '0.0.0.0')
+    Logger.log(`Application is listening on port ${port}`, 'Bootstrap')
+  } catch (error) {
+    Logger.error(error, 'Bootstrap - Listen Error')
+    throw error; // Re-throw to ensure the error is propagated
+  }
 
   return app.getUrl()
 }
@@ -154,8 +161,12 @@ void (async () => {
       return
     } else {
       Logger.log(`GO NEST`, 'Bootstrap')
-      const url = await bootstrap()
-      Logger.log(url, 'Bootstrap')
+      try {
+        const url = await bootstrap()
+        Logger.log(url, 'Bootstrap')
+      } catch (error) {
+        Logger.error(error, 'Bootstrap - Bootstrap Function Error')
+      }
     }
   } catch (error) {
     Logger.error(error, 'Bootstrap')

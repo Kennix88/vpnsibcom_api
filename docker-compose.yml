@@ -92,7 +92,7 @@ services:
   frontend:
     container_name: frontend
     build:
-      context: ../vpnsibcom_web # ⚠️ путь к фронту, укажи точно
+      context: F:/projects/vpnsibcom_web # ⚠️ путь к фронту, укажи точно
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
@@ -297,6 +297,22 @@ services:
     networks:
       - token-backend
 
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    networks:
+      - token-backend
+    volumes:
+      - uptime-kuma-data:/app/data
+    environment:
+      - TZ=Etc/UTC
+      - UM_PORT=8080
+      - UM_USERNAME=${UM_USERNAME}
+      - UM_PASSWORD=${UM_PASSWORD}
+
 networks:
   token-backend:
     driver: bridge
@@ -316,4 +332,6 @@ volumes:
   grafana_data:
     driver: local
   prometheus_data:
+    driver: local
+  uptime-kuma-data:
     driver: local
