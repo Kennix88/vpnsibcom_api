@@ -1,23 +1,27 @@
-import { PrismaService } from '@core/prisma/prisma.service'
-import { Global, Module } from '@nestjs/common'
+import { Global, Module, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PrismaModule } from 'nestjs-prisma'
+import { PrismaClient } from '@prisma/client'
+import { PrismaModule, PrismaService as NestjsPrismaService } from 'nestjs-prisma'
+import { PrismaService } from './prisma.service'
 
 @Global()
 @Module({
   imports: [
     PrismaModule.forRootAsync({
       isGlobal: true,
-      useFactory: (config: ConfigService) => ({
-        prismaOptions: {
-          log: ['info', 'warn', 'error'],
-          datasources: {
-            db: {
-              url: config.getOrThrow<string>('POSTGRES_URL'),
+      useFactory: (config: ConfigService) => {
+        const isProd = config.get('NODE_ENV') === 'production'
+        return {
+          prismaOptions: {
+            log: isProd ? ['warn', 'error'] : ['info', 'warn', 'error'],
+            datasources: {
+              db: {
+                url: config.getOrThrow<string>('POSTGRES_URL'),
+              },
             },
           },
-        },
-      }),
+        }
+      },
       inject: [ConfigService],
     }),
   ],
