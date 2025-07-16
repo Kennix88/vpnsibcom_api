@@ -2,6 +2,7 @@
 import { Path } from 'nestjs-i18n'
 
 export interface I18nTranslations {
+  TOO_MANY_REQUESTS: string;
   telegraf: {
     start: {
       welcome: string
