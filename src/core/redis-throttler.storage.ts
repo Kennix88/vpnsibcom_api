@@ -3,12 +3,19 @@ import { ThrottlerStorage } from '@nestjs/throttler'
 import { ThrottlerStorageRecord } from '@nestjs/throttler/dist/throttler-storage-record.interface'
 
 export class RedisThrottlerStorage implements ThrottlerStorage {
-  constructor(private readonly redis: RedisService) {}
+  constructor(
+    private readonly redis: RedisService,
+    private readonly prefix = 'throttle:',
+  ) {}
+
+  private key(key: string): string {
+    return `${this.prefix}${key}`
+  }
 
   async getRecord(key: string): Promise<ThrottlerStorageRecord> {
-    const record = await this.redis.get(`throttle:${key}`)
-    return record
-      ? JSON.parse(record)
+    const value = await this.redis.get(this.key(key))
+    return value
+      ? JSON.parse(value)
       : {
           totalHits: 0,
           timeToExpire: 0,
@@ -18,12 +25,14 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
   }
 
   async setRecord(key: string, record: ThrottlerStorageRecord): Promise<void> {
-    await this.redis.set(
-      `throttle:${key}`,
-      JSON.stringify(record),
-      'PX',
-      record.timeToExpire,
-    )
+    const now = Date.now()
+    const ttl = record.isBlocked
+      ? Math.max(record.timeToBlockExpire - now, 0)
+      : Math.max(record.timeToExpire - now, 0)
+
+    if (ttl <= 0) return // защита от мусора
+
+    await this.redis.set(this.key(key), JSON.stringify(record), 'PX', ttl)
   }
 
   async increment(
@@ -31,17 +40,36 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
     ttl: number,
     limit: number,
     blockDuration: number,
-    throttlerName: string,
+    _throttlerName: string,
   ): Promise<ThrottlerStorageRecord> {
-    const record = await this.getRecord(key)
     const now = Date.now()
+    const record = await this.getRecord(key)
 
-    if (record.timeToExpire < now) {
-      record.totalHits = 0
-      record.timeToExpire = now + ttl
+    // Блокировка всё ещё активна
+    if (record.isBlocked && record.timeToBlockExpire > now) {
+      return record
     }
 
-    record.totalHits++
+    // Блокировка истекла
+    if (record.isBlocked && record.timeToBlockExpire <= now) {
+      record.isBlocked = false
+      record.totalHits = 1
+      record.timeToExpire = now + ttl
+    } else {
+      // TTL истёк — сброс счётчика
+      if (record.timeToExpire <= now) {
+        record.totalHits = 1
+        record.timeToExpire = now + ttl
+      } else {
+        record.totalHits++
+      }
+    }
+
+    // Превышен лимит — блокировка
+    if (record.totalHits > limit) {
+      record.isBlocked = true
+      record.timeToBlockExpire = now + blockDuration
+    }
 
     await this.setRecord(key, record)
     return record
