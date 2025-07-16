@@ -239,6 +239,7 @@ services:
       - grafana
       - prometheus
       - xray-checker
+      - uptime-kuma
 
   xray-checker:
     container_name: xray-checker
