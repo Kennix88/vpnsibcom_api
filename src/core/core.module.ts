@@ -47,13 +47,7 @@ import { CoreController } from './core.controller'
       ignoreEnvFile: !IS_DEV_ENV,
     }),
 
-    PrometheusModule.register({
-      defaultLabels: {
-        service: 'backend',
-        environment: process.env.NODE_ENV || 'development',
-        buildId: process.env.BUILD_ID || 'local',
-      },
-    }),
+    PrometheusModule.register(),
 
     ThrottlerModule.forRootAsync({
       useFactory: async (redisService: RedisService) => {

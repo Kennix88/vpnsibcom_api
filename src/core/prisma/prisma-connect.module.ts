@@ -1,7 +1,6 @@
-import { Global, Module, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PrismaClient } from '@prisma/client'
-import { PrismaModule, PrismaService as NestjsPrismaService } from 'nestjs-prisma'
+import { PrismaModule } from 'nestjs-prisma'
 import { PrismaService } from './prisma.service'
 
 @Global()
