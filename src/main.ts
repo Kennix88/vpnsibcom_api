@@ -92,12 +92,12 @@ async function bootstrap() {
   await app.register(fastifyRateLimit, {
     max: 100, // максимальное количество запросов
     timeWindow: '1 minute', // за 1 минуту
-    redis: redis.client, // размер кэша для хранения IP-адресов
+    redis: redis, // Redis client for rate limiting
     whitelist: ['127.0.0.1', '::1', '172.18.0.0/16'], // белый список IP-адресов
     errorResponseBuilder: (req, context) => ({
       code: 429,
       error: 'Too Many Requests',
-      message: `Слишком много запросов, пожалуйста, попробуйте снова через ${context.after}`,
+      message: `TOO_MANY_REQUESTS:${context.after}`, // Localized error message
       date: Date.now(),
       expiresIn: context.after,
     }),
