@@ -8,6 +8,10 @@
       {
         "include": "core/i18n/locales/**/*",
         "outDir": "dist"
+      },
+      {
+        "include": "core/i18n/i18n.type.ts",
+        "outDir": "dist"
       }
     ],
     "watchAssets": true
