@@ -56,15 +56,22 @@ import { CoreController } from './core.controller'
     }),
 
     ThrottlerModule.forRootAsync({
-      useFactory: (redisService: RedisService) => ({
-        throttlers: [
-          {
-            ttl: 60 * 1000, // 1 минута
-            limit: 100, // 100 запросов
-          },
-        ],
-        storage: new RedisThrottlerStorage(redisService),
-      }),
+      useFactory: async (redisService: RedisService) => {
+        try {
+          // Проверка соединения с Redis, например ping
+          await redisService.ping()
+          return {
+            throttlers: [{ ttl: 60 * 1000, limit: 100 }],
+            storage: new RedisThrottlerStorage(redisService),
+          }
+        } catch (e) {
+          // Логируем и возвращаем fallback, чтобы не блокировать
+          console.error('Redis unavailable for throttler:', e)
+          return {
+            throttlers: [{ ttl: 60 * 1000, limit: 100 }],
+          }
+        }
+      },
       inject: [RedisService],
     }),
 
