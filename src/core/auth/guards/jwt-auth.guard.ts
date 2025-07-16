@@ -46,7 +46,7 @@ export class JwtAuthGuard implements CanActivate {
     }
   }
 
-  private extractTokenFromRequest(request: FastifyRequest): string | null {
+  public extractTokenFromRequest(request: FastifyRequest): string | null {
     // 1. Проверка в cookies
     const cookieToken = request.cookies?.access_token
     if (cookieToken && typeof cookieToken === 'string') {
