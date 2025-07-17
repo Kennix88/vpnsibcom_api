@@ -35,21 +35,14 @@ fasti.fun {
     import tls_settings
     import security_headers
 
-    # Статический контент
-    root * /usr/share/nginx/html
-    file_server
-
-    # Прокси на фронтенд
     reverse_proxy frontend:3000 {
         header_up Host {host}
-        header_up X-Real-IP {remote}
+        header_up X-Real-IP {remote_host}
         transport http {
             keepalive 60s
-            tls
         }
     }
 
-    # Безопасность
     header Content-Security-Policy "
         default-src 'self';
         script-src 'self' 'unsafe-inline';
@@ -58,7 +51,6 @@ fasti.fun {
         connect-src 'self' api.fasti.fun;
     "
 
-    # Логи (простая версия)
     log {
         output file /var/log/caddy/fasti.access.log {
             roll_size 100MB
@@ -68,26 +60,27 @@ fasti.fun {
     }
 }
 
-# API сервер
+
 api.fasti.fun {
     import tls_settings
     import security_headers
 
     reverse_proxy api:4000 {
         header_up Host {host}
-        header_up X-Real-IP {remote}
         transport http {
             keepalive 180s
-            tls
         }
     }
 
-    # Логи API
     log {
-        output file /var/log/caddy/api.access.log
+        output file /var/log/caddy/api.access.log {
+            roll_size 100MB
+            roll_keep 5
+        }
         format json
     }
 }
+
 
 # Grafana
 grafana.fasti.fun {
