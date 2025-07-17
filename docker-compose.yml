@@ -9,9 +9,9 @@ services:
       - db
       - redis
     environment:
-      - NODE_ENV=production
-      - SEED_MOD=false
-      - APPLICATION_PORT=4000
+      - NODE_ENV=${NODE_ENV}
+      - SEED_MOD=${SEED_MOD}
+      - APPLICATION_PORT=${APPLICATION_PORT}
       - APPLICATION_URL=${APPLICATION_URL}
       - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
       - TMA_URL=${TMA_URL}
