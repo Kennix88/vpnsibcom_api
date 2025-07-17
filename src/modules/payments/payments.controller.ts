@@ -18,7 +18,7 @@ import { Throttle } from '@nestjs/throttler'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { Transform, Type } from 'class-transformer'
-import { IsEnum, IsNumber } from 'class-validator'
+import { IsBoolean, IsEnum, IsNumber, IsOptional } from 'class-validator'
 import { FastifyRequest } from 'fastify'
 
 class CreateInvoiceDto {
@@ -31,6 +31,8 @@ class CreateInvoiceDto {
 }
 
 class GetMethodsQueryDto {
+  @IsOptional()
+  @IsBoolean()
   @Transform(({ value }) => value === 'true')
   isTma?: boolean
 }
