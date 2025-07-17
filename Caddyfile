@@ -74,6 +74,11 @@ fasti.fun {
         frame-ancestors 'self';
         object-src 'none';
     "
+
+		log {
+        output file /var/log/caddy/fasti.fun.access.log
+        format json
+    }
 }
 
 # API backend
@@ -104,6 +109,11 @@ api.fasti.fun {
         img-src 'self' data:;
         frame-ancestors 'none';
     "
+
+		log {
+        output file /var/log/caddy/api.fasti.fun.access.log
+        format json
+    }
 }
 
 # Grafana
@@ -134,6 +144,11 @@ grafana.fasti.fun {
         font-src 'self';
         connect-src 'self';
     "
+
+		log {
+        output file /var/log/caddy/grafana.fasti.fun.access.log
+        format json
+    }
 }
 
 # Prometheus
@@ -163,6 +178,11 @@ prometheus.fasti.fun {
         img-src 'self' data:;
         connect-src 'self';
     "
+
+		log {
+        output file /var/log/caddy/prometheus.fasti.fun.access.log
+        format json
+    }
 }
 
 # xray-checker
@@ -192,6 +212,11 @@ xray-checker.fasti.fun {
         img-src 'self' data:;
         connect-src 'self';
     "
+
+		log {
+        output file /var/log/caddy/xray-checker.fasti.fun.access.log
+        format json
+    }
 }
 
 # Uptime Kuma
@@ -221,4 +246,9 @@ status.fasti.fun {
         img-src 'self' data:;
         connect-src 'self';
     "
+
+		log {
+        output file /var/log/caddy/status.fasti.fun.access.log
+        format json
+    }
 }
