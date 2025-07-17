@@ -303,14 +303,13 @@ services:
     container_name: uptime-kuma
     restart: unless-stopped
     ports:
-      - '8082:8080'
+      - '8082:3001'
     networks:
       - token-backend
     volumes:
       - uptime-kuma-data:/app/data
     environment:
       - TZ=Etc/UTC
-      - UM_PORT=8080
       - UM_USERNAME=${UM_USERNAME}
       - UM_PASSWORD=${UM_PASSWORD}
 
