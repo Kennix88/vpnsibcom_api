@@ -1,50 +1,55 @@
-# Общие настройки для всех сайтов
-(common) {
-    header {
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'self'; object-src 'none';"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-    }
-    encode gzip zstd
-}
-
-# Общие настройки proxy
-(proxy) {
-    reverse_proxy {upstream} {
-        header_up Host {host}
-        header_up X-Real-IP {http.request.remote.host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
-    }
-}
-
-# Редирект с www на основной домен
+# Перенаправление с www
 www.fasti.fun {
     redir https://fasti.fun{uri} permanent
 }
 
+# Общие настройки безопасности и логов (snippet)
+(secure_headers) {
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+    log {
+        format json
+        output file /var/log/caddy/{host}.log
+    }
+}
+
 # Основной фронтенд
 fasti.fun {
-    import common
+    import secure_headers
 
     root * /usr/share/nginx/html
     file_server
 
-    import proxy {
-        upstream frontend:3000
+    reverse_proxy frontend:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {http.request.remote.host}
+        header_up X-Forwarded-For {http.request.remote.host}
+        header_up X-Forwarded-Proto {scheme}
+        transport http {
+            keepalive 60s
+            response_header_timeout 60s
+            read_timeout 60s
+            write_timeout 60s
+            dial_timeout 30s
+        }
     }
 
-    log {
-        output file /var/log/caddy/fasti.fun.log
-        format json
+    encode gzip zstd
+
+    header {
+        Content-Security-Policy "
+            default-src 'self';
+            script-src 'self' 'unsafe-inline';
+            style-src 'self' 'unsafe-inline';
+            connect-src 'self' fasti.fun api.fasti.fun raw.githubusercontent.com ton.org;
+            img-src 'self' data: telegram.org ton.org githubusercontent.com raw.githubusercontent.com;
+            frame-ancestors 'self';
+            object-src 'none';
+        "
     }
 
     tls {
@@ -54,70 +59,160 @@ fasti.fun {
 
 # API backend
 api.fasti.fun {
-    import common
+    import secure_headers
 
-    import proxy {
-        upstream api:4000
+    reverse_proxy api:4000 {
+        header_up Host {host}
+        header_up X-Real-IP {http.request.remote.host}
+        header_up X-Forwarded-For {http.request.remote.host}
+        header_up X-Forwarded-Proto {scheme}
+        transport http {
+            keepalive 180s
+            response_header_timeout 180s
+            read_timeout 180s
+            write_timeout 180s
+            dial_timeout 180s
+        }
     }
 
-    log {
-        output file /var/log/caddy/api.fasti.fun.log
-        format json
+    encode gzip zstd
+
+    header {
+        Content-Security-Policy "
+            default-src 'self';
+            img-src 'self' data:;
+            style-src 'self' 'unsafe-inline';
+            script-src 'self' 'unsafe-inline';
+            connect-src 'self' fasti.fun api.fasti.fun;
+            frame-ancestors 'self';
+        "
     }
 }
 
 # Grafana
 grafana.fasti.fun {
-    import common
+    import secure_headers
 
-    import proxy {
-        upstream grafana:3000
+    reverse_proxy grafana:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {http.request.remote.host}
+        header_up X-Forwarded-For {http.request.remote.host}
+        header_up X-Forwarded-Proto {scheme}
+        transport http {
+            keepalive 30s
+            response_header_timeout 30s
+            read_timeout 30s
+            write_timeout 30s
+            dial_timeout 30s
+        }
     }
 
-    log {
-        output file /var/log/caddy/grafana.fasti.fun.log
-        format json
+    encode gzip zstd
+
+    header {
+        Content-Security-Policy "
+            default-src 'self';
+            img-src 'self' data:;
+            style-src 'self' 'unsafe-inline';
+            script-src 'self' 'unsafe-inline';
+            connect-src 'self' grafana.fasti.fun;
+            frame-ancestors 'self';
+        "
     }
 }
 
-# Prometheus (если используется)
+# Prometheus
 prometheus.fasti.fun {
-    import common
+    import secure_headers
 
-    import proxy {
-        upstream prometheus:9090
+    reverse_proxy prometheus:9090 {
+        header_up Host {host}
+        header_up X-Real-IP {http.request.remote.host}
+        header_up X-Forwarded-For {http.request.remote.host}
+        header_up X-Forwarded-Proto {scheme}
+        transport http {
+            keepalive 30s
+            response_header_timeout 30s
+            read_timeout 30s
+            write_timeout 30s
+            dial_timeout 30s
+        }
     }
 
-    log {
-        output file /var/log/caddy/prometheus.fasti.fun.log
-        format json
+    encode gzip zstd
+
+    header {
+        Content-Security-Policy "
+            default-src 'self';
+            img-src 'self' data:;
+            style-src 'self' 'unsafe-inline';
+            script-src 'self' 'unsafe-inline';
+            connect-src 'self' prometheus.fasti.fun;
+            frame-ancestors 'self';
+        "
     }
 }
 
-# Xray-checker
+# xray-checker
 xray-checker.fasti.fun {
-    import common
+    import secure_headers
 
-    import proxy {
-        upstream xray-checker:2112
+    reverse_proxy xray-checker:2112 {
+        header_up Host {host}
+        header_up X-Real-IP {http.request.remote.host}
+        header_up X-Forwarded-For {http.request.remote.host}
+        header_up X-Forwarded-Proto {scheme}
+        transport http {
+            keepalive 30s
+            response_header_timeout 30s
+            read_timeout 30s
+            write_timeout 30s
+            dial_timeout 30s
+        }
     }
 
-    log {
-        output file /var/log/caddy/xray-checker.fasti.fun.log
-        format json
+    encode gzip zstd
+
+    header {
+        Content-Security-Policy "
+            default-src 'self';
+            img-src 'self' data:;
+            style-src 'self' 'unsafe-inline';
+            script-src 'self' 'unsafe-inline';
+            connect-src 'self' prometheus.fasti.fun;
+            frame-ancestors 'self';
+        "
     }
 }
 
-# Uptime Kuma (status)
+# Uptime Kuma
 status.fasti.fun {
-    import common
+    import secure_headers
 
-    import proxy {
-        upstream uptime-kuma:3001
+    reverse_proxy uptime-kuma:3001 {
+        header_up Host {host}
+        header_up X-Real-IP {http.request.remote.host}
+        header_up X-Forwarded-For {http.request.remote.host}
+        header_up X-Forwarded-Proto {scheme}
+        transport http {
+            keepalive 30s
+            response_header_timeout 30s
+            read_timeout 30s
+            write_timeout 30s
+            dial_timeout 30s
+        }
     }
 
-    log {
-        output file /var/log/caddy/status.fasti.fun.log
-        format json
+    encode gzip zstd
+
+    header {
+        Content-Security-Policy "
+            default-src 'self';
+            img-src 'self' data:;
+            style-src 'self' 'unsafe-inline';
+            script-src 'self' 'unsafe-inline';
+            connect-src 'self' status.fasti.fun;
+            frame-ancestors 'self';
+        "
     }
 }
