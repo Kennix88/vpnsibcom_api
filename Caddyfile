@@ -1,3 +1,60 @@
+{
+    # Глобальные настройки TLS
+    tls {
+        protocols tls1.2 tls1.3
+        ciphers TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        curves x25519 secp521r1 secp384r1
+    }
+
+    # Глобальное сжатие
+    encode gzip zstd
+}
+
+# Общие настройки безопасности
+(security_headers) {
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+        -Server
+    }
+}
+
+# Настройки логгирования
+(log_settings) {
+    log {
+        output file /var/log/caddy/{host}.access.log {
+            roll_size 100MiB
+            roll_keep 5
+            roll_keep_for 720h
+        }
+        format json
+    }
+}
+
+# Настройки транспорта для разных типов сервисов
+(transport_fast) {
+    transport http {
+        keepalive 30s
+        response_header_timeout 30s
+        read_timeout 30s
+        write_timeout 30s
+        dial_timeout 30s
+    }
+}
+
+(transport_api) {
+    transport http {
+        keepalive 180s
+        response_header_timeout 180s
+        read_timeout 180s
+        write_timeout 180s
+        dial_timeout 180s
+    }
+}
+
 # Перенаправление с www на основной домен
 www.fasti.fun {
     redir https://fasti.fun{uri} permanent
@@ -11,42 +68,21 @@ fasti.fun {
     reverse_proxy frontend:3000 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 60s
-            response_header_timeout 60s
-            read_timeout 60s
-            write_timeout 60s
-            dial_timeout 30s
-        }
+        import transport_fast
     }
 
-    encode gzip zstd
+    import security_headers
+    header Content-Security-Policy "
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+        connect-src 'self' fasti.fun api.fasti.fun raw.githubusercontent.com ton.org;
+        img-src 'self' data: telegram.org ton.org githubusercontent.com raw.githubusercontent.com;
+        frame-ancestors 'self';
+        object-src 'none';
+    "
 
-    log {
-        output file /var/log/caddy/fasti.fun.access.log
-        format json
-    }
-
-    header {
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        X-Content-Type-Options "nosniff"
-        Content-Security-Policy "
-            default-src 'self';
-            script-src 'self' 'unsafe-inline';
-            style-src 'self' 'unsafe-inline';
-            connect-src 'self' fasti.fun api.fasti.fun raw.githubusercontent.com ton.org;
-            img-src 'self' data: telegram.org ton.org githubusercontent.com raw.githubusercontent.com;
-            frame-ancestors 'self';
-            object-src 'none';
-        "
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-    }
-
-    tls {
-        protocols tls1.2 tls1.3
-    }
+    import log_settings
 }
 
 # API backend
@@ -54,34 +90,21 @@ api.fasti.fun {
     reverse_proxy api:4000 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 180s
-            response_header_timeout 180s
-            read_timeout 180s
-            write_timeout 180s
-            dial_timeout 180s
-        }
+        import transport_api
     }
 
-    encode gzip zstd
+    import security_headers
+    header Content-Security-Policy "
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+        connect-src 'self' fasti.fun api.fasti.fun;
+        img-src 'self' data:;
+        frame-ancestors 'self';
+        object-src 'none';
+    "
 
-    log {
-        output file /var/log/caddy/api.fasti.fun.access.log
-        format json
-    }
-
-    header {
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' fasti.fun api.fasti.fun; frame-ancestors 'self';"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-    }
-
-    tls {
-        protocols tls1.2 tls1.3
-    }
+    import log_settings
 }
 
 # Grafana
@@ -89,34 +112,21 @@ grafana.fasti.fun {
     reverse_proxy grafana:3000 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
+        import transport_fast
     }
 
-    encode gzip zstd
+    import security_headers
+    header Content-Security-Policy "
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        font-src 'self';
+        connect-src 'self' grafana.fasti.fun;
+        frame-ancestors 'self';
+    "
 
-    log {
-        output file /var/log/caddy/grafana.fasti.fun.access.log
-        format json
-    }
-
-    header {
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' grafana.fasti.fun; frame-ancestors 'self';"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-    }
-
-    tls {
-        protocols tls1.2 tls1.3
-    }
+    import log_settings
 }
 
 # Prometheus
@@ -124,34 +134,20 @@ prometheus.fasti.fun {
     reverse_proxy prometheus:9090 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
+        import transport_fast
     }
 
-    encode gzip zstd
+    import security_headers
+    header Content-Security-Policy "
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        connect-src 'self' prometheus.fasti.fun;
+        frame-ancestors 'self';
+    "
 
-    log {
-        output file /var/log/caddy/prometheus.fasti.fun.access.log
-        format json
-    }
-
-    header {
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' prometheus.fasti.fun; frame-ancestors 'self';"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-    }
-
-    tls {
-        protocols tls1.2 tls1.3
-    }
+    import log_settings
 }
 
 # xray-checker
@@ -159,34 +155,20 @@ xray-checker.fasti.fun {
     reverse_proxy xray-checker:2112 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
+        import transport_fast
     }
 
-    encode gzip zstd
+    import security_headers
+    header Content-Security-Policy "
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        connect-src 'self' xray-checker.fasti.fun;
+        frame-ancestors 'self';
+    "
 
-    log {
-        output file /var/log/caddy/xray-checker.fasti.fun.access.log
-        format json
-    }
-
-    header {
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' prometheus.fasti.fun; frame-ancestors 'self';"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-    }
-
-    tls {
-        protocols tls1.2 tls1.3
-    }
+    import log_settings
 }
 
 # Uptime Kuma
@@ -194,32 +176,18 @@ status.fasti.fun {
     reverse_proxy uptime-kuma:3001 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
+        import transport_fast
     }
 
-    encode gzip zstd
+    import security_headers
+    header Content-Security-Policy "
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        connect-src 'self' status.fasti.fun;
+        frame-ancestors 'self';
+    "
 
-    log {
-        output file /var/log/caddy/status.fasti.fun.access.log
-        format json
-    }
-
-    header {
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        X-Content-Type-Options "nosniff"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' status.fasti.fun; frame-ancestors 'self';"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-    }
-
-    tls {
-        protocols tls1.2 tls1.3
-    }
+    import log_settings
 }
