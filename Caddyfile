@@ -1,25 +1,16 @@
 {
     # Глобальные настройки
     auto_https disable_redirects
+    admin off
     log {
         level INFO
-        format json
     }
 }
 
 # Общие шаблоны
-(tls_config) {
-    tls {
-        protocols tls1.2 tls1.3
-        ciphers TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        curves x25519 secp521r1 secp384r1
-    }
-}
-
 (security_headers) {
     header {
         X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
         X-Content-Type-Options "nosniff"
         Referrer-Policy "strict-origin-when-cross-origin"
         Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
@@ -27,13 +18,10 @@
     }
 }
 
-(common_logging) {
-    log {
-        output file /var/log/caddy/{host}.access.log {
-            roll_size 100MiB
-            roll_keep 5
-        }
-        format json
+(tls_settings) {
+    tls {
+        protocols tls1.2 tls1.3
+        ciphers TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
     }
 }
 
@@ -44,211 +32,98 @@ www.fasti.fun {
 
 # Основной фронтенд
 fasti.fun {
-    import tls_config
+    import tls_settings
     import security_headers
-    import common_logging
 
+    # Статический контент
     root * /usr/share/nginx/html
     file_server
 
+    # Прокси на фронтенд
     reverse_proxy frontend:3000 {
         header_up Host {host}
-        header_up X-Real-IP {remote_host}
+        header_up X-Real-IP {remote}
         transport http {
             keepalive 60s
-            response_header_timeout 60s
-            read_timeout 60s
-            write_timeout 60s
-            dial_timeout 30s
+            tls
         }
     }
 
-    encode gzip zstd
-
+    # Безопасность
     header Content-Security-Policy "
         default-src 'self';
         script-src 'self' 'unsafe-inline';
         style-src 'self' 'unsafe-inline';
-        connect-src 'self' fasti.fun api.fasti.fun raw.githubusercontent.com ton.org;
-        img-src 'self' data: telegram.org ton.org githubusercontent.com raw.githubusercontent.com;
-        frame-ancestors 'self';
-        object-src 'none';
+        img-src 'self' data:;
+        connect-src 'self' api.fasti.fun;
     "
 
-		log {
-        output file /var/log/caddy/fasti.fun.access.log
+    # Логи (простая версия)
+    log {
+        output file /var/log/caddy/fasti.access.log {
+            roll_size 100MB
+            roll_keep 5
+        }
         format json
     }
 }
 
-# API backend
+# API сервер
 api.fasti.fun {
-    import tls_config
+    import tls_settings
     import security_headers
-    import common_logging
 
     reverse_proxy api:4000 {
         header_up Host {host}
-        header_up X-Real-IP {remote_host}
+        header_up X-Real-IP {remote}
         transport http {
             keepalive 180s
-            response_header_timeout 180s
-            read_timeout 180s
-            write_timeout 180s
-            dial_timeout 180s
+            tls
         }
     }
 
-    encode gzip zstd
-
-    header Content-Security-Policy "
-        default-src 'self';
-        script-src 'self' 'unsafe-inline';
-        style-src 'self' 'unsafe-inline';
-        connect-src 'self' api.fasti.fun;
-        img-src 'self' data:;
-        frame-ancestors 'none';
-    "
-
-		log {
-        output file /var/log/caddy/api.fasti.fun.access.log
+    # Логи API
+    log {
+        output file /var/log/caddy/api.access.log
         format json
     }
 }
 
 # Grafana
 grafana.fasti.fun {
-    import tls_config
+    import tls_settings
     import security_headers
-    import common_logging
 
-    reverse_proxy grafana:3000 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
-    }
-
-    encode gzip zstd
+    reverse_proxy grafana:3000
 
     header Content-Security-Policy "
         default-src 'self';
         script-src 'self' 'unsafe-inline' 'unsafe-eval';
         style-src 'self' 'unsafe-inline';
         img-src 'self' data:;
-        font-src 'self';
-        connect-src 'self';
     "
-
-		log {
-        output file /var/log/caddy/grafana.fasti.fun.access.log
-        format json
-    }
 }
 
 # Prometheus
 prometheus.fasti.fun {
-    import tls_config
+    import tls_settings
     import security_headers
-    import common_logging
 
-    reverse_proxy prometheus:9090 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
-    }
-
-    encode gzip zstd
-
-    header Content-Security-Policy "
-        default-src 'self';
-        script-src 'self';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data:;
-        connect-src 'self';
-    "
-
-		log {
-        output file /var/log/caddy/prometheus.fasti.fun.access.log
-        format json
-    }
+    reverse_proxy prometheus:9090
 }
 
-# xray-checker
+# Xray-checker
 xray-checker.fasti.fun {
-    import tls_config
+    import tls_settings
     import security_headers
-    import common_logging
 
-    reverse_proxy xray-checker:2112 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
-    }
-
-    encode gzip zstd
-
-    header Content-Security-Policy "
-        default-src 'self';
-        script-src 'self';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data:;
-        connect-src 'self';
-    "
-
-		log {
-        output file /var/log/caddy/xray-checker.fasti.fun.access.log
-        format json
-    }
+    reverse_proxy xray-checker:2112
 }
 
 # Uptime Kuma
 status.fasti.fun {
-    import tls_config
+    import tls_settings
     import security_headers
-    import common_logging
 
-    reverse_proxy uptime-kuma:3001 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        transport http {
-            keepalive 30s
-            response_header_timeout 30s
-            read_timeout 30s
-            write_timeout 30s
-            dial_timeout 30s
-        }
-    }
-
-    encode gzip zstd
-
-    header Content-Security-Policy "
-        default-src 'self';
-        script-src 'self' 'unsafe-inline';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data:;
-        connect-src 'self';
-    "
-
-		log {
-        output file /var/log/caddy/status.fasti.fun.access.log
-        format json
-    }
+    reverse_proxy uptime-kuma:3001
 }
