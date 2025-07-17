@@ -227,12 +227,20 @@ services:
     ports:
       - '80:80'
       - '443:443'
+      - '443:443/udp'
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+      - ./caddy_logs:/var/log/caddy
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     networks:
       - token-backend
+    environment:
+      - CADDY_DISABLE_HTTP_CHALLENGE=true
+      - ACME_AGREE=true
+      - ACME_EMAIL=shel.live@yandex.ru
     depends_on:
       - api
       - frontend
@@ -240,6 +248,13 @@ services:
       - prometheus
       - xray-checker
       - uptime-kuma
+    healthcheck:
+      test: ['CMD', 'caddy', 'validate', '--config', '/etc/caddy/Caddyfile']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    sysctls:
+      - net.core.somaxconn=1024
 
   xray-checker:
     container_name: xray-checker
