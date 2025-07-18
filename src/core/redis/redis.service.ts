@@ -58,6 +58,14 @@ export class RedisService extends Redis implements OnModuleInit {
     return this.setWithExpiry(key, str, ttlSeconds)
   }
 
+  async setWithExpiryNx(
+    key: string,
+    value: string,
+    ttlSeconds: number,
+  ): Promise<'OK' | null> {
+    return await this.set(key, value, 'EX', ttlSeconds, 'NX')
+  }
+
   /**
    * Получение объекта с десериализацией
    */
