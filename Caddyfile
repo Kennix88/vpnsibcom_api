@@ -1,6 +1,6 @@
 {
     # Глобальные настройки
-    auto_https disable_redirects
+    auto_https on
     admin off
     log {
         level INFO
@@ -25,8 +25,22 @@
     }
 }
 
+(api_protection) {
+    @postRequests method POST
+    handle @postRequests {
+        header Strict-Transport-Security "max-age=31536000;"
+        header Access-Control-Allow-Origin https://fasti.fun
+        header Access-Control-Allow-Methods "POST, OPTIONS"
+        header Access-Control-Allow-Headers "*"
+    }
+}
+
 # Перенаправление с www на основной домен
 www.fasti.fun {
+    redir https://fasti.fun{uri} permanent
+}
+
+http://fasti.fun {
     redir https://fasti.fun{uri} permanent
 }
 
@@ -44,12 +58,14 @@ fasti.fun {
     }
 
     header Content-Security-Policy "
-        default-src 'self';
-        script-src 'self' 'unsafe-inline';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data:;
-        connect-src 'self' api.fasti.fun;
-    "
+				default-src 'self';
+				script-src 'self' 'unsafe-inline' 'unsafe-eval';
+				style-src 'self' 'unsafe-inline';
+				img-src 'self' data:;
+				connect-src 'self' https://api.fasti.fun;
+				frame-ancestors 'none';
+				base-uri 'none';
+		"
 
     log {
         output file /var/log/caddy/fasti.access.log {
@@ -64,12 +80,17 @@ fasti.fun {
 api.fasti.fun {
     import tls_settings
     import security_headers
+		import api_protection
 
     reverse_proxy api:4000 {
         header_up Host {host}
         transport http {
-            keepalive 180s
-        }
+						read_buffer 4096
+						read_timeout 10s
+						write_timeout 10s
+						idle_timeout 30s
+						keepalive 60s
+				}
     }
 
     log {
