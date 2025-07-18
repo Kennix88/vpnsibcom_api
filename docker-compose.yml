@@ -259,6 +259,7 @@ services:
   xray-checker:
     container_name: xray-checker
     image: kutovoys/xray-checker
+    restart: unless-stopped
     environment:
       - SUBSCRIPTION_URL=${XRAY_CHECHER_SUBSCRIPTION_URL}
       - METRICS_PROTECTED=true
