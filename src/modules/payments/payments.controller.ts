@@ -1,5 +1,6 @@
 import { AuthService } from '@core/auth/auth.service'
 import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
+import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { PaymentsService } from '@modules/payments/services/payments.service'
 import { UsersService } from '@modules/users/users.service'
@@ -54,6 +55,7 @@ export class PaymentsController {
   }
 
   @Post('invoice')
+  @PreventDuplicateRequest(120)
   @UseGuards(JwtAuthGuard)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
@@ -83,6 +85,7 @@ export class PaymentsController {
   }
 
   @Get('methods')
+  @PreventDuplicateRequest(120)
   @UseGuards(JwtAuthGuard)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)

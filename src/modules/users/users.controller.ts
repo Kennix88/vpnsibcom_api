@@ -1,5 +1,6 @@
 import { AuthService } from '@core/auth/auth.service'
 import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
+import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { UsersService } from '@modules/users/users.service'
 import {
@@ -27,6 +28,7 @@ export class UsersController {
 
   @Get('me')
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @PreventDuplicateRequest(120)
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async getMe(
@@ -45,6 +47,7 @@ export class UsersController {
   }
 
   @Post('language')
+  @PreventDuplicateRequest(120)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -67,6 +70,7 @@ export class UsersController {
   }
 
   @Post('currency')
+  @PreventDuplicateRequest(120)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -89,6 +93,7 @@ export class UsersController {
   }
 
   @Post('withdrawal-usage')
+  @PreventDuplicateRequest(120)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)

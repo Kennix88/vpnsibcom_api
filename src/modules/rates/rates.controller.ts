@@ -1,3 +1,4 @@
+import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
 import { RatesService } from '@modules/rates/rates.service'
 import { Controller, Get, HttpCode, HttpStatus, Req, Res } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
@@ -10,6 +11,7 @@ export class RatesController {
 
   @Get()
   @Public()
+  @PreventDuplicateRequest(120)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   async get(
