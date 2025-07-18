@@ -1,3 +1,4 @@
+import { PreventDuplicateInterceptor } from '@core/auth/guards/prevent-duplicate.guard'
 import { CoreModule } from '@core/core.module'
 import { PrismaSeed } from '@core/prisma/prisma.seed'
 import { RedisService } from '@core/redis/redis.service'
@@ -10,7 +11,7 @@ import fastifyRateLimit from '@fastify/rate-limit'
 import session from '@fastify/session'
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { NestFactory } from '@nestjs/core'
+import { NestFactory, Reflector } from '@nestjs/core'
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -131,7 +132,9 @@ async function bootstrap() {
     },
   )
 
+  const reflector = app.get(Reflector)
   app.enableShutdownHooks()
+  app.useGlobalInterceptors(new PreventDuplicateInterceptor(redis, reflector))
 
   const port = config.get<number>('APPLICATION_PORT') ?? 3000
   Logger.log(`Attempting to listen on port ${port}`, 'Bootstrap')
@@ -140,7 +143,7 @@ async function bootstrap() {
     Logger.log(`Application is listening on port ${port}`, 'Bootstrap')
   } catch (error) {
     Logger.error(error, 'Bootstrap - Listen Error')
-    throw error; // Re-throw to ensure the error is propagated
+    throw error // Re-throw to ensure the error is propagated
   }
 
   return app.getUrl()
