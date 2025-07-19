@@ -29,7 +29,6 @@ export class RedisService extends Redis implements OnModuleInit {
       }
     }
     this.logger.error('Redis failed to connect after max retries')
-    // Можно бросить ошибку, если без Redis нельзя работать
   }
 
   /**
@@ -39,11 +38,12 @@ export class RedisService extends Redis implements OnModuleInit {
     key: string,
     value: string,
     ttlSeconds: number,
-  ): Promise<'OK' | null> {
+  ): Promise<boolean> {
     if (ttlSeconds <= 0) {
       throw new Error('TTL must be positive')
     }
-    return await this.set(key, value, 'EX', ttlSeconds)
+    const result = await this.set(key, value, 'EX', ttlSeconds)
+    return result === 'OK'
   }
 
   /**
@@ -53,17 +53,21 @@ export class RedisService extends Redis implements OnModuleInit {
     key: string,
     value: T,
     ttlSeconds: number,
-  ): Promise<'OK' | null> {
+  ): Promise<boolean> {
     const str = JSON.stringify(value)
     return this.setWithExpiry(key, str, ttlSeconds)
   }
 
+  /**
+   * Установка значения с NX и TTL, возвращает true если установлен
+   */
   async setWithExpiryNx(
     key: string,
     value: string,
     ttlSeconds: number,
-  ): Promise<'OK' | null> {
-    return await this.set(key, value, 'EX', ttlSeconds, 'NX')
+  ): Promise<boolean> {
+    const result = await this.set(key, value, 'EX', ttlSeconds, 'NX')
+    return result === 'OK'
   }
 
   /**
