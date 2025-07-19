@@ -13,50 +13,115 @@ import { Observable, from, of, throwError } from 'rxjs'
 import { catchError, switchMap, tap } from 'rxjs/operators'
 
 const PREVENT_DUPLICATE_META = 'prevent_duplicate_ttl'
+const CACHE_PREFIX = 'dup:req:'
+const LOCK_PREFIX = 'dup:lock:'
+const META_PREFIX = 'dup:meta:'
+const DEFAULT_TTL = 60
+const MAX_RETRIES = 10
+const RETRY_DELAY = 300
 
 @Injectable()
 export class PreventDuplicateInterceptor implements NestInterceptor {
+  private readonly HMAC_SECRET: string
+
   constructor(
     private readonly redis: RedisService,
     private readonly reflector: Reflector,
-
     private readonly telegramLogger: LoggerTelegramService,
-  ) {}
+  ) {
+    this.HMAC_SECRET = process.env.HMAC_SECRET || 'default-secret'
+  }
 
   async intercept(
     context: ExecutionContext,
     next: CallHandler,
   ): Promise<Observable<any>> {
-    // читаем TTL из метаданных (метод или контроллер)
     const ttl =
-      this.reflector.getAllAndOverride<number>(PREVENT_DUPLICATE_META, [
+      this.reflector.get<number>(
+        PREVENT_DUPLICATE_META,
         context.getHandler(),
-        context.getClass(),
-      ]) ?? 60
+      ) ??
+      this.reflector.get<number>(PREVENT_DUPLICATE_META, context.getClass()) ??
+      DEFAULT_TTL
 
-    if (ttl <= 0) {
-      return next.handle()
-    }
+    if (ttl <= 0) return next.handle()
 
     const req = context.switchToHttp().getRequest()
-    const skipMethods = ['OPTIONS', 'HEAD']
-    if (skipMethods.includes(req.method.toUpperCase())) {
+    if (['OPTIONS', 'HEAD'].includes(req.method.toUpperCase())) {
       return next.handle()
     }
 
-    const { method, originalUrl: path, body = {}, query = {}, user } = req
-    const realIp = getClientIp(req)
+    try {
+      const { method, originalUrl: path, body = {}, query = {}, user } = req
+      const realIp = getClientIp(req)
+      const identity = this.getIdentity(user, realIp)
+      const hash = this.generateRequestHash(method, path, body, query, identity)
+
+      const cacheKey = `${CACHE_PREFIX}${hash}`
+      const lockKey = `${LOCK_PREFIX}${hash}`
+      const metaKey = `${META_PREFIX}${hash}`
+
+      const cached = await this.safeRedisOperation(() =>
+        this.redis.getObject(cacheKey),
+      )
+      if (cached) {
+        this.logRequest('cache-hit', method, path, user, realIp)
+        return of(cached)
+      }
+
+      const locked = await this.safeRedisOperation(() =>
+        this.redis.setWithExpiryNx(lockKey, '1', ttl),
+      )
+      if (!locked) {
+        return this.handleConcurrentRequest(
+          method,
+          path,
+          user,
+          realIp,
+          cacheKey,
+          lockKey,
+        )
+      }
+
+      await this.recordRequestMetadata(metaKey, realIp, user, ttl)
+      this.logRequest('lock-acquired', method, path, user, realIp)
+
+      return next.handle().pipe(
+        tap(async (response) => {
+          await this.cacheResponse(cacheKey, response, ttl, lockKey)
+          this.logRequest('cache-set', method, path, user, realIp)
+        }),
+        catchError((err) =>
+          this.handleError(err, lockKey, method, path, user, realIp),
+        ),
+      )
+    } catch (err) {
+      this.telegramLogger.error(
+        `PreventDuplicateInterceptor failed: ${err.message}`,
+      )
+      return next.handle() // Fallback to normal processing
+    }
+  }
+
+  private getIdentity(user: any, realIp: string): string {
     const jwtSub = user?.sub
     const jwtTg = user?.telegramId
-    const identity =
-      jwtSub && jwtTg
-        ? `${jwtSub}:${jwtTg}`
-        : jwtSub
-        ? jwtSub
-        : jwtTg
-        ? jwtTg
-        : realIp
+    return jwtSub && jwtTg
+      ? `${jwtSub}:${jwtTg}`
+      : jwtSub
+      ? jwtSub
+      : jwtTg
+      ? jwtTg
+      : realIp
+  }
 
+  private generateRequestHash(
+    method: string,
+    path: string,
+    body: any,
+    query: any,
+    identity: string,
+  ): string {
     const hashInput = JSON.stringify({
       method: method.toUpperCase(),
       path,
@@ -64,86 +129,123 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
       query,
       identity,
     })
-    const hash = crypto.createHash('sha256').update(hashInput).digest('hex')
+    return crypto
+      .createHmac('sha256', this.HMAC_SECRET)
+      .update(hashInput)
+      .digest('hex')
+  }
 
-    const cacheKey = `dup:req:${hash}`
-    const lockKey = `dup:lock:${hash}`
-
-    const cached = await this.redis.get(cacheKey)
-    if (cached) {
-      this.telegramLogger.info(
-        `✅ Попадание в кэш для ${method} ${path}. Пользователь: ${
-          user?.sub || 'неавторизован'
-        }, IP: ${realIp}`,
-      )
-      return of(JSON.parse(cached))
+  private async safeRedisOperation<T>(
+    operation: () => Promise<T>,
+  ): Promise<T | null> {
+    try {
+      return await operation()
+    } catch (err) {
+      this.telegramLogger.error(`Redis operation failed: ${err.message}`)
+      return null
     }
+  }
 
-    const locked = await this.redis.setWithExpiryNx(lockKey, '1', ttl)
-    if (!locked) {
-      this.telegramLogger.warn(
-        `⏳ Дублирующий запрос в обработке: ${method} ${path}. Пользователь: ${
-          user?.sub || 'неавторизован'
-        }, IP: ${realIp}`,
-      )
-      const waitCache = async (retries = 20, delay = 200) => {
-        for (let i = 0; i < retries; i++) {
-          const result = await this.redis.get(cacheKey)
-          if (result) return JSON.parse(result)
-          await new Promise((r) => setTimeout(r, delay))
-        }
-        throw new Error(
-          'Duplicate request in progress. Please try again later.',
+  private async recordRequestMetadata(
+    metaKey: string,
+    realIp: string,
+    user: any,
+    ttl: number,
+  ): Promise<void> {
+    await this.safeRedisOperation(() =>
+      this.redis.hsetWithExpiry(
+        metaKey,
+        {
+          startedAt: Date.now().toString(),
+          ip: realIp,
+          sub: user?.sub ?? '',
+          telegramId: user?.telegramId ?? '',
+        },
+        ttl,
+      ),
+    )
+  }
+
+  private async cacheResponse(
+    cacheKey: string,
+    response: any,
+    ttl: number,
+    lockKey: string,
+  ): Promise<void> {
+    await Promise.all([
+      this.safeRedisOperation(() =>
+        this.redis.setObjectWithExpiry(cacheKey, response, ttl),
+      ),
+      this.safeRedisOperation(() => this.redis.del(lockKey)),
+    ])
+  }
+
+  private handleConcurrentRequest(
+    method: string,
+    path: string,
+    user: any,
+    realIp: string,
+    cacheKey: string,
+    lockKey: string,
+  ): Observable<any> {
+    this.logRequest('concurrent', method, path, user, realIp)
+
+    const waitForCache = async (): Promise<any> => {
+      for (let i = 0; i < MAX_RETRIES; i++) {
+        const result = await this.safeRedisOperation(() =>
+          this.redis.getObject(cacheKey),
         )
+        if (result) return result
+        await new Promise((r) => setTimeout(r, RETRY_DELAY))
       }
-      return from(waitCache()).pipe(
-        catchError((err) => {
-          this.telegramLogger.error(
-            `❌ Ошибка ожидания кэша для ${method} ${path}. Пользователь: ${
-              user?.sub || 'неавторизован'
-            }, IP: ${realIp}`,
-          )
-          return throwError(() => err)
-        }),
-      )
+      await this.safeRedisOperation(() => this.redis.del(lockKey))
+      throw new Error('Request processing timeout')
     }
 
-    await this.redis.hset(`dup:meta:${hash}`, {
-      startedAt: Date.now().toString(),
-      ip: realIp,
-      sub: jwtSub ?? '',
-      telegramId: jwtTg ?? '',
-    })
-    await this.redis.expire(`dup:meta:${hash}`, ttl)
-
-    this.telegramLogger.debug(
-      `🔐 Установлена блокировка для ${method} ${path}. Пользователь: ${
-        user?.sub || 'неавторизован'
-      }, IP: ${realIp}`,
-    )
-
-    return next.handle().pipe(
-      tap(async (response) => {
-        await this.redis.set(cacheKey, JSON.stringify(response), 'EX', ttl)
-        await this.redis.del(lockKey)
-        this.telegramLogger.info(
-          `✅ Данные закэшированы и блокировка снята: ${method} ${path}. Пользователь: ${
-            user?.sub || 'неавторизован'
-          }, IP: ${realIp}`,
-        )
-      }),
+    return from(waitForCache()).pipe(
       catchError((err) => {
-        return from(this.redis.del(lockKey)).pipe(
-          tap(() =>
-            this.telegramLogger.error(
-              `❌ Ошибка запроса и снятие блокировки: ${method} ${path}. Пользователь: ${
-                user?.sub || 'неавторизован'
-              }, IP: ${realIp}`,
-            ),
-          ),
-          switchMap(() => throwError(() => err)),
-        )
+        this.logRequest('concurrent-failed', method, path, user, realIp)
+        return throwError(() => err)
       }),
     )
+  }
+
+  private handleError(
+    err: Error,
+    lockKey: string,
+    method: string,
+    path: string,
+    user: any,
+    realIp: string,
+  ): Observable<never> {
+    return from(this.safeRedisOperation(() => this.redis.del(lockKey))).pipe(
+      tap(() => {
+        this.logRequest('error', method, path, user, realIp)
+      }),
+      switchMap(() => throwError(() => err)),
+    )
+  }
+
+  private logRequest(
+    type: string,
+    method: string,
+    path: string,
+    user: any,
+    realIp: string,
+  ): void {
+    const messages = {
+      'cache-hit': `✅ Cache hit for ${method} ${path}`,
+      'lock-acquired': `🔒 Lock acquired for ${method} ${path}`,
+      'cache-set': `💾 Response cached for ${method} ${path}`,
+      concurrent: `⏳ Concurrent request detected for ${method} ${path}`,
+      'concurrent-failed': `❌ Concurrent request failed for ${method} ${path}`,
+      error: `⚠️ Error processing ${method} ${path}`,
+    }
+
+    const message = messages[type]
+    if (message) {
+      const userInfo = user?.sub || 'anonymous'
+      this.telegramLogger.info(`${message}. User: ${userInfo}, IP: ${realIp}`)
+    }
   }
 }
