@@ -70,10 +70,12 @@ fasti.fun {
     import standard_config
 
 				handle_errors {
-								respond "{ \"error\": \"Internal Server Error\" }" 500 {
-												header Content-Type application/json
-								}
-				}
+        @error500 {
+            expression {http.error.status_code} == 500
+        }
+        respond @error500 "{ \"error\": \"Internal Server Error\" }" 500
+        header @error500 Content-Type application/json
+    }
 
     reverse_proxy frontend:3000 {
         header_up Host {host}
@@ -108,10 +110,12 @@ api.fasti.fun {
     import api_protection
 
 				handle_errors {
-								respond "{ \"error\": \"Internal Server Error\" }" 500 {
-												header Content-Type application/json
-								}
-				}
+        @error500 {
+            expression {http.error.status_code} == 500
+        }
+        respond @error500 "{ \"error\": \"Internal Server Error\" }" 500
+        header @error500 Content-Type application/json
+    }
 
     reverse_proxy api:4000 {
         header_up Host {host}
