@@ -79,6 +79,7 @@ fasti.fun {
     reverse_proxy frontend:3000 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
         transport http {
             read_buffer 4096
             read_timeout 10s
@@ -121,6 +122,8 @@ api.fasti.fun {
 
     reverse_proxy api:4000 {
         header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
         transport http {
             read_buffer 4096
             read_timeout 10s
@@ -144,7 +147,9 @@ api.fasti.fun {
 grafana.fasti.fun {
     import standard_config
 
-    reverse_proxy grafana:3000
+    reverse_proxy grafana:3000 {
+        header_up X-Forwarded-For {remote_host}
+    }
 
     header Content-Security-Policy "
         default-src 'self';
@@ -157,20 +162,28 @@ grafana.fasti.fun {
 # Prometheus
 prometheus.fasti.fun {
     import standard_config
-    reverse_proxy prometheus:9090
+
+    reverse_proxy prometheus:9090 {
+        flush_interval -1
+    }
+
     header Content-Security-Policy "default-src 'self';"
 }
 
 # Xray-checker
 xray-checker.fasti.fun {
     import standard_config
-    reverse_proxy xray-checker:2112
+    reverse_proxy xray-checker:2112 {
+        header_up X-Forwarded-For {remote_host}
+    }
     header Content-Security-Policy "default-src 'self';"
 }
 
 # Uptime Kuma
 status.fasti.fun {
     import standard_config
-    reverse_proxy uptime-kuma:3001
+    reverse_proxy uptime-kuma:3001 {
+        header_up X-Forwarded-For {remote_host}
+    }
     header Content-Security-Policy "default-src 'self';"
 }
