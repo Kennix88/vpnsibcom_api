@@ -18,6 +18,7 @@ import { LoggerErrorInterceptor, PinoLogger } from 'nestjs-pino'
 
 import { PreventDuplicateInterceptor } from '@core/auth/guards/prevent-duplicate.guard'
 import { CoreModule } from '@core/core.module'
+import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { PrismaSeed } from '@core/prisma/prisma.seed'
 import { RedisService } from '@core/redis/redis.service'
 import { genReqId } from '@shared/utils/gen-req-id.util'
@@ -106,6 +107,7 @@ async function bootstrap() {
   const config = app.get(ConfigService)
   const redis = app.get(RedisService)
   const reflector = app.get(Reflector)
+  const telegramLogger = app.get(LoggerTelegramService)
 
   // Resolve scoped logger properly
   const pinoLogger = await app.resolve(PinoLogger)
@@ -120,7 +122,7 @@ async function bootstrap() {
   // Global interceptors
   app.useGlobalInterceptors(
     new LoggerErrorInterceptor(),
-    new PreventDuplicateInterceptor(redis, reflector),
+    new PreventDuplicateInterceptor(redis, reflector, telegramLogger),
   )
 
   app.useGlobalPipes(
