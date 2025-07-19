@@ -36,6 +36,10 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
     }
 
     const req = context.switchToHttp().getRequest()
+    const skipMethods = ['OPTIONS', 'HEAD']
+    if (skipMethods.includes(req.method.toUpperCase())) {
+      return next.handle()
+    }
     const { method, originalUrl: path, body = {}, query = {}, user } = req
 
     const realIp = getClientIp(req)
@@ -53,7 +57,13 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
         : realIp
 
     // Делаем хэш по методу, пути, телу, query и identity
-    const hashInput = JSON.stringify({ method, path, body, query, identity })
+    const hashInput = JSON.stringify({
+      method: method.toUpperCase(),
+      path,
+      body,
+      query,
+      identity,
+    })
     const hash = crypto.createHash('sha256').update(hashInput).digest('hex')
 
     const cacheKey = `dup:req:${hash}`
