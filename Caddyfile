@@ -7,17 +7,21 @@
     }
 }
 
-# Общие шаблоны
+# Общие заголовки безопасности
 (security_headers) {
     header {
         X-Frame-Options "SAMEORIGIN"
         X-Content-Type-Options "nosniff"
         Referrer-Policy "strict-origin-when-cross-origin"
         Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+        Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+        X-XSS-Protection "1; mode=block"
+        X-DNS-Prefetch-Control "off"
         -Server
     }
 }
 
+# TLS настройки
 (tls_settings) {
     tls {
         protocols tls1.2 tls1.3
@@ -25,17 +29,35 @@
     }
 }
 
+# Комбинированный импорт
+(standard_config) {
+    import tls_settings
+    import security_headers
+}
+
+# CORS + ограничение тела POST
 (api_protection) {
+    @corsOptions method OPTIONS
+    handle @corsOptions {
+        respond "" 204 {
+            header Access-Control-Allow-Origin https://fasti.fun
+            header Access-Control-Allow-Methods "POST, OPTIONS"
+            header Access-Control-Allow-Headers "Authorization, Content-Type"
+        }
+    }
+
     @postRequests method POST
     handle @postRequests {
-        header Strict-Transport-Security "max-age=31536000;"
+        request_body {
+            max_size 5MB
+        }
         header Access-Control-Allow-Origin https://fasti.fun
         header Access-Control-Allow-Methods "POST, OPTIONS"
-        header Access-Control-Allow-Headers "*"
+        header Access-Control-Allow-Headers "Authorization, Content-Type"
     }
 }
 
-# Перенаправление с www на основной домен
+# Редиректы на основной домен
 www.fasti.fun {
     redir https://fasti.fun{uri} permanent
 }
@@ -46,8 +68,7 @@ http://fasti.fun {
 
 # Основной фронтенд
 fasti.fun {
-    import tls_settings
-    import security_headers
+    import standard_config
 
     reverse_proxy frontend:3000 {
         header_up Host {host}
@@ -55,17 +76,23 @@ fasti.fun {
         transport http {
             keepalive 60s
         }
+
+        handle_errors {
+            respond "{ \"error\": \"Internal Server Error\" }" 500 {
+                header Content-Type application/json
+            }
+        }
     }
 
     header Content-Security-Policy "
-				default-src 'self';
-				script-src 'self' 'unsafe-inline' 'unsafe-eval';
-				style-src 'self' 'unsafe-inline';
-				img-src 'self' data:;
-				connect-src 'self' https://api.fasti.fun;
-				frame-ancestors 'none';
-				base-uri 'none';
-		"
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        connect-src 'self' https://api.fasti.fun;
+        frame-ancestors 'none';
+        base-uri 'none';
+    "
 
     log {
         output file /var/log/caddy/fasti.access.log {
@@ -76,22 +103,29 @@ fasti.fun {
     }
 }
 
-
+# API
 api.fasti.fun {
-    import tls_settings
-    import security_headers
-		import api_protection
+    import standard_config
+    import api_protection
 
     reverse_proxy api:4000 {
         header_up Host {host}
         transport http {
-						read_buffer 4096
-						read_timeout 10s
-						write_timeout 10s
-						idle_timeout 30s
-						keepalive 60s
-				}
+            read_buffer 4096
+            read_timeout 10s
+            write_timeout 10s
+            idle_timeout 30s
+            keepalive 60s
+        }
+
+        handle_errors {
+            respond "{ \"error\": \"Internal Server Error\" }" 500 {
+                header Content-Type application/json
+            }
+        }
     }
+
+    header Content-Security-Policy "default-src 'none'; connect-src 'self';"
 
     log {
         output file /var/log/caddy/api.access.log {
@@ -102,11 +136,9 @@ api.fasti.fun {
     }
 }
 
-
 # Grafana
 grafana.fasti.fun {
-    import tls_settings
-    import security_headers
+    import standard_config
 
     reverse_proxy grafana:3000
 
@@ -120,24 +152,21 @@ grafana.fasti.fun {
 
 # Prometheus
 prometheus.fasti.fun {
-    import tls_settings
-    import security_headers
-
+    import standard_config
     reverse_proxy prometheus:9090
+    header Content-Security-Policy "default-src 'self';"
 }
 
 # Xray-checker
 xray-checker.fasti.fun {
-    import tls_settings
-    import security_headers
-
+    import standard_config
     reverse_proxy xray-checker:2112
+    header Content-Security-Policy "default-src 'self';"
 }
 
 # Uptime Kuma
 status.fasti.fun {
-    import tls_settings
-    import security_headers
-
+    import standard_config
     reverse_proxy uptime-kuma:3001
+    header Content-Security-Policy "default-src 'self';"
 }
