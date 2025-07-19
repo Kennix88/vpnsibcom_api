@@ -1,6 +1,5 @@
 {
     # Глобальные настройки
-    auto_https on
     admin off
     log {
         level INFO
