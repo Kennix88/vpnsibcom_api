@@ -69,17 +69,17 @@ http://fasti.fun {
 fasti.fun {
     import standard_config
 
+				handle_errors {
+								respond "{ \"error\": \"Internal Server Error\" }" 500 {
+												header Content-Type application/json
+								}
+				}
+
     reverse_proxy frontend:3000 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
         transport http {
             keepalive 60s
-        }
-
-        handle_errors {
-            respond "{ \"error\": \"Internal Server Error\" }" 500 {
-                header Content-Type application/json
-            }
         }
     }
 
@@ -107,6 +107,12 @@ api.fasti.fun {
     import standard_config
     import api_protection
 
+				handle_errors {
+								respond "{ \"error\": \"Internal Server Error\" }" 500 {
+												header Content-Type application/json
+								}
+				}
+
     reverse_proxy api:4000 {
         header_up Host {host}
         transport http {
@@ -115,12 +121,6 @@ api.fasti.fun {
             write_timeout 10s
             idle_timeout 30s
             keepalive 60s
-        }
-
-        handle_errors {
-            respond "{ \"error\": \"Internal Server Error\" }" 500 {
-                header Content-Type application/json
-            }
         }
     }
 
