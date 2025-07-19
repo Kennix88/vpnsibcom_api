@@ -1,4 +1,5 @@
 import { RedisService } from '@core/redis/redis.service'
+import { getClientIp } from '@modules/xray/utils/get-client-ip.util'
 import {
   CallHandler,
   ExecutionContext,
@@ -37,6 +38,8 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
     const req = context.switchToHttp().getRequest()
     const { method, originalUrl: path, body = {}, query = {}, user } = req
 
+    const realIp = getClientIp(req)
+
     // Собираем уникальную identity из JWT payload, fallback на IP
     const jwtSub = user?.sub
     const jwtTg = user?.telegramId
@@ -47,7 +50,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
         ? jwtSub
         : jwtTg
         ? jwtTg
-        : req.ip
+        : realIp
 
     // Делаем хэш по методу, пути, телу, query и identity
     const hashInput = JSON.stringify({ method, path, body, query, identity })
@@ -82,7 +85,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
     // Сохраняем мета-инфу о запросе
     await this.redis.hset(`dup:meta:${hash}`, {
       startedAt: Date.now().toString(),
-      ip: req.ip,
+      ip: realIp,
       sub: jwtSub ?? '',
       telegramId: jwtTg ?? '',
     })
