@@ -30,12 +30,9 @@ async function configureFastify(
   config: ConfigService,
   redis: RedisService,
 ) {
-  // Middlewares & plugins
   await app.register(compression)
   await app.register(cookie)
-  if (!isProd) {
-    await app.register(fastifyCsrf)
-  }
+  if (!isProd) await app.register(fastifyCsrf)
   await app.register(helmet, { contentSecurityPolicy: false })
   await app.register(fastifyJwt, {
     secret: config.getOrThrow<string>('JWT_ACCESS_SECRET'),
@@ -72,8 +69,6 @@ async function configureFastify(
       expiresIn: context.after,
     }),
   })
-
-  // CORS
   app.enableCors({
     origin: (origin, cb) => {
       const allowed = [
@@ -87,8 +82,6 @@ async function configureFastify(
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['set-cookie'],
   })
-
-  // Decorators
   const fastify = app.getHttpAdapter().getInstance()
   fastify.decorate(
     'authenticate',
@@ -114,14 +107,22 @@ async function bootstrap() {
   const redis = app.get(RedisService)
   const reflector = app.get(Reflector)
 
-  // Logging & interceptors
-  app.useLogger(app.get(PinoLogger))
+  // Resolve scoped logger properly
+  const pinoLogger = await app.resolve(PinoLogger)
+  app.useLogger({
+    log: pinoLogger.info.bind(pinoLogger),
+    error: pinoLogger.error.bind(pinoLogger),
+    warn: pinoLogger.warn.bind(pinoLogger),
+    debug: pinoLogger.debug.bind(pinoLogger),
+    verbose: pinoLogger.trace.bind(pinoLogger),
+  })
+
+  // Global interceptors
   app.useGlobalInterceptors(
     new LoggerErrorInterceptor(),
     new PreventDuplicateInterceptor(redis, reflector),
   )
 
-  // Validation
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -130,10 +131,8 @@ async function bootstrap() {
     }),
   )
 
-  // Fastify plugins
   await configureFastify(app, isProd, config, redis)
 
-  // Seeding or starting server
   if (parseBoolean(process.env.SEED_MOD || '')) {
     await PrismaSeed().catch((e) => {
       throw new BadRequestException('Error seeding database', 'Prisma-Seed')
