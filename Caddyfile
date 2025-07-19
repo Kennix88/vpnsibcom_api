@@ -38,11 +38,10 @@
 (api_protection) {
     @corsOptions method OPTIONS
     handle @corsOptions {
-        respond "" 204 {
-            header Access-Control-Allow-Origin https://fasti.fun
-            header Access-Control-Allow-Methods "POST, OPTIONS"
-            header Access-Control-Allow-Headers "Authorization, Content-Type"
-        }
+        header Access-Control-Allow-Origin https://fasti.fun
+        header Access-Control-Allow-Methods "POST, OPTIONS"
+        header Access-Control-Allow-Headers "Authorization, Content-Type"
+        respond "" 204
     }
 
     @postRequests method POST
@@ -69,7 +68,7 @@ http://fasti.fun {
 fasti.fun {
     import standard_config
 
-				handle_errors {
+    handle_errors {
         @error500 {
             expression {http.error.status_code} == 500
         }
@@ -109,7 +108,7 @@ api.fasti.fun {
     import standard_config
     import api_protection
 
-				handle_errors {
+    handle_errors {
         @error500 {
             expression {http.error.status_code} == 500
         }
