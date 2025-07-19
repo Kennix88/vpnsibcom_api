@@ -129,5 +129,24 @@ import { CoreController } from './core.controller'
       inject: [RedisService, Reflector, LoggerTelegramService],
     },
   ],
+  exports: [
+    LogRotationService,
+    LoggerTelegramService,
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useFactory: (
+        redis: RedisService,
+        reflector: Reflector,
+        telegramLogger: LoggerTelegramService,
+      ) => {
+        return new PreventDuplicateInterceptor(redis, reflector, telegramLogger)
+      },
+      inject: [RedisService, Reflector, LoggerTelegramService],
+    },
+  ],
 })
 export class CoreModule {}
