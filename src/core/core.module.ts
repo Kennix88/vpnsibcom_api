@@ -94,11 +94,11 @@ import { CoreController } from './core.controller'
       loader: I18nJsonLoader,
     }),
 
+    TelegramModule,
     RedisModule,
     PrismaConnectModule,
 
     // Модули проекта
-    TelegramModule,
     AuthModule,
     UsersModule,
     XrayModule,
@@ -110,7 +110,6 @@ import { CoreController } from './core.controller'
   controllers: [CoreController],
   providers: [
     LogRotationService,
-    LoggerTelegramService,
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
@@ -127,6 +126,6 @@ import { CoreController } from './core.controller'
       inject: [RedisService, Reflector, LoggerTelegramService],
     },
   ],
-  exports: [LogRotationService, LoggerTelegramService],
+  exports: [LogRotationService],
 })
 export class CoreModule {}

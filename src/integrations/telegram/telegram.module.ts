@@ -21,7 +21,12 @@ import { TelegrafModule } from 'nestjs-telegraf'
     ReferralsModule,
     UsersModule,
   ],
-  providers: [StartUpdate, LoggerTelegramService, PaymentsUpdate],
-  exports: [],
+  providers: [
+    StartUpdate,
+    LoggerTelegramService,
+    PaymentsUpdate,
+    LoggerTelegramService,
+  ],
+  exports: [LoggerTelegramService],
 })
 export class TelegramModule {}
