@@ -28,7 +28,6 @@ export class UsersController {
 
   @Get('me')
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
-  @PreventDuplicateRequest(120)
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async getMe(
