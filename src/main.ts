@@ -110,11 +110,11 @@ async function bootstrap() {
   // Resolve scoped logger properly
   const pinoLogger = await app.resolve(PinoLogger)
   app.useLogger({
-    log: pinoLogger.info.bind(pinoLogger),
-    error: pinoLogger.error.bind(pinoLogger),
-    warn: pinoLogger.warn.bind(pinoLogger),
-    debug: pinoLogger.debug.bind(pinoLogger),
-    verbose: pinoLogger.trace.bind(pinoLogger),
+    log: (message: any) => pinoLogger.info(message),
+    error: (message: any) => pinoLogger.error(message),
+    warn: (message: any) => pinoLogger.warn(message),
+    debug: (message: any) => pinoLogger.debug(message),
+    verbose: (message: any) => pinoLogger.trace(message),
   })
 
   // Global interceptors
