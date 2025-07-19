@@ -5,82 +5,114 @@ import Redis from 'ioredis'
 @Injectable()
 export class RedisService extends Redis implements OnModuleInit {
   private readonly logger = new Logger(RedisService.name)
+  private readonly MAX_RETRIES = 5
+  private readonly RETRY_DELAY = 2000
 
   constructor(private readonly configService: ConfigService) {
-    super(configService.getOrThrow<string>('REDIS_URL'))
+    super({
+      host: configService.get('REDIS_HOST'),
+      port: configService.get('REDIS_PORT'),
+      password: configService.get('REDIS_PASSWORD'),
+      // keyPrefix: configService.get('REDIS_PREFIX'),
+      enableOfflineQueue: false,
+      maxRetriesPerRequest: null,
+      retryStrategy: (times) => {
+        if (times > 3) return null
+        return Math.min(times * 500, 2000)
+      },
+    })
 
     this.on('error', (err) => {
-      this.logger.error('Redis error:', err)
+      this.logger.error(`Redis error: ${err.message}`)
     })
   }
 
   async onModuleInit() {
-    const maxRetries = 5
-    let attempt = 0
-    while (attempt < maxRetries) {
+    for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
       try {
         await this.ping()
         this.logger.log('Redis connected successfully')
         return
       } catch (err) {
-        attempt++
-        this.logger.error(`Redis connection failed (attempt ${attempt}):`, err)
-        await new Promise((res) => setTimeout(res, 2000))
+        this.logger.error(
+          `Connection attempt ${attempt} failed: ${err.message}`,
+        )
+        if (attempt === this.MAX_RETRIES) {
+          throw new Error('Redis connection failed after max retries')
+        }
+        await new Promise((r) => setTimeout(r, this.RETRY_DELAY))
       }
     }
-    this.logger.error('Redis failed to connect after max retries')
   }
 
-  /**
-   * Установка значения с временем жизни (TTL в секундах)
-   */
   async setWithExpiry(
     key: string,
     value: string,
     ttlSeconds: number,
   ): Promise<boolean> {
-    if (ttlSeconds <= 0) {
-      throw new Error('TTL must be positive')
+    if (ttlSeconds <= 0) throw new Error('TTL must be positive')
+    try {
+      const result = await this.set(key, value, 'EX', ttlSeconds)
+      return result === 'OK'
+    } catch (err) {
+      this.logger.error(`setWithExpiry failed: ${err.message}`)
+      return false
     }
-    const result = await this.set(key, value, 'EX', ttlSeconds)
-    return result === 'OK'
   }
 
-  /**
-   * Установка объекта с сериализацией и TTL
-   */
   async setObjectWithExpiry<T>(
     key: string,
     value: T,
     ttlSeconds: number,
   ): Promise<boolean> {
-    const str = JSON.stringify(value)
-    return this.setWithExpiry(key, str, ttlSeconds)
+    try {
+      const str = JSON.stringify(value)
+      return this.setWithExpiry(key, str, ttlSeconds)
+    } catch (err) {
+      this.logger.error(`setObjectWithExpiry failed: ${err.message}`)
+      return false
+    }
   }
 
-  /**
-   * Установка значения с NX и TTL, возвращает true если установлен
-   */
   async setWithExpiryNx(
     key: string,
     value: string,
     ttlSeconds: number,
   ): Promise<boolean> {
-    const result = await this.set(key, value, 'EX', ttlSeconds, 'NX')
-    return result === 'OK'
+    if (ttlSeconds <= 0) throw new Error('TTL must be positive')
+    try {
+      const result = await this.set(key, value, 'EX', ttlSeconds, 'NX')
+      return result === 'OK'
+    } catch (err) {
+      this.logger.error(`setWithExpiryNx failed: ${err.message}`)
+      return false
+    }
   }
 
-  /**
-   * Получение объекта с десериализацией
-   */
   async getObject<T>(key: string): Promise<T | null> {
-    const data = await this.get(key)
-    if (!data) return null
     try {
-      return JSON.parse(data) as T
+      const data = await this.get(key)
+      return data ? JSON.parse(data) : null
     } catch (err) {
-      this.logger.warn(`Failed to parse JSON from Redis key "${key}"`)
+      this.logger.warn(`Failed to parse JSON for key ${key}: ${err.message}`)
       return null
+    }
+  }
+
+  async hsetWithExpiry(
+    key: string,
+    data: Record<string, string>,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    try {
+      await this.hset(key, data)
+      if (ttlSeconds > 0) {
+        await this.expire(key, ttlSeconds)
+      }
+      return true
+    } catch (err) {
+      this.logger.error(`hsetWithExpiry failed: ${err.message}`)
+      return false
     }
   }
 }
