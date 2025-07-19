@@ -34,28 +34,6 @@
     import security_headers
 }
 
-# CORS + ограничение тела POST
-(api_protection) {
-    @corsOptions method OPTIONS
-    handle @corsOptions {
-        header Access-Control-Allow-Origin https://fasti.fun
-        header Access-Control-Allow-Methods "POST, OPTIONS"
-        header Access-Control-Allow-Headers "Authorization, Content-Type"
-        header Access-Control-Allow-Credentials "true"
-        respond "" 204
-    }
-
-    @postRequests method POST
-    handle @postRequests {
-        request_body {
-            max_size 5MB
-        }
-        header Access-Control-Allow-Origin https://fasti.fun
-        header Access-Control-Allow-Methods "POST, OPTIONS"
-        header Access-Control-Allow-Headers "Authorization, Content-Type"
-        header Access-Control-Allow-Credentials "true"
-    }
-}
 
 # Редиректы на основной домен
 www.fasti.fun {
@@ -112,7 +90,6 @@ fasti.fun {
 # API
 api.fasti.fun {
     import standard_config
-    import api_protection
 
     handle_errors {
         @error500 {
