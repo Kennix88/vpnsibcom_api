@@ -1,5 +1,5 @@
 import { applyDecorators, SetMetadata, UseInterceptors } from '@nestjs/common'
-import { PreventDuplicateInterceptor } from '../guards/prevent-duplicate.guard'
+import { PreventDuplicateInterceptor } from '../guards/prevent-duplicate.interceptor'
 
 export const PREVENT_DUPLICATE_META = 'prevent_duplicate_ttl'
 

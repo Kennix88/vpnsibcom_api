@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_FILTER, APP_INTERCEPTOR, Reflector } from '@nestjs/core'
+import { APP_FILTER, Reflector } from '@nestjs/core'
 import { ScheduleModule } from '@nestjs/schedule'
 import { join } from 'path'
 
@@ -33,7 +33,7 @@ import { ReferralsModule } from '@modules/referrals/referrals.module'
 import { UsersModule } from '@modules/users/users.module'
 import { XrayModule } from '@modules/xray/xray.module'
 
-import { PreventDuplicateInterceptor } from './auth/guards/prevent-duplicate.guard'
+import { PreventDuplicateInterceptor } from './auth/guards/prevent-duplicate.interceptor'
 import { CoreController } from './core.controller'
 
 @Module({
@@ -115,17 +115,15 @@ import { CoreController } from './core.controller'
       useClass: GlobalExceptionFilter,
     },
     {
-      provide: APP_INTERCEPTOR,
+      provide: PreventDuplicateInterceptor,
       useFactory: (
         redis: RedisService,
         reflector: Reflector,
         telegramLogger: LoggerTelegramService,
-      ) => {
-        return new PreventDuplicateInterceptor(redis, reflector, telegramLogger)
-      },
+      ) => new PreventDuplicateInterceptor(redis, reflector, telegramLogger),
       inject: [RedisService, Reflector, LoggerTelegramService],
     },
   ],
-  exports: [LogRotationService],
+  exports: [LogRotationService, PreventDuplicateInterceptor],
 })
 export class CoreModule {}
