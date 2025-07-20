@@ -257,7 +257,7 @@ export class SubscriptionsController {
   }
 
   @Post('purchase-invoice')
-  @PreventDuplicateRequest(120)
+  @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -357,7 +357,7 @@ export class SubscriptionsController {
   }
 
   @Post('purchase')
-  @PreventDuplicateRequest(120)
+  @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -453,7 +453,7 @@ export class SubscriptionsController {
   }
 
   @Post('delete')
-  @PreventDuplicateRequest(120)
+  @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -535,7 +535,7 @@ export class SubscriptionsController {
   }
 
   @Post('renew')
-  @PreventDuplicateRequest(120)
+  @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -624,7 +624,7 @@ export class SubscriptionsController {
   }
 
   @Post('reset-token')
-  @PreventDuplicateRequest(120)
+  @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -706,7 +706,7 @@ export class SubscriptionsController {
   }
 
   @Post('change-conditions')
-  @PreventDuplicateRequest(120)
+  @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -815,7 +815,7 @@ export class SubscriptionsController {
   }
 
   @Post('toggle-auto-renewal')
-  @PreventDuplicateRequest(120)
+  @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 10, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
