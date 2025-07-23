@@ -751,7 +751,7 @@ export class PaymentsService {
     // Создаем транзакцию для реферальной комиссии
 
     const transactions = [
-      {
+      referralCommission > 0 && {
         amount: referralCommission,
         type: TransactionTypeEnum.PLUS,
         reason: TransactionReasonEnum.REFERRAL,
@@ -760,7 +760,7 @@ export class PaymentsService {
         balanceId: referrer.inviter.balanceId,
         holdExpiredAt: addDays(new Date(), 21),
       },
-      {
+      plusPaymentsRewarded > 0 && {
         amount: plusPaymentsRewarded,
         type: TransactionTypeEnum.PLUS,
         reason: TransactionReasonEnum.REFERRAL,
@@ -768,7 +768,7 @@ export class PaymentsService {
         isHold: false,
         balanceId: referrer.inviter.balanceId,
       },
-    ]
+    ].filter(Boolean)
 
     const referralTransactions = await tx.transactions.createMany({
       data: transactions,
