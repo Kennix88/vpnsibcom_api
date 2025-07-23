@@ -1133,33 +1133,35 @@ export class XrayService {
                 )
               }
 
-              // Обновляем баланс реферера
-              await tx.userBalance.update({
-                where: {
-                  id: inviter.inviter.balanceId,
-                },
-                data: {
-                  paymentBalance:
-                    inviter.inviter.balance.paymentBalance +
-                    plusPaymentsRewarded,
-                },
-              })
+              if (plusPaymentsRewarded > 0) {
+                // Обновляем баланс реферера
+                await tx.userBalance.update({
+                  where: {
+                    id: inviter.inviter.balanceId,
+                  },
+                  data: {
+                    paymentBalance:
+                      inviter.inviter.balance.paymentBalance +
+                      plusPaymentsRewarded,
+                  },
+                })
 
-              // Создаем транзакцию для реферальной комиссии
-              const transactions = [
-                {
-                  amount: plusPaymentsRewarded,
-                  type: TransactionTypeEnum.PLUS,
-                  reason: TransactionReasonEnum.REFERRAL,
-                  balanceType: BalanceTypeEnum.PAYMENT,
-                  isHold: false,
-                  balanceId: inviter.inviter.balanceId,
-                },
-              ]
+                // Создаем транзакцию для реферальной комиссии
+                const transactions = [
+                  {
+                    amount: plusPaymentsRewarded,
+                    type: TransactionTypeEnum.PLUS,
+                    reason: TransactionReasonEnum.REFERRAL,
+                    balanceType: BalanceTypeEnum.PAYMENT,
+                    isHold: false,
+                    balanceId: inviter.inviter.balanceId,
+                  },
+                ]
 
-              await tx.transactions.createMany({
-                data: transactions,
-              })
+                await tx.transactions.createMany({
+                  data: transactions,
+                })
+              }
             })
 
             this.logger.info({
@@ -1333,7 +1335,7 @@ export class XrayService {
         ? cost * settings.telegramPartnerProgramRatio
         : cost
 
-      if (isInvoice) {
+      if (isInvoice && user.role.discount > 0) {
         if (!method) {
           return { success: false, message: 'payment_method_required' }
         }
@@ -1344,8 +1346,8 @@ export class XrayService {
           period,
           periodMultiplier,
           isFixedPrice,
-          fixedPriceStars: partnerCost,
-          nextRenewalStars: partnerCost,
+          fixedPriceStars: user.role.discount == 0 ? 0 : partnerCost,
+          nextRenewalStars: user.role.discount == 0 ? 0 : partnerCost,
           devicesCount,
           isAllBaseServers,
           isAllPremiumServers,
@@ -1383,7 +1385,7 @@ export class XrayService {
           ? user.balance.withdrawalBalance
           : 0)
 
-      if (totalAvailableBalance < nextFinalCost) {
+      if (totalAvailableBalance < nextFinalCost && user.role.discount > 0) {
         this.logger.warn({
           msg: `Недостаточно средств для покупки подписки. Требуется: ${nextFinalCost}, доступно: ${totalAvailableBalance}`,
           service: this.serviceName,
@@ -1400,7 +1402,7 @@ export class XrayService {
       // Используем метод deductUserBalance из UsersService для списания средств
       const deductResult = await this.userService.deductUserBalance(
         user.id,
-        nextFinalCost,
+        user.role.discount == 0 ? 0 : nextFinalCost,
         TransactionReasonEnum.SUBSCRIPTIONS,
         BalanceTypeEnum.PAYMENT,
         { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
@@ -1431,8 +1433,8 @@ export class XrayService {
         period,
         periodMultiplier,
         isFixedPrice,
-        fixedPriceStars: partnerCost,
-        nextRenewalStars: partnerCost,
+        fixedPriceStars: user.role.discount == 0 ? 0 : partnerCost,
+        nextRenewalStars: user.role.discount == 0 ? 0 : partnerCost,
         devicesCount,
         isAllBaseServers,
         isAllPremiumServers,
@@ -1685,7 +1687,7 @@ export class XrayService {
           ? user.balance.withdrawalBalance
           : 0)
 
-      if (totalAvailableBalance < cost) {
+      if (totalAvailableBalance < cost && user.role.discount > 0) {
         this.logger.warn({
           msg: `Недостаточно средств для изменения условий подписки. Требуется: ${cost}, доступно: ${totalAvailableBalance}`,
           service: this.serviceName,
@@ -1719,6 +1721,8 @@ export class XrayService {
         })
         // Продолжаем обновление, даже если не удалось удалить из Marzban
       }
+
+      // TODO: ФИКС изменений условий подписки!
 
       // Создаем нового пользователя в Marzban с тем же username
       const marbanDataStart: UserCreate = {
