@@ -529,6 +529,7 @@ export class UsersService {
     transactions?: any[]
   }> {
     try {
+      if (amount <= 0) return { success: true }
       // Get user data with balance information
       const user = await this.prismaService.users.findUnique({
         where: { id: userId },
