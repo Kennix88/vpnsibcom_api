@@ -221,7 +221,10 @@ export class SubscriptionManagerService {
               where: { id: subscription.id },
               data: {
                 links: subscription.links,
-                nextRenewalStars: subscription.nextRenewalStars,
+                nextRenewalStars:
+                  subscription.user.role.discount == 0
+                    ? 0
+                    : subscription.nextRenewalStars,
                 usedTraffic: subscription.usedTraffic / 1024 / 1024,
                 lastUserAgent: subscription.lastUserAgent,
                 dataLimit: subscription.dataLimit / 1024 / 1024,
@@ -358,7 +361,7 @@ export class SubscriptionManagerService {
       // Используем сервис UsersService для списания средств
       const deductResult = await this.userService.deductUserBalance(
         user.id,
-        cost,
+        subscription.user.role.discount == 0 ? 0 : cost,
         TransactionReasonEnum.SUBSCRIPTIONS,
         BalanceTypeEnum.PAYMENT,
         { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
