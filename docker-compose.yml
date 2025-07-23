@@ -186,6 +186,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
     networks:
       - token-backend
+    depends_on:
+      - postgres
     expose:
       - '5000'
     ports:
@@ -198,27 +200,27 @@ services:
     tty: true
     stdin_open: true
 
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:latest
-    restart: unless-stopped
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus/marzban_targets.yml:/etc/prometheus/marzban_targets.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    networks:
-      - token-backend
-    expose:
-      - '9090'
-    healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://localhost:9090/-/healthy']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    tty: true
-    stdin_open: true
+  # prometheus:
+  #   container_name: prometheus
+  #   image: prom/prometheus:latest
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - ./prometheus/marzban_targets.yml:/etc/prometheus/marzban_targets.yml
+  #     - prometheus_data:/prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #   networks:
+  #     - token-backend
+  #   expose:
+  #     - '9090'
+  #   healthcheck:
+  #     test: ['CMD', 'wget', '-qO-', 'http://localhost:9090/-/healthy']
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #   tty: true
+  #   stdin_open: true
 
   caddy:
     container_name: caddy
@@ -245,7 +247,7 @@ services:
       - api
       - frontend
       - grafana
-      - prometheus
+      # - prometheus
       - xray-checker
       - uptime-kuma
     healthcheck:
@@ -270,49 +272,49 @@ services:
     networks:
       - token-backend
 
-  postgres_exporter:
-    image: prometheuscommunity/postgres-exporter
-    container_name: postgres_exporter
-    restart: unless-stopped
-    environment:
-      DATA_SOURCE_NAME: 'postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DATABASE}?sslmode=disable'
-    networks:
-      - token-backend
-    ports:
-      - '9187:9187'
+  # postgres_exporter:
+  #   image: prometheuscommunity/postgres-exporter
+  #   container_name: postgres_exporter
+  #   restart: unless-stopped
+  #   environment:
+  #     DATA_SOURCE_NAME: 'postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DATABASE}?sslmode=disable'
+  #   networks:
+  #     - token-backend
+  #   ports:
+  #     - '9187:9187'
 
-  redis_exporter:
-    image: oliver006/redis_exporter
-    container_name: redis_exporter
-    restart: unless-stopped
-    command: --redis.addr=redis://redis:6379 --redis.password=${REDIS_PASSWORD}
-    networks:
-      - token-backend
-    ports:
-      - '9121:9121'
+  # redis_exporter:
+  #   image: oliver006/redis_exporter
+  #   container_name: redis_exporter
+  #   restart: unless-stopped
+  #   command: --redis.addr=redis://redis:6379 --redis.password=${REDIS_PASSWORD}
+  #   networks:
+  #     - token-backend
+  #   ports:
+  #     - '9121:9121'
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    restart: unless-stopped
-    ports:
-      - '8080:8080'
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    networks:
-      - token-backend
+  # cadvisor:
+  #   image: gcr.io/cadvisor/cadvisor:latest
+  #   container_name: cadvisor
+  #   restart: unless-stopped
+  #   ports:
+  #     - '8080:8080'
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker/:/var/lib/docker:ro
+  #   networks:
+  #     - token-backend
 
-  node_exporter:
-    image: prom/node-exporter
-    container_name: node_exporter
-    restart: unless-stopped
-    ports:
-      - '9100:9100'
-    networks:
-      - token-backend
+  # node_exporter:
+  #   image: prom/node-exporter
+  #   container_name: node_exporter
+  #   restart: unless-stopped
+  #   ports:
+  #     - '9100:9100'
+  #   networks:
+  #     - token-backend
 
   uptime-kuma:
     image: louislam/uptime-kuma:latest
@@ -347,7 +349,7 @@ volumes:
     driver: local
   grafana_data:
     driver: local
-  prometheus_data:
-    driver: local
+  # prometheus_data:
+  #   driver: local
   uptime-kuma-data:
     driver: local
