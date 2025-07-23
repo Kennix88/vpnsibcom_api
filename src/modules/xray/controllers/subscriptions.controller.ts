@@ -49,7 +49,6 @@ export class SubscriptionsController {
   ) {}
 
   @Get('by-id/:id')
-  @PreventDuplicateRequest(120)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -108,7 +107,6 @@ export class SubscriptionsController {
   }
 
   @Get('by-token/:token')
-  @PreventDuplicateRequest(120)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   async getSubscriptionByToken(
@@ -220,7 +218,6 @@ export class SubscriptionsController {
   }
 
   @Get()
-  @PreventDuplicateRequest(60)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getUserSubscriptions(

@@ -93,7 +93,6 @@ export class UsersController {
   }
 
   @Post('withdrawal-usage')
-  @PreventDuplicateRequest(120)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
