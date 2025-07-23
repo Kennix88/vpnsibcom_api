@@ -85,6 +85,7 @@ export class PaymentsController {
   }
 
   @Get('methods')
+  @PreventDuplicateRequest(120)
   @UseGuards(JwtAuthGuard)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)

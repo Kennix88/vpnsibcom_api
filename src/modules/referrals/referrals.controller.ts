@@ -1,5 +1,6 @@
 import { AuthService } from '@core/auth/auth.service'
 import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
+import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { ReferralsService } from '@modules/referrals/referrals.service'
 import { UsersService } from '@modules/users/users.service'
@@ -25,6 +26,7 @@ export class ReferralsController {
   ) {}
 
   @Get('my')
+  @PreventDuplicateRequest(120)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
