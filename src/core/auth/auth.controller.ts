@@ -87,9 +87,9 @@ export class AuthController {
     const token =
       req.headers.authorization?.split(' ')[1] || req.cookies.access_token
 
-    if (!token) {
-      throw new UnauthorizedException('Access token missing')
-    }
+    // if (!token) {
+    //   throw new UnauthorizedException('Access token missing')
+    // }
 
     await this.authService.updateUserActivity(token)
     await this.authService.logout(user.sub, token)
