@@ -37,23 +37,23 @@ scrape_configs:
         labels:
           service: redis
 
-  - job_name: 'cadvisor'
-    static_configs:
-      - targets: ['cadvisor:8080']
-        labels:
-          service: cadvisor
+  # - job_name: 'cadvisor'
+  #   static_configs:
+  #     - targets: ['cadvisor:8080']
+  #       labels:
+  #         service: cadvisor
 
-  - job_name: 'node_exporter'
-    static_configs:
-      - targets: ['node_exporter:9100']
-        labels:
-          service: node
+  # - job_name: 'node_exporter'
+  #   static_configs:
+  #     - targets: ['node_exporter:9100']
+  #       labels:
+  #         service: node
 
-  - job_name: 'marzban'
-    metrics_path: /metrics
-    file_sd_configs:
-      - files:
-          - '/etc/prometheus/marzban_targets.yml'
+  # - job_name: 'marzban'
+  #   metrics_path: /metrics
+  #   file_sd_configs:
+  #     - files:
+  #         - '/etc/prometheus/marzban_targets.yml'
 
   - job_name: 'xray-checker'
     metrics_path: '/metrics'
