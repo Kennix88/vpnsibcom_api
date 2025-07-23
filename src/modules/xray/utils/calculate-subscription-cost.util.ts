@@ -68,6 +68,8 @@ export function calculateSubscriptionCost(
     settings,
   } = params
 
+  if (userDiscount == 0) return 0
+
   // Validate input parameters
   if (devicesCount < 0) {
     throw new Error('Devices count cannot be negative')
@@ -187,6 +189,8 @@ function calculatePriceByPeriod(
   userDiscount: number,
   settings: SubscriptionCostSettings,
 ): number {
+  if (userDiscount == 0) return 0
+
   let price: number
 
   switch (period) {
