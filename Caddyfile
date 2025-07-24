@@ -34,18 +34,8 @@
     import security_headers
 }
 
-
-# Редиректы на основной домен
-www.fasti.fun {
-    redir https://fasti.fun{uri} permanent
-}
-
-http://fasti.fun {
-    redir https://fasti.fun{uri} permanent
-}
-
 # Основной фронтенд
-fasti.fun {
+fasti.fun, front.fasti.fun, www.fasti.fun {
     import standard_config
 
     handle_errors {
@@ -86,6 +76,7 @@ fasti.fun {
         format json
     }
 }
+
 
 # API
 api.fasti.fun {
