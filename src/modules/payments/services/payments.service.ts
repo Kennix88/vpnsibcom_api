@@ -638,9 +638,12 @@ export class PaymentsService {
     let plusPaymentsRewarded = 0
 
     if (!referrer.isActivated) {
-      plusPaymentsRewarded = payment.user.telegramData.isPremium
-        ? settings.referralInvitePremiumRewardStars
-        : settings.referralInviteRewardStars
+      plusPaymentsRewarded =
+        referrer.level > 1
+          ? 0
+          : payment.user.telegramData.isPremium
+          ? settings.referralInvitePremiumRewardStars
+          : settings.referralInviteRewardStars
     }
 
     await tx.referrals.update({

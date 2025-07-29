@@ -916,9 +916,13 @@ export class XrayService {
           vless: {
             flow: 'xtls-rprx-vision',
           },
+          trojan: {},
+          shadowsocks: {},
         },
         inbounds: {
           vless: ['VLESS'],
+          trojan: ['TROJAN WS TLS'],
+          shadowsocks: ['Shadowsocks TCP'],
         },
         status: 'active',
         ...(!isUnlimitTraffic && {
@@ -1101,9 +1105,12 @@ export class XrayService {
         if (!inviter.isActivated) {
           let plusPaymentsRewarded = 0
 
-          plusPaymentsRewarded = user.telegramData?.isPremium
-            ? settings.referralInvitePremiumRewardStars
-            : settings.referralInviteRewardStars
+          plusPaymentsRewarded =
+            inviter.level > 1
+              ? 0
+              : user.telegramData?.isPremium
+              ? settings.referralInvitePremiumRewardStars
+              : settings.referralInviteRewardStars
 
           try {
             await this.prismaService.$transaction(async (tx) => {
@@ -1731,9 +1738,13 @@ export class XrayService {
           vless: {
             flow: 'xtls-rprx-vision',
           },
+          trojan: {},
+          shadowsocks: {},
         },
         inbounds: {
           vless: ['VLESS'],
+          trojan: ['TROJAN WS TLS'],
+          shadowsocks: ['Shadowsocks TCP'],
         },
         status: 'active',
         ...(!isUnlimitTraffic && {
@@ -1746,6 +1757,8 @@ export class XrayService {
           user.telegramData?.lastName || ''
         }`,
       }
+
+      // TODO: Нужно изменить, а не добавить!
 
       // Добавление пользователя в Marzban
       const marzbanData = await this.marzbanService.addUser(marbanDataStart)
