@@ -81,7 +81,7 @@ export class ReferralsService {
           }
         } else if (ref.level === 2) {
           lvl2.push(nextData)
-          lvl2TotalPaymentsRewarded += ref.totalPaymentsRewarded
+          lvl2TotalPaymentsRewarded += 0
           lvl2TotalWithdrawalsRewarded += ref.totalWithdrawalsRewarded
           if (ref.isActivated) {
             lvl2IsActivated += 1
@@ -91,7 +91,7 @@ export class ReferralsService {
           }
         } else if (ref.level === 3) {
           lvl3.push(nextData)
-          lvl3TotalPaymentsRewarded += ref.totalPaymentsRewarded
+          lvl3TotalPaymentsRewarded += 0
           lvl3TotalWithdrawalsRewarded += ref.totalWithdrawalsRewarded
           if (ref.isActivated) {
             lvl3IsActivated += 1
@@ -133,8 +133,8 @@ export class ReferralsService {
         lvl2IsActivatedBase: lvl3IsActivated - lvl2IsActivatedPremium,
         lvl3IsActivatedBase: lvl3IsActivated - lvl3IsActivatedPremium,
         lvl1TotalPaymentsRewarded,
-        lvl2TotalPaymentsRewarded,
-        lvl3TotalPaymentsRewarded,
+        lvl2TotalPaymentsRewarded: 0,
+        lvl3TotalPaymentsRewarded: 0,
         lvl1TotalWithdrawalsRewarded,
         lvl2TotalWithdrawalsRewarded,
         lvl3TotalWithdrawalsRewarded,
