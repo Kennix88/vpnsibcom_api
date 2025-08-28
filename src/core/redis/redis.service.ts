@@ -7,6 +7,7 @@ export class RedisService extends Redis implements OnModuleInit {
   private readonly logger = new Logger(RedisService.name)
   private readonly MAX_RETRIES = 5
   private readonly RETRY_DELAY = 2000
+  private _isReady: Promise<void>
 
   constructor(private readonly configService: ConfigService) {
     super({
@@ -22,29 +23,45 @@ export class RedisService extends Redis implements OnModuleInit {
       },
     })
 
+    this._isReady = new Promise<void>((resolve) => {
+      this.on('connect', () => {
+        this.logger.log('Redis connection established.')
+        resolve()
+      })
+    })
+
+    // Handle Redis errors
     this.on('error', (err) => {
       this.logger.error(`Redis error: ${err.message}`)
     })
   }
 
-  async onModuleInit() {
-    for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
-      try {
-        await this.ping()
-        this.logger.log('Redis connected successfully')
-        return
-      } catch (err) {
-        this.logger.error(
-          `Connection attempt ${attempt} failed: ${err.message}`,
-        )
-        if (attempt === this.MAX_RETRIES) {
-          throw new Error('Redis connection failed after max retries')
-        }
-        await new Promise((r) => setTimeout(r, this.RETRY_DELAY))
-      }
-    }
+  /**
+   * @method onModuleInit
+   * @description Lifecycle hook that is called once the host module has been initialized.
+   *              Ensures Redis connection is ready before module initialization completes.
+   * @returns {Promise<void>}
+   */
+  async onModuleInit(): Promise<void> {
+    await this._isReady
   }
 
+  /**
+   * @method waitTillReady
+   * @description Waits until the Redis connection is established.
+   * @returns {Promise<void>}
+   */
+  async waitTillReady(): Promise<void> {
+    await this._isReady
+  }
+
+  /**
+   * @method setWithExpiry
+   * @param {string} key - The key to set.
+   * @param {string} value - The value to set.
+   * @param {number} ttlSeconds - The time-to-live for the key in seconds.
+   * @returns {Promise<boolean>} - True if the operation was successful, false otherwise.
+   */
   async setWithExpiry(
     key: string,
     value: string,

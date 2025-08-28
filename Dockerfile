@@ -13,12 +13,16 @@ RUN npm ci
 
 COPY . .
 
-# Генерация Prisma клиента и сборка проекта
+# Генерация Prisma клиента
 RUN npx prisma generate
+
+# Компиляция TypeScript в JavaScript
 RUN npm run build
 
-# Проверка сборки
+# Проверка сборки и содержимого директории dist
 RUN ls -la dist && echo "✅ Build completed"
+
+
 
 # --- STAGE 2: Runtime ---
 FROM node:22.17.0-alpine

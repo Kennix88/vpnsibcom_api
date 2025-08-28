@@ -52,14 +52,14 @@ import { CoreController } from './core.controller'
     ThrottlerModule.forRootAsync({
       useFactory: async (redisService: RedisService) => {
         try {
-          // Проверка соединения с Redis, например ping
-          await redisService.ping()
+          // Wait until Redis is ready
+          await redisService.waitTillReady()
           return {
             throttlers: [{ ttl: 60 * 1000, limit: 100 }],
             storage: new RedisThrottlerStorage(redisService),
           }
         } catch (e) {
-          // Логируем и возвращаем fallback, чтобы не блокировать
+          // Log and return fallback to avoid blocking
           console.error('Redis unavailable for throttler:', e)
           return {
             throttlers: [{ ttl: 60 * 1000, limit: 100 }],
@@ -76,11 +76,11 @@ import { CoreController } from './core.controller'
           fallbackLanguage: 'en',
           disableMiddleware: true,
           loaderOptions: {
-            path: join(__dirname, 'i18n/locales'),
+            path: join(process.cwd(), 'src/core/i18n/locales'),
             watch: process.env.NODE_ENV === 'development',
             includeSubfolders: true,
           },
-          typesOutputPath: join(__dirname, 'i18n/i18n.type.ts'),
+          typesOutputPath: join(process.cwd(), 'src/core/i18n/i18n.type.ts'),
           generateTypes: true,
           errorHandler: (err) => logger.error('I18n error:', err),
         }
