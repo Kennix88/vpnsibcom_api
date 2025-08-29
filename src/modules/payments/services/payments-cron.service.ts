@@ -32,11 +32,9 @@ export class PaymentsCronService {
   @Cron('0 5 0 * * *')
   async processExpiredHolds() {
     try {
-      this.logger.info({
-        msg: 'Starting processing expired transaction holds',
-      })
+      this.logger.info({ msg: 'Starting processing expired transaction holds' })
 
-      // Находим все транзакции с истекшим холдом
+      // Забираем все холды, у которых срок истёк
       const expiredHoldTransactions =
         await this.prismaService.transactions.findMany({
           where: {
@@ -59,9 +57,7 @@ export class PaymentsCronService {
         })
 
       if (expiredHoldTransactions.length === 0) {
-        this.logger.info({
-          msg: 'No expired hold transactions found',
-        })
+        this.logger.info({ msg: 'No expired hold transactions found' })
         return
       }
 
@@ -69,32 +65,33 @@ export class PaymentsCronService {
         msg: `Found ${expiredHoldTransactions.length} expired hold transactions`,
       })
 
-      // Обрабатываем каждую транзакцию в транзакции базы данных
       for (const transaction of expiredHoldTransactions) {
         await this.prismaService.$transaction(async (tx) => {
-          // Обновляем баланс пользователя
-          await tx.userBalance.update({
+          // Попытка обновить баланс атомарно
+          const balanceUpdate = await tx.userBalance.updateMany({
             where: {
               id: transaction.balanceId,
+              holdBalance: { gte: transaction.amount }, // защита от ухода в минус
             },
             data: {
-              holdBalance: {
-                decrement: transaction.amount,
-              },
-              withdrawalBalance: {
-                increment: transaction.amount,
-              },
+              holdBalance: { decrement: transaction.amount },
+              withdrawalBalance: { increment: transaction.amount },
             },
           })
 
+          if (balanceUpdate.count === 0) {
+            // либо уже обработано, либо holdBalance < amount
+            this.logger.warn({
+              msg: `Skipped expired hold transaction ${transaction.id}, insufficient holdBalance or already processed`,
+              userId: transaction.balance.user.id,
+            })
+            return
+          }
+
           // Обновляем статус транзакции
           await tx.transactions.update({
-            where: {
-              id: transaction.id,
-            },
-            data: {
-              isHold: false,
-            },
+            where: { id: transaction.id },
+            data: { isHold: false },
           })
 
           this.logger.info({
@@ -103,16 +100,12 @@ export class PaymentsCronService {
             userId: transaction.balance.user.id,
           })
 
-          // Отправляем уведомление пользователю
+          // Уведомление пользователю
           try {
             const userLang = transaction.balance.user.language?.iso6391 || 'ru'
-
             const message = await this.i18n.translate(
               'payments.hold.released',
-              {
-                args: { amount: transaction.amount },
-                lang: userLang,
-              },
+              { args: { amount: transaction.amount }, lang: userLang },
             )
 
             await this.bot.telegram.sendMessage(
