@@ -946,7 +946,9 @@ export class XrayService {
         return false
       }
 
-      await this.marzbanService.restartCore()
+      // TODO: Включить обратно рестарт ядра
+
+      // await this.marzbanService.restartCore()
 
       // Расчет времени истечения подписки
       const hours = periodHours(period, periodMultiplier, trialDays)
@@ -1973,6 +1975,31 @@ export class XrayService {
             userId: user.id,
             paymentAmount: deductResult.paymentAmount,
             withdrawalAmount: deductResult.withdrawalAmount,
+            service: this.serviceName,
+          })
+
+          const marzbanUser = await this.marzbanService.modifyUser(
+            subscription.username,
+            {
+              status: 'active',
+            },
+          )
+
+          // TODO: Включить обратно рестарт ядра
+
+          // await this.marzbanService.restartCore()
+
+          if (!marzbanUser) {
+            this.logger.error({
+              msg: `Failed to activate user ${subscription.username} in Marzban`,
+              service: this.serviceName,
+            })
+
+            return { success: false, message: 'marzban_error' }
+          }
+
+          this.logger.info({
+            msg: `User ${subscription.username} successfully activated in Marzban`,
             service: this.serviceName,
           })
 
