@@ -14,6 +14,6 @@
     "level_label": "🔝 Level"
   },
   "hold": {
-    "released": "🎉 Great news! {amount} Stars from your frozen funds are now available for withdrawal. 💸 You can use them right away!"
+    "released": "🎉 Great news! {amount} Stars from your frozen funds are now available for withdrawal 💸"
   }
 }
