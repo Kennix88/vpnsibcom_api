@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
+import axiosRetry from 'axios-retry'
 import { PinoLogger } from 'nestjs-pino'
 import {
   Admin,
@@ -54,6 +55,22 @@ export class MarzbanService {
       baseURL,
       headers: {
         'Content-Type': 'application/json',
+      },
+    })
+
+    // Apply axios-retry to the client instance
+    axiosRetry(this.client, {
+      retries: 3, // Number of retries
+      retryDelay: axiosRetry.exponentialDelay, // Exponential backoff retry delay
+      retryCondition: (error) => {
+        // Retry on network errors or 5xx errors
+        return axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error)
+      },
+      onRetry: (retryCount, error, requestConfig) => {
+        this.logger.warn({
+          msg: `Retry attempt ${retryCount} for ${requestConfig.method?.toUpperCase()} ${requestConfig.url}: ${error.message}`,
+          service: this.serviceName,
+        })
       },
     })
 
