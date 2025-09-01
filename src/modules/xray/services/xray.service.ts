@@ -471,6 +471,7 @@ export class XrayService {
       return {
         subscription: {
           id: subscription.id,
+          name: subscription.name,
           planKey: subscription.planKey as PlansEnum,
           period: subscription.period as SubscriptionPeriodEnum,
           periodMultiplier: subscription.periodMultiplier,
@@ -666,6 +667,7 @@ export class XrayService {
       const result: SubscriptionDataInterface[] = subscriptions.map(
         (subscription) => ({
           id: subscription.id,
+          name: subscription.name,
           planKey: subscription.planKey as PlansEnum,
           period: subscription.period as SubscriptionPeriodEnum,
           periodMultiplier: subscription.periodMultiplier,
