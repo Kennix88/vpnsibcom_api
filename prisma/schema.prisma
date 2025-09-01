@@ -347,6 +347,7 @@ enum PlansEnum {
 model Subscriptions {
  id               String                 @id @default(uuid())
  username         String                 @unique
+ name             String                 @default("Subscription")
  plan             Plans                  @relation(fields: [planKey], references: [key])
  planKey          PlansEnum              @default(CUSTOM) @map("plan_key")
  isActive         Boolean                @default(false) @map("is_active")
@@ -357,21 +358,24 @@ model Subscriptions {
  period           SubscriptionPeriodEnum @default(MONTH)
  periodMultiplier Int                    @default(1) @map("period_multiplier")
 
- nextRenewalStars    Float?  @map("next_renewal_stars")
- isPremium           Boolean @default(false) @map("is_premium")
- isFixedPrice        Boolean @default(false) @map("is_fixed_price")
- fixedPriceStars     Float?  @map("fixed_price_stars")
- devicesCount        Int     @default(1) @map("devices_count")
- isAllBaseServers    Boolean @default(false) @map("is_all_base_servers")
- isAllPremiumServers Boolean @default(false) @map("is_all_premium_servers")
- trafficLimitGb      Float?  @map("traffic_limit_gb")
- isUnlimitTraffic    Boolean @default(false) @map("is_unlimit_traffic")
- links               Json?   @map("links") @db.JsonB
- lastUserAgent       String? @map("last_user_agent")
- dataLimit           Int     @default(0) @map("data_limit")
- usedTraffic         Int     @default(0) @map("used_traffic")
- lifeTimeUsedTraffic Int     @default(0) @map("life_time_used_traffic")
- marzbanData         Json?   @map("marzban_data") @db.JsonB
+ announce String?
+
+ nextRenewalStars    Float?           @map("next_renewal_stars")
+ isPremium           Boolean          @default(false) @map("is_premium")
+ isFixedPrice        Boolean          @default(false) @map("is_fixed_price")
+ fixedPriceStars     Float?           @map("fixed_price_stars")
+ devicesCount        Int              @default(1) @map("devices_count")
+ isAllBaseServers    Boolean          @default(false) @map("is_all_base_servers")
+ isAllPremiumServers Boolean          @default(false) @map("is_all_premium_servers")
+ trafficLimitGb      Float?           @map("traffic_limit_gb")
+ isUnlimitTraffic    Boolean          @default(false) @map("is_unlimit_traffic")
+ links               Json?            @map("links") @db.JsonB
+ lastUserAgent       String?          @map("last_user_agent")
+ dataLimit           Int              @default(0) @map("data_limit")
+ usedTraffic         Int              @default(0) @map("used_traffic")
+ lifeTimeUsedTraffic Int              @default(0) @map("life_time_used_traffic")
+ trafficReset        TrafficResetEnum @default(DAY) @map("traffic_reset")
+ marzbanData         Json?            @map("marzban_data") @db.JsonB
 
  servers SubscriptionToGreenList[]
 
@@ -388,6 +392,14 @@ model Subscriptions {
  @@index([token])
  @@index([username])
  @@map("subscriptions")
+}
+
+enum TrafficResetEnum {
+ NO_RESET @map("no_reset")
+ DAY      @map("day")
+ WEEK     @map("week")
+ MONTH    @map("month")
+ YEAR     @map("year")
 }
 
 model SubscriptionToGreenList {
