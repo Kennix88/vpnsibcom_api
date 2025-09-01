@@ -2,6 +2,7 @@ import { PlansEnum } from '@prisma/client'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { ServerDataInterface } from './servers-data.interface'
+import { TrafficResetEnum } from './traffic-reset.enum'
 
 export interface GetSubscriptionConfigResponseInterface {
   subscription: SubscriptionDataInterface
@@ -48,6 +49,7 @@ export interface SubscriptionDataInterface {
   isAllPremiumServers: boolean
   trafficLimitGb?: number
   isUnlimitTraffic: boolean
+  trafficReset: TrafficResetEnum
 
   lastUserAgent?: string
   dataLimit?: number

@@ -26,6 +26,7 @@ import {
   SubscriptionDataInterface,
   SubscriptionResponseInterface,
 } from '../types/subscription-data.interface'
+import { TrafficResetEnum } from '../types/traffic-reset.enum'
 import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
 import { filterConfig } from '../utils/filter-config.util'
 import { getXrayConfigFormat } from '../utils/get-xray-config-fromat.util'
@@ -489,6 +490,8 @@ export class XrayService {
           dataLimit: subscription.dataLimit * 1024 * 1024,
           usedTraffic: subscription.usedTraffic * 1024 * 1024,
           lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic * 1024 * 1024,
+          trafficReset: subscription.trafficReset as TrafficResetEnum,
+          announce: subscription.announce,
           links: subscription.links as string[],
           servers:
             subscription.isAllBaseServers && subscription.isAllPremiumServers
@@ -682,6 +685,8 @@ export class XrayService {
           dataLimit: subscription.dataLimit * 1024 * 1024,
           usedTraffic: subscription.usedTraffic * 1024 * 1024,
           lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic * 1024 * 1024,
+          trafficReset: subscription.trafficReset as TrafficResetEnum,
+          announce: subscription.announce,
           links: subscription.links as string[],
           servers:
             subscription.isAllBaseServers && subscription.isAllPremiumServers
