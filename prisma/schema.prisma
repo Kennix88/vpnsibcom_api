@@ -1,120 +1,80 @@
-// Настройки генератора и источника данных
 generator client {
  provider = "prisma-client-js"
  // output   = "./generated"
 }
 
 datasource db {
- provider = "postgresql"
- url      = env("POSTGRES_URL")
+ provider  = "postgresql"
+ url       = env("POSTGRES_URL")
+ directUrl = env("POSTGRES_URL")
 }
 
-// ==========================================
-// ОСНОВНЫЕ НАСТРОЙКИ И ПЕРЕЧИСЛЕНИЯ
-// ==========================================
-
-/// Перечисление для настроек по умолчанию
 enum DefaultEnum {
  DEFAULT
 }
 
 /// Модель настроек приложения
 model Settings {
- key          DefaultEnum @id @default(DEFAULT)
+ key                         DefaultEnum @id @default(DEFAULT)
  /// Курс обмена Telegram Stars к USD
- tgStarsToUSD Float       @default(0.013) @map("tg_stars_to_usd")
-
- // Коэффициенты для подпписки
- telegramPremiumRatio        Float @default(1.5) @map("telegram_premium_ratio")
- devicesPriceStars           Float @default(50) @map("devices_price_stars")
- serversPriceStars           Float @default(20) @map("servers_price_stars")
- premiumServersPriceStars    Float @default(50) @map("premium_servers_price_stars")
- allBaseServersPriceStars    Float @default(17) @map("all_base_servers_price_stars")
- allPremiumServersPriceStars Float @default(40) @map("all_premium_servers_price_stars")
- trafficGbPriceStars         Float @default(60) @map("traffic_gb_price_stars")
- unlimitTrafficPriceStars    Float @default(100) @map("unlimit_traffic_price_stars")
+ tgStarsToUSD                Float       @default(0.013) @map("tg_stars_to_usd")
+ telegramPremiumRatio        Float       @default(1.5) @map("telegram_premium_ratio")
+ devicesPriceStars           Float       @default(50) @map("devices_price_stars")
+ serversPriceStars           Float       @default(20) @map("servers_price_stars")
+ premiumServersPriceStars    Float       @default(50) @map("premium_servers_price_stars")
+ allBaseServersPriceStars    Float       @default(17) @map("all_base_servers_price_stars")
+ allPremiumServersPriceStars Float       @default(40) @map("all_premium_servers_price_stars")
+ trafficGbPriceStars         Float       @default(60) @map("traffic_gb_price_stars")
+ unlimitTrafficPriceStars    Float       @default(100) @map("unlimit_traffic_price_stars")
  // Коэффициенты оплаты для разных периодов подписки
- hourRatioPayment            Float @default(1.39) @map("hour_ratio_payment")
- dayRatioPayment             Float @default(1.31) @map("day_ratio_payment")
- weekRatioPayment            Float @default(1.25) @map("week_ratio_payment")
- threeMouthesRatioPayment    Float @default(0.97) @map("three_mouthes_ratio_payment")
- sixMouthesRatioPayment      Float @default(0.94) @map("six_mouthes_ratio_payment")
- oneYearRatioPayment         Float @default(0.88) @map("one_year_ratio_payment")
- twoYearRatioPayment         Float @default(0.76) @map("two_year_ratio_payment")
- threeYearRatioPayment       Float @default(0.64) @map("three_year_ratio_payment")
- indefinitelyRatio           Float @default(120) @map("indefinitely_ratio")
- // Фиксация цены
- fixedPriceStars             Float @default(1000) @map("fixed_price_stars")
+ hourRatioPayment            Float       @default(1.39) @map("hour_ratio_payment")
+ dayRatioPayment             Float       @default(1.31) @map("day_ratio_payment")
+ weekRatioPayment            Float       @default(1.25) @map("week_ratio_payment")
+ threeMouthesRatioPayment    Float       @default(0.97) @map("three_mouthes_ratio_payment")
+ sixMouthesRatioPayment      Float       @default(0.94) @map("six_mouthes_ratio_payment")
+ oneYearRatioPayment         Float       @default(0.88) @map("one_year_ratio_payment")
+ twoYearRatioPayment         Float       @default(0.76) @map("two_year_ratio_payment")
+ threeYearRatioPayment       Float       @default(0.64) @map("three_year_ratio_payment")
+ indefinitelyRatio           Float       @default(120) @map("indefinitely_ratio")
 
- // Настройки вывода средств
- /// Минимальная сумма вывода в Stars
- minWithdrawalStars    Float @default(1000) @map("min_withdrawal_stars")
- /// Комиссия при обмене Stars на USDT
- commissionStarsToUsdt Float @default(0.90) @map("commission_stars_to_usdt")
- /// Награда за просмотр рекламы в Stars
- adsRewardStars        Float @default(0.1) @map("ads_reward_stars")
- /// Награда за выполнение задания с рекламой в Stars
- adsTaskRewardStars    Float @default(10) @map("ads_task_reward_stars")
+ minWithdrawalStars   Float @default(1000) @map("min_withdrawal_stars")
+ adsRewardTraffic     Float @default(102) @map("ads_reward_traffic")
+ adsTaskRewardTraffic Float @default(10240) @map("ads_task_reward_traffic")
 
  // Настройки реферальной программы
- /// Процент вознаграждения для рефералов первого уровня
- referralOneLevelPercent          Float @default(0.1) @map("referral_one_level_percent")
- /// Процент вознаграждения для рефералов второго уровня
- referralTwoLevelPercent          Float @default(0.05) @map("referral_two_level_percent")
- /// Процент вознаграждения для рефералов третьего уровня
- referralThreeLevelPercent        Float @default(0.01) @map("referral_three_level_percent")
- /// Награда за приглашение обычного пользователя в Stars
- referralInviteRewardStars        Float @default(2) @map("referral_invite_reward_stars")
- /// Награда за приглашение премиум-пользователя в Stars
- referralInvitePremiumRewardStars Float @default(10) @map("referral_invite_premiumreward_stars")
+ referralOneLevelPercent       Float @default(0.1) @map("referral_one_level_percent")
+ referralTwoLevelPercent       Float @default(0.05) @map("referral_two_level_percent")
+ referralThreeLevelPercent     Float @default(0.01) @map("referral_three_level_percent")
+ referralInviteRewardGb        Int   @default(20) @map("referral_invite_reward_gb")
+ referralInvitePremiumRewardGb Int   @default(30) @map("referral_invite_premium_reward_gb")
+
+ trialGb                    Int @default(10) @map("trial_gb")
+ trialGbForReferrals        Int @default(20) @map("trial_gb_for_referrals")
+ trialGbForPremiumReferrals Int @default(30) @map("trial_gb_for_premium_referrals")
 
  isActiveTgPartnerProgram        Boolean @default(true) @map("is_active_tg_partner_program")
  commissionRatioTgPartnerProgram Float   @default(0.30) @map("commission_ratio_tg_partner_program")
  mouthesCountTgPartnerProgram    Int?    @map("mouthes_count_tg_partner_program")
  telegramPartnerProgramRatio     Float   @default(1.3) @map("telegram_partner_program_ratio")
 
- // Ограничения и бонусы
- /// Количество дней бесплатного периода для обычных пользователей
- freePlanDays             Int @default(3) @map("free_plan_days")
- /// Количество дней бесплатного периода для рефералов
- freePlanDaysForReferrals Int @default(7) @map("free_plan_days_for_referrals")
-
  @@map("settings")
 }
 
-// ==========================================
-// ПОЛЬЗОВАТЕЛЬСКИЕ ДАННЫЕ
-// ==========================================
-
-/// Модель для хранения данных Telegram пользователя
 model UserTelegramData {
  id                    String   @id @default(uuid())
- /// Активен ли пользователь
  isLive                Boolean  @default(false) @map("is_live")
- /// Использует ли RTL-язык
  isRtl                 Boolean  @default(false) @map("is_rtl")
- /// Имеет ли премиум-статус в Telegram
  isPremium             Boolean  @default(false) @map("is_premium")
- /// Является ли ботом
  isBot                 Boolean  @default(false) @map("is_bot")
- /// Имя пользователя
  firstName             String   @map("first_name")
- /// Фамилия пользователя
  lastName              String?  @map("last_name")
- /// Имя пользователя в Telegram
  username              String?
- /// Код языка пользователя
  languageCode          String   @map("language_code")
- /// URL фотографии пользователя
  photoUrl              String?  @map("photo_url")
- /// Добавлен ли в меню вложений
  addedToAttachmentMenu Boolean  @default(false) @map("added_to_attachment_menu")
- /// Разрешает ли личные сообщения
  allowsWriteToPm       Boolean  @default(false) @map("allows_write_to_pm")
- /// Дата последнего обновления
  updatedAt             DateTime @updatedAt @map("updated_at")
 
- /// Связь с пользователем
  user Users?
 
  @@map("user_telegram_data")
@@ -122,27 +82,22 @@ model UserTelegramData {
 
 /// Модель для хранения реферальных отношений
 model Referrals {
- id                       String  @id @default(uuid())
+ id         String @id @default(uuid())
  /// Уровень реферала (1-3)
- level                    Int     @default(1)
+ level      Int    @default(1)
  /// Связь с пригласившим пользователем
- inviter                  Users   @relation("inviter", fields: [inviterId], references: [id])
- inviterId                String  @map("inviter_id")
+ inviter    Users  @relation("inviter", fields: [inviterId], references: [id])
+ inviterId  String @map("inviter_id")
  /// Связь с приглашенным пользователем
- referral                 Users   @relation("referral", fields: [referralId], references: [id])
- referralId               String  @map("referral_id")
- /// Общая сумма вознаграждений за платежи
- totalPaymentsRewarded    Float   @default(0)
- /// Общая сумма вознаграждений за выводы
- totalWithdrawalsRewarded Float   @default(0)
- /// Активирован ли реферал
- isActivated              Boolean @default(false)
- /// Имеет ли реферал премиум-статус
- isPremium                Boolean @default(false)
+ referral   Users  @relation("referral", fields: [referralId], references: [id])
+ referralId String @map("referral_id")
 
- /// Дата создания
+ totalPaymentsRewarded Float   @default(0)
+ totalTrafficRewarded  Float   @default(0)
+ isActivated           Boolean @default(false)
+ isPremium             Boolean @default(false)
+
  createdAt DateTime @default(now()) @map("created_at")
- /// Дата обновления
  updatedAt DateTime @updatedAt @map("updated_at")
 
  @@unique([inviterId, referralId, level])
@@ -154,54 +109,35 @@ model Referrals {
 /// Основная модель пользователя
 model Users {
  id                  String  @id @default(uuid())
- /// Telegram ID пользователя
  telegramId          String  @unique @map("telegram_id")
  isTgProgramPartner  Boolean @default(false) @map("is_tg_program_partner")
- /// Доступен ли бесплатный план
  isFreePlanAvailable Boolean @default(true) @map("is_free_plan_available")
- /// Заблокирован ли пользователь
  isBanned            Boolean @default(false) @map("is_banned")
- /// Удален ли пользователь
  isDeleted           Boolean @default(false) @map("is_deleted")
 
- /// Дата создания
- createdAt                 DateTime          @default(now()) @map("created_at")
- /// Дата обновления
- updatedAt                 DateTime          @updatedAt @map("updated_at")
- /// Дата последнего входа
- lastStartedAt             DateTime?         @map("last_started_at")
- /// Дата истечения бана
- banExpiredAt              DateTime?         @map("banned_expired_at")
- /// Дата удаления
- deletedAt                 DateTime?         @map("deleted_at")
- tgProgramPartnerExpiredAt DateTime?         @map("tg_program_partner_expired_at")
- /// Роль пользователя
- role                      Roles             @relation(fields: [roleId], references: [key])
- roleId                    UserRoleEnum      @default(USER) @map("role_id")
- /// Платежи пользователя
- payments                  Payments[]
- /// Рефералы, приглашенные пользователем
- referrals                 Referrals[]       @relation("inviter")
- /// Пользователи, пригласившие данного пользователя
- inviters                  Referrals[]       @relation("referral")
- /// Данные Telegram пользователя
- telegramData              UserTelegramData? @relation(fields: [telegramDataId], references: [id])
- telegramDataId            String?           @unique @map("telegram_data_id")
- /// Баланс пользователя
- balance                   UserBalance?      @relation(fields: [balanceId], references: [id])
- balanceId                 String?           @unique @map("balance_id")
- /// Язык пользователя
- language                  Language          @relation(fields: [languageId], references: [id])
- languageId                String            @map("language_id")
- /// Валюта пользователя
- currency                  Currency          @relation(fields: [currencyKey], references: [key])
- currencyKey               CurrencyEnum      @default(USD) @map("currency_key")
- /// Подписки пользователя
- subscriptions             Subscriptions[]
- /// Выводы средств пользователя
- withdrawals               Withdrawals[]
- /// Просмотры рекламы пользователем
- adsViews                  AdsViews[]
+ createdAt                 DateTime  @default(now()) @map("created_at")
+ updatedAt                 DateTime  @updatedAt @map("updated_at")
+ lastStartedAt             DateTime? @map("last_started_at")
+ banExpiredAt              DateTime? @map("banned_expired_at")
+ deletedAt                 DateTime? @map("deleted_at")
+ tgProgramPartnerExpiredAt DateTime? @map("tg_program_partner_expired_at")
+
+ role           Roles             @relation(fields: [roleId], references: [key])
+ roleId         UserRoleEnum      @default(USER) @map("role_id")
+ payments       Payments[]
+ referrals      Referrals[]       @relation("inviter")
+ inviters       Referrals[]       @relation("referral")
+ telegramData   UserTelegramData? @relation(fields: [telegramDataId], references: [id])
+ telegramDataId String?           @unique @map("telegram_data_id")
+ balance        UserBalance?      @relation(fields: [balanceId], references: [id])
+ balanceId      String?           @unique @map("balance_id")
+ language       Language          @relation(fields: [languageId], references: [id])
+ languageId     String            @map("language_id")
+ currency       Currency          @relation(fields: [currencyKey], references: [key])
+ currencyKey    CurrencyEnum      @default(USD) @map("currency_key")
+ subscriptions  Subscriptions[]
+ withdrawals    Withdrawals[]
+ adsViews       AdsViews[]
 
  @@index([telegramId])
  @@index([roleId])
@@ -262,19 +198,14 @@ enum AdsViewTypeEnum {
 
 /// Модель баланса пользователя
 model UserBalance {
- id                           String  @id @default(uuid())
+ id             String @id @default(uuid())
  /// Баланс для оплаты
- paymentBalance               Float   @default(0) @map("payment_balance")
- /// Удерживаемый баланс
- holdBalance                  Float   @default(0) @map("hold_balance")
- /// Общая заработанная сумма для вывода
- totalEarnedWithdrawalBalance Float   @default(0) @map("total_earned_withdrawal_balance")
- /// Баланс для вывода
- withdrawalBalance            Float   @default(0) @map("withdrawal_balance")
- /// Использовать ли баланс для вывода
- isUseWithdrawalBalance       Boolean @default(true) @map("is_use_withdrawal_balance")
- ticketsBalance               Float   @default(0) @map("tickets_balance")
- exchangeLimit                Float   @default(0) @map("exchange_limit")
+ paymentBalance Float  @default(0) @map("payment_balance")
+ holdBalance    Float  @default(0) @map("hold_balance")
+ totalEarned    Float  @default(0) @map("total_earned")
+ tickets        Float  @default(0)
+ traffic        Float  @default(0)
+ wager          Float  @default(0)
 
  /// Дата обновления
  updatedAt    DateTime       @updatedAt @map("updated_at")
@@ -334,13 +265,14 @@ enum PlansServersSelectTypeEnum {
 
 enum PlansEnum {
  TRIAL
- START // Всё по минимуму (1 устройство, 1 базовый сервер на выбор, 1ГБ трафика) цена 100 Stars
- BASE // (3 устройства, 1 базовый сервер на выбор, 3ГБ трафика) цена 150 Stars
- PLUS // (5 устройств, 1 базовый или премиум сервер на выбор, 5ГБ трафика) цена 200 Stars
- PRO // (7 устройства, все базовые сервера, 7ГБ трафика) цена 400 Stars
- PREMIUM // (10 устройства, все базовые и премиум сервера, 10ГБ трафика) цена 500 Stars
- ULTIMATE // (20 устройств, все базовые и премиум сервера, Безлимит) цена 700 Stars
+ START
+ BASE
+ PLUS
+ PRO
+ PREMIUM
+ ULTIMATE
  CUSTOM
+ TRAFFIC
 }
 
 /// Модель подписок
@@ -362,8 +294,6 @@ model Subscriptions {
 
  nextRenewalStars    Float?           @map("next_renewal_stars")
  isPremium           Boolean          @default(false) @map("is_premium")
- isFixedPrice        Boolean          @default(false) @map("is_fixed_price")
- fixedPriceStars     Float?           @map("fixed_price_stars")
  devicesCount        Int              @default(1) @map("devices_count")
  isAllBaseServers    Boolean          @default(false) @map("is_all_base_servers")
  isAllPremiumServers Boolean          @default(false) @map("is_all_premium_servers")
@@ -395,11 +325,11 @@ model Subscriptions {
 }
 
 enum TrafficResetEnum {
- NO_RESET @map("no_reset")
- DAY      @map("day")
- WEEK     @map("week")
- MONTH    @map("month")
- YEAR     @map("year")
+ NO_RESET
+ DAY
+ WEEK
+ MONTH
+ YEAR
 }
 
 model SubscriptionToGreenList {
@@ -421,6 +351,7 @@ model SubscriptionToGreenList {
 /// Перечисление периодов подписки
 enum SubscriptionPeriodEnum {
  TRIAL
+ TRAFFIC
  HOUR
  DAY
  WEEK
@@ -585,42 +516,24 @@ enum CurrencyEnum {
  CATS
 }
 
-// ==========================================
-// ТРАНЗАКЦИИ И ФИНАНСЫ
-// ==========================================
-
 /// Модель транзакций
 model Transactions {
- id            String                @id @default(uuid())
- /// Сумма транзакции
- amount        Float                 @default(0)
- /// Находится ли в удержании
- isHold        Boolean               @default(false) @map("is_hold")
- /// Тип транзакции (плюс/минус)
- type          TransactionTypeEnum   @default(PLUS)
- /// Причина транзакции
- reason        TransactionReasonEnum @default(PAYMENT)
- /// Тип баланса для транзакции
- balanceType   BalanceTypeEnum       @default(PAYMENT) @map("balance_type")
- /// Дата создания
- createdAt     DateTime              @default(now()) @map("created_at")
- /// Дата обновления
- updatedAt     DateTime              @updatedAt @map("updated_at")
- /// Дата истечения удержания
- holdExpiredAt DateTime?             @map("hold_expired_at")
+ id          String                @id @default(uuid())
+ amount      Float                 @default(0)
+ type        TransactionTypeEnum   @default(PLUS)
+ reason      TransactionReasonEnum @default(PAYMENT)
+ balanceType BalanceTypeEnum       @default(PAYMENT) @map("balance_type")
 
- /// Связь с балансом
+ createdAt     DateTime  @default(now()) @map("created_at")
+ updatedAt     DateTime  @updatedAt @map("updated_at")
+ holdExpiredAt DateTime? @map("hold_expired_at")
+
  balance    UserBalance? @relation(fields: [balanceId], references: [id])
  balanceId  String?      @map("balance_id")
- /// Связь с выводом средств
  withdrawal Withdrawals?
- /// Связь с платежом
  payment    Payments?
 
  @@index([balanceId])
- @@index([type])
- @@index([reason])
- @@index([isHold])
  @@map("transactions")
 }
 
@@ -636,12 +549,16 @@ enum BalanceTypeEnum {
  PAYMENT
  WITHDRAWAL
  TICKETS
+ WAGER
+ HOLD
+ TRAFFIC
  NOT_BALANCE
 }
 
 /// Перечисление причин транзакций
 enum TransactionReasonEnum {
  WITHDRAWAL
+ SYSTEM
  SUBSCRIPTIONS
  PAYMENT
  REWARD
@@ -654,25 +571,17 @@ enum TransactionReasonEnum {
 /// Модель выводов средств
 model Withdrawals {
  id          String               @id @default(uuid())
- /// Статус вывода
  status      WithdrawalStatusEnum @default(CONSIDERATION)
- /// Сумма в Stars
  amountStars Float                @default(0) @map("amount_stars")
- /// Сумма в USD
- amountUSDT  Float                @default(0) @map("amount_usdt")
- /// Комиссия
+ amountTON   Float                @default(0) @map("amount_ton")
  commission  Float                @default(1)
- /// Адрес для вывода
  address     String
- /// Дата создания
- createdAt   DateTime             @default(now()) @map("created_at")
- /// Дата обновления
- updatedAt   DateTime             @updatedAt @map("updated_at")
 
- /// Связь с пользователем
+ createdAt DateTime @default(now()) @map("created_at")
+ updatedAt DateTime @updatedAt @map("updated_at")
+
  user          Users        @relation(fields: [userId], references: [id])
  userId        String       @map("user_id")
- /// Связь с транзакцией
  transacrion   Transactions @relation(fields: [transactionId], references: [id])
  transactionId String       @unique @map("transaction_id")
 
@@ -692,45 +601,30 @@ enum WithdrawalStatusEnum {
 /// Модель платежей
 model Payments {
  id                      String            @id @default(uuid())
- /// Статус платежа
  status                  PaymentStatusEnum @default(PENDING)
- /// Сумма платежа
  amount                  Float             @default(0)
- /// Сумма в Stars
  amountStars             Float             @default(0) @map("amount_stars")
- /// Курс обмена
  exchangeRate            Float             @default(0) @map("exchange_rate")
- /// Комиссия
  commission              Float             @default(1)
  isTgPartnerProgram      Boolean           @default(false) @map("is_tg_partner_program")
  amountStarsFeeTgPartner Float             @default(0) @map("amount_stars_fee_tg_partner")
- /// Токен платежа
  token                   String            @unique
- /// Ссылка для оплаты
  linkPay                 String?           @map("link_pay")
- /// Дополнительные детали платежа
  details                 Json?             @db.JsonB
 
- /// Дата создания
  createdAt DateTime @default(now()) @map("created_at")
- /// Дата обновления
  updatedAt DateTime @updatedAt @map("updated_at")
 
- /// Связь с пользователем
- user          Users             @relation(fields: [userId], references: [id])
- userId        String            @map("user_id")
- /// Связь с валютой
- currency      Currency          @relation(fields: [currencyKey], references: [key])
- currencyKey   CurrencyEnum      @map("currency_key")
- /// Связь с методом оплаты
- method        PaymentMethods    @relation(fields: [methodKey], references: [key])
- methodKey     PaymentMethodEnum @map("method_key")
- /// Связь с транзакцией
- transacrion   Transactions?     @relation(fields: [transactionId], references: [id])
- transactionId String?           @unique @map("transaction_id")
-
- subscription   Subscriptions? @relation(fields: [subscriptionId], references: [id])
- subscriptionId String?        @map("subscription_id")
+ user           Users             @relation(fields: [userId], references: [id])
+ userId         String            @map("user_id")
+ currency       Currency          @relation(fields: [currencyKey], references: [key])
+ currencyKey    CurrencyEnum      @map("currency_key")
+ method         PaymentMethods    @relation(fields: [methodKey], references: [key])
+ methodKey      PaymentMethodEnum @map("method_key")
+ transacrion    Transactions?     @relation(fields: [transactionId], references: [id])
+ transactionId  String?           @unique @map("transaction_id")
+ subscription   Subscriptions?    @relation(fields: [subscriptionId], references: [id])
+ subscriptionId String?           @map("subscription_id")
 
  @@index([userId])
  @@index([status])
@@ -751,32 +645,19 @@ enum PaymentStatusEnum {
 /// Модель методов оплаты
 model PaymentMethods {
  key                     PaymentMethodEnum     @id
- /// Название метода
  name                    String
- /// Активен ли метод
  isActive                Boolean               @default(false) @map("is_active")
- /// Использует ли TON блокчейн
  isTonBlockchain         Boolean               @default(false) @map("is_ton_blockchain")
- /// Адрес смарт-контракта TON
  tonSmartContractAddress String?               @unique @map("ton_smart_contract_address")
- /// Минимальная сумма
  minAmount               Float                 @default(0) @map("min_amount")
- /// Максимальная сумма
  maxAmount               Float                 @default(10000) @map("max_amount")
- /// Комиссия
  commission              Float                 @default(1)
- /// Добавляется ли комиссия к сумме
  isPlusCommission        Boolean               @default(false) @map("is_plus_commission")
- /// Тип метода оплаты
  type                    PaymentMethodTypeEnum @default(CARD)
- /// Платежная система
  system                  PaymentSystemEnum     @default(TELEGRAM)
-
- /// Связь с платежами
- payments    Payments[]
- /// Связь с валютой
- currency    Currency     @relation(fields: [currencyKey], references: [key])
- currencyKey CurrencyEnum @map("currency_key")
+ payments                Payments[]
+ currency                Currency              @relation(fields: [currencyKey], references: [key])
+ currencyKey             CurrencyEnum          @map("currency_key")
 
  @@index([isActive])
  @@index([currencyKey])
