@@ -1,8 +1,9 @@
+import { PlansInterface } from '@modules/plans/types/plans.interface'
 import { PlansEnum } from '@prisma/client'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
+import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { ServerDataInterface } from './servers-data.interface'
-import { TrafficResetEnum } from './traffic-reset.enum'
 
 export interface GetSubscriptionConfigResponseInterface {
   subscription: SubscriptionDataInterface
@@ -27,7 +28,6 @@ export interface SubscriptionResponseInterface {
   twoYearRatioPayment: number
   threeYearRatioPayment: number
   indefinitelyRatio: number
-  fixedPriceStars: number
   telegramPartnerProgramRatio: number
   subscriptions: SubscriptionDataInterface[]
 }
@@ -37,14 +37,12 @@ export interface SubscriptionDataInterface {
   name: string
   period: SubscriptionPeriodEnum
   periodMultiplier: number
-  planKey: PlansEnum
+  plan: PlansInterface
   isActive: boolean
   isInvoicing: boolean
   isCreated: boolean
   isAutoRenewal: boolean
   nextRenewalStars?: number
-  isFixedPrice: boolean
-  fixedPriceStars?: number
   devicesCount: number
   isAllBaseServers: boolean
   isAllPremiumServers: boolean
@@ -83,29 +81,16 @@ export interface MarzbanResponseInterface {
 
 export interface CreateSubscriptionDataInterface {
   planKey: PlansEnum
+  method: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC'
+  name: string
   period: SubscriptionPeriodEnum
   periodMultiplier: number
   isAutoRenewal?: boolean
-  isFixedPrice: boolean
   devicesCount: number
   isAllBaseServers: boolean
   isAllPremiumServers: boolean
+  trafficReset: TrafficResetEnum
   servers?: string[]
   trafficLimitGb?: number
   isUnlimitTraffic: boolean
-}
-
-export interface CreateInvoiceSubscriptionDataInterface
-  extends CreateSubscriptionDataInterface {
-  method: PaymentMethodEnum
-}
-
-export interface ChangeSubscriptionConditionsDataInterface
-  extends CreateSubscriptionDataInterface {
-  subscriptionId: string
-}
-
-export interface CreateSubscriptionDataAddTgIdInterface
-  extends CreateSubscriptionDataInterface {
-  telegramId: string
 }
