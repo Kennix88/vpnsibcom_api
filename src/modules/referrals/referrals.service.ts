@@ -44,9 +44,9 @@ export class ReferralsService {
       let lvl1TotalPaymentsRewarded = 0
       let lvl2TotalPaymentsRewarded = 0
       let lvl3TotalPaymentsRewarded = 0
-      let lvl1TotalWithdrawalsRewarded = 0
-      let lvl2TotalWithdrawalsRewarded = 0
-      let lvl3TotalWithdrawalsRewarded = 0
+      let lvl1TotalTrafficRewarded = 0
+      let lvl2TotalTrafficRewarded = 0
+      let lvl3TotalTrafficRewarded = 0
       let lvl1IsActivated = 0
       let lvl2IsActivated = 0
       let lvl3IsActivated = 0
@@ -67,12 +67,12 @@ export class ReferralsService {
           username: ref.referral.telegramData.username,
           photoUrl: ref.referral.telegramData.photoUrl,
           totalPaymentsRewarded: ref.totalPaymentsRewarded,
-          totalWithdrawalsRewarded: ref.totalWithdrawalsRewarded,
+          totalTrafficRewarded: ref.totalTrafficRewarded,
         }
         if (ref.level === 1) {
           lvl1.push(nextData)
           lvl1TotalPaymentsRewarded += ref.totalPaymentsRewarded
-          lvl1TotalWithdrawalsRewarded += ref.totalWithdrawalsRewarded
+          lvl1TotalTrafficRewarded += ref.totalTrafficRewarded
           if (ref.isActivated) {
             lvl1IsActivated += 1
             if (ref.isPremium) {
@@ -82,7 +82,7 @@ export class ReferralsService {
         } else if (ref.level === 2) {
           lvl2.push(nextData)
           lvl2TotalPaymentsRewarded += 0
-          lvl2TotalWithdrawalsRewarded += ref.totalWithdrawalsRewarded
+          lvl2TotalTrafficRewarded += ref.totalTrafficRewarded
           if (ref.isActivated) {
             lvl2IsActivated += 1
             if (ref.isPremium) {
@@ -92,7 +92,7 @@ export class ReferralsService {
         } else if (ref.level === 3) {
           lvl3.push(nextData)
           lvl3TotalPaymentsRewarded += 0
-          lvl3TotalWithdrawalsRewarded += ref.totalWithdrawalsRewarded
+          lvl3TotalTrafficRewarded += ref.totalTrafficRewarded
           if (ref.isActivated) {
             lvl3IsActivated += 1
             if (ref.isPremium) {
@@ -109,20 +109,6 @@ export class ReferralsService {
       })
 
       return {
-        inviteBotUrl: `${this.configService.get('BOT_URL')}?start=r-${tgId}`,
-        inviteBotTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
-          'BOT_URL',
-        )}?start=r-${tgId}`,
-        inviteTmaUrl: `${this.configService.get('TMA_URL')}?startapp=r-${tgId}`,
-        inviteTmaTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
-          'TMA_URL',
-        )}?startapp=r-${tgId}`,
-        inviteAppUrl: `${this.configService.get(
-          'APPLICATION_URL',
-        )}/app?r=${tgId}`,
-        inviteAppTgDeeplink: `https://t.me/share/url?text=Xray%20core%20VPN%20service&url=${this.configService.get(
-          'APPLICATION_URL',
-        )}/app?r=${tgId}`,
         lvl1IsActivated,
         lvl2IsActivated,
         lvl3IsActivated,
@@ -135,14 +121,16 @@ export class ReferralsService {
         lvl1TotalPaymentsRewarded,
         lvl2TotalPaymentsRewarded: 0,
         lvl3TotalPaymentsRewarded: 0,
-        lvl1TotalWithdrawalsRewarded,
-        lvl2TotalWithdrawalsRewarded,
-        lvl3TotalWithdrawalsRewarded,
+        lvl1TotalTrafficRewarded,
+        lvl2TotalTrafficRewarded,
+        lvl3TotalTrafficRewarded,
         lvl1Percent: settings.referralOneLevelPercent,
         lvl2Percent: settings.referralTwoLevelPercent,
         lvl3Percent: settings.referralThreeLevelPercent,
-        inviteReward: settings.referralInviteRewardStars,
-        invitePremiumReward: settings.referralInvitePremiumRewardStars,
+        inviteReward: settings.referralInviteRewardGb,
+        invitePremiumReward: settings.referralInvitePremiumRewardGb,
+        inviteFriendReward: settings.trialGbForReferrals,
+        invitePremiumFriendReward: settings.trialGbForPremiumReferrals,
         lvl1Count: lvl1.length,
         lvl2Count: lvl2.length,
         lvl3Count: lvl3.length,
@@ -150,8 +138,9 @@ export class ReferralsService {
           .sort((a, b) => {
             return (
               b.totalPaymentsRewarded +
-              b.totalWithdrawalsRewarded -
-              (a.totalPaymentsRewarded + a.totalWithdrawalsRewarded)
+              (b.totalTrafficRewarded / 1024) * settings.trafficGbPriceStars -
+              (a.totalPaymentsRewarded +
+                (a.totalTrafficRewarded / 1024) * settings.trafficGbPriceStars)
             )
           })
           .slice(0, 100),
@@ -159,8 +148,9 @@ export class ReferralsService {
           .sort((a, b) => {
             return (
               b.totalPaymentsRewarded +
-              b.totalWithdrawalsRewarded -
-              (a.totalPaymentsRewarded + a.totalWithdrawalsRewarded)
+              (b.totalTrafficRewarded / 1024) * settings.trafficGbPriceStars -
+              (a.totalPaymentsRewarded +
+                (a.totalTrafficRewarded / 1024) * settings.trafficGbPriceStars)
             )
           })
           .slice(0, 100),
@@ -168,8 +158,9 @@ export class ReferralsService {
           .sort((a, b) => {
             return (
               b.totalPaymentsRewarded +
-              b.totalWithdrawalsRewarded -
-              (a.totalPaymentsRewarded + a.totalWithdrawalsRewarded)
+              (b.totalTrafficRewarded / 1024) * settings.trafficGbPriceStars -
+              (a.totalPaymentsRewarded +
+                (a.totalTrafficRewarded / 1024) * settings.trafficGbPriceStars)
             )
           })
           .slice(0, 100),
