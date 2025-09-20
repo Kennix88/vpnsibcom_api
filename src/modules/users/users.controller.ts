@@ -87,26 +87,4 @@ export class UsersController {
       },
     }
   }
-
-  @Post('withdrawal-usage')
-  @Throttle({ defaults: { limit: 5, ttl: 60 } })
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  async updateWithdrawalUsage(
-    @CurrentUser() user: JwtPayload,
-    @Body('isUse') isUse: boolean,
-    @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
-  ) {
-    const token = req.headers.authorization?.split(' ')[1]
-    await this.authService.updateUserActivity(token)
-    await this.userService.updateWithdrawalUsage(user.telegramId, isUse)
-    const userData = await this.userService.getResUserByTgId(user.telegramId)
-    return {
-      data: {
-        success: true,
-        user: userData,
-      },
-    }
-  }
 }
