@@ -173,12 +173,14 @@ export class SubscriptionManagerService {
             // Только для подписок с периодом, отличным от INDEFINITELY
             if (
               subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
-              subscription.period !== SubscriptionPeriodEnum.TRIAL
+              subscription.period !== SubscriptionPeriodEnum.TRIAL &&
+              subscription.period !== SubscriptionPeriodEnum.TRAFFIC
             ) {
-              const cost = calculateSubscriptionCost({
+              nextRenewalStars = calculateSubscriptionCost({
                 plan: subscription.plan as PlansInterface,
                 period: subscription.period as SubscriptionPeriodEnum,
                 isPremium: subscription.isPremium,
+                isTgProgramPartner: subscription.user.isTgProgramPartner,
                 periodMultiplier: subscription.periodMultiplier,
                 devicesCount: subscription.devicesCount,
                 isAllBaseServers: subscription.isAllBaseServers,
@@ -190,14 +192,6 @@ export class SubscriptionManagerService {
                 premiumServersCount: premiumServers,
                 trafficLimitGb: subscription.trafficLimitGb,
               })
-
-              const partnerCost = subscription.user.isTgProgramPartner
-                ? cost * settings.telegramPartnerProgramRatio
-                : cost
-
-              nextRenewalStars = subscription.isFixedPrice
-                ? subscription.fixedPriceStars
-                : partnerCost
             }
 
             return {
@@ -281,9 +275,13 @@ export class SubscriptionManagerService {
             isActive: true,
             isInvoicing: false,
             period: {
-              not: SubscriptionPeriodEnum.INDEFINITELY,
+              not:
+                SubscriptionPeriodEnum.INDEFINITELY ||
+                SubscriptionPeriodEnum.TRIAL ||
+                SubscriptionPeriodEnum.TRAFFIC,
             },
             expiredAt: {
+              not: null,
               lt: new Date(),
             },
           },
@@ -364,7 +362,6 @@ export class SubscriptionManagerService {
         subscription.user.role.discount == 0 ? 0 : cost,
         TransactionReasonEnum.SUBSCRIPTIONS,
         BalanceTypeEnum.PAYMENT,
-        { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
       )
 
       if (deductResult.success) {
@@ -378,25 +375,6 @@ export class SubscriptionManagerService {
             period: renewalPeriod, // Update period if it was TRIAL
           },
         })
-
-        // Логируем информацию о списании средств
-        if (deductResult.paymentAmount > 0) {
-          this.logger.info({
-            msg: `Used ${deductResult.paymentAmount} from payment balance for subscription renewal`,
-            userId: user.id,
-            subscriptionId: subscription.id,
-            service: this.serviceName,
-          })
-        }
-
-        if (deductResult.withdrawalAmount > 0) {
-          this.logger.info({
-            msg: `Used ${deductResult.withdrawalAmount} from withdrawal balance for subscription renewal`,
-            userId: user.id,
-            subscriptionId: subscription.id,
-            service: this.serviceName,
-          })
-        }
 
         // Send notification about successful renewal
         await this.sendRenewalSuccessNotification(user, {
