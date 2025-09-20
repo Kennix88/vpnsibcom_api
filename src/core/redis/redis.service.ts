@@ -5,63 +5,81 @@ import Redis from 'ioredis'
 @Injectable()
 export class RedisService extends Redis implements OnModuleInit {
   private readonly logger = new Logger(RedisService.name)
-  private readonly MAX_RETRIES = 5
-  private readonly RETRY_DELAY = 2000
-  private _isReady: Promise<void>
 
   constructor(private readonly configService: ConfigService) {
     super({
       host: configService.get('REDIS_HOST'),
       port: configService.get('REDIS_PORT'),
       password: configService.get('REDIS_PASSWORD'),
-      // keyPrefix: configService.get('REDIS_PREFIX'),
-      enableOfflineQueue: false,
+
+      enableOfflineQueue: true, // пусть очередь команд хранится при реконнекте
       maxRetriesPerRequest: null,
+
+      // socket options (через Node.js net.Socket)
+      keepAlive: 10000, // каждые 10s будет TCP keep-alive (по умолчанию 0 = выкл)
+      connectTimeout: 10000, // таймаут установки соединения
+
+      // retry strategy (на случай обрыва соединения)
       retryStrategy: (times) => {
-        if (times > 3) return null
-        return Math.min(times * 500, 2000)
+        // times = сколько раз пытались подключиться
+        const delay = Math.min(times * 500, 10000) // от 500ms до 10s
+        return delay
+      },
+
+      // если хочешь ещё более жёсткий контроль над реконнектом
+      reconnectOnError: (err) => {
+        // например, переподключаемся только на сетевые ошибки
+        if (err.message.includes('READONLY')) {
+          return false // не пытаться реконнектиться при failover sentinel
+        }
+        return true
       },
     })
 
-    this._isReady = new Promise<void>((resolve) => {
-      this.on('connect', () => {
-        this.logger.log('Redis connection established.')
-        resolve()
-      })
+    this.on('connect', () => {
+      this.logger.log('Redis connecting...')
     })
 
-    // Handle Redis errors
+    this.on('ready', () => {
+      this.logger.log('Redis connection is ready.')
+    })
+
     this.on('error', (err) => {
       this.logger.error(`Redis error: ${err.message}`)
     })
+
+    this.on('end', () => {
+      this.logger.warn('Redis connection ended. Will try to reconnect...')
+    })
+
+    this.on('close', () => {
+      this.logger.warn('Redis connection closed.')
+    })
+
+    this.on('reconnecting', (delay) => {
+      this.logger.log(`Redis reconnecting in ${delay}ms...`)
+    })
   }
 
   /**
-   * @method onModuleInit
-   * @description Lifecycle hook that is called once the host module has been initialized.
-   *              Ensures Redis connection is ready before module initialization completes.
-   * @returns {Promise<void>}
+   * Wait until Redis connection is established (even after reconnects).
    */
+  private async waitForConnection(): Promise<void> {
+    if (this.status === 'ready') return
+    await new Promise<void>((resolve, reject) => {
+      this.once('ready', () => resolve())
+      this.once('error', (err) => reject(err))
+    })
+  }
+
   async onModuleInit(): Promise<void> {
-    await this._isReady
+    await this.waitForConnection()
   }
 
-  /**
-   * @method waitTillReady
-   * @description Waits until the Redis connection is established.
-   * @returns {Promise<void>}
-   */
   async waitTillReady(): Promise<void> {
-    await this._isReady
+    await this.waitForConnection()
   }
 
-  /**
-   * @method setWithExpiry
-   * @param {string} key - The key to set.
-   * @param {string} value - The value to set.
-   * @param {number} ttlSeconds - The time-to-live for the key in seconds.
-   * @returns {Promise<boolean>} - True if the operation was successful, false otherwise.
-   */
   async setWithExpiry(
     key: string,
     value: string,
