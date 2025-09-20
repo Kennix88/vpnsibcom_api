@@ -22,9 +22,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { PinoLogger } from 'nestjs-pino'
 import { UsersService } from '../../users/users.service'
 import { XrayService } from '../services/xray.service'
-import { ChangeSubscriptionConditionsDto } from '../types/change-subscription-conditions.dto'
 import { DeleteSubscriptionDto } from '../types/delete-subscription.dto'
-import { PurchaseInvoiceSubscriptionDto } from '../types/purchase-invoice-subscription.dto'
 import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
 import { RenewSubscriptionDto } from '../types/renew-subscription.dto'
 import { ResetSubscriptionTokenDto } from '../types/reset-subscription-token.dto'
@@ -34,6 +32,10 @@ interface SubscriptionResponse {
   data: {
     success: boolean
     message?: string
+    invoice?: {
+      linkPay: string
+      isTmaIvoice: boolean
+    }
     subscriptions?: any
     user?: any
   }
@@ -256,106 +258,6 @@ export class SubscriptionsController {
     }
   }
 
-  @Post('purchase-invoice')
-  @PreventDuplicateRequest(60)
-  @Throttle({ defaults: { limit: 5, ttl: 60 } })
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  async purchaseInvoiceSubscription(
-    @CurrentUser() user: JwtPayload,
-    @Body() purchaseDto: PurchaseInvoiceSubscriptionDto,
-    @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
-  ) {
-    try {
-      this.logger.info(
-        `Запрос на покупку подписки от пользователя: ${user.telegramId}, период: ${purchaseDto.period}`,
-      )
-
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
-
-      const result = await this.xrayService.purchaseSubscription({
-        telegramId: user.telegramId,
-        planKey: purchaseDto.planKey,
-        period: purchaseDto.period,
-        periodMultiplier: purchaseDto.periodMultiplier,
-        isFixedPrice: purchaseDto.isFixedPrice,
-        devicesCount: purchaseDto.devicesCount,
-        isAllBaseServers: purchaseDto.isAllBaseServers,
-        isAllPremiumServers: purchaseDto.isAllPremiumServers,
-        trafficLimitGb: purchaseDto.trafficLimitGb,
-        isUnlimitTraffic: purchaseDto.isUnlimitTraffic,
-        servers: purchaseDto.servers,
-        isInvoice: true,
-        method: purchaseDto.method,
-        isAutoRenewal: purchaseDto.isAutoRenewal,
-      })
-
-      if (!result.success || !result.invoice) {
-        this.logger.warn(
-          `Не удалось создать инвойс на подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
-        )
-
-        let statusCode = HttpStatus.BAD_REQUEST
-        let message = 'Не удалось создать инвойс на подписку'
-
-        // Обработка различных причин неудачи
-        if (result.message === 'insufficient_balance') {
-          message = 'Недостаточно средств на балансе'
-          statusCode = HttpStatus.PAYMENT_REQUIRED
-        } else if (result.message === 'subscription_limit_exceeded') {
-          message = 'Превышен лимит подписок'
-          statusCode = HttpStatus.FORBIDDEN
-        } else if (result.message === 'user_not_found') {
-          message = 'Пользователь не найден'
-          statusCode = HttpStatus.NOT_FOUND
-        }
-
-        res.status(statusCode)
-        return {
-          data: {
-            success: false,
-            message,
-            ...result,
-          },
-        }
-      }
-
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
-
-      this.logger.info(
-        `Инфойс на покупку попдиски успешно создан пользователем: ${user.telegramId}`,
-      )
-
-      return {
-        data: {
-          success: true,
-          message: 'Invoice created',
-          linkPay: result.invoice.linkPay,
-          isTmaIvoice: result.invoice.isTmaIvoice,
-          subscriptions,
-          user: userData,
-        },
-      }
-    } catch (error) {
-      this.logger.error(
-        `Ошибка при покупке подписки: ${error.message}`,
-        error.stack,
-      )
-      throw new InternalServerErrorException(
-        'Произошла ошибка при покупке подписки',
-      )
-    }
-  }
-
   @Post('purchase')
   @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
@@ -381,16 +283,19 @@ export class SubscriptionsController {
 
       const result = await this.xrayService.purchaseSubscription({
         telegramId: user.telegramId,
+        method: purchaseDto.method,
+        name: purchaseDto.name,
         planKey: purchaseDto.planKey,
         period: purchaseDto.period,
         periodMultiplier: purchaseDto.periodMultiplier,
-        isFixedPrice: purchaseDto.isFixedPrice,
         devicesCount: purchaseDto.devicesCount,
         isAllBaseServers: purchaseDto.isAllBaseServers,
+        trafficReset: purchaseDto.trafficReset,
         isAllPremiumServers: purchaseDto.isAllPremiumServers,
         trafficLimitGb: purchaseDto.trafficLimitGb,
         isUnlimitTraffic: purchaseDto.isUnlimitTraffic,
         servers: purchaseDto.servers,
+        isInvoice: purchaseDto.method !== 'BALANCE',
         isAutoRenewal: purchaseDto.isAutoRenewal,
       })
 
@@ -424,6 +329,15 @@ export class SubscriptionsController {
         }
       }
 
+      if (result.invoice)
+        return {
+          data: {
+            success: true,
+            message: 'Creatin invoice!',
+            invoice: result.invoice,
+          },
+        }
+
       const [subscriptions, userData] = await Promise.all([
         this.xrayService.getSubscriptions(user.sub),
         this.userService.getResUserByTgId(user.telegramId),
@@ -436,7 +350,7 @@ export class SubscriptionsController {
       return {
         data: {
           success: true,
-          message: 'Подписка успешно куплена',
+          message: 'Subscription is paid',
           subscriptions,
           user: userData,
         },
@@ -701,115 +615,6 @@ export class SubscriptionsController {
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при сбросе токена подписки',
-      )
-    }
-  }
-
-  @Post('change-conditions')
-  @PreventDuplicateRequest(60)
-  @Throttle({ defaults: { limit: 5, ttl: 60 } })
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  async changeSubscriptionConditions(
-    @CurrentUser() user: JwtPayload,
-    @Body() changeDto: ChangeSubscriptionConditionsDto,
-    @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<SubscriptionResponse> {
-    try {
-      this.logger.info(
-        `Запрос на изменение условий подписки от пользователя: ${user.telegramId}, ID подписки: ${changeDto.subscriptionId}`,
-      )
-
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
-
-      const result = await this.xrayService.changeSubscriptionConditions(
-        user.telegramId,
-        changeDto.subscriptionId,
-        {
-          planKey: changeDto.planKey,
-          period: changeDto.period,
-          periodMultiplier: changeDto.periodMultiplier,
-          isFixedPrice: changeDto.isFixedPrice,
-          devicesCount: changeDto.devicesCount,
-          isAllBaseServers: changeDto.isAllBaseServers,
-          isAllPremiumServers: changeDto.isAllPremiumServers,
-          trafficLimitGb: changeDto.trafficLimitGb,
-          isUnlimitTraffic: changeDto.isUnlimitTraffic,
-          servers: changeDto.servers,
-          isAutoRenewal: changeDto.isAutoRenewal,
-        },
-      )
-
-      if (!result.success) {
-        this.logger.warn(
-          `Не удалось изменить условия подписки для пользователя: ${user.telegramId}, причина: ${result.message}`,
-        )
-
-        let statusCode = HttpStatus.BAD_REQUEST
-        let message = 'Не удалось изменить условия подписки'
-
-        // Обработка различных причин неудачи
-        if (result.message === 'insufficient_balance') {
-          message = 'Недостаточно средств на балансе'
-          statusCode = HttpStatus.PAYMENT_REQUIRED
-        } else if (result.message === 'subscription_not_found') {
-          message = 'Подписка не найдена или не принадлежит пользователю'
-          statusCode = HttpStatus.NOT_FOUND
-        } else if (result.message === 'user_not_found') {
-          message = 'Пользователь не найден'
-          statusCode = HttpStatus.NOT_FOUND
-        } else if (result.message === 'invalid_period') {
-          message = 'Некорректный период подписки'
-          statusCode = HttpStatus.BAD_REQUEST
-        } else if (result.message === 'subscription_not_expired') {
-          message =
-            'Невозможно изменить условия подписки, так как срок её действия ещё не истек'
-          statusCode = HttpStatus.BAD_REQUEST
-        } else if (result.message === 'marzban_error') {
-          message = 'Ошибка при обновлении данных в системе Marzban'
-          statusCode = HttpStatus.INTERNAL_SERVER_ERROR
-        }
-
-        res.status(statusCode)
-        return {
-          data: {
-            success: false,
-            message,
-            ...result,
-          },
-        }
-      }
-
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
-
-      this.logger.info(
-        `Условия подписки успешно изменены пользователем: ${user.telegramId}`,
-      )
-
-      return {
-        data: {
-          success: true,
-          message: 'Условия подписки успешно изменены',
-          subscriptions,
-          user: userData,
-        },
-      }
-    } catch (error) {
-      this.logger.error(
-        `Ошибка при изменении условий подписки: ${error.message}`,
-        error.stack,
-      )
-      throw new InternalServerErrorException(
-        'Произошла ошибка при изменении условий подписки',
       )
     }
   }
