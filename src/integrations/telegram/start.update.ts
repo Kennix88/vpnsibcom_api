@@ -71,46 +71,50 @@ export class StartUpdate {
       //     ...(ctx.from.language_code && { lang: ctx.from.language_code }),
       //   }),
 
-      await ctx.sendPhoto(
-        { source: createReadStream('assets/welcome.png') },
-        {
-          caption: `<b>Привет, ${ctx.from.first_name}!</b>
+      await ctx
+        .sendPhoto(
+          { source: createReadStream('assets/welcome.jpg') },
+          {
+            caption: `<b>Привет, ${ctx.from.first_name}!</b>
 Добро пожаловать в VPNsib!
 Для подключения к VPN, пожалуйста, нажмите кнопку ниже.`,
-          parse_mode: 'HTML',
-          reply_markup: {
-            remove_keyboard: true,
-            inline_keyboard: [
-              [
-                Markup.button.webApp(
-                  'Подключиться',
-                  this.configService.get<string>('WEBAPP_URL'),
-                ),
+            parse_mode: 'HTML',
+            reply_markup: {
+              remove_keyboard: true,
+              inline_keyboard: [
+                [
+                  Markup.button.webApp(
+                    'VPN&GAMES',
+                    this.configService.get<string>('WEBAPP_URL'),
+                  ),
+                ],
+                [
+                  Markup.button.url(
+                    'Канал',
+                    this.configService.get<string>('CHANNEL_URL'),
+                  ),
+                  Markup.button.url(
+                    'Чат',
+                    this.configService.get<string>('CHAT_URL'),
+                  ),
+                ],
+                [
+                  Markup.button.url(
+                    'Open-Source',
+                    this.configService.get<string>('OPENSOURCE_URL'),
+                  ),
+                  Markup.button.url(
+                    'by KennixDev',
+                    this.configService.get<string>('KENNIXDEV_URL'),
+                  ),
+                ],
               ],
-              [
-                Markup.button.url(
-                  'Канал',
-                  this.configService.get<string>('CHANNEL_URL'),
-                ),
-                Markup.button.url(
-                  'Чат',
-                  this.configService.get<string>('CHAT_URL'),
-                ),
-              ],
-              [
-                Markup.button.url(
-                  'Open-Source',
-                  this.configService.get<string>('OPENSOURCE_URL'),
-                ),
-                Markup.button.url(
-                  'by KennixDev',
-                  this.configService.get<string>('KENNIXDEV_URL'),
-                ),
-              ],
-            ],
+            },
           },
-        },
-      )
+        )
+        .then((res) => {
+          console.log('sendPhoto', res)
+        })
 
       return
     } catch (e) {
