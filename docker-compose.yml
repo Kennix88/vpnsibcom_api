@@ -145,10 +145,8 @@ services:
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:7-alpine
     restart: unless-stopped
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: >
       sh -c '
         mkdir -p /usr/local/etc/redis &&
@@ -156,15 +154,14 @@ services:
         echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
         echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
         echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
-        echo "user default on nopass ~* +@all" > /usr/local/etc/redis/users.acl &&
-        redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+        echo "timeout 0" >> /usr/local/etc/redis/redis.conf &&
+        echo "tcp-keepalive 60" >> /usr/local/etc/redis/redis.conf &&
+        redis-server /usr/local/etc/redis/redis.conf
       '
     volumes:
       - redis_data:/data
     networks:
       - token-backend
-    expose:
-      - '6379'
     ports:
       - '6379:6379'
     healthcheck:
@@ -243,7 +240,7 @@ services:
       - ACME_EMAIL=shel.live@yandex.ru
     depends_on:
       - api
-      - frontend
+      # - frontend
       - grafana
       # - prometheus
       - xray-checker
