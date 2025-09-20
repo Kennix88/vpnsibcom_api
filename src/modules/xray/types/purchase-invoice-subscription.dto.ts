@@ -26,10 +26,6 @@ export class PurchaseInvoiceSubscriptionDto {
   @IsOptional()
   periodMultiplier?: number = 1
 
-  @IsBoolean()
-  @IsOptional()
-  isFixedPrice?: boolean = false
-
   @IsNumber()
   devicesCount: number
 
