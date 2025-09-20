@@ -96,9 +96,33 @@ async function configureFastify(
 
 async function bootstrap() {
   const isProd = process.env.NODE_ENV === 'production'
+
+  // // Генерация self-signed сертификата для dev
+  // let httpsOptions: { key: string; cert: string } | undefined
+  // if (!isProd) {
+  //   const attrs = [{ name: 'commonName', value: '25.22.195.147' }]
+  //   const pems = selfsigned.generate(attrs, {
+  //     days: 365,
+  //     algorithm: 'sha256',
+  //     extensions: [
+  //       {
+  //         name: 'subjectAltName',
+  //         altNames: [
+  //           { type: 7, ip: '25.22.195.147' }, // type 7 = IP
+  //         ],
+  //       },
+  //     ],
+  //   })
+  // }
+
   const app = await NestFactory.create<NestFastifyApplication>(
     CoreModule,
-    new FastifyAdapter({ trustProxy: isProd, logger: false, genReqId }),
+    new FastifyAdapter({
+      trustProxy: isProd,
+      logger: false,
+      genReqId,
+      // https: httpsOptions, // подключаем HTTPS
+    }),
     { bufferLogs: isProd, rawBody: true },
   )
 
