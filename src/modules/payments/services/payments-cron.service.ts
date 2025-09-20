@@ -2,6 +2,11 @@ import { XrayService } from '@modules/xray/services/xray.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
+import {
+  BalanceTypeEnum,
+  TransactionReasonEnum,
+  TransactionTypeEnum,
+} from '@prisma/client'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
@@ -38,7 +43,7 @@ export class PaymentsCronService {
       const expiredHoldTransactions =
         await this.prismaService.transactions.findMany({
           where: {
-            isHold: true,
+            balanceType: BalanceTypeEnum.HOLD,
             holdExpiredAt: {
               lte: new Date(),
             },
@@ -75,7 +80,6 @@ export class PaymentsCronService {
             },
             data: {
               holdBalance: { decrement: transaction.amount },
-              withdrawalBalance: { increment: transaction.amount },
             },
           })
 
@@ -88,10 +92,22 @@ export class PaymentsCronService {
             return
           }
 
-          // Обновляем статус транзакции
           await tx.transactions.update({
-            where: { id: transaction.id },
-            data: { isHold: false },
+            where: {
+              id: transaction.id,
+            },
+            data: {
+              holdExpiredAt: null,
+            },
+          })
+
+          await tx.transactions.create({
+            data: {
+              amount: transaction.amount,
+              type: TransactionTypeEnum.MINUS,
+              reason: TransactionReasonEnum.SYSTEM,
+              balanceType: BalanceTypeEnum.HOLD,
+            },
           })
 
           this.logger.info({
@@ -99,26 +115,6 @@ export class PaymentsCronService {
             amount: transaction.amount,
             userId: transaction.balance.user.id,
           })
-
-          // Уведомление пользователю
-          try {
-            const userLang = transaction.balance.user.language?.iso6391 || 'ru'
-            const message = await this.i18n.translate(
-              'payments.hold.released',
-              { args: { amount: transaction.amount }, lang: userLang },
-            )
-
-            await this.bot.telegram.sendMessage(
-              transaction.balance.user.telegramId,
-              message,
-            )
-          } catch (err) {
-            this.logger.error({
-              msg: 'Error sending notification about released hold',
-              error: err instanceof Error ? err.message : String(err),
-              userId: transaction.balance.user.id,
-            })
-          }
         })
       }
 
