@@ -1,5 +1,6 @@
 import { RedisService } from '@core/redis/redis.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
+import { PlansServersSelectTypeEnum } from '@modules/plans/types/plans-servers-select-type.enum'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
 import { UsersService } from '@modules/users/users.service'
@@ -9,6 +10,7 @@ import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
+import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
 import { genToken } from '@shared/utils/gen-token.util'
@@ -26,8 +28,10 @@ import {
   SubscriptionDataInterface,
   SubscriptionResponseInterface,
 } from '../types/subscription-data.interface'
-import { TrafficResetEnum } from '../types/traffic-reset.enum'
-import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
+import {
+  calculateMbPay,
+  calculateSubscriptionCost,
+} from '../utils/calculate-subscription-cost.util'
 import { filterConfig } from '../utils/filter-config.util'
 import { getXrayConfigFormat } from '../utils/get-xray-config-fromat.util'
 import { periodHours } from '../utils/period-hours.util'
@@ -102,17 +106,17 @@ export class XrayService {
 
       const subscription = await this.createSubscription({
         telegramId,
+        name: 'Trial',
         planKey: PlansEnum.TRIAL,
         period: SubscriptionPeriodEnum.TRIAL,
         periodMultiplier: 1,
         isPremium: false,
-        isFixedPrice: false,
+        trafficReset: TrafficResetEnum.NO_RESET,
         devicesCount: plan.devicesCount,
-        isAllBaseServers: plan.isAllBaseServers,
-        isAllPremiumServers: plan.isAllPremiumServers,
-        isUnlimitTraffic: plan.isUnlimitTraffic,
-        trafficLimitGb: plan.trafficLimitGb,
-        trialDays: user.freePlanDays,
+        isAllBaseServers: true,
+        isAllPremiumServers: true,
+        isUnlimitTraffic: false,
+        trafficLimitGb: user.trialGb || 10,
         servers: [],
         isAutoRenewal: false,
       })
@@ -191,6 +195,7 @@ export class XrayService {
       const subscription = await this.prismaService.subscriptions.findUnique({
         where: { ...whereCondition, isCreated: true, isInvoicing: false },
         include: {
+          plan: true,
           servers: {
             include: {
               greenList: true,
@@ -325,7 +330,20 @@ export class XrayService {
           return
         }
 
-        const tokenSub = cleanSubscriptionUrl.split('/sub/')[1]
+        // Извлекаем токен подписки и очищаем его от возможных лишних символов
+        let tokenSub = cleanSubscriptionUrl.split('/sub/')[1]
+
+        // Если токен содержит дополнительные пути, берем только первую часть
+        if (tokenSub.includes('/')) {
+          const tokenParts = tokenSub.split('/')
+          tokenSub = tokenParts[0]
+
+          this.logger.info({
+            msg: `Token contains additional paths, using first part: ${tokenSub}`,
+            service: this.serviceName,
+          })
+        }
+
         const configFormat = getXrayConfigFormat(agent)
 
         this.logger.info({
@@ -339,54 +357,63 @@ export class XrayService {
           service: this.serviceName,
         })
 
-        const marzbanRes = await this.marzbanService.getSubscriptionConfig(
-          tokenSub,
-          configFormat,
-          agent,
-        )
+        try {
+          const marzbanRes = await this.marzbanService.getSubscriptionConfig(
+            tokenSub,
+            configFormat,
+            agent,
+          )
 
-        if (!marzbanRes) {
-          this.logger.warn({
-            msg: `Failed to get Marzban subscription config`,
+          if (!marzbanRes) {
+            this.logger.warn({
+              msg: `Failed to get Marzban subscription config`,
+              service: this.serviceName,
+            })
+            return
+          }
+
+          this.logger.info({
+            msg: `Marzban response received, content-type: ${marzbanRes.headers['content-type']}`,
             service: this.serviceName,
           })
-          return
+
+          // Формируем ответ с конфигурацией
+          const filterType =
+            configFormat == 'clash' || configFormat == 'clash-meta'
+              ? 'clash'
+              : configFormat == 'sing-box'
+              ? 'sing-box'
+              : 'base64'
+          // : configFormat == 'v2ray-json'
+          // 'json'
+          this.logger.info({
+            msg: `Filtering config with type: ${filterType}, server codes count: ${
+              serverCodes?.length || 0
+            }`,
+            service: this.serviceName,
+          })
+
+          marzbanSubRes = {
+            headers: {
+              'content-disposition': marzbanRes.headers['content-disposition'],
+              'content-type': marzbanRes.headers['content-type'],
+            },
+            body: filterConfig(filterType, marzbanRes.data, serverCodes),
+          }
+
+          this.logger.info({
+            msg: `Marzban configuration processed successfully`,
+            service: this.serviceName,
+            marzbanSubRes,
+          })
+        } catch (error) {
+          this.logger.error({
+            msg: `Error when receiving a subscription: ${token} ${id}`,
+            error,
+            service: this.serviceName,
+          })
+          // Не возвращаем ничего, чтобы продолжить обработку и попробовать другие источники
         }
-
-        this.logger.info({
-          msg: `Marzban response received, content-type: ${marzbanRes.headers['content-type']}`,
-          service: this.serviceName,
-        })
-
-        // Формируем ответ с конфигурацией
-        const filterType =
-          configFormat == 'clash' || configFormat == 'clash-meta'
-            ? 'clash'
-            : configFormat == 'sing-box'
-            ? 'sing-box'
-            : 'base64'
-        // : configFormat == 'v2ray-json'
-        // 'json'
-        this.logger.info({
-          msg: `Filtering config with type: ${filterType}, server codes count: ${
-            serverCodes?.length || 0
-          }`,
-          service: this.serviceName,
-        })
-
-        marzbanSubRes = {
-          headers: {
-            'content-disposition': marzbanRes.headers['content-disposition'],
-            'content-type': marzbanRes.headers['content-type'],
-          },
-          body: filterConfig(filterType, marzbanRes.data, serverCodes),
-        }
-
-        this.logger.info({
-          msg: `Marzban configuration processed successfully`,
-          service: this.serviceName,
-          marzbanSubRes,
-        })
       } else {
         this.logger.info({
           msg: `Skipping Marzban configuration - agent not matching or not provided`,
@@ -472,7 +499,19 @@ export class XrayService {
         subscription: {
           id: subscription.id,
           name: subscription.name,
-          planKey: subscription.planKey as PlansEnum,
+          plan: {
+            key: subscription.plan.key as PlansEnum,
+            name: subscription.plan.name,
+            priceStars: subscription.plan.priceStars,
+            isCustom: subscription.plan.isCustom,
+            devicesCount: subscription.plan.devicesCount,
+            isAllBaseServers: subscription.plan.isAllBaseServers,
+            isAllPremiumServers: subscription.plan.isAllPremiumServers,
+            trafficLimitGb: subscription.plan.trafficLimitGb,
+            isUnlimitTraffic: subscription.plan.isUnlimitTraffic,
+            serversSelectType: subscription.plan
+              .serversSelectType as PlansServersSelectTypeEnum,
+          },
           period: subscription.period as SubscriptionPeriodEnum,
           periodMultiplier: subscription.periodMultiplier,
           isActive: subscription.isActive,
@@ -480,8 +519,6 @@ export class XrayService {
           isCreated: subscription.isCreated,
           isAutoRenewal: subscription.isAutoRenewal,
           nextRenewalStars: subscription.nextRenewalStars,
-          isFixedPrice: subscription.isFixedPrice,
-          fixedPriceStars: subscription.fixedPriceStars,
           devicesCount: subscription.devicesCount,
           isAllBaseServers: subscription.isAllBaseServers,
           isAllPremiumServers: subscription.isAllPremiumServers,
@@ -588,6 +625,7 @@ export class XrayService {
           isInvoicing: false,
         },
         include: {
+          plan: true,
           servers: {
             include: {
               greenList: true,
@@ -668,7 +706,19 @@ export class XrayService {
         (subscription) => ({
           id: subscription.id,
           name: subscription.name,
-          planKey: subscription.planKey as PlansEnum,
+          plan: {
+            key: subscription.plan.key as PlansEnum,
+            name: subscription.plan.name,
+            priceStars: subscription.plan.priceStars,
+            isCustom: subscription.plan.isCustom,
+            devicesCount: subscription.plan.devicesCount,
+            isAllBaseServers: subscription.plan.isAllBaseServers,
+            isAllPremiumServers: subscription.plan.isAllPremiumServers,
+            trafficLimitGb: subscription.plan.trafficLimitGb,
+            isUnlimitTraffic: subscription.plan.isUnlimitTraffic,
+            serversSelectType: subscription.plan
+              .serversSelectType as PlansServersSelectTypeEnum,
+          },
           period: subscription.period as SubscriptionPeriodEnum,
           periodMultiplier: subscription.periodMultiplier,
           isActive: subscription.isActive,
@@ -676,8 +726,6 @@ export class XrayService {
           isCreated: subscription.isCreated,
           isAutoRenewal: subscription.isAutoRenewal,
           nextRenewalStars: subscription.nextRenewalStars,
-          isFixedPrice: subscription.isFixedPrice,
-          fixedPriceStars: subscription.fixedPriceStars,
           devicesCount: subscription.devicesCount,
           isAllBaseServers: subscription.isAllBaseServers,
           isAllPremiumServers: subscription.isAllPremiumServers,
@@ -764,9 +812,12 @@ export class XrayService {
         twoYearRatioPayment: settings.twoYearRatioPayment,
         threeYearRatioPayment: settings.threeYearRatioPayment,
         indefinitelyRatio: settings.indefinitelyRatio,
-        fixedPriceStars: settings.fixedPriceStars,
         telegramPartnerProgramRatio: settings.telegramPartnerProgramRatio,
-        subscriptions: result,
+        subscriptions: result.sort((a, b) => {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        }),
       }
     } catch (error) {
       this.logger.error({
@@ -798,30 +849,29 @@ export class XrayService {
    */
   public async createSubscription({
     telegramId,
+    name,
     planKey,
     period,
     periodMultiplier,
     isPremium,
-    isFixedPrice,
-    fixedPriceStars,
     nextRenewalStars,
     devicesCount,
     isAllBaseServers,
     isAllPremiumServers,
     trafficLimitGb,
     isUnlimitTraffic,
-    trialDays,
+    trafficReset,
     servers,
     isAutoRenewal = true,
     isInvoice = false,
   }: {
     telegramId: string
+    name: string
     planKey: PlansEnum
     period: SubscriptionPeriodEnum
     periodMultiplier: number
     isPremium: boolean
-    isFixedPrice: boolean
-    fixedPriceStars?: number
+    trafficReset: TrafficResetEnum
     nextRenewalStars?: number
     devicesCount: number
     isAllBaseServers: boolean
@@ -829,7 +879,6 @@ export class XrayService {
     trafficLimitGb?: number
     isUnlimitTraffic: boolean
     servers: string[]
-    trialDays?: number
     isAutoRenewal?: boolean
     isInvoice?: boolean
   }) {
@@ -868,21 +917,34 @@ export class XrayService {
       const username = `${user.telegramId}_${Math.random()
         .toString(36)
         .substring(2)}`
-      const isIndefinitely = period === SubscriptionPeriodEnum.INDEFINITELY
+      const isIndefinitely =
+        period == SubscriptionPeriodEnum.INDEFINITELY ||
+        period == SubscriptionPeriodEnum.TRIAL ||
+        period == SubscriptionPeriodEnum.TRAFFIC
 
       if (isInvoice) {
         const subscriptionData = {
           username,
+          name,
           isPremium,
           planKey,
           isAutoRenewal: isIndefinitely ? false : isAutoRenewal,
-          isFixedPrice,
-          fixedPriceStars: isIndefinitely ? null : fixedPriceStars,
           devicesCount,
           isAllBaseServers,
           isAllPremiumServers,
-          trafficLimitGb,
+          trafficLimitGb:
+            trafficLimitGb *
+            (trafficReset == TrafficResetEnum.DAY
+              ? 1
+              : trafficReset == TrafficResetEnum.WEEK
+              ? 7
+              : trafficReset == TrafficResetEnum.MONTH
+              ? 30
+              : trafficReset == TrafficResetEnum.YEAR
+              ? 365
+              : 1),
           isUnlimitTraffic,
+          trafficReset: trafficReset,
           userId: user.id,
           period,
           periodMultiplier,
@@ -933,8 +995,22 @@ export class XrayService {
         },
         status: 'active',
         ...(!isUnlimitTraffic && {
-          data_limit_reset_strategy: 'day',
-          data_limit: trafficLimitGb * 1024 * 1024 * 1024,
+          data_limit_reset_strategy:
+            trafficReset.toLowerCase() || TrafficResetEnum.DAY.toLowerCase(),
+          data_limit:
+            trafficLimitGb *
+            1024 *
+            1024 *
+            1024 *
+            (trafficReset == TrafficResetEnum.DAY
+              ? 1
+              : trafficReset == TrafficResetEnum.WEEK
+              ? 7
+              : trafficReset == TrafficResetEnum.MONTH
+              ? 30
+              : trafficReset == TrafficResetEnum.YEAR
+              ? 365
+              : 1),
         }),
         note: `${user.id}/${user.telegramId}/${
           user.telegramData?.username || ''
@@ -958,8 +1034,13 @@ export class XrayService {
       // await this.marzbanService.restartCore()
 
       // Расчет времени истечения подписки
-      const hours = periodHours(period, periodMultiplier, trialDays)
-      if (period !== SubscriptionPeriodEnum.INDEFINITELY && hours <= 0) {
+      const hours = periodHours(period, periodMultiplier)
+      if (
+        period !== SubscriptionPeriodEnum.INDEFINITELY &&
+        period !== SubscriptionPeriodEnum.TRIAL &&
+        period !== SubscriptionPeriodEnum.TRAFFIC &&
+        hours <= 0
+      ) {
         this.logger.error({
           msg: `Некорректный период подписки: ${period}`,
           service: this.serviceName,
@@ -970,17 +1051,26 @@ export class XrayService {
       const subscriptionData = {
         username,
         isPremium,
+        name,
         planKey,
         // Для INDEFINITELY всегда отключаем автопродление
         isAutoRenewal: isIndefinitely ? false : isAutoRenewal,
-        isFixedPrice,
-        // Для INDEFINITELY обнуляем fixedPriceStars
-        fixedPriceStars: isIndefinitely ? null : fixedPriceStars,
         devicesCount,
         isAllBaseServers,
         isAllPremiumServers,
-        trafficLimitGb,
+        trafficLimitGb:
+          trafficLimitGb *
+          (trafficReset == TrafficResetEnum.DAY
+            ? 1
+            : trafficReset == TrafficResetEnum.WEEK
+            ? 7
+            : trafficReset == TrafficResetEnum.MONTH
+            ? 30
+            : trafficReset == TrafficResetEnum.YEAR
+            ? 365
+            : 1),
         isUnlimitTraffic,
+        trafficReset: trafficReset,
         userId: user.id,
         period,
         periodMultiplier,
@@ -1032,7 +1122,12 @@ export class XrayService {
             .sendMessage(
               Number(process.env.TELEGRAM_LOG_CHAT_ID),
               `<b>👍 НОВАЯ ПОДПИСКА СОЗДАНА</b>
-<b>Пользователь:</b> <code>${subscription.userId}</code>
+<b>Пользователь:</b> ${user.telegramData?.username || ''} <code>${
+                user.telegramData?.firstName || ''
+              } ${user.telegramData?.lastName || ''}</code>
+<b>User ID:</b> <code>${subscription.userId}</code>
+<b>Telegram ID:</b> <code>${user.telegramId}</code>
+<b>Имя:</b> <code>${subscription.name}</code>
 <b>Username :</b> <code>${subscription.username}</code>
 <b>Тариф:</b> <code>${subscription.planKey}</code>
 <b>Дата истечения:</b> <code>${subscription.expiredAt}</code>
@@ -1040,12 +1135,22 @@ export class XrayService {
 <b>Множитель периода:</b> <code>${subscription.periodMultiplier}</code>
 <b>Цена следующей оплаты:</b> <code>${subscription.nextRenewalStars}</code>
 <b>Премиум:</b> <code>${subscription.isPremium}</code>
-<b>Цена фиксирована:</b> <code>${subscription.isFixedPrice}</code>
-<b>Фикс цена:</b> <code>${subscription.fixedPriceStars}</code>
 <b>Устройства:</b> <code>${subscription.devicesCount}</code>
 <b>Все базовые сервера:</b> <code>${subscription.isAllBaseServers}</code>
 <b>Все премиум сервера:</b> <code>${subscription.isAllPremiumServers}</code>
-<b>Лимит трафика:</b> <code>${subscription.trafficLimitGb}</code>
+<b>Лимит трафика:</b> <code>${
+                subscription.trafficLimitGb *
+                (trafficReset == TrafficResetEnum.DAY
+                  ? 1
+                  : trafficReset == TrafficResetEnum.WEEK
+                  ? 7
+                  : trafficReset == TrafficResetEnum.MONTH
+                  ? 30
+                  : trafficReset == TrafficResetEnum.YEAR
+                  ? 365
+                  : 1)
+              }</code>
+<b>Сброс трафика:</b> <code>${subscription.trafficReset}</code>
 <b>Безлимит:</b> <code>${subscription.isUnlimitTraffic}</code>
 `,
               {
@@ -1112,14 +1217,14 @@ export class XrayService {
 
       for (const inviter of user.inviters) {
         if (!inviter.isActivated) {
-          let plusPaymentsRewarded = 0
+          let plusTrafficRewarded = 0
 
-          plusPaymentsRewarded =
+          plusTrafficRewarded =
             inviter.level > 1
               ? 0
               : user.telegramData?.isPremium
-              ? settings.referralInvitePremiumRewardStars
-              : settings.referralInviteRewardStars
+              ? settings.referralInvitePremiumRewardGb
+              : settings.referralInviteRewardGb
 
           try {
             await this.prismaService.$transaction(async (tx) => {
@@ -1129,8 +1234,8 @@ export class XrayService {
                   id: inviter.id,
                 },
                 data: {
-                  totalPaymentsRewarded:
-                    inviter.totalPaymentsRewarded + plusPaymentsRewarded,
+                  totalTrafficRewarded:
+                    inviter.totalTrafficRewarded + plusTrafficRewarded,
                   isActivated: true,
                 },
               })
@@ -1149,27 +1254,25 @@ export class XrayService {
                 )
               }
 
-              if (plusPaymentsRewarded > 0) {
+              if (plusTrafficRewarded > 0) {
                 // Обновляем баланс реферера
                 await tx.userBalance.update({
                   where: {
                     id: inviter.inviter.balanceId,
                   },
                   data: {
-                    paymentBalance:
-                      inviter.inviter.balance.paymentBalance +
-                      plusPaymentsRewarded,
+                    traffic:
+                      inviter.inviter.balance.traffic + plusTrafficRewarded,
                   },
                 })
 
                 // Создаем транзакцию для реферальной комиссии
                 const transactions = [
                   {
-                    amount: plusPaymentsRewarded,
+                    amount: plusTrafficRewarded,
                     type: TransactionTypeEnum.PLUS,
                     reason: TransactionReasonEnum.REFERRAL,
-                    balanceType: BalanceTypeEnum.PAYMENT,
-                    isHold: false,
+                    balanceType: BalanceTypeEnum.TRAFFIC,
                     balanceId: inviter.inviter.balanceId,
                   },
                 ]
@@ -1182,7 +1285,7 @@ export class XrayService {
 
             this.logger.info({
               msg: `Успешно обновлен реферальный баланс для инвайтера с ID: ${inviter.inviter?.id}`,
-              reward: plusPaymentsRewarded,
+              reward: plusTrafficRewarded,
               service: this.serviceName,
             })
           } catch (error) {
@@ -1242,33 +1345,35 @@ export class XrayService {
    */
   public async purchaseSubscription({
     telegramId,
+    name,
     planKey,
     period,
     periodMultiplier,
-    isFixedPrice,
     devicesCount,
     isAllBaseServers,
     isAllPremiumServers,
     trafficLimitGb,
     isUnlimitTraffic,
+    trafficReset,
     servers = [],
     isAutoRenewal = true,
     method,
     isInvoice = false,
   }: {
+    name: string
     telegramId: string
     planKey: PlansEnum
     period: SubscriptionPeriodEnum
     periodMultiplier: number
-    isFixedPrice: boolean
     devicesCount: number
     isAllBaseServers: boolean
     isAllPremiumServers: boolean
     trafficLimitGb?: number
     isUnlimitTraffic: boolean
+    trafficReset: TrafficResetEnum
     servers?: string[]
     isAutoRenewal?: boolean
-    method?: PaymentMethodEnum
+    method?: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC'
     isInvoice?: boolean
   }) {
     try {
@@ -1330,6 +1435,7 @@ export class XrayService {
         period: period,
         plan: getPlan as PlansInterface,
         isPremium: user.telegramData.isPremium,
+        isTgProgramPartner: user.isTgProgramPartner,
         periodMultiplier,
         devicesCount,
         isAllBaseServers,
@@ -1342,33 +1448,29 @@ export class XrayService {
         trafficLimitGb,
       })
 
-      const finalCost = isFixedPrice ? cost + settings.fixedPriceStars : cost
-      const nextFinalCost = user.isTgProgramPartner
-        ? finalCost * settings.telegramPartnerProgramRatio
-        : finalCost
-
-      const partnerCost = user.isTgProgramPartner
-        ? cost * settings.telegramPartnerProgramRatio
-        : cost
-
-      if (isInvoice && user.role.discount > 0) {
+      if (
+        isInvoice &&
+        method !== 'BALANCE' &&
+        method !== 'TRAFFIC' &&
+        user.role.discount > 0
+      ) {
         if (!method) {
           return { success: false, message: 'payment_method_required' }
         }
 
         const subscription = await this.createSubscription({
           isPremium: user.telegramData.isPremium,
+          name,
           planKey,
           period,
           periodMultiplier,
-          isFixedPrice,
-          fixedPriceStars: user.role.discount == 0 ? 0 : partnerCost,
-          nextRenewalStars: user.role.discount == 0 ? 0 : partnerCost,
+          nextRenewalStars: cost,
           devicesCount,
           isAllBaseServers,
           isAllPremiumServers,
           trafficLimitGb,
           isUnlimitTraffic,
+          trafficReset,
           servers,
           isAutoRenewal,
           telegramId,
@@ -1384,7 +1486,7 @@ export class XrayService {
         }
 
         const invoice = await this.paymentsService.createInvoice(
-          Math.ceil(nextFinalCost),
+          cost,
           method,
           user.telegramId,
           subscription.id,
@@ -1393,35 +1495,15 @@ export class XrayService {
         return { success: true, invoice }
       }
 
-      // Проверяем баланс и списываем средства с помощью UsersService
-      // Предварительная проверка баланса для вывода информативного сообщения
-      const totalAvailableBalance =
-        user.balance.paymentBalance +
-        (user.balance.isUseWithdrawalBalance
-          ? user.balance.withdrawalBalance
-          : 0)
-
-      if (totalAvailableBalance < nextFinalCost && user.role.discount > 0) {
-        this.logger.warn({
-          msg: `Недостаточно средств для покупки подписки. Требуется: ${nextFinalCost}, доступно: ${totalAvailableBalance}`,
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'insufficient_balance',
-          requiredAmount: nextFinalCost,
-          currentBalance: totalAvailableBalance,
-        }
-      }
-
       // Создание подписки и списание средств в транзакции
       // Используем метод deductUserBalance из UsersService для списания средств
       const deductResult = await this.userService.deductUserBalance(
         user.id,
-        user.role.discount == 0 ? 0 : nextFinalCost,
+        method == 'TRAFFIC'
+          ? calculateMbPay(cost, settings.trafficGbPriceStars)
+          : cost,
         TransactionReasonEnum.SUBSCRIPTIONS,
-        BalanceTypeEnum.PAYMENT,
-        { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
+        method == 'TRAFFIC' ? BalanceTypeEnum.TRAFFIC : BalanceTypeEnum.PAYMENT,
       )
 
       if (!deductResult.success) {
@@ -1438,22 +1520,20 @@ export class XrayService {
       this.logger.info({
         msg: `Успешно списаны средства для подписки`,
         userId: user.id,
-        paymentAmount: deductResult.paymentAmount,
-        withdrawalAmount: deductResult.withdrawalAmount,
         service: this.serviceName,
       })
 
       const subscription = await this.createSubscription({
         isPremium: user.telegramData.isPremium,
+        name,
         planKey,
         period,
         periodMultiplier,
-        isFixedPrice,
-        fixedPriceStars: user.role.discount == 0 ? 0 : partnerCost,
-        nextRenewalStars: user.role.discount == 0 ? 0 : partnerCost,
+        nextRenewalStars: cost,
         devicesCount,
         isAllBaseServers,
         isAllPremiumServers,
+        trafficReset,
         trafficLimitGb,
         isUnlimitTraffic,
         servers,
@@ -1569,310 +1649,6 @@ export class XrayService {
   }
 
   /**
-   * Изменяет условия существующей подписки пользователя
-   * @param telegramId - Telegram ID пользователя
-   * @param subscriptionId - ID подписки для изменения
-   * @param newConditions - Новые условия подписки
-   * @returns Результат операции изменения условий
-   */
-  public async changeSubscriptionConditions(
-    telegramId: string,
-    subscriptionId: string,
-    {
-      planKey,
-      period,
-      periodMultiplier,
-      isFixedPrice,
-      devicesCount,
-      isAllBaseServers,
-      isAllPremiumServers,
-      trafficLimitGb,
-      isUnlimitTraffic,
-      servers = [],
-      isAutoRenewal = true,
-    }: {
-      planKey: PlansEnum
-      period: SubscriptionPeriodEnum
-      periodMultiplier: number
-      isFixedPrice: boolean
-      devicesCount: number
-      isAllBaseServers: boolean
-      isAllPremiumServers: boolean
-      trafficLimitGb?: number
-      isUnlimitTraffic: boolean
-      servers?: string[]
-      isAutoRenewal?: boolean
-    },
-  ) {
-    try {
-      this.logger.info({
-        msg: `Запрос на изменение условий подписки ${subscriptionId} от пользователя с Telegram ID: ${telegramId}`,
-        service: this.serviceName,
-      })
-
-      // Получаем пользователя
-      const user = await this.userService.getUserByTgId(telegramId)
-      if (!user) {
-        this.logger.warn({
-          msg: `Пользователь с Telegram ID ${telegramId} не найден`,
-          service: this.serviceName,
-        })
-        return { success: false, message: 'user_not_found' }
-      }
-
-      // Получаем подписку и проверяем, принадлежит ли она пользователю
-      const subscription = await this.prismaService.subscriptions.findFirst({
-        where: {
-          id: subscriptionId,
-          userId: user.id,
-        },
-      })
-
-      if (!subscription) {
-        this.logger.warn({
-          msg: `Подписка с ID ${subscriptionId} не найдена или не принадлежит пользователю с Telegram ID ${telegramId}`,
-          service: this.serviceName,
-        })
-        return { success: false, message: 'subscription_not_found' }
-      }
-
-      // Проверяем, истек ли срок подписки
-      const now = new Date()
-      if (subscription.expiredAt > now) {
-        this.logger.warn({
-          msg: `Невозможно изменить условия подписки ${subscriptionId}, так как срок её действия ещё не истек`,
-          service: this.serviceName,
-        })
-        return { success: false, message: 'subscription_not_expired' }
-      }
-
-      // Получаем серверы
-      const getServers = await this.prismaService.greenList.findMany({
-        where: {
-          code: {
-            in: servers,
-          },
-        },
-      })
-
-      const baseServers = getServers.filter((server) => !server.isPremium)
-      const premiumServers = getServers.filter((server) => server.isPremium)
-
-      // Расчет стоимости подписки
-      const settings = await this.prismaService.settings.findFirst()
-      if (!settings) {
-        this.logger.error({
-          msg: 'Настройки не найдены',
-          service: this.serviceName,
-        })
-        return { success: false, message: 'settings_not_found' }
-      }
-
-      const getPlan = await this.prismaService.plans.findUnique({
-        where: {
-          key: planKey,
-        },
-      })
-
-      if (!getPlan) {
-        return { success: false, message: 'plan_not_found' }
-      }
-
-      // Расчет стоимости с учетом периода и скидки пользователя
-      const cost = calculateSubscriptionCost({
-        period: period,
-        plan: getPlan as PlansInterface,
-        isPremium: user.telegramData.isPremium,
-        periodMultiplier,
-        devicesCount,
-        isAllBaseServers,
-        isAllPremiumServers,
-        isUnlimitTraffic,
-        userDiscount: user.role.discount,
-        settings: settings,
-        serversCount: baseServers.length,
-        premiumServersCount: premiumServers.length,
-        trafficLimitGb,
-      })
-
-      // Проверяем баланс и списываем средства с помощью UsersService
-      // Предварительная проверка баланса для вывода информативного сообщения
-      const totalAvailableBalance =
-        user.balance.paymentBalance +
-        (user.balance.isUseWithdrawalBalance
-          ? user.balance.withdrawalBalance
-          : 0)
-
-      if (totalAvailableBalance < cost && user.role.discount > 0) {
-        this.logger.warn({
-          msg: `Недостаточно средств для изменения условий подписки. Требуется: ${cost}, доступно: ${totalAvailableBalance}`,
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'insufficient_balance',
-          requiredAmount: cost,
-          currentBalance: totalAvailableBalance,
-        }
-      }
-
-      // Расчет времени истечения подписки
-      const hours = periodHours(period, periodMultiplier)
-      if (hours <= 0) {
-        this.logger.error({
-          msg: `Некорректный период подписки: ${period}`,
-          service: this.serviceName,
-        })
-        return { success: false, message: 'invalid_period' }
-      }
-
-      // Удаляем пользователя из Marzban
-      const marzbanRemoveResult = await this.marzbanService.removeUser(
-        subscription.username,
-      )
-      if (!marzbanRemoveResult) {
-        this.logger.error({
-          msg: `Не удалось удалить пользователя ${subscription.username} из Marzban`,
-          service: this.serviceName,
-        })
-        // Продолжаем обновление, даже если не удалось удалить из Marzban
-      }
-
-      // TODO: ФИКС изменений условий подписки!
-
-      // Создаем нового пользователя в Marzban с тем же username
-      const marbanDataStart: UserCreate = {
-        username: subscription.username,
-        proxies: {
-          vless: {
-            flow: 'xtls-rprx-vision',
-          },
-          trojan: {},
-          shadowsocks: {},
-        },
-        inbounds: {
-          vless: ['VLESS'],
-          trojan: ['TROJAN WS TLS'],
-          shadowsocks: ['Shadowsocks TCP'],
-        },
-        status: 'active',
-        ...(!isUnlimitTraffic && {
-          data_limit_reset_strategy: 'day',
-          data_limit: trafficLimitGb * 1024 * 1024 * 1024,
-        }),
-        note: `${user.id}/${user.telegramId}/${
-          user.telegramData?.username || ''
-        }/${user.telegramData?.firstName || ''}/${
-          user.telegramData?.lastName || ''
-        }`,
-      }
-
-      // TODO: Нужно изменить, а не добавить!
-
-      // Добавление пользователя в Marzban
-      const marzbanData = await this.marzbanService.addUser(marbanDataStart)
-      if (!marzbanData) {
-        this.logger.error({
-          msg: `Не удалось добавить пользователя в Marzban для Telegram ID: ${telegramId}`,
-          service: this.serviceName,
-        })
-        return { success: false, message: 'marzban_error' }
-      }
-
-      // Списание средств и обновление подписки в транзакции
-      const updatedSubscription = await this.prismaService.$transaction(
-        async (tx) => {
-          // Списываем средства
-          const deductResult = await this.userService.deductUserBalance(
-            user.id,
-            cost,
-            TransactionReasonEnum.SUBSCRIPTIONS,
-            BalanceTypeEnum.PAYMENT,
-            { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
-          )
-
-          if (!deductResult.success) {
-            this.logger.warn({
-              msg: `Недостаточно средств для изменения условий подписки`,
-              userId: user.id,
-              cost,
-              service: this.serviceName,
-            })
-            throw new Error('insufficient_balance')
-          }
-
-          // Логируем информацию о списании
-          this.logger.info({
-            msg: `Успешно списаны средства для изменения условий подписки`,
-            userId: user.id,
-            paymentAmount: deductResult.paymentAmount,
-            withdrawalAmount: deductResult.withdrawalAmount,
-            service: this.serviceName,
-          })
-
-          // Удаляем существующие связи с серверами
-          await tx.subscriptionToGreenList.deleteMany({
-            where: {
-              subscriptionId: subscription.id,
-            },
-          })
-
-          // Обновляем подписку
-          return await tx.subscriptions.update({
-            where: {
-              id: subscriptionId,
-            },
-            data: {
-              isPremium: user.telegramData.isPremium,
-              isAutoRenewal,
-              isFixedPrice,
-              fixedPriceStars: isFixedPrice ? cost : undefined,
-              nextRenewalStars: cost,
-              devicesCount,
-              isAllBaseServers,
-              isAllPremiumServers,
-              trafficLimitGb,
-              isUnlimitTraffic,
-              period,
-              periodMultiplier,
-              isActive: true,
-              links: marzbanData.links,
-              dataLimit: marzbanData.data_limit,
-              usedTraffic: marzbanData.used_traffic,
-              lifeTimeUsedTraffic: marzbanData.used_traffic,
-              expiredAt: addHours(now, hours),
-              marzbanData: JSON.parse(JSON.stringify(marzbanData)),
-              servers: {
-                create: getServers.map((server) => ({
-                  greenListId: server.green,
-                })),
-              },
-            },
-          })
-        },
-      )
-
-      this.logger.info({
-        msg: `Условия подписки ${subscriptionId} успешно изменены для пользователя ${telegramId}`,
-        service: this.serviceName,
-      })
-
-      return { success: true, subscription: updatedSubscription }
-    } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при изменении условий подписки для пользователя с Telegram ID: ${telegramId}`,
-        error,
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'internal_error',
-      }
-    }
-  }
-
-  /**
    * Продлевает существующую подписку пользователя
    * @param telegramId - Telegram ID пользователя
    * @param subscriptionId - ID подписки для продления
@@ -1915,11 +1691,7 @@ export class XrayService {
       const cost = subscription.nextRenewalStars
 
       // Проверка баланса пользователя с учетом возможности использования withdrawalBalance
-      const totalAvailableBalance =
-        user.balance.paymentBalance +
-        (user.balance.isUseWithdrawalBalance
-          ? user.balance.withdrawalBalance
-          : 0)
+      const totalAvailableBalance = user.balance.paymentBalance
 
       if (totalAvailableBalance < cost) {
         this.logger.warn({
@@ -1964,7 +1736,6 @@ export class XrayService {
             cost,
             TransactionReasonEnum.SUBSCRIPTIONS,
             BalanceTypeEnum.PAYMENT,
-            { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
           )
 
           if (!deductResult.success) {
@@ -1980,8 +1751,6 @@ export class XrayService {
           this.logger.info({
             msg: `Successfully deducted funds for subscription`,
             userId: user.id,
-            paymentAmount: deductResult.paymentAmount,
-            withdrawalAmount: deductResult.withdrawalAmount,
             service: this.serviceName,
           })
 
