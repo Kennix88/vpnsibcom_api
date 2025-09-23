@@ -7,12 +7,16 @@ import {
   TransactionReasonEnum,
   TransactionTypeEnum,
 } from '@prisma/client'
+import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
+import { PaymentsService } from './payments.service'
+import { TonPaymentsService } from './ton-payments.service'
+import { TonUtimeService } from './ton-uptime.service'
 
 /**
  * Сервис для выполнения периодических задач, связанных с платежами
@@ -25,9 +29,76 @@ export class PaymentsCronService {
     private readonly configService: ConfigService,
     private readonly xrayService: XrayService,
     private readonly i18n: I18nService,
+    private readonly tonPaymentsService: TonPaymentsService,
+    private readonly paymentsService: PaymentsService,
+    private readonly tonUtimeService: TonUtimeService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(PaymentsCronService.name)
+  }
+
+  @Cron('*/15 * * * * *')
+  async checkTonPayments() {
+    try {
+      const transactions = await this.prismaService.payments.findMany({
+        where: {
+          status: PaymentStatusEnum.PENDING,
+          methodKey: PaymentMethodEnum.TON_TON,
+        },
+      })
+
+      if (transactions.length === 0) {
+        this.logger.info({ msg: 'No TON payments found' })
+        return
+      }
+
+      this.logger.info({
+        msg: `Found ${transactions.length} TON payments`,
+      })
+
+      const payIds = []
+
+      for (const transaction of transactions) {
+        payIds.push(transaction.token)
+      }
+
+      const getTonPayments = await this.tonPaymentsService.findPayments(payIds)
+
+      for (const transaction of transactions) {
+        this.logger.info({
+          msg: `Processing TON payment ${transaction.id}`,
+        })
+
+        const payment = getTonPayments[transaction.token]
+
+        if (!payment || payment == null) {
+          this.logger.warn({
+            msg: `TON payment ${transaction.token} not found`,
+          })
+          continue
+        }
+
+        if (transaction.amount !== payment.amount) {
+          this.logger.warn({
+            msg: `TON payment ${transaction.token} amount mismatch. Expected: ${transaction.amount}, Got: ${payment.amount}`,
+          })
+          continue
+        }
+
+        await this.paymentsService.updatePayment(
+          transaction.token,
+          PaymentStatusEnum.COMPLETED,
+          payment,
+        )
+      }
+
+      await this.tonUtimeService.setLastUtime(
+        this.configService.getOrThrow<string>('TON_WALLET'),
+        Date.now() / 1000 - 2 * 60 * 60,
+      )
+    } catch (e) {
+      this.logger.error({ msg: 'Error checking TON payments', e })
+    }
   }
 
   /**
