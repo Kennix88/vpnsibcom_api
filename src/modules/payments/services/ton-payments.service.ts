@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import axios from 'axios'
 import { PinoLogger } from 'nestjs-pino'
+import { FindTonPaymentsResult } from '../types/ton-payments.type'
 import { TonUtimeService } from './ton-uptime.service'
 
 @Injectable()
@@ -36,7 +37,7 @@ export class TonPaymentsService {
   /**
    * Проверка пачки paymentId в новых транзакциях
    */
-  async findPayments(paymentIds: string[]) {
+  async findPayments(paymentIds: string[]): Promise<FindTonPaymentsResult> {
     // получаем lastUtime из Redis
     const lastUtime = await this.tonUtimeService.getLastUtime(this.wallet)
 
@@ -45,8 +46,6 @@ export class TonPaymentsService {
 
     const results: Record<string, any> = {}
     for (const id of paymentIds) results[id] = null
-
-    let maxUtime = lastUtime
 
     for (const tx of txs) {
       const msg = tx.in_msg
@@ -64,14 +63,7 @@ export class TonPaymentsService {
           utime: tx.utime,
         }
       }
-
-      if (tx.utime > maxUtime) maxUtime = tx.utime
     }
-
-    // // обновляем lastUtime в Redis после обработки
-    // if (maxUtime > lastUtime) {
-    //   await this.tonUtimeService.setLastUtime(this.wallet, maxUtime)
-    // }
 
     return results
   }
