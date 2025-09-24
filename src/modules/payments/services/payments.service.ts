@@ -58,7 +58,9 @@ export class PaymentsService {
     subscriptionId: string = null,
   ): Promise<{
     linkPay: string
-    isTmaIvoice: boolean
+    isTonPayment: boolean
+    amountTon: number
+    token: string
   }> {
     try {
       return await this.prismaService.$transaction(async (tx) => {
@@ -127,7 +129,6 @@ export class PaymentsService {
         }
 
         let linkPay: string | null = null
-        let isTmaIvoice = false
         if (getMethod.key === PaymentMethodEnum.STARS) {
           const title = subscriptionId
             ? 'Subscription payment'
@@ -148,10 +149,9 @@ export class PaymentsService {
             title,
             description,
           )
-          isTmaIvoice = true
         }
 
-        if (!linkPay) {
+        if (!linkPay && getMethod.key === PaymentMethodEnum.STARS) {
           throw new Error(`LinkPay not found`)
         }
 
@@ -165,7 +165,10 @@ export class PaymentsService {
 
         return {
           linkPay,
-          isTmaIvoice,
+          isTonPayment: getMethod.key === PaymentMethodEnum.TON_TON,
+          token: createPayment.token,
+          amountTon:
+            getMethod.key === PaymentMethodEnum.TON_TON ? convertedAmount : 0,
         }
       })
     } catch (e) {

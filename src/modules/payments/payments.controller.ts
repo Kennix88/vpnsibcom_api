@@ -78,8 +78,10 @@ export class PaymentsController {
       data: {
         success: true,
         linkPay: invoice.linkPay,
-        isTmaIvoice: invoice.isTmaIvoice,
+        isTonPayment: invoice.isTonPayment,
+        token: invoice.token,
         user: userData,
+        amountTon: invoice.amountTon,
       },
     }
   }

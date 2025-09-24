@@ -34,7 +34,9 @@ interface SubscriptionResponse {
     message?: string
     invoice?: {
       linkPay: string
-      isTmaIvoice: boolean
+      isTonPayment: boolean
+      amountTon: number
+      token: string
     }
     subscriptions?: any
     user?: any
