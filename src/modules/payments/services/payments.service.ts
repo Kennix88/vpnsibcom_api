@@ -6,6 +6,7 @@ import { MarzbanService } from '@modules/xray/services/marzban.service'
 import { XrayService } from '@modules/xray/services/xray.service'
 import { UserCreate } from '@modules/xray/types/marzban.types'
 
+import { roundUp } from '@modules/xray/utils/calculate-subscription-cost.util'
 import { periodHours } from '@modules/xray/utils/period-hours.util'
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -100,11 +101,14 @@ export class PaymentsService {
         const convertedAmount =
           getMethod.currencyKey === CurrencyEnum.XTR
             ? amount
-            : fxUtil(
-                amount,
-                CurrencyEnum.XTR,
-                getMethod.currencyKey as CurrencyEnum,
-                rates,
+            : roundUp(
+                fxUtil(
+                  amount,
+                  CurrencyEnum.XTR,
+                  getMethod.currencyKey as CurrencyEnum,
+                  rates,
+                ),
+                5,
               )
 
         const amountStars =
@@ -164,7 +168,10 @@ export class PaymentsService {
         })
 
         return {
-          linkPay,
+          linkPay:
+            getMethod.key === PaymentMethodEnum.TON_TON
+              ? this.configService.getOrThrow<string>('TON_WALLET')
+              : linkPay,
           isTonPayment: getMethod.key === PaymentMethodEnum.TON_TON,
           token: createPayment.token,
           amountTon:
