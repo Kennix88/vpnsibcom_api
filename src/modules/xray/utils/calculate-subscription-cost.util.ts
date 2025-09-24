@@ -179,6 +179,11 @@ export function calculateMbPay(
   )
 }
 
+export function roundUp(value: number, decimals: number = 5) {
+  const factor = Math.pow(10, decimals)
+  return Math.ceil(value * factor) / factor
+}
+
 export function roundingUpPrice(n: number): number {
   const rounding = Math.ceil(n)
   return rounding < 1 ? 1 : rounding
