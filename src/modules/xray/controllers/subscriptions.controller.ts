@@ -23,6 +23,7 @@ import { PinoLogger } from 'nestjs-pino'
 import { UsersService } from '../../users/users.service'
 import { XrayService } from '../services/xray.service'
 import { DeleteSubscriptionDto } from '../types/delete-subscription.dto'
+import { EditSubscriptionNameDto } from '../types/edit-subscription-name.dto'
 import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
 import { RenewSubscriptionDto } from '../types/renew-subscription.dto'
 import { ResetSubscriptionTokenDto } from '../types/reset-subscription-token.dto'
@@ -364,6 +365,57 @@ export class SubscriptionsController {
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при покупке подписки',
+      )
+    }
+  }
+
+  @Post('edit-name/:id')
+  @PreventDuplicateRequest(60)
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async editNameSubscription(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Body() editDto: EditSubscriptionNameDto,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    try {
+      this.logger.info(
+        `Запрос на изменение имени подписки от пользователя: ${user.telegramId}, ID подписки: ${id}`,
+      )
+      const result = await this.xrayService.editSubscriptionName(
+        id,
+        editDto.name,
+      )
+      if (!result.success) {
+        this.logger.warn(
+          `Не удалось изменить имя подписки для пользователя: ${user.telegramId}, ID подписки: ${id}, причина: ${result.message}`,
+        )
+        throw new BadRequestException(result.message)
+      }
+
+      const [subscriptions, userData] = await Promise.all([
+        this.xrayService.getSubscriptions(user.sub),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      return {
+        data: {
+          success: true,
+          message: 'Subscription name is changed',
+          subscriptions,
+          user: userData,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при изменении имени подписки: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при изменении имени подписки',
       )
     }
   }
