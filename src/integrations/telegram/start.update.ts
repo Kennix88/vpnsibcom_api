@@ -1,6 +1,7 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
+import { TonPaymentsService } from '@modules/payments/services/ton-payments.service'
 import { RatesService } from '@modules/rates/rates.service'
 import { ReferralsService } from '@modules/referrals/referrals.service'
 import { UsersService } from '@modules/users/users.service'
@@ -21,6 +22,7 @@ export class StartUpdate {
     private readonly telegramLogger: LoggerTelegramService,
     private readonly ratesService: RatesService,
     private readonly userService: UsersService,
+    private readonly tonPaymentsService: TonPaymentsService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(StartUpdate.name)
@@ -58,6 +60,12 @@ export class StartUpdate {
       }
 
       if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
+        // const transactions = await this.tonPaymentsService.getTransactions(10)
+        // const transactions = await this.tonPaymentsService.findPayments([
+        //   'order-sadasfewgw',
+        //   'sada',
+        // ])
+        // console.log(JSON.stringify(transactions, null, 2))
         // await this.ratesService.updateApilayerRates()
         // await this.ratesService.updateStarsRate()
         //
@@ -71,50 +79,49 @@ export class StartUpdate {
       //     ...(ctx.from.language_code && { lang: ctx.from.language_code }),
       //   }),
 
-      await ctx
-        .sendPhoto(
-          { source: createReadStream('assets/welcome.jpg') },
-          {
-            caption: `<b>Привет, ${ctx.from.first_name}!</b>
+      await ctx.sendPhoto(
+        { source: createReadStream('assets/welcome.jpg') },
+        {
+          caption: `<b>Привет, ${ctx.from.first_name}!</b>
 Добро пожаловать в VPNsib!
-Для подключения к VPN, пожалуйста, нажмите кнопку ниже.`,
-            parse_mode: 'HTML',
-            reply_markup: {
-              remove_keyboard: true,
-              inline_keyboard: [
-                [
-                  Markup.button.webApp(
-                    'VPN&GAMES',
-                    this.configService.get<string>('WEBAPP_URL'),
-                  ),
-                ],
-                [
-                  Markup.button.url(
-                    'Канал',
-                    this.configService.get<string>('CHANNEL_URL'),
-                  ),
-                  Markup.button.url(
-                    'Чат',
-                    this.configService.get<string>('CHAT_URL'),
-                  ),
-                ],
-                [
-                  Markup.button.url(
-                    'Open-Source',
-                    this.configService.get<string>('OPENSOURCE_URL'),
-                  ),
-                  Markup.button.url(
-                    'by KennixDev',
-                    this.configService.get<string>('KENNIXDEV_URL'),
-                  ),
-                ],
+Приложение где можно использовать VPN и играть в игры.
+
+Разработано @KennixDev
+При поддежке @solycmty`,
+          parse_mode: 'HTML',
+          reply_markup: {
+            remove_keyboard: true,
+            inline_keyboard: [
+              [
+                Markup.button.webApp(
+                  'VPN&GAMES',
+                  this.configService.get<string>('WEBAPP_URL'),
+                ),
               ],
-            },
+              [
+                Markup.button.url(
+                  'Канал',
+                  this.configService.get<string>('CHANNEL_URL'),
+                ),
+                Markup.button.url(
+                  'Чат&Поддержка',
+                  this.configService.get<string>('CHAT_URL'),
+                ),
+              ],
+              [
+                Markup.button.url(
+                  'Solyanka Community',
+                  'https://t.me/solycmty',
+                ),
+                Markup.button.url(
+                  'KennixDev',
+                  this.configService.get<string>('KENNIXDEV_URL'),
+                ),
+              ],
+            ],
           },
-        )
-        .then((res) => {
-          console.log('sendPhoto', res)
-        })
+        },
+      )
 
       return
     } catch (e) {
