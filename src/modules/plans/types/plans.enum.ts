@@ -1,5 +1,6 @@
 export enum PlansEnum {
   TRIAL = 'TRIAL',
+  TRAFFIC = 'TRAFFIC',
   START = 'START',
   BASE = 'BASE',
   PLUS = 'PLUS',
@@ -7,5 +8,4 @@ export enum PlansEnum {
   PREMIUM = 'PREMIUM',
   ULTIMATE = 'ULTIMATE',
   CUSTOM = 'CUSTOM',
-  TRAFFIC = 'TRAFFIC',
 }

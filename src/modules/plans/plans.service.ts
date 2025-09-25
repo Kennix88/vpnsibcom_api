@@ -19,6 +19,7 @@ export class PlansService {
   public async getPlans(): Promise<PlansInterface[]> {
     const plans = await this.prismaService.plans.findMany({
       where: {
+        isActive: true,
         key: {
           not: PlansEnum.TRIAL,
         },
