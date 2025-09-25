@@ -60,6 +60,32 @@ export class XrayService {
     @InjectBot() private readonly bot: Telegraf,
   ) {}
 
+  public async editSubscriptionName(subscriptionId: string, name: string) {
+    try {
+      await this.prismaService.subscriptions.update({
+        where: {
+          id: subscriptionId,
+        },
+        data: {
+          name,
+        },
+      })
+      return {
+        success: true,
+        message: 'Subscription name is changed',
+      }
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при изменении имени подписки: ${error.message}`,
+        service: this.serviceName,
+      })
+      return {
+        success: false,
+        message: 'Error changing subscription name',
+      }
+    }
+  }
+
   /**
    * Активирует бесплатный план для пользователя
    * @param telegramId - Telegram ID пользователя
