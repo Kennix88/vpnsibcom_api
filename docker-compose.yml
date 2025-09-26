@@ -142,6 +142,7 @@ services:
       retries: 5
     tty: true
     stdin_open: true
+    command: postgres -c idle_in_transaction_session_timeout=0 -c statement_timeout=0
 
   redis:
     container_name: redis
@@ -154,7 +155,7 @@ services:
         echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
         echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
         echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
-        echo "timeout 0" >> /usr/local/etc/redis/redis.conf &&
+        echo "timeout 0" >> /usr/local/etc/redis/redis.conf && # Ensure timeout is 0
         echo "tcp-keepalive 60" >> /usr/local/etc/redis/redis.conf &&
         redis-server /usr/local/etc/redis/redis.conf
       '
