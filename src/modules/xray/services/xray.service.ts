@@ -60,8 +60,100 @@ export class XrayService {
     @InjectBot() private readonly bot: Telegraf,
   ) {}
 
-  public async editSubscriptionName(subscriptionId: string, name: string) {
+  public async updateServer(
+    subscriptionId: string,
+    server: string,
+    userId: string,
+  ) {
     try {
+      const sub = await this.prismaService.subscriptions.findUnique({
+        where: {
+          id: subscriptionId,
+          userId: userId,
+        },
+      })
+
+      if (!sub) {
+        this.logger.error({
+          msg: `Не сущействует такой подписки с таким пользователем!`,
+          service: this.serviceName,
+        })
+        return {
+          success: false,
+          message: 'Не сущействует такой подписки с таким пользователем!',
+        }
+      }
+
+      const getServer = await this.prismaService.greenList.findUnique({
+        where: {
+          code: server,
+        },
+      })
+
+      if (!getServer) {
+        this.logger.error({
+          msg: `Нужный сервер не найден!`,
+          service: this.serviceName,
+        })
+        return {
+          success: false,
+          message: 'Нужный сервер не найден',
+        }
+      }
+
+      await this.prismaService.$transaction(async (tx) => {
+        await tx.subscriptionToGreenList.deleteMany({
+          where: {
+            subscriptionId: subscriptionId,
+          },
+        })
+        await tx.subscriptionToGreenList.create({
+          data: {
+            subscriptionId: subscriptionId,
+            greenListId: getServer.green,
+          },
+        })
+      })
+
+      return {
+        success: true,
+      }
+    } catch (error) {
+      this.logger.error({
+        msg: `Ошибка при изменении сервера подписки: ${error.message}`,
+        service: this.serviceName,
+      })
+      return {
+        success: false,
+        message: 'Error changing subscription server',
+      }
+    }
+  }
+
+  public async editSubscriptionName(
+    subscriptionId: string,
+    name: string,
+    userId: string,
+  ) {
+    try {
+      const sub = await this.prismaService.subscriptions.findUnique({
+        where: {
+          id: subscriptionId,
+          userId: userId,
+        },
+      })
+
+      if (!sub) {
+        this.logger.error({
+          msg: `Не сущействует такой подписки с таким пользователем!`,
+          service: this.serviceName,
+        })
+        return {
+          success: false,
+          message: 'Не сущействует такой подписки с таким пользователем!',
+        }
+      }
+
       await this.prismaService.subscriptions.update({
         where: {
           id: subscriptionId,
