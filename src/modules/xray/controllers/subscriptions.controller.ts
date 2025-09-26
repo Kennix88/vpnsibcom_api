@@ -28,6 +28,7 @@ import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
 import { RenewSubscriptionDto } from '../types/renew-subscription.dto'
 import { ResetSubscriptionTokenDto } from '../types/reset-subscription-token.dto'
 import { ToggleAutoRenewalDto } from '../types/toggle-auto-renewal.dto'
+import { UpdateServerDto } from '../types/update-server.dto'
 
 interface SubscriptionResponse {
   data: {
@@ -369,6 +370,62 @@ export class SubscriptionsController {
     }
   }
 
+  @Post('update-server/:id')
+  @PreventDuplicateRequest(60)
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async updateServerSubscription(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Body() serverDto: UpdateServerDto,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    try {
+      const token = req.headers.authorization?.split(' ')[1]
+      if (!token) {
+        throw new BadRequestException('Токен авторизации отсутствует')
+      }
+      await this.authService.updateUserActivity(token)
+
+      const result = await this.xrayService.updateServer(
+        id,
+        serverDto.servers[0],
+        user.sub,
+      )
+
+      if (!result.success) {
+        this.logger.warn(
+          `Не удалось изменить сервер подписки для пользователя: ${user.telegramId}, ID подписки: ${id}, причина: ${result.message}`,
+        )
+        throw new BadRequestException(result.message)
+      }
+
+      const [subscriptions, userData] = await Promise.all([
+        this.xrayService.getSubscriptions(user.sub),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      return {
+        data: {
+          success: true,
+          message: 'Subscription server is changed',
+          subscriptions,
+          user: userData,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при изменении сервера подписки: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при изменении сервера подписки',
+      )
+    }
+  }
+
   @Post('edit-name/:id')
   @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
@@ -385,9 +442,18 @@ export class SubscriptionsController {
       this.logger.info(
         `Запрос на изменение имени подписки от пользователя: ${user.telegramId}, ID подписки: ${id}`,
       )
+
+      const token = req.headers.authorization?.split(' ')[1]
+      if (!token) {
+        throw new BadRequestException('Токен авторизации отсутствует')
+      }
+
+      await this.authService.updateUserActivity(token)
+
       const result = await this.xrayService.editSubscriptionName(
         id,
         editDto.name,
+        user.sub,
       )
       if (!result.success) {
         this.logger.warn(
