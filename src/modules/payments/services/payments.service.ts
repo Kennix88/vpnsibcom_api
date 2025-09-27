@@ -294,7 +294,7 @@ export class PaymentsService {
             payment.user.telegramData?.username || ''
           }/${payment.user.telegramData?.firstName || ''}/${
             payment.user.telegramData?.lastName || ''
-          }`,
+          }/${payment.user.telegramData?.languageCode || ''}`,
         }
 
         // Добавление пользователя в Marzban

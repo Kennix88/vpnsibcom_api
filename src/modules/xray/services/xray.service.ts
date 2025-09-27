@@ -1134,7 +1134,7 @@ export class XrayService {
           user.telegramData?.username || ''
         }/${user.telegramData?.firstName || ''}/${
           user.telegramData?.lastName || ''
-        }`,
+        }/${user.telegramData?.languageCode || ''}`,
       }
 
       // Добавление пользователя в Marzban
