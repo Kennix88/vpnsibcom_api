@@ -602,6 +602,7 @@ enum WithdrawalStatusEnum {
 model Payments {
  id                      String            @id @default(uuid())
  status                  PaymentStatusEnum @default(PENDING)
+ type                    PaymentTypeEnum   @default(ADD_PAYMENT_BALANCE)
  amount                  Float             @default(0)
  amountStars             Float             @default(0) @map("amount_stars")
  exchangeRate            Float             @default(0) @map("exchange_rate")
@@ -611,6 +612,7 @@ model Payments {
  token                   String            @unique
  linkPay                 String?           @map("link_pay")
  details                 Json?             @db.JsonB
+ data                    Json?             @db.JsonB
 
  createdAt DateTime @default(now()) @map("created_at")
  updatedAt DateTime @updatedAt @map("updated_at")
@@ -632,6 +634,13 @@ model Payments {
  @@index([currencyKey])
  @@index([methodKey])
  @@map("payments")
+}
+
+enum PaymentTypeEnum {
+ PAY_SUBSCRIPTION
+ UPDATE_SUBSCTIPTION
+ ADD_TRAFFIC_SUBSCRIPTION
+ ADD_PAYMENT_BALANCE
 }
 
 /// Перечисление статусов платежа

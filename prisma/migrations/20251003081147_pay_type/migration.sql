@@ -1,0 +1,6 @@
+-- CreateEnum
+CREATE TYPE "public"."PaymentTypeEnum" AS ENUM ('PAY_SUBSCRIPTION', 'UPDATE_SUBSCTIPTION', 'ADD_TRAFFIC_SUBSCRIPTION', 'ADD_PAYMENT_BALANCE');
+
+-- AlterTable
+ALTER TABLE "public"."payments" ADD COLUMN     "data" JSONB,
+ADD COLUMN     "type" "public"."PaymentTypeEnum" NOT NULL DEFAULT 'ADD_PAYMENT_BALANCE';
