@@ -557,6 +557,8 @@ export class UsersService {
 
       // Check if user has enough balance based on balance type
       if (
+        (balanceType === BalanceTypeEnum.TRAFFIC &&
+          user.balance.traffic < amount) ||
         (balanceType === BalanceTypeEnum.TICKETS &&
           user.balance.tickets < amount) ||
         (balanceType === BalanceTypeEnum.PAYMENT &&
@@ -576,6 +578,9 @@ export class UsersService {
               ? { tickets: { decrement: amount } }
               : balanceType == BalanceTypeEnum.PAYMENT
               ? { paymentBalance: { decrement: amount } }
+              : {}),
+            ...(balanceType == BalanceTypeEnum.TRAFFIC
+              ? { traffic: { decrement: amount } }
               : {}),
           },
         })
