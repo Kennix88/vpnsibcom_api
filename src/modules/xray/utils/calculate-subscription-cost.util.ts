@@ -35,8 +35,8 @@ interface SubscriptionCostParams {
   period: SubscriptionPeriodEnum
   periodMultiplier: number
   devicesCount: number
-  serversCount: number
-  premiumServersCount: number
+  serversCount?: number
+  premiumServersCount?: number
   trafficLimitGb: number | null
   isAllBaseServers: boolean
   isAllPremiumServers: boolean
@@ -44,6 +44,25 @@ interface SubscriptionCostParams {
   userDiscount: number
   plan: PlansInterface
   settings: SubscriptionCostSettings
+}
+
+export function calculateTrafficPrice(
+  trafficLimitGb: number | null,
+  isPremium: boolean,
+  isTgProgramPartner: boolean,
+  userDiscount: number,
+  settings: SubscriptionCostSettings,
+) {
+  if (trafficLimitGb == null || trafficLimitGb <= 0) {
+    throw new Error('The traffic must be greater than 0')
+  }
+  return roundingUpPrice(
+    trafficLimitGb *
+      roundingUpPrice(settings.trafficGbPriceStars / 30) *
+      (isPremium ? settings.telegramPremiumRatio : 1) *
+      (isTgProgramPartner ? settings.telegramPartnerProgramRatio : 1) *
+      userDiscount,
+  )
 }
 
 /**
