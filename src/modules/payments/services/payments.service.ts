@@ -33,6 +33,7 @@ import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
+import { PaymentTypeEnum } from '../types/payment-type.enum'
 import { TelegramPaymentsService } from './telegram-payments.service'
 
 @Injectable()
@@ -56,7 +57,9 @@ export class PaymentsService {
     amount: number,
     method: PaymentMethodEnum,
     tgId: string,
-    subscriptionId: string = null,
+    paymentType: PaymentTypeEnum,
+    data: object | null = null,
+    subscriptionId: string | null = null,
   ): Promise<{
     linkPay: string
     isTonPayment: boolean
@@ -162,6 +165,8 @@ export class PaymentsService {
         const createPayment = await tx.payments.create({
           data: {
             ...paymentObject,
+            type: paymentType,
+            data,
             linkPay,
             subscriptionId,
           },
@@ -254,7 +259,7 @@ export class PaymentsService {
 
       const isSubscription = payment.subscriptionId !== null
 
-      if (isSubscription) {
+      if (isSubscription && payment.type === PaymentTypeEnum.PAY_SUBSCRIPTION) {
         // Подготовка данных для Marzban
 
         const trafficReset = payment.subscription
@@ -449,6 +454,16 @@ export class PaymentsService {
           msg: `Подписка успешно создана для пользователя с Telegram ID: ${payment.user.telegramId}`,
           subscriptionId: subscription.id,
         })
+      }
+
+      if (
+        isSubscription &&
+        payment.type === PaymentTypeEnum.ADD_TRAFFIC_SUBSCRIPTION
+      ) {
+        const addTraffic = await this.xrayService.addTrafficToSubscription(
+          payment.subscriptionId,
+          Number((payment.data as { traffic: number })?.traffic),
+        )
       }
 
       // Обрабатываем успешный платеж в транзакции

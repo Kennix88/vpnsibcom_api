@@ -21,6 +21,7 @@ import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { Transform, Type } from 'class-transformer'
 import { IsBoolean, IsEnum, IsNumber, IsOptional } from 'class-validator'
 import { FastifyRequest } from 'fastify'
+import { PaymentTypeEnum } from './types/payment-type.enum'
 
 class CreateInvoiceDto {
   @IsNumber()
@@ -70,6 +71,7 @@ export class PaymentsController {
       body.amount,
       body.method,
       user.telegramId,
+      PaymentTypeEnum.ADD_PAYMENT_BALANCE,
     )
 
     const userData = await this.userService.getResUserByTgId(user.telegramId)
