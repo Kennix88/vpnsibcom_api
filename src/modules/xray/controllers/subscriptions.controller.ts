@@ -22,6 +22,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { PinoLogger } from 'nestjs-pino'
 import { UsersService } from '../../users/users.service'
 import { XrayService } from '../services/xray.service'
+import { AddTrafficSubscriptionDto } from '../types/add-traffic-subscription.dto'
 import { DeleteSubscriptionDto } from '../types/delete-subscription.dto'
 import { EditSubscriptionNameDto } from '../types/edit-subscription-name.dto'
 import { PurchaseSubscriptionDto } from '../types/purchase-subscription.dto'
@@ -366,6 +367,64 @@ export class SubscriptionsController {
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при покупке подписки',
+      )
+    }
+  }
+
+  @Post('add-traffic/:id')
+  @PreventDuplicateRequest(60)
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async addTrafficSubscription(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Body() addTrafficDto: AddTrafficSubscriptionDto,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    try {
+      const token = req.headers.authorization?.split(' ')[1]
+      if (!token) {
+        throw new BadRequestException('Токен авторизации отсутствует')
+      }
+      await this.authService.updateUserActivity(token)
+
+      const result = await this.xrayService.addTraffic(
+        id,
+        addTrafficDto.traffic,
+        addTrafficDto.method,
+        user.sub,
+      )
+
+      if (!result.success) {
+        this.logger.warn(
+          `Не удалось Добавить трафик для подписки пользователя: ${user.telegramId}, ID подписки: ${id}, причина: ${result.message}`,
+        )
+        throw new BadRequestException(result.message)
+      }
+
+      const [subscriptions, userData] = await Promise.all([
+        this.xrayService.getSubscriptions(user.sub),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      return {
+        data: {
+          success: true,
+          message: 'Traffic is added',
+          ...result,
+          subscriptions,
+          user: userData,
+        },
+      }
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при Добавлении трафика подписки: ${error.message}`,
+        error.stack,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при Добавлении трафика подписки',
       )
     }
   }
