@@ -194,6 +194,13 @@ export class XrayService {
         where: {
           id: subscriptionId,
         },
+        include: {
+          user: {
+            include: {
+              telegramData: true,
+            },
+          },
+        },
       })
 
       if (!sub) {
@@ -227,6 +234,10 @@ export class XrayService {
         }
       }
 
+      if (this.configService.getOrThrow<string>('NODE_ENV') === 'production') {
+        await this.marzbanService.restartCore()
+      }
+
       const updateSub = await this.prismaService.subscriptions.update({
         where: {
           id: subscriptionId,
@@ -257,6 +268,60 @@ export class XrayService {
           message: 'Error changing subscription traffic',
         }
       }
+
+      await this.bot.telegram
+        .sendMessage(
+          Number(process.env.TELEGRAM_LOG_CHAT_ID),
+          `<b>➕ ДОБАВЛЕН ТРАФИК НА ${traffic} GB</b>
+<b>Пользователь:</b> ${sub.user.telegramData?.username || ''} <code>${
+            sub.user.telegramData?.firstName || ''
+          } ${sub.user.telegramData?.lastName || ''}</code>
+<b>User ID:</b> <code>${updateSub.userId}</code>
+<b>Telegram ID:</b> <code>${sub.user.telegramId}</code>
+<b>Имя:</b> <code>${updateSub.name}</code>
+<b>Username :</b> <code>${updateSub.username}</code>
+<b>Тариф:</b> <code>${updateSub.planKey}</code>
+<b>Дата истечения:</b> <code>${updateSub.expiredAt}</code>
+<b>Автопродление:</b> <code>${updateSub.isAutoRenewal}</code>
+<b>Множитель периода:</b> <code>${updateSub.periodMultiplier}</code>
+<b>Цена следующей оплаты:</b> <code>${updateSub.nextRenewalStars}</code>
+<b>Премиум:</b> <code>${updateSub.isPremium}</code>
+<b>Устройства:</b> <code>${updateSub.devicesCount}</code> шт.
+<b>Все базовые сервера:</b> <code>${updateSub.isAllBaseServers}</code>
+<b>Все премиум сервера:</b> <code>${updateSub.isAllPremiumServers}</code>
+<b>Лимит трафика:</b> <code>${
+            updateSub.trafficLimitGb *
+            (updateSub.trafficReset == TrafficResetEnum.DAY
+              ? 1
+              : updateSub.trafficReset == TrafficResetEnum.WEEK
+              ? 7
+              : updateSub.trafficReset == TrafficResetEnum.MONTH
+              ? 30
+              : updateSub.trafficReset == TrafficResetEnum.YEAR
+              ? 365
+              : 1)
+          }</code> Гб
+<b>Сброс трафика:</b> <code>${updateSub.trafficReset}</code>
+<b>Безлимит:</b> <code>${updateSub.isUnlimitTraffic}</code>
+`,
+          {
+            parse_mode: 'HTML',
+            message_thread_id: Number(
+              process.env.TELEGRAM_THREAD_ID_SUBSCRIPTIONS,
+            ),
+          },
+        )
+        .catch((e) => {
+          this.logger.error({
+            msg: `Error while sending message to telegram`,
+            e,
+          })
+        })
+        .then(() => {
+          this.logger.info({
+            msg: `Message sent to telegram`,
+          })
+        })
 
       return {
         success: true,
@@ -1263,17 +1328,7 @@ export class XrayService {
           devicesCount,
           isAllBaseServers,
           isAllPremiumServers,
-          trafficLimitGb:
-            trafficLimitGb *
-            (trafficReset == TrafficResetEnum.DAY
-              ? 1
-              : trafficReset == TrafficResetEnum.WEEK
-              ? 7
-              : trafficReset == TrafficResetEnum.MONTH
-              ? 30
-              : trafficReset == TrafficResetEnum.YEAR
-              ? 365
-              : 1),
+          trafficLimitGb: trafficLimitGb,
           isUnlimitTraffic,
           trafficReset: trafficReset,
           userId: user.id,
@@ -1360,9 +1415,9 @@ export class XrayService {
         return false
       }
 
-      // TODO: Включить обратно рестарт ядра
-
-      // await this.marzbanService.restartCore()
+      if (this.configService.getOrThrow<string>('NODE_ENV') === 'production') {
+        await this.marzbanService.restartCore()
+      }
 
       // Расчет времени истечения подписки
       const hours = periodHours(period, periodMultiplier)
@@ -1389,17 +1444,7 @@ export class XrayService {
         devicesCount,
         isAllBaseServers,
         isAllPremiumServers,
-        trafficLimitGb:
-          trafficLimitGb *
-          (trafficReset == TrafficResetEnum.DAY
-            ? 1
-            : trafficReset == TrafficResetEnum.WEEK
-            ? 7
-            : trafficReset == TrafficResetEnum.MONTH
-            ? 30
-            : trafficReset == TrafficResetEnum.YEAR
-            ? 365
-            : 1),
+        trafficLimitGb: trafficLimitGb,
         isUnlimitTraffic,
         trafficReset: trafficReset,
         userId: user.id,
@@ -1983,13 +2028,15 @@ export class XrayService {
     }
   }
 
-  /**
-   * Продлевает существующую подписку пользователя
-   * @param telegramId - Telegram ID пользователя
-   * @param subscriptionId - ID подписки для продления
-   * @returns Результат операции продления
-   */
-  public async renewSubscription(telegramId: string, subscriptionId: string) {
+  public async renewSubscription(
+    telegramId: string,
+    subscriptionId: string,
+    method: PaymentMethodEnum | 'BALANCE',
+    isSavePeriod: boolean,
+    period: SubscriptionPeriodEnum,
+    periodMultiplier: number,
+    trafficReset: TrafficResetEnum,
+  ) {
     try {
       this.logger.info({
         msg: `Manual subscription renewal requested for user with Telegram ID: ${telegramId}, subscription ID: ${subscriptionId}`,
@@ -2007,11 +2054,10 @@ export class XrayService {
       }
 
       // Получаем подписку и проверяем, принадлежит ли она пользователю
-      const subscription = await this.prismaService.subscriptions.findFirst({
-        where: {
-          id: subscriptionId,
-          userId: user.id,
-        },
+      const subscription = await this.getSubscriptionByTokenOrId({
+        id: subscriptionId,
+        isToken: false,
+        agent: 'Root',
       })
 
       if (!subscription) {
@@ -2022,33 +2068,153 @@ export class XrayService {
         return { success: false, message: 'subscription_not_found' }
       }
 
+      const settings = await this.prismaService.settings.findUnique({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+
       // Расчет стоимости подписки
-      const cost = subscription.nextRenewalStars
+      const cost = calculateSubscriptionCost({
+        isPremium: user.telegramData.isPremium,
+        isTgProgramPartner: user.isTgProgramPartner,
+        period,
+        periodMultiplier,
+        devicesCount: subscription.subscription.devicesCount,
+        serversCount: subscription.subscription.baseServersCount,
+        premiumServersCount: subscription.subscription.premiumServersCount,
+        isAllBaseServers: subscription.subscription.isAllBaseServers,
+        isAllPremiumServers: subscription.subscription.isAllPremiumServers,
+        trafficLimitGb: subscription.subscription.trafficLimitGb,
+        isUnlimitTraffic: subscription.subscription.isUnlimitTraffic,
+        userDiscount: user.role.discount,
+        plan: subscription.subscription.plan,
+        settings,
+      })
 
-      // Проверка баланса пользователя с учетом возможности использования withdrawalBalance
-      const totalAvailableBalance = user.balance.paymentBalance
+      if (method === 'BALANCE') {
+        const updateBalance = await this.userService.deductUserBalance(
+          user.id,
+          cost,
+          TransactionReasonEnum.SUBSCRIPTIONS,
+          BalanceTypeEnum.PAYMENT,
+        )
 
-      if (totalAvailableBalance < cost) {
-        this.logger.warn({
-          msg: `Insufficient balance for subscription renewal. Required: ${cost}, available: ${totalAvailableBalance}`,
-          service: this.serviceName,
-        })
+        if (!updateBalance.success) {
+          this.logger.error({
+            msg: `Ошибка при изменении баланса пользователя: ${updateBalance}`,
+            service: this.serviceName,
+          })
+          return {
+            success: false,
+            message: 'Error changing user balance',
+          }
+        }
+
+        const updateSub = await this.renewSubFinaly(
+          user.id,
+          subscriptionId,
+          isSavePeriod,
+          period,
+          periodMultiplier,
+          trafficReset,
+        )
+
+        if (!updateSub) {
+          this.logger.error({
+            msg: `Ошибка при изменении трафика подписки: ${updateSub}`,
+            service: this.serviceName,
+          })
+          return {
+            success: false,
+            message: 'Error changing subscription traffic',
+          }
+        }
+
         return {
-          success: false,
-          message: 'insufficient_balance',
-          requiredAmount: cost,
-          currentBalance: totalAvailableBalance,
+          success: true,
         }
       }
 
-      // Расчет времени истечения подписки
-      const hours = periodHours(
-        subscription.period as SubscriptionPeriodEnum,
-        subscription.periodMultiplier,
+      const invoice = await this.paymentsService.createInvoice(
+        cost,
+        method,
+        user.telegramId,
+        PaymentTypeEnum.UPDATE_SUBSCTIPTION,
+        {
+          subscriptionId,
+          isSavePeriod,
+          period,
+          periodMultiplier,
+          trafficReset,
+        },
+        subscriptionId,
       )
+
+      return {
+        success: true,
+        invoice,
+      }
+    } catch (error) {
+      this.logger.error({
+        msg: `Error renewing subscription for user with Telegram ID: ${telegramId}`,
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        service: this.serviceName,
+      })
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'unknown_error',
+      }
+    }
+  }
+
+  public async renewSubFinaly(
+    userId: string,
+    subscriptionId: string,
+    isSavePeriod: boolean,
+    period: SubscriptionPeriodEnum,
+    periodMultiplier: number,
+    trafficReset: TrafficResetEnum,
+  ) {
+    try {
+      // Получаем пользователя
+      const user = await this.prismaService.users.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          telegramData: true,
+        },
+      })
+      if (!user) {
+        this.logger.warn({
+          msg: `User with ID ${userId} not found`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'user_not_found' }
+      }
+
+      // Получаем подписку и проверяем, принадлежит ли она пользователю
+      const subscription = await this.prismaService.subscriptions.findUnique({
+        where: {
+          id: subscriptionId,
+        },
+      })
+
+      if (!subscription) {
+        this.logger.warn({
+          msg: `Subscription with ID ${subscriptionId} not found or does not belong to user with ID ${userId}`,
+          service: this.serviceName,
+        })
+        return { success: false, message: 'subscription_not_found' }
+      }
+
+      // Расчет времени истечения подписки
+      const hours = periodHours(period, periodMultiplier)
       if (hours <= 0) {
         this.logger.error({
-          msg: `Invalid subscription period: ${subscription.period}`,
+          msg: `Invalid subscription period: ${period}`,
           service: this.serviceName,
         })
         return { success: false, message: 'invalid_period' }
@@ -2064,82 +2230,141 @@ export class XrayService {
           : addHours(now, hours)
 
       // Продление подписки и списание средств в транзакции
-      const updatedSubscription = await this.prismaService.$transaction(
-        async (tx) => {
-          const deductResult = await this.userService.deductUserBalance(
-            user.id,
-            cost,
-            TransactionReasonEnum.SUBSCRIPTIONS,
-            BalanceTypeEnum.PAYMENT,
-          )
 
-          if (!deductResult.success) {
-            this.logger.warn({
-              msg: `Insufficient funds for subscription purchase`,
-              userId: user.id,
-              cost,
-              service: this.serviceName,
-            })
-            return { success: false, message: 'insufficient_balance' }
-          }
-
-          this.logger.info({
-            msg: `Successfully deducted funds for subscription`,
-            userId: user.id,
-            service: this.serviceName,
-          })
-
-          const marzbanUser = await this.marzbanService.modifyUser(
-            subscription.username,
-            {
-              status: 'active',
-            },
-          )
-
-          // TODO: Включить обратно рестарт ядра
-
-          // await this.marzbanService.restartCore()
-
-          if (!marzbanUser) {
-            this.logger.error({
-              msg: `Failed to activate user ${subscription.username} in Marzban`,
-              service: this.serviceName,
-            })
-
-            return { success: false, message: 'marzban_error' }
-          }
-
-          this.logger.info({
-            msg: `User ${subscription.username} successfully activated in Marzban`,
-            service: this.serviceName,
-          })
-
-          // Обновление даты истечения подписки
-          return await tx.subscriptions.update({
-            where: {
-              id: subscription.id,
-            },
-            data: {
-              period:
-                subscription.period == SubscriptionPeriodEnum.TRIAL
-                  ? SubscriptionPeriodEnum.MONTH
-                  : (subscription.period as SubscriptionPeriodEnum),
-              expiredAt: newExpiredAt,
-              isActive: true, // Активируем подписку, если она была неактивна
-            },
-          })
+      const marzbanUser = await this.marzbanService.modifyUser(
+        subscription.username,
+        {
+          status: 'active',
+          ...(!subscription.isUnlimitTraffic && {
+            data_limit_reset_strategy:
+              trafficReset.toLowerCase() || TrafficResetEnum.DAY.toLowerCase(),
+            data_limit:
+              subscription.trafficLimitGb *
+              1024 *
+              1024 *
+              1024 *
+              (trafficReset == TrafficResetEnum.DAY
+                ? 1
+                : trafficReset == TrafficResetEnum.WEEK
+                ? 7
+                : trafficReset == TrafficResetEnum.MONTH
+                ? 30
+                : trafficReset == TrafficResetEnum.YEAR
+                ? 365
+                : 1),
+          }),
         },
       )
 
+      if (this.configService.getOrThrow<string>('NODE_ENV') === 'production') {
+        await this.marzbanService.restartCore()
+      }
+
+      if (!marzbanUser) {
+        this.logger.error({
+          msg: `Failed to activate user ${subscription.username} in Marzban`,
+          service: this.serviceName,
+        })
+
+        return { success: false, message: 'marzban_error' }
+      }
+
       this.logger.info({
-        msg: `Subscription successfully renewed by user with Telegram ID: ${telegramId}`,
+        msg: `User ${subscription.username} successfully activated in Marzban`,
         service: this.serviceName,
       })
+
+      // Обновление даты истечения подписки
+      const updatedSubscription = await this.prismaService.subscriptions.update(
+        {
+          where: {
+            id: subscription.id,
+          },
+          data: {
+            period: isSavePeriod
+              ? period
+              : (subscription.period as SubscriptionPeriodEnum),
+            periodMultiplier: isSavePeriod
+              ? periodMultiplier
+              : subscription.periodMultiplier,
+            expiredAt: newExpiredAt,
+            trafficReset: trafficReset,
+            isActive: true,
+          },
+        },
+      )
+
+      if (!updatedSubscription) {
+        return { success: false, message: 'marzban_error' }
+      }
+
+      this.logger.info({
+        msg: `Subscription successfully renewed by user with Telegram ID: ${user.telegramId}`,
+        service: this.serviceName,
+      })
+
+      await this.bot.telegram
+        .sendMessage(
+          Number(process.env.TELEGRAM_LOG_CHAT_ID),
+          `<b>🍥 ПРОДЛЕНИЕ ПОДПИСКИ</b>
+<b>Пользователь:</b> ${user.telegramData?.username || ''} <code>${
+            user.telegramData?.firstName || ''
+          } ${user.telegramData?.lastName || ''}</code>
+<b>User ID:</b> <code>${updatedSubscription.userId}</code>
+<b>Telegram ID:</b> <code>${user.telegramId}</code>
+<b>Имя:</b> <code>${updatedSubscription.name}</code>
+<b>Username :</b> <code>${updatedSubscription.username}</code>
+<b>Тариф:</b> <code>${updatedSubscription.planKey}</code>
+<b>Дата истечения:</b> <code>${updatedSubscription.expiredAt}</code>
+<b>Автопродление:</b> <code>${updatedSubscription.isAutoRenewal}</code>
+<b>Множитель периода:</b> <code>${updatedSubscription.periodMultiplier}</code>
+<b>Цена следующей оплаты:</b> <code>${
+            updatedSubscription.nextRenewalStars
+          }</code>
+<b>Премиум:</b> <code>${updatedSubscription.isPremium}</code>
+<b>Устройства:</b> <code>${updatedSubscription.devicesCount}</code> шт.
+<b>Все базовые сервера:</b> <code>${updatedSubscription.isAllBaseServers}</code>
+<b>Все премиум сервера:</b> <code>${
+            updatedSubscription.isAllPremiumServers
+          }</code>
+<b>Лимит трафика:</b> <code>${
+            updatedSubscription.trafficLimitGb *
+            (trafficReset == TrafficResetEnum.DAY
+              ? 1
+              : trafficReset == TrafficResetEnum.WEEK
+              ? 7
+              : trafficReset == TrafficResetEnum.MONTH
+              ? 30
+              : trafficReset == TrafficResetEnum.YEAR
+              ? 365
+              : 1)
+          }</code> Гб
+<b>Сброс трафика:</b> <code>${updatedSubscription.trafficReset}</code>
+<b>Безлимит:</b> <code>${updatedSubscription.isUnlimitTraffic}</code>
+`,
+          {
+            parse_mode: 'HTML',
+            message_thread_id: Number(
+              process.env.TELEGRAM_THREAD_ID_SUBSCRIPTIONS,
+            ),
+          },
+        )
+        .catch((e) => {
+          this.logger.error({
+            msg: `Error while sending message to telegram`,
+            e,
+          })
+        })
+        .then(() => {
+          this.logger.info({
+            msg: `Message sent to telegram`,
+          })
+        })
 
       return { success: true, subscription: updatedSubscription }
     } catch (error) {
       this.logger.error({
-        msg: `Error renewing subscription for user with Telegram ID: ${telegramId}`,
+        msg: `Error renewing subscription for user with User ID: ${userId}`,
         error,
         stack: error instanceof Error ? error.stack : undefined,
         service: this.serviceName,
