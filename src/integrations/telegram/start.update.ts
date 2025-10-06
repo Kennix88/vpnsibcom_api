@@ -87,7 +87,9 @@ export class StartUpdate {
 Приложение где можно использовать VPN и играть в игры.
 
 Разработано @KennixDev
-При поддежке @solycmty`,
+При поддежке @solycmty
+
+Купить Telegram STARS ⭐️ без KYC, с выгодой до 40% можно на платформе —> <a href="https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ">@split</a>`,
           parse_mode: 'HTML',
           reply_markup: {
             remove_keyboard: true,
@@ -116,6 +118,12 @@ export class StartUpdate {
                 Markup.button.url(
                   'KennixDev',
                   this.configService.get<string>('KENNIXDEV_URL'),
+                ),
+              ],
+              [
+                Markup.button.url(
+                  'Купить STARS ⭐️',
+                  'https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
                 ),
               ],
             ],
