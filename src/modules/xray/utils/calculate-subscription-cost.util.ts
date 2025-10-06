@@ -286,3 +286,38 @@ export function calculatePriceByPeriod(
       throw new Error(`Некорректный период`)
   }
 }
+
+export function calculateDaysByPeriod(
+  period: SubscriptionPeriodEnum,
+  periodMultiplier: number,
+): number | null {
+  const baseDays = 30
+  switch (period) {
+    case SubscriptionPeriodEnum.HOUR:
+      return (baseDays / 30 / 24) * periodMultiplier
+    case SubscriptionPeriodEnum.DAY:
+      return (baseDays / 30) * periodMultiplier
+    case SubscriptionPeriodEnum.WEEK:
+      return (baseDays / 4) * periodMultiplier
+    case SubscriptionPeriodEnum.MONTH:
+      return baseDays * periodMultiplier
+    case SubscriptionPeriodEnum.THREE_MONTH:
+      return baseDays * 3 * periodMultiplier
+    case SubscriptionPeriodEnum.SIX_MONTH:
+      return baseDays * 6 * periodMultiplier
+    case SubscriptionPeriodEnum.YEAR:
+      return baseDays * 12 * periodMultiplier
+    case SubscriptionPeriodEnum.TWO_YEAR:
+      return baseDays * 24 * periodMultiplier
+    case SubscriptionPeriodEnum.THREE_YEAR:
+      return baseDays * 36 * periodMultiplier
+    case SubscriptionPeriodEnum.INDEFINITELY:
+      return 9999
+    case SubscriptionPeriodEnum.TRIAL:
+      return null
+    case SubscriptionPeriodEnum.TRAFFIC:
+      return null
+    default:
+      return null
+  }
+}
