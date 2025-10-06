@@ -627,20 +627,21 @@ export class SubscriptionsController {
     }
   }
 
-  @Post('renew')
+  @Post('renew/:id')
   @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async renewSubscription(
     @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
     @Body() renewDto: RenewSubscriptionDto,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<SubscriptionResponse> {
     try {
       this.logger.info(
-        `Запрос на продление подписки от пользователя: ${user.telegramId}, ID подписки: ${renewDto.subscriptionId}`,
+        `Запрос на продление подписки от пользователя: ${user.telegramId}, ID подписки: ${id}`,
       )
 
       const token = req.headers.authorization?.split(' ')[1]
@@ -652,40 +653,19 @@ export class SubscriptionsController {
 
       const result = await this.xrayService.renewSubscription(
         user.telegramId,
-        renewDto.subscriptionId,
+        id,
+        renewDto.method,
+        renewDto.isSavePeriod,
+        renewDto.period,
+        renewDto.periodMultiplier,
+        renewDto.trafficReset,
       )
 
       if (!result.success) {
         this.logger.warn(
-          `Не удалось продлить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
+          `Не удалось продлить подписку пользователя: ${user.telegramId}, ID подписки: ${id}, причина: ${result.message}`,
         )
-
-        let statusCode = HttpStatus.BAD_REQUEST
-        let message = 'Не удалось продлить подписку'
-
-        // Обработка различных причин неудачи
-        if (result.message === 'insufficient_balance') {
-          message = 'Недостаточно средств на балансе'
-          statusCode = HttpStatus.PAYMENT_REQUIRED
-        } else if (result.message === 'subscription_not_found') {
-          message = 'Подписка не найдена или не принадлежит пользователю'
-          statusCode = HttpStatus.NOT_FOUND
-        } else if (result.message === 'user_not_found') {
-          message = 'Пользователь не найден'
-          statusCode = HttpStatus.NOT_FOUND
-        } else if (result.message === 'invalid_period') {
-          message = 'Некорректный период подписки'
-          statusCode = HttpStatus.BAD_REQUEST
-        }
-
-        res.status(statusCode)
-        return {
-          data: {
-            success: false,
-            message,
-            ...result,
-          },
-        }
+        throw new BadRequestException(result.message)
       }
 
       const [subscriptions, userData] = await Promise.all([
@@ -693,14 +673,11 @@ export class SubscriptionsController {
         this.userService.getResUserByTgId(user.telegramId),
       ])
 
-      this.logger.info(
-        `Подписка успешно продлена пользователем: ${user.telegramId}`,
-      )
-
       return {
         data: {
           success: true,
-          message: 'Подписка успешно продлена',
+          message: 'Subscription is renewed',
+          ...result,
           subscriptions,
           user: userData,
         },
