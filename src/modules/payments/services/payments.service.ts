@@ -466,6 +466,26 @@ export class PaymentsService {
         )
       }
 
+      if (
+        isSubscription &&
+        payment.type === PaymentTypeEnum.UPDATE_SUBSCTIPTION
+      ) {
+        const data = payment.data as {
+          isSavePeriod: boolean
+          period: SubscriptionPeriodEnum
+          periodMultiplier: number
+          trafficReset: TrafficResetEnum
+        }
+        const updateSub = await this.xrayService.renewSubFinaly(
+          payment.userId,
+          payment.subscriptionId,
+          data.isSavePeriod,
+          data.period,
+          data.periodMultiplier,
+          data.trafficReset,
+        )
+      }
+
       // Обрабатываем успешный платеж в транзакции
       const result = await this.processCompletedPayment(
         payment,
