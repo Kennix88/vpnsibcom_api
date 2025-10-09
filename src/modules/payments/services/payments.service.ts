@@ -4,10 +4,9 @@ import { RatesService } from '@modules/rates/rates.service'
 import { UsersService } from '@modules/users/users.service'
 import { MarzbanService } from '@modules/xray/services/marzban.service'
 import { XrayService } from '@modules/xray/services/xray.service'
-import { UserCreate } from '@modules/xray/types/marzban.types'
 
+import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { roundUp } from '@modules/xray/utils/calculate-subscription-cost.util'
-import { periodHours } from '@modules/xray/utils/period-hours.util'
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma, PrismaClient } from '@prisma/client'
@@ -27,7 +26,7 @@ import { BalanceTypeEnum } from '@vpnsibcom/src/shared/enums/balance-type.enum'
 import { DefaultEnum } from '@vpnsibcom/src/shared/enums/default.enum'
 import { TransactionReasonEnum } from '@vpnsibcom/src/shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@vpnsibcom/src/shared/enums/transaction-type.enum'
-import { addDays, addHours } from 'date-fns'
+import { addDays } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
@@ -259,200 +258,41 @@ export class PaymentsService {
 
       const isSubscription = payment.subscriptionId !== null
 
-      if (isSubscription && payment.type === PaymentTypeEnum.PAY_SUBSCRIPTION) {
-        // Подготовка данных для Marzban
-
-        const trafficReset = payment.subscription
-          .trafficReset as TrafficResetEnum
-        const marbanDataStart: UserCreate = {
-          username: payment.subscription.username,
-          proxies: {
-            vless: {
-              flow: 'xtls-rprx-vision',
-            },
-          },
-          inbounds: {
-            vless: ['VLESS'],
-          },
-          status: 'active',
-          ...(!payment.subscription.isUnlimitTraffic &&
-            trafficReset !== TrafficResetEnum.NO_RESET && {
-              data_limit_reset_strategy:
-                trafficReset.toLowerCase() ||
-                TrafficResetEnum.DAY.toLowerCase(),
-              data_limit:
-                payment.subscription.trafficLimitGb *
-                1024 *
-                1024 *
-                1024 *
-                (trafficReset == TrafficResetEnum.DAY
-                  ? 1
-                  : trafficReset == TrafficResetEnum.WEEK
-                  ? 7
-                  : trafficReset == TrafficResetEnum.MONTH
-                  ? 30
-                  : trafficReset == TrafficResetEnum.YEAR
-                  ? 365
-                  : 0),
-            }),
-          note: `${payment.user.id}/${payment.user.telegramId}/${
-            payment.user.telegramData?.username || ''
-          }/${payment.user.telegramData?.firstName || ''}/${
-            payment.user.telegramData?.lastName || ''
-          }/${payment.user.telegramData?.languageCode || ''}`,
+      if (payment.type === PaymentTypeEnum.PAY_SUBSCRIPTION) {
+        const data = payment.data as {
+          telegramId: string
+          name: string
+          planKey: PlansEnum
+          period: SubscriptionPeriodEnum
+          periodMultiplier: number
+          isPremium: boolean
+          trafficReset: TrafficResetEnum
+          nextRenewalStars?: number
+          devicesCount: number
+          isAllBaseServers: boolean
+          isAllPremiumServers: boolean
+          trafficLimitGb?: number
+          isUnlimitTraffic: boolean
+          servers: string[]
+          isAutoRenewal?: boolean
         }
 
-        // Добавление пользователя в Marzban
-        const marzbanData = await this.marzbanService.addUser(marbanDataStart)
-        if (!marzbanData) {
-          this.logger.error({
-            msg: `Не удалось добавить пользователя в Marzban для Telegram ID: ${payment.user.telegramId}`,
-          })
-          return
-        }
-
-        await this.marzbanService.restartCore()
-
-        const settings = await this.prismaService.settings.findUnique({
-          where: {
-            key: DefaultEnum.DEFAULT,
-          },
-        })
-
-        // Расчет времени истечения подписки
-        const hours = periodHours(
-          payment.subscription.period as SubscriptionPeriodEnum,
-          payment.subscription.periodMultiplier,
-        )
-        if (
-          payment.subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
-          hours <= 0
-        ) {
-          this.logger.error({
-            msg: `Некорректный период подписки: ${payment.subscription.period}`,
-          })
-          return
-        }
-
-        const isIndefinitely =
-          payment.subscription.period === SubscriptionPeriodEnum.INDEFINITELY
-
-        const subscription = await this.prismaService.subscriptions.update({
-          where: {
-            id: payment.subscriptionId,
-          },
-          data: {
-            isActive: true,
-            isInvoicing: false,
-            isCreated: true,
-            links: marzbanData.links,
-            dataLimit: marzbanData.data_limit / 1024 / 1024,
-            usedTraffic: marzbanData.used_traffic / 1024 / 1024,
-            lifeTimeUsedTraffic: marzbanData.used_traffic / 1024 / 1024,
-            expiredAt: isIndefinitely ? null : addHours(new Date(), hours),
-            marzbanData: JSON.parse(JSON.stringify(marzbanData)),
-          },
-        })
-
-        if (!subscription) {
-          this.logger.error({
-            msg: `Не удалось создать подписку в базе данных для пользователя с Telegram ID: ${payment.user.telegramId}`,
-          })
-          return
-        }
-
-        try {
-          if (subscription.isActive && !subscription.isInvoicing) {
-            const user = await this.prismaService.users.findUnique({
-              where: {
-                id: subscription.userId,
-              },
-              include: {
-                balance: true,
-                subscriptions: true,
-                referrals: true,
-                inviters: {
-                  include: {
-                    inviter: {
-                      include: {
-                        balance: true,
-                      },
-                    },
-                  },
-                },
-                telegramData: true,
-                currency: true,
-                language: true,
-                role: true,
-              },
-            })
-            await this.bot.telegram
-              .sendMessage(
-                Number(process.env.TELEGRAM_LOG_CHAT_ID),
-                `<b>👍 НОВАЯ ПОДПИСКА СОЗДАНА</b>
-<b>Пользователь:</b> ${user.telegramData?.username || ''} <code>${
-                  user.telegramData?.firstName || ''
-                } ${user.telegramData?.lastName || ''}</code>
-<b>User ID:</b> <code>${subscription.userId}</code>
-<b>Telegram ID:</b> <code>${user.telegramId}</code>
-<b>Имя:</b> <code>${subscription.name}</code>
-<b>Username :</b> <code>${subscription.username}</code>
-<b>Тариф:</b> <code>${subscription.planKey}</code>
-<b>Дата истечения:</b> <code>${subscription.expiredAt}</code>
-<b>Автопродление:</b> <code>${subscription.isAutoRenewal}</code>
-<b>Множитель периода:</b> <code>${subscription.periodMultiplier}</code>
-<b>Цена следующей оплаты:</b> <code>${subscription.nextRenewalStars}</code>
-<b>Премиум:</b> <code>${subscription.isPremium}</code>
-<b>Устройства:</b> <code>${subscription.devicesCount}</code>
-<b>Все базовые сервера:</b> <code>${subscription.isAllBaseServers}</code>
-<b>Все премиум сервера:</b> <code>${subscription.isAllPremiumServers}</code>
-<b>Лимит трафика:</b> <code>${
-                  subscription.trafficLimitGb *
-                  (trafficReset == TrafficResetEnum.DAY
-                    ? 1
-                    : trafficReset == TrafficResetEnum.WEEK
-                    ? 7
-                    : trafficReset == TrafficResetEnum.MONTH
-                    ? 30
-                    : trafficReset == TrafficResetEnum.YEAR
-                    ? 365
-                    : 1)
-                }</code>
-<b>Сброс трафика:</b> <code>${subscription.trafficReset}</code>
-<b>Безлимит:</b> <code>${subscription.isUnlimitTraffic}</code>
-`,
-                {
-                  parse_mode: 'HTML',
-                  message_thread_id: Number(
-                    process.env.TELEGRAM_THREAD_ID_SUBSCRIPTIONS,
-                  ),
-                },
-              )
-              .catch((e) => {
-                this.logger.error({
-                  msg: `Error while sending message to telegram`,
-                  e,
-                })
-              })
-              .then(() => {
-                this.logger.info({
-                  msg: `Message sent to telegram`,
-                })
-              })
-          }
-        } catch (e) {
-          this.logger.error({
-            msg: `Error while sending message to telegram`,
-            e,
-          })
-        }
-
-        // Обработка реферальной системы
-        await this.xrayService.processReferrals(payment.user)
-
-        this.logger.info({
-          msg: `Подписка успешно создана для пользователя с Telegram ID: ${payment.user.telegramId}`,
-          subscriptionId: subscription.id,
+        await this.xrayService.createSubscription({
+          isPremium: data.isPremium,
+          name: data.name,
+          planKey: data.planKey as PlansEnum,
+          period: data.period,
+          periodMultiplier: data.periodMultiplier,
+          nextRenewalStars: data.nextRenewalStars,
+          devicesCount: data.devicesCount,
+          isAllBaseServers: data.isAllBaseServers,
+          isAllPremiumServers: data.isAllPremiumServers,
+          trafficReset: data.trafficReset,
+          trafficLimitGb: data.trafficLimitGb,
+          isUnlimitTraffic: data.isUnlimitTraffic,
+          servers: data.servers,
+          isAutoRenewal: data.isAutoRenewal,
+          telegramId: data.telegramId,
         })
       }
 
