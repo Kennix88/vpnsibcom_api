@@ -300,62 +300,25 @@ export class SubscriptionsController {
         trafficLimitGb: purchaseDto.trafficLimitGb,
         isUnlimitTraffic: purchaseDto.isUnlimitTraffic,
         servers: purchaseDto.servers,
-        isInvoice: purchaseDto.method !== 'BALANCE',
         isAutoRenewal: purchaseDto.isAutoRenewal,
       })
 
-      if (!result.success || !result.subscription) {
+      if (!result.success) {
         this.logger.warn(
-          `Не удалось купить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
+          `Не удалось создать подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
-
-        let statusCode = HttpStatus.BAD_REQUEST
-        let message = 'Не удалось купить подписку'
-
-        // Обработка различных причин неудачи
-        if (result.message === 'insufficient_balance') {
-          message = 'Недостаточно средств на балансе'
-          statusCode = HttpStatus.PAYMENT_REQUIRED
-        } else if (result.message === 'subscription_limit_exceeded') {
-          message = 'Превышен лимит подписок'
-          statusCode = HttpStatus.FORBIDDEN
-        } else if (result.message === 'user_not_found') {
-          message = 'Пользователь не найден'
-          statusCode = HttpStatus.NOT_FOUND
-        }
-
-        res.status(statusCode)
-        return {
-          data: {
-            success: false,
-            message,
-            ...result,
-          },
-        }
+        throw new BadRequestException(result.message)
       }
-
-      if (result.invoice)
-        return {
-          data: {
-            success: true,
-            message: 'Creatin invoice!',
-            invoice: result.invoice,
-          },
-        }
 
       const [subscriptions, userData] = await Promise.all([
         this.xrayService.getSubscriptions(user.sub),
         this.userService.getResUserByTgId(user.telegramId),
       ])
 
-      this.logger.info(
-        `Подписка успешно куплена пользователем: ${user.telegramId}`,
-      )
-
       return {
         data: {
           success: true,
-          message: 'Subscription is paid',
+          ...result,
           subscriptions,
           user: userData,
         },
