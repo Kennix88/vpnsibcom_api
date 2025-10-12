@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 Hisobni {amount} STARS ga to'ldirish",
+    "description": "⭐ Hisobingizga {amount} STARS qo'shish"
+  },
+  "payment_success": "✅ Muvaffaqiyat! {amount} STARS miqdoridagi to'lovingiz muvaffaqiyatli amalga oshirildi!",
+  "payment_failed": "❌ To'lov amalga oshmadi! To'lovni qayta ishlashda xatolik yuz berdi. 🔄 Iltimos, qayta urinib ko'ring yoki bizning yordam xizmatimizga murojaat qiling.",
+  "payment_expired": "⏱️ {amount} miqdoridagi to'lovingiz muddati tugadi. 🔄 Agar xaridni davom ettirmoqchi bo'lsangiz, iltimos, yangi to'lov yarating.",
+  "referral": {
+    "reward_title": "🎁 Tabriklaymiz! Siz referal mukofotini qo'lga kiritdingiz!",
+    "hold_reward": "💰 {amount} STARS {days} kundan so'ng mavjud bo'ladi (mablag'lar vaqtincha muzlatilgan)",
+    "available_reward": "✅ {amount} STARS allaqachon hisobingizda mavjud va foydalanishga tayyor!",
+    "referral_label": "👤 Referal",
+    "level_label": "🔝 Daraja"
+  },
+  "hold": {
+    "released": "🎉 Ajoyib yangilik! Muzlatilgan mablag'lardan {amount} STARS endi yechib olish uchun mavjud 💸"
+  }
+}
