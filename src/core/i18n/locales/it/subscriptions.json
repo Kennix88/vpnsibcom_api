@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ Abbonamento acquistato con successo! Goditi l'accesso premium.",
+    "failed": "❌ Impossibile acquistare l'abbonamento. Riprova o contatta l'assistenza.",
+    "insufficient_balance": "⚠️ Saldo insufficiente per completare l'acquisto. Ricarica il tuo account.",
+    "subscription_limit_exceeded": "🛑 Limite di abbonamenti superato. Hai raggiunto il numero massimo di abbonamenti attivi.",
+    "user_not_found": "❓ Utente non trovato. Assicurati di aver effettuato l'accesso correttamente."
+  },
+  "free_plan": {
+    "activated": "🎁 Piano gratuito attivato con successo! Goditi l'accesso gratuito.",
+    "failed": "❌ Impossibile attivare il piano gratuito. Riprova più tardi.",
+    "not_available": "⛔ Il piano gratuito non è attualmente disponibile. Controlla più tardi."
+  },
+  "auto_renewal": {
+    "enabled": "🔄 Rinnovo automatico attivato. Il tuo abbonamento si rinnoverà automaticamente.",
+    "disabled": "⏹️ Rinnovo automatico disattivato. Ricordati di rinnovare manualmente prima della scadenza.",
+    "success": "✅ Abbonamento rinnovato con successo! Il tuo accesso continua senza interruzioni.",
+    "failed": "❌ Impossibile rinnovare l'abbonamento. Controlla il tuo metodo di pagamento.",
+    "insufficient_balance": "⚠️ Saldo insufficiente per il rinnovo automatico dell'abbonamento. Ricarica il tuo account."
+  },
+  "expiration": {
+    "notification": "⏰ Il tuo abbonamento scadrà tra {days} giorni. Ricordati di rinnovare!",
+    "expired": "⌛ Il tuo abbonamento è scaduto. Rinnova ora per continuare a utilizzare i nostri servizi!"
+  }
+}

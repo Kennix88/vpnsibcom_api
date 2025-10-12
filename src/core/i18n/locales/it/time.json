@@ -1,0 +1,8 @@
+{
+  "days": {
+    "one": "giorno",
+    "few": "giorni",
+    "many": "giorni",
+    "other": "giorni"
+  }
+}

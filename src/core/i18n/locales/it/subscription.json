@@ -1,0 +1,29 @@
+{
+  "status": {
+    "active": "✅ Attivo",
+    "expired": "⌛ Scaduto",
+    "pending": "⏳ In attesa",
+    "cancelled": "❌ Annullato"
+  },
+  "actions": {
+    "activate": "🚀 Attivare",
+    "renew": "🔄 Rinnovare",
+    "cancel": "⛔ Annullare",
+    "upgrade": "⬆️ Migliorare",
+    "downgrade": "⬇️ Ridurre"
+  },
+  "info": {
+    "plan": "📋 Piano: {plan}",
+    "price": "💰 Prezzo: {price}",
+    "start_date": "🗓️ Data di inizio: {date}",
+    "end_date": "🔚 Data di fine: {date}",
+    "auto_renewal": "🔄 Rinnovo automatico: {status}",
+    "payment_method": "💳 Metodo di pagamento: {method}"
+  },
+  "errors": {
+    "not_found": "❓ Abbonamento non trovato",
+    "already_active": "⚠️ Hai già un abbonamento attivo",
+    "payment_failed": "❌ Errore di pagamento",
+    "insufficient_funds": "⚠️ Fondi insufficienti"
+  }
+}
