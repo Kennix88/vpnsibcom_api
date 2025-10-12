@@ -1,0 +1,21 @@
+{
+  "start": {
+    "welcome": "Halo! Selamat datang di VPNsib, aplikasi tempat Anda dapat menggunakan VPN dan bermain game. Apa yang bisa saya bantu?"
+  },
+  "TOO_MANY_REQUESTS": "Terlalu banyak permintaan, silakan coba lagi dalam {0} detik 🚦",
+  "telegram": {
+    "welcome": {
+      "greeting": "Halo, {name}!",
+      "message1": "Selamat datang di VPNsib!",
+      "message2": "Aplikasi tempat Anda dapat menggunakan VPN dan bermain game. Kami di sini untuk memberi Anda koneksi internet yang aman dan cepat.",
+      "developedBy": "Dikembangkan oleh @KennixDev",
+      "supportedBy": "Didukung oleh @solycmty",
+      "buyStars": "Beli Telegram STARS ⭐️ tanpa KYC, dengan keuntungan hingga 40% di platform —> <a href=\"https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ\">@split</a>"
+    },
+    "button": {
+      "channel": "Saluran",
+      "chatSupport": "Chat&Dukungan",
+      "buyStars": "Beli STARS ⭐️"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "created": "🎉 Selamat! Langganan Anda berhasil dibuat!\n\n📆 Periode: {period}\n⏱ Berlaku hingga: {expiredAt}\n\n🔗 Tautan langganan: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 jam",
+    "day": "📅 1 hari",
+    "month": "📆 1 bulan",
+    "three_month": "📆 3 bulan",
+    "six_month": "📆 6 bulan",
+    "year": "🗓️ 1 tahun",
+    "two_year": "🗓️ 2 tahun",
+    "three_year": "🗓️ 3 tahun",
+    "trial": "🔍 Periode uji coba",
+    "trial_with_days": "🔍 Periode uji coba ({days} {daysText})"
+  },
+  "renewed": "🔄 Langganan Anda berhasil diperpanjang untuk periode: {period}. ⏱️ Tanggal berakhir baru: {expiredAt}. Nikmati akses berkelanjutan!",
+  "renewed_user": "✅ Langganan Anda berhasil diperpanjang!\n\nPeriode: {period}\nBiaya: {cost} STARS\nBerlaku hingga: {expiredAt}\n\nTautan koneksi Anda: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ Tidak dapat memperpanjang langganan Anda secara otomatis untuk periode {period}. Saldo tidak mencukupi. Dibutuhkan: {requiredAmount} STARS, saldo saat ini: {currentBalance} STARS. Silakan isi saldo Anda untuk memperpanjang langganan.",
+  "deactivated": "⏹️ Langganan Anda {name} dinonaktifkan karena kedaluwarsa. Untuk melanjutkan penggunaan, silakan perpanjang langganan Anda.",
+  "expiration_reminder": "⏰ Pengingat! Langganan Anda \"{name}\" akan berakhir dalam {days} {daysText}. Tanggal berakhir: {expiredAt}.",
+  "deleted": "🗑️ Langganan Anda \"{name}\" berhasil dihapus. Terima kasih telah menggunakan layanan kami! Kami harap dapat melihat Anda lagi.",
+  "deleted_auto": "🗑️ Langganan Anda \"{name}\" telah dihapus dari sistem karena tidak aktif selama lebih dari sebulan. Jika Anda ingin terus menggunakan layanan kami, silakan beli langganan baru.",
+  "token_reset": "🔄 Token langganan telah direset!\n\n⚠️ Anda perlu menghubungkan kembali langganan di aplikasi klien.\n\n📱 Tautan koneksi baru: {subscriptionUrl}\n\n⏱️ Masa berlaku langganan: hingga {expiredAt}\n\nJika Anda memiliki pertanyaan, silakan hubungi dukungan.",
+  "auto_renewal_enabled": "✅ Perpanjangan otomatis diaktifkan!\n\nSekarang langganan Anda akan diperpanjang secara otomatis ketika ada cukup dana di saldo Anda.",
+  "auto_renewal_disabled": "❌ Perpanjangan otomatis dinonaktifkan!\n\nLangganan Anda tidak akan diperpanjang secara otomatis. Jangan lupa untuk memperpanjangnya secara manual sebelum kedaluwarsa.",
+  "traffic_exhausted": "Kuota trafik Anda telah habis!",
+  "buy_more_traffic_and_expiration": "Untuk terus menggunakan layanan, silakan beli trafik tambahan. Langganan akan dihapus: {date}",
+  "traffic_reset_day": "Akan diperbarui pada hari berikutnya!",
+  "traffic_reset_week": "Akan diperbarui pada minggu berikutnya!",
+  "traffic_reset_month": "Akan diperbarui pada bulan berikutnya!",
+  "traffic_reset_year": "Akan diperbarui pada tahun berikutnya!"
+}

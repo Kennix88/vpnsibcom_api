@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ Selamat! Anda berhasil membeli langganan! Nikmati akses premium.",
+    "failed": "❌ Tidak dapat membeli langganan. Silakan coba lagi atau hubungi dukungan.",
+    "insufficient_balance": "⚠️ Saldo tidak mencukupi untuk menyelesaikan pembelian. Silakan isi ulang akun Anda.",
+    "subscription_limit_exceeded": "🛑 Batas langganan terlampaui. Anda telah mencapai jumlah maksimum langganan aktif.",
+    "user_not_found": "❓ Pengguna tidak ditemukan. Pastikan Anda telah masuk dengan benar."
+  },
+  "free_plan": {
+    "activated": "🎁 Paket gratis berhasil diaktifkan! Nikmati akses gratis.",
+    "failed": "❌ Tidak dapat mengaktifkan paket gratis. Silakan coba lagi nanti.",
+    "not_available": "⛔ Paket gratis saat ini tidak tersedia. Silakan periksa kembali nanti."
+  },
+  "auto_renewal": {
+    "enabled": "🔄 Perpanjangan otomatis diaktifkan. Langganan Anda akan diperpanjang secara otomatis.",
+    "disabled": "⏹️ Perpanjangan otomatis dinonaktifkan. Jangan lupa untuk memperpanjang secara manual sebelum kedaluwarsa.",
+    "success": "✅ Langganan berhasil diperpanjang! Akses Anda berlanjut tanpa gangguan.",
+    "failed": "❌ Tidak dapat memperpanjang langganan. Silakan periksa metode pembayaran Anda.",
+    "insufficient_balance": "⚠️ Saldo tidak mencukupi untuk perpanjangan otomatis langganan. Silakan isi ulang akun Anda."
+  },
+  "expiration": {
+    "notification": "⏰ Langganan Anda akan berakhir dalam {days} hari. Jangan lupa untuk memperpanjangnya!",
+    "expired": "⌛ Langganan Anda telah kedaluwarsa. Perpanjang sekarang untuk terus menggunakan layanan kami!"
+  }
+}
