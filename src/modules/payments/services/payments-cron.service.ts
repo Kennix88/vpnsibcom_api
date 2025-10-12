@@ -268,26 +268,26 @@ export class PaymentsCronService {
           userId: payment.userId,
         })
 
-        // Отправляем уведомление пользователю
-        try {
-          const userLang = payment.user.language?.iso6391 || 'ru'
+        // // Отправляем уведомление пользователю
+        // try {
+        //   const userLang = payment.user.language?.iso6391 || 'ru'
 
-          const message = await this.i18n.translate(
-            'payments.payment_expired',
-            {
-              args: { amount: payment.amount },
-              lang: userLang,
-            },
-          )
+        //   const message = await this.i18n.translate(
+        //     'payments.payment_expired',
+        //     {
+        //       args: { amount: payment.amount },
+        //       lang: userLang,
+        //     },
+        //   )
 
-          await this.bot.telegram.sendMessage(payment.user.telegramId, message)
-        } catch (err) {
-          this.logger.error({
-            msg: 'Error sending notification about expired payment',
-            error: err instanceof Error ? err.message : String(err),
-            userId: payment.userId,
-          })
-        }
+        //   await this.bot.telegram.sendMessage(payment.user.telegramId, message)
+        // } catch (err) {
+        //   this.logger.error({
+        //     msg: 'Error sending notification about expired payment',
+        //     error: err instanceof Error ? err.message : String(err),
+        //     userId: payment.userId,
+        //   })
+        // }
       }
 
       this.logger.info({
