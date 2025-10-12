@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 Ви отримали реферальну винагороду!\n\n⭐ {starsAmount} STARS вже доступні на вашому балансі\n\n👤 Реферал: {referralName}\n🔝 Рівень: {level}",
+  "defaultName": "👤 Користувач"
+}
