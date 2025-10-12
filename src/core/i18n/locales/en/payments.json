@@ -1,19 +1,19 @@
 {
   "invoice": {
-    "title": "💳 Balance top-up for {amount} Stars",
-    "description": "⭐ Add {amount} Stars to your account balance"
+    "title": "💳 Balance top-up for {amount} STARS",
+    "description": "⭐ Add {amount} STARS to your account balance"
   },
-  "payment_success": "✅ Success! Your payment of {amount} Stars has been processed!",
+  "payment_success": "✅ Success! Your payment of {amount} STARS has been processed!",
   "payment_failed": "❌ Payment failed! An error occurred while processing your payment. 🔄 Please try again or contact our support team for assistance.",
   "payment_expired": "⏱️ Your payment of {amount} has expired. 🔄 Please create a new payment if you want to continue with your purchase.",
   "referral": {
     "reward_title": "🎁 Congratulations! You have received a referral reward!",
-    "hold_reward": "💰 {amount} Stars will be available in {days} days (funds are temporarily frozen)",
-    "available_reward": "✅ {amount} Stars are already available on your balance and ready to use!",
+    "hold_reward": "💰 {amount} STARS will be available in {days} days (funds are temporarily frozen)",
+    "available_reward": "✅ {amount} STARS are already available on your balance and ready to use!",
     "referral_label": "👤 Referral",
     "level_label": "🔝 Level"
   },
   "hold": {
-    "released": "🎉 Great news! {amount} Stars from your frozen funds are now available for withdrawal 💸"
+    "released": "🎉 Great news! {amount} STARS from your frozen funds are now available for withdrawal 💸"
   }
 }
