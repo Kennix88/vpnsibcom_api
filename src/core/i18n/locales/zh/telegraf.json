@@ -1,0 +1,21 @@
+{
+  "start": {
+    "welcome": "已启动"
+  },
+  "TOO_MANY_REQUESTS": "请求过多，请在 {0} 秒后重试 🚦",
+  "telegram": {
+    "welcome": {
+      "greeting": "你好, {name}!",
+      "message1": "欢迎来到 VPNsib!",
+      "message2": "一个可以使用 VPN 和玩游戏的应用程序。",
+      "developedBy": "由 @KennixDev 开发",
+      "supportedBy": "由 @solycmty 支持",
+      "buyStars": "在平台购买 Telegram STARS ⭐️ 无需 KYC，最高可享 40% 优惠 —> <a href=\"https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ\">@split</a>"
+    },
+    "button": {
+      "channel": "频道",
+      "chatSupport": "聊天与支持",
+      "buyStars": "购买 STARS ⭐️"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ 订阅成功购买！享受高级访问。",
+    "failed": "❌ 购买订阅失败。请重试或联系支持。",
+    "insufficient_balance": "⚠️ 余额不足，无法完成购买。请充值。",
+    "subscription_limit_exceeded": "🛑 订阅数量超出限制。您已达到最大活跃订阅数量。",
+    "user_not_found": "❓ 未找到用户。请确保您已正确登录。"
+  },
+  "free_plan": {
+    "activated": "🎁 免费计划已成功激活！享受免费访问。",
+    "failed": "❌ 激活免费计划失败。请稍后再试。",
+    "not_available": "⛔ 免费计划目前不可用。请稍后查看。"
+  },
+  "auto_renewal": {
+    "enabled": "🔄 自动续订已启用。您的订阅将自动续订。",
+    "disabled": "⏹️ 自动续订已禁用。请务必在到期前手动续订。",
+    "success": "✅ 订阅成功续订！您的访问将不间断。",
+    "failed": "❌ 续订订阅失败。请检查您的付款方式。",
+    "insufficient_balance": "⚠️ 余额不足，无法自动续订。请充值。"
+  },
+  "expiration": {
+    "notification": "⏰ 您的订阅将在 {days} {days, plural, one {天} few {天} many {天} other {天}} 后到期。请务必续订！",
+    "expired": "⌛ 您的订阅已过期。立即续订以继续使用我们的服务！"
+  }
+}

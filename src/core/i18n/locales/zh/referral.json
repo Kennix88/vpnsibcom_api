@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 您已收到推荐奖励！\n\n⭐ {starsAmount} STARS 已在您的余额中可用\n\n👤 推荐人：{referralName}\n🔝 等级：{level}",
+  "defaultName": "👤 用户"
+}
