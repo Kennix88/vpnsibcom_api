@@ -310,6 +310,7 @@ model Subscriptions {
  createdAt DateTime  @default(now()) @map("created_at")
  updatedAt DateTime  @updatedAt @map("updated_at")
  expiredAt DateTime? @map("expired_at")
+ removalAt DateTime? @map("removal_at")
  onlineAt  DateTime? @map("online_at")
 
  user    Users      @relation(fields: [userId], references: [id])
