@@ -1,5 +1,6 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
+import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
@@ -8,8 +9,9 @@ import { Cron, CronExpression } from '@nestjs/schedule'
 import { Subscriptions } from '@prisma/client'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
+import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
-import { differenceInDays, format } from 'date-fns'
+import { add, differenceInDays, intlFormat } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
@@ -210,8 +212,85 @@ export class SubscriptionManagerService {
 
         // Используем транзакцию для обновления каждой подписки индивидуально
         await this.prismaService.$transaction(
-          updatedBatch.map((subscription) =>
-            this.prismaService.subscriptions.update({
+          updatedBatch.map((subscription) => {
+            const announceMessages = []
+            const removalAt = new Date(add(new Date(), { days: 7 }))
+            let isRemovalAt = false
+
+            if (
+              subscription.usedTraffic >= subscription.dataLimit &&
+              !subscription.isUnlimitTraffic
+            ) {
+              announceMessages.push(
+                this.i18n.t('subscription.traffic_exhausted', {
+                  lang: subscription.user.language.iso6391,
+                }),
+              )
+
+              if (subscription.plan.key == PlansEnum.TRAFFIC) {
+                announceMessages.push(
+                  this.i18n.t('subscription.buy_more_traffic_and_expiration', {
+                    lang: subscription.user.language.iso6391,
+                    args: {
+                      date: intlFormat(
+                        new Date(subscription.expiredAt),
+                        {
+                          year: 'numeric',
+                          month: 'numeric',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        },
+                        {
+                          locale: subscription.user.language.iso6391,
+                        },
+                      ),
+                    },
+                  }),
+
+                  (isRemovalAt = true),
+                )
+              } else {
+                const updateTraffic =
+                  subscription.trafficReset == TrafficResetEnum.DAY
+                    ? this.i18n.t('subscription.traffic_reset_day', {
+                        lang: subscription.user.language.iso6391,
+                      })
+                    : subscription.trafficReset == TrafficResetEnum.WEEK
+                    ? this.i18n.t('subscription.traffic_reset_week', {
+                        lang: subscription.user.language.iso6391,
+                      })
+                    : subscription.trafficReset == TrafficResetEnum.MONTH
+                    ? this.i18n.t('subscription.traffic_reset_month', {
+                        lang: subscription.user.language.iso6391,
+                      })
+                    : subscription.trafficReset == TrafficResetEnum.YEAR
+                    ? this.i18n.t('subscription.traffic_reset_year', {
+                        lang: subscription.user.language.iso6391,
+                      })
+                    : ''
+                announceMessages.push(updateTraffic)
+              }
+            }
+
+            if (announceMessages.length > 0) {
+              this.bot.telegram
+                .sendMessage(
+                  subscription.user.telegramId,
+                  announceMessages.join(' '),
+                )
+                .catch((error) => {
+                  this.logger.error({
+                    msg: 'Error sending message to user',
+                    error:
+                      error instanceof Error ? error.message : String(error),
+                    stack: error instanceof Error ? error.stack : undefined,
+                    service: this.serviceName,
+                  })
+                })
+            }
+
+            return this.prismaService.subscriptions.update({
               where: { id: subscription.id },
               data: {
                 links: subscription.links,
@@ -228,9 +307,14 @@ export class SubscriptionManagerService {
                   ? new Date(subscription.onlineAt + 'Z')
                   : null, // Adding 'Z' to indicate UTC timezone
                 marzbanData: subscription.marzbanData,
+                ...(isRemovalAt ? { removalAt } : {}),
+                announce:
+                  announceMessages.length == 0
+                    ? null
+                    : announceMessages.join(' '),
               },
-            }),
-          ),
+            })
+          }),
         )
 
         updatedCount += updatedBatch.length
@@ -309,7 +393,8 @@ export class SubscriptionManagerService {
       for (const subscription of expiredSubscriptions) {
         if (
           subscription.isAutoRenewal &&
-          subscription.period !== SubscriptionPeriodEnum.TRIAL
+          subscription.period !== SubscriptionPeriodEnum.TRIAL &&
+          subscription.period !== SubscriptionPeriodEnum.TRAFFIC
         ) {
           await this.processAutoRenewal(
             subscription as unknown as SubscriptionWithUser,
@@ -376,10 +461,10 @@ export class SubscriptionManagerService {
         })
 
         // Send notification about successful renewal
-        await this.sendRenewalSuccessNotification(user, {
-          ...subscription,
-          period: renewalPeriod, // Use the new period for notification
-        })
+        // await this.sendRenewalSuccessNotification(user, {
+        //   ...subscription,
+        //   period: renewalPeriod, // Use the new period for notification
+        // })
 
         this.logger.info({
           msg: `Successfully renewed subscription ${subscription.id}`,
@@ -392,7 +477,7 @@ export class SubscriptionManagerService {
         await this.deactivateSubscription(subscription)
 
         // Send notification about failed renewal due to insufficient balance
-        await this.sendInsufficientBalanceNotification(user, subscription, cost)
+        // await this.sendInsufficientBalanceNotification(user, subscription, cost)
       }
     } catch (error) {
       this.logger.error({
@@ -433,6 +518,8 @@ export class SubscriptionManagerService {
         )
       }
 
+      const removalAt = new Date(add(new Date(), { days: 7 }))
+
       // Then update database status
       await this.prismaService.subscriptions.update({
         where: {
@@ -440,6 +527,7 @@ export class SubscriptionManagerService {
         },
         data: {
           isActive: false,
+          removalAt,
         },
       })
 
@@ -464,75 +552,6 @@ export class SubscriptionManagerService {
   }
 
   /**
-   * Send notification about successful subscription renewal
-   * @param user - User to notify
-   * @param subscription - Renewed subscription
-   * @private
-   */
-  private async sendRenewalSuccessNotification(
-    user: SubscriptionWithUser['user'],
-    subscription: SubscriptionWithUser,
-  ) {
-    try {
-      const message = await this.i18n.t('subscription.renewed', {
-        lang: user.language.iso6391,
-        args: {
-          period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period as SubscriptionPeriodEnum,
-            user.language.iso6391,
-          ),
-          expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
-        },
-      })
-
-      await this.bot.telegram.sendMessage(user.telegramId, message)
-    } catch (error) {
-      this.logger.error({
-        msg: 'Error sending renewal success notification',
-        userId: user.id,
-        error,
-        service: this.serviceName,
-      })
-    }
-  }
-
-  /**
-   * Send notification about insufficient balance for renewal
-   * @param user - User to notify
-   * @param subscription - Subscription that failed to renew
-   * @param requiredAmount - Amount required for renewal
-   * @private
-   */
-  private async sendInsufficientBalanceNotification(
-    user: SubscriptionWithUser['user'],
-    subscription: SubscriptionWithUser,
-    requiredAmount: number,
-  ) {
-    try {
-      const message = await this.i18n.t('subscription.renewal_failed_balance', {
-        lang: user.language.iso6391,
-        args: {
-          period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period as SubscriptionPeriodEnum,
-            user.language.iso6391,
-          ),
-          requiredAmount,
-          currentBalance: user.balance.paymentBalance,
-        },
-      })
-
-      await this.bot.telegram.sendMessage(user.telegramId, message)
-    } catch (error) {
-      this.logger.error({
-        msg: 'Error sending insufficient balance notification',
-        userId: user.id,
-        error,
-        service: this.serviceName,
-      })
-    }
-  }
-
-  /**
    * Send notification about subscription deactivation
    * @param user - User to notify
    * @param subscription - Deactivated subscription
@@ -546,10 +565,7 @@ export class SubscriptionManagerService {
       const message = await this.i18n.t('subscription.deactivated', {
         lang: user.language.iso6391,
         args: {
-          period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period as SubscriptionPeriodEnum,
-            user.language.iso6391,
-          ),
+          name: subscription.name,
         },
       })
 
@@ -679,7 +695,7 @@ export class SubscriptionManagerService {
         ? 'subscription.expiration_reminder'
         : 'subscription.expiration_reminder_low_balance'
 
-      const message = await this.i18n.t(messageKey, {
+      const message = await this.i18n.t('subscription.expiration_reminder', {
         lang: user.language.iso6391,
         args: {
           days: daysLeft,
@@ -689,13 +705,20 @@ export class SubscriptionManagerService {
             )}` as keyof I18nTranslations,
             { lang: user.language.iso6391 },
           ),
-          period: await this.xrayService.getLocalizedPeriodText(
-            renewalPeriod as SubscriptionPeriodEnum,
-            user.language.iso6391,
+          name: subscription.name,
+          expiredAt: intlFormat(
+            new Date(subscription.expiredAt),
+            {
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+            },
+            {
+              locale: subscription.user.language.iso6391,
+            },
           ),
-          expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
-          requiredAmount,
-          currentBalance: user.balance.paymentBalance,
         },
       })
 
@@ -742,9 +765,20 @@ export class SubscriptionManagerService {
         await this.prismaService.subscriptions.findMany({
           where: {
             isActive: false,
-            expiredAt: {
-              lt: oneWeekAgo,
-            },
+            OR: [
+              {
+                expiredAt: {
+                  not: null,
+                  lt: oneWeekAgo,
+                },
+              },
+              {
+                removalAt: {
+                  not: null,
+                  lt: new Date(),
+                },
+              },
+            ],
           },
           include: {
             user: {
@@ -847,10 +881,7 @@ export class SubscriptionManagerService {
       const message = await this.i18n.t('subscription.deleted_auto', {
         lang: user.language.iso6391,
         args: {
-          period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period,
-            user.language.iso6391,
-          ),
+          name: subscription.name,
         },
       })
 
