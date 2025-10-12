@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 Otrzymałeś nagrodę za polecenie!\n\n⭐ {starsAmount} STARS jest już dostępne na Twoim koncie\n\n👤 Polecony: {referralName}\n🔝 Poziom: {level}",
+  "defaultName": "👤 Użytkownik"
+}

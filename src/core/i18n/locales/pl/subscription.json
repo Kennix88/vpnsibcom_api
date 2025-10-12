@@ -1,0 +1,31 @@
+{
+  "created": "🎉 Gratulacje! Twoja subskrypcja została pomyślnie utworzona!\n\n📆 Okres: {period}\n⏱ Ważna do: {expiredAt}\n\n🔗 Link do subskrypcji: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 godzina",
+    "day": "📅 1 dzień",
+    "month": "📆 1 miesiąc",
+    "three_month": "📆 3 miesiące",
+    "six_month": "📆 6 miesięcy",
+    "year": "🗓️ 1 rok",
+    "two_year": "🗓️ 2 lata",
+    "three_year": "🗓️ 3 lata",
+    "trial": "🔍 Okres próbny",
+    "trial_with_days": "🔍 Okres próbny ({days} {daysText})"
+  },
+  "renewed": "🔄 Twoja subskrypcja została pomyślnie przedłużona na okres: {period}. ⏱️ Nowa data zakończenia: {expiredAt}. Ciesz się dalszym dostępem!",
+  "renewed_user": "✅ Twoja subskrypcja została pomyślnie przedłużona!\n\nOkres: {period}\nKoszt: {cost} STARS\nWażna do: {expiredAt}\n\nTwój link do połączenia: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ Nie udało się automatycznie przedłużyć Twojej subskrypcji na okres {period}. Niewystarczające środki na koncie. Wymagane: {requiredAmount} STARS, aktualny stan konta: {currentBalance} STARS. Proszę doładuj konto, aby przedłużyć subskrypcję.",
+  "deactivated": "⏹️ Twoja subskrypcja {name} została dezaktywowana z powodu wygaśnięcia. Aby kontynuować korzystanie, proszę przedłuż subskrypcję.",
+  "expiration_reminder": "⏰ Przypomnienie! Twoja subskrypcja \"{name}\" wygasa za {days} {daysText}. Data zakończenia: {expiredAt}.",
+  "deleted": "🗑️ Twoja subskrypcja \"{name}\" została pomyślnie usunięta. Dziękujemy za korzystanie z naszego serwisu! Mamy nadzieję zobaczyć Cię ponownie.",
+  "deleted_auto": "🗑️ Twoja subskrypcja \"{name}\" została usunięta z systemu, ponieważ była nieaktywna przez ponad miesiąc. Jeśli chcesz nadal korzystać z naszego serwisu, proszę zakup nową subskrypcję.",
+  "token_reset": "🔄 Token subskrypcji został zresetowany!\n\n⚠️ Musisz ponownie połączyć subskrypcję w aplikacji klienckiej.\n\n📱 Nowy link do połączenia: {subscriptionUrl}\n\n⏱️ Okres ważności subskrypcji: do {expiredAt}\n\nJeśli masz pytania, skontaktuj się z pomocą techniczną.",
+  "auto_renewal_enabled": "✅ Automatyczne odnawianie subskrypcji włączone!\n\nTeraz Twoja subskrypcja będzie automatycznie odnawiana, jeśli na koncie będzie wystarczająca ilość środków.",
+  "auto_renewal_disabled": "❌ Automatyczne odnawianie subskrypcji wyłączone!\n\nTwoja subskrypcja nie będzie odnawiana automatycznie. Nie zapomnij odnowić jej ręcznie przed wygaśnięciem.",
+  "traffic_exhausted": "Twój transfer danych się skończył!",
+  "buy_more_traffic_and_expiration": "Aby kontynuować korzystanie z usługi, proszę dokup transfer. Subskrypcja zostanie usunięta: {date}",
+  "traffic_reset_day": "Odnowi się następnego dnia!",
+  "traffic_reset_week": "Odnowi się w następnym tygodniu!",
+  "traffic_reset_month": "Odnowi się w następnym miesiącu!",
+  "traffic_reset_year": "Odnowi się w następnym roku!"
+}
