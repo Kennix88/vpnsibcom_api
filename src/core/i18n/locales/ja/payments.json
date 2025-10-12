@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 {amount} STARSの残高補充",
+    "description": "⭐ アカウントに{amount} STARSを追加"
+  },
+  "payment_success": "✅ 成功！{amount} STARSの支払いが正常に処理されました！",
+  "payment_failed": "❌ 支払い失敗！支払いの処理中にエラーが発生しました。🔄 もう一度お試しいただくか、サポートチームにお問い合わせください。",
+  "payment_expired": "⏱️ {amount}の支払いが期限切れになりました。🔄 購入を続行する場合は、新しい支払いを作成してください。",
+  "referral": {
+    "reward_title": "🎁 おめでとうございます！紹介報酬を獲得しました！",
+    "hold_reward": "💰 {amount} STARSは{days}日後に利用可能になります（資金は一時的に凍結されています）",
+    "available_reward": "✅ {amount} STARSはすでに残高にあり、使用可能です！",
+    "referral_label": "👤 紹介者",
+    "level_label": "🔝 レベル"
+  },
+  "hold": {
+    "released": "🎉 素晴らしいニュース！凍結された資金から{amount} STARSが引き出し可能になりました💸"
+  }
+}
