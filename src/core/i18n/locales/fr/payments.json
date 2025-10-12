@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 Recharge du solde de {amount} STARS",
+    "description": "⭐ Ajout de {amount} STARS à votre compte"
+  },
+  "payment_success": "✅ Succès ! Votre paiement de {amount} STARS a été traité avec succès !",
+  "payment_failed": "❌ Paiement échoué ! Une erreur s'est produite lors du traitement du paiement. 🔄 Veuillez réessayer ou contacter notre service d'assistance.",
+  "payment_expired": "⏱️ Votre paiement de {amount} a expiré. 🔄 Veuillez créer un nouveau paiement si vous souhaitez continuer l'achat.",
+  "referral": {
+    "reward_title": "🎁 Félicitations ! Vous avez reçu une récompense de parrainage !",
+    "hold_reward": "💰 {amount} STARS seront disponibles dans {days} jours (fonds temporairement gelés)",
+    "available_reward": "✅ {amount} STARS sont déjà disponibles sur votre solde et prêts à être utilisés !",
+    "referral_label": "👤 Filleul",
+    "level_label": "🔝 Niveau"
+  },
+  "hold": {
+    "released": "🎉 Excellente nouvelle ! {amount} STARS des fonds gelés sont maintenant disponibles pour retrait 💸"
+  }
+}

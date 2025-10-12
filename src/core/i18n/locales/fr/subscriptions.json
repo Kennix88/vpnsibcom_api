@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ Félicitations ! Vous avez acheté un abonnement avec succès ! 📆 Période : {period} 💰 Coût : {cost} STARS ⏱ Valable jusqu'au : {expiredAt} 🔗 Votre lien de connexion : {subscriptionUrl}",
+    "failed": "❌ Impossible d'acheter l'abonnement. Veuillez réessayer ou contacter le support.",
+    "insufficient_balance": "⚠️ Solde insuffisant pour acheter l'abonnement. Requis : {requiredAmount} STARS, solde actuel : {currentBalance} STARS. Veuillez recharger votre solde.",
+    "subscription_limit_exceeded": "🛑 Limite d'abonnements actifs dépassée. Maximum : {maxSubscriptions}. Veuillez supprimer les abonnements inutilisés avant d'en créer un nouveau.",
+    "user_not_found": "❓ Utilisateur non trouvé. Veuillez vous assurer que vous êtes connecté et réessayer."
+  },
+  "free_plan": {
+    "activated": "🎁 Plan gratuit activé ! 📆 Période : {period} ⏱ Valable jusqu'au : {expiredAt}🔗 Votre lien de connexion : {subscriptionUrl}",
+    "failed": "❌ Impossible d'activer le plan gratuit. Veuillez réessayer plus tard.",
+    "not_available": "⛔ Le plan gratuit n'est pas disponible actuellement. Veuillez vérifier plus tard."
+  },
+  "auto_renewal": {
+    "enabled": "✅ Renouvellement automatique activé! Votre abonnement sera désormais renouvelé automatiquement si vous disposez de fonds suffisants sur votre compte.",
+    "disabled": "❌ Renouvellement automatique désactivé! Votre abonnement ne sera pas renouvelé automatiquement. N'oubliez pas de le renouveler manuellement avant son expiration.",
+    "success": "✅ Votre abonnement a été renouvelé avec succès ! Période : {period} Coût : {cost}STARS Valable jusqu'au : {expiredAt} Votre lien de connexion : {subscriptionUrl}",
+    "failed": "❌ Impossible de renouveler automatiquement votre abonnement. Veuillez vérifier votre solde et vos paramètres de renouvellement automatique.",
+    "insufficient_balance": "⚠️ Impossible de renouveler automatiquement votre abonnement pour la période {period}. Solde insuffisant. Requis : {requiredAmount} STARS, solde actuel : {currentBalance} STARS. Veuillez recharger votre solde pour renouveler votre abonnement."
+  },
+  "expiration": {
+    "notification": "⏰ Rappel ! Votre abonnement expire dans {days} jours. Date d'expiration : {expiredAt}.",
+    "expired": "⌛ Votre abonnement a expiré. Renouvelez maintenant pour continuer à utiliser nos services !"
+  }
+}

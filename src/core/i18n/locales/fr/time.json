@@ -1,0 +1,8 @@
+{
+  "days": {
+    "one": "jour",
+    "few": "jours",
+    "many": "jours",
+    "other": "jours"
+  }
+}

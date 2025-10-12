@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 Vous avez reçu une récompense de parrainage !\n\n⭐ {starsAmount} STARS sont déjà disponibles sur votre solde\n\n👤 Filleul : {referralName}\n🔝 Niveau : {level}",
+  "defaultName": "👤 Utilisateur"
+}
