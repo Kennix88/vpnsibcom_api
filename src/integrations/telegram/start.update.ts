@@ -1,4 +1,3 @@
-import { I18nTranslations } from '@core/i18n/i18n.type'
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
 import { TonPaymentsService } from '@modules/payments/services/ton-payments.service'
@@ -17,7 +16,7 @@ export class StartUpdate {
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
-    private readonly i18n: I18nService<I18nTranslations>,
+    private readonly i18n: I18nService,
     private readonly referralsService: ReferralsService,
     private readonly telegramLogger: LoggerTelegramService,
     private readonly ratesService: RatesService,
@@ -82,14 +81,27 @@ export class StartUpdate {
       await ctx.sendPhoto(
         { source: createReadStream('assets/welcome.jpg') },
         {
-          caption: `<b>Привет, ${ctx.from.first_name}!</b>
-Добро пожаловать в VPNsib!
-Приложение где можно использовать VPN и играть в игры.
+          caption: `<b>${this.i18n.t('telegraf.telegram.welcome.greeting', {
+            args: { name: ctx.from.first_name },
+            lang: ctx.from.language_code,
+          })}</b>
+${this.i18n.t('telegraf.telegram.welcome.message1', {
+  lang: ctx.from.language_code,
+})}
+${this.i18n.t('telegraf.telegram.welcome.message2', {
+  lang: ctx.from.language_code,
+})}
 
-Разработано @KennixDev
-При поддежке @solycmty
+${this.i18n.t('telegraf.telegram.welcome.developedBy', {
+  lang: ctx.from.language_code,
+})}
+${this.i18n.t('telegraf.telegram.welcome.supportedBy', {
+  lang: ctx.from.language_code,
+})}
 
-Купить Telegram STARS ⭐️ без KYC, с выгодой до 40% можно на платформе —> <a href="https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ">@split</a>`,
+${this.i18n.t('telegraf.telegram.welcome.buyStars', {
+  lang: ctx.from.language_code,
+})}`,
           parse_mode: 'HTML',
           reply_markup: {
             remove_keyboard: true,
@@ -102,11 +114,15 @@ export class StartUpdate {
               ],
               [
                 Markup.button.url(
-                  'Канал',
+                  this.i18n.t('telegraf.telegram.button.channel', {
+                    lang: ctx.from.language_code,
+                  }),
                   this.configService.get<string>('CHANNEL_URL'),
                 ),
                 Markup.button.url(
-                  'Чат&Поддержка',
+                  this.i18n.t('telegraf.telegram.button.chatSupport', {
+                    lang: ctx.from.language_code,
+                  }),
                   this.configService.get<string>('CHAT_URL'),
                 ),
               ],
@@ -122,7 +138,9 @@ export class StartUpdate {
               ],
               [
                 Markup.button.url(
-                  'Купить STARS ⭐️',
+                  this.i18n.t('telegraf.telegram.button.buyStars', {
+                    lang: ctx.from.language_code,
+                  }),
                   'https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
                 ),
               ],
