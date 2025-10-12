@@ -2221,6 +2221,7 @@ export class XrayService {
             expiredAt: newExpiredAt,
             trafficReset: trafficReset,
             isActive: true,
+            announce: null,
           },
         },
       )
