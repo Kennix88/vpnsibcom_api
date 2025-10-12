@@ -1,0 +1,31 @@
+{
+  "created": "🎉 축하합니다! 구독이 성공적으로 생성되었습니다!\n\n📆 기간: {period}\n⏱ 만료일: {expiredAt}\n\n🔗 구독 링크: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1시간",
+    "day": "📅 1일",
+    "month": "📆 1개월",
+    "three_month": "📆 3개월",
+    "six_month": "📆 6개월",
+    "year": "🗓️ 1년",
+    "two_year": "🗓️ 2년",
+    "three_year": "🗓️ 3년",
+    "trial": "🔍 체험 기간",
+    "trial_with_days": "🔍 체험 기간 ({days} {daysText})"
+  },
+  "renewed": "🔄 구독이 {period} 동안 성공적으로 갱신되었습니다. ⏱️ 새로운 만료일: {expiredAt}. 계속해서 이용해 주세요!",
+  "renewed_user": "✅ 구독이 성공적으로 갱신되었습니다!\n\n기간: {period}\n비용: {cost} STARS\n만료일: {expiredAt}\n\n연결 링크: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ {period} 동안 구독을 자동으로 갱신하지 못했습니다. 잔액이 부족합니다. 필요 금액: {requiredAmount} STARS, 현재 잔액: {currentBalance} STARS. 구독 갱신을 위해 잔액을 충전해 주세요.",
+  "deactivated": "⏹️ 구독 {name}이(가) 만료되어 비활성화되었습니다. 계속 사용하려면 구독을 갱신해 주세요.",
+  "expiration_reminder": "⏰ 알림! 구독 \"{name}\"이(가) {days} {daysText} 후에 만료됩니다. 만료일: {expiredAt}.",
+  "deleted": "🗑️ 구독 \"{name}\"이(가) 성공적으로 삭제되었습니다. 저희 서비스를 이용해 주셔서 감사합니다! 다시 뵙기를 바랍니다.",
+  "deleted_auto": "🗑️ 구독 \"{name}\"이(가) 한 달 이상 비활성 상태였기 때문에 시스템에서 삭제되었습니다. 저희 서비스를 계속 이용하려면 새로운 구독을 구매해 주세요.",
+  "token_reset": "🔄 구독 토큰이 재설정되었습니다!\n\n⚠️ 클라이언트 애플리케이션에서 구독을 다시 연결해야 합니다.\n\n📱 새로운 연결 링크: {subscriptionUrl}\n⏱️ 구독 만료일: {expiredAt}까지\n\n궁금한 점이 있으면 지원팀에 문의하세요.",
+  "auto_renewal_enabled": "✅ 구독 자동 갱신이 활성화되었습니다!\n\n이제 잔액이 충분하면 구독이 자동으로 갱신됩니다.",
+  "auto_renewal_disabled": "❌ 구독 자동 갱신이 비활성화되었습니다!\n\n구독이 자동으로 갱신되지 않습니다. 만료일 전에 수동으로 갱신하는 것을 잊지 마세요.",
+  "traffic_exhausted": "트래픽이 소진되었습니다!",
+  "buy_more_traffic_and_expiration": "서비스를 계속 이용하려면 트래픽을 추가 구매해 주세요. 구독은 {date}에 삭제됩니다.",
+  "traffic_reset_day": "다음 날 재설정됩니다!",
+  "traffic_reset_week": "다음 주 재설정됩니다!",
+  "traffic_reset_month": "다음 달 재설정됩니다!",
+  "traffic_reset_year": "내년 재설정됩니다!"
+}

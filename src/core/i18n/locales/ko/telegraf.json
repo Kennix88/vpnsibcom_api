@@ -1,0 +1,21 @@
+{
+  "start": {
+    "welcome": "시작됨"
+  },
+  "TOO_MANY_REQUESTS": "요청이 너무 많습니다. {0}초 후에 다시 시도하십시오 🚦",
+  "telegram": {
+    "welcome": {
+      "greeting": "안녕하세요, {name}님!",
+      "message1": "VPNsib에 오신 것을 환영합니다!",
+      "message2": "VPN을 사용하고 게임을 할 수 있는 앱입니다.",
+      "developedBy": "@KennixDev 개발",
+      "supportedBy": "@solycmty 지원",
+      "buyStars": "KYC 없이 최대 40% 할인된 가격으로 Telegram STARS ⭐️를 구매할 수 있습니다. 플랫폼 —> <a href=\"https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ\">@split</a>"
+    },
+    "button": {
+      "channel": "채널",
+      "chatSupport": "채팅 및 지원",
+      "buyStars": "STARS ⭐️ 구매"
+    }
+  }
+}
