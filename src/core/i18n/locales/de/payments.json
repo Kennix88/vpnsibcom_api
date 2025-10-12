@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 Guthabenaufladung um {amount} STARS",
+    "description": "⭐ Hinzufügen von {amount} STARS zu Ihrem Konto"
+  },
+  "payment_success": "✅ Erfolg! Ihre Zahlung von {amount} STARS wurde erfolgreich verarbeitet!",
+  "payment_failed": "❌ Zahlung fehlgeschlagen! Bei der Bearbeitung Ihrer Zahlung ist ein Fehler aufgetreten. 🔄 Bitte versuchen Sie es erneut oder kontaktieren Sie unseren Support.",
+  "payment_expired": "⏱️ Ihre Zahlung von {amount} ist abgelaufen. 🔄 Bitte erstellen Sie eine neue Zahlung, wenn Sie den Kauf fortsetzen möchten.",
+  "referral": {
+    "reward_title": "🎁 Herzlichen Glückwunsch! Sie haben eine Empfehlungsprämie erhalten!",
+    "hold_reward": "💰 {amount} STARS werden in {days} Tagen verfügbar sein (Guthaben vorübergehend eingefroren)",
+    "available_reward": "✅ {amount} STARS sind bereits auf Ihrem Konto verfügbar und bereit zur Nutzung!",
+    "referral_label": "👤 Empfehlungsgeber",
+    "level_label": "🔝 Level"
+  },
+  "hold": {
+    "released": "🎉 Großartige Neuigkeiten! {amount} STARS aus den eingefrorenen Mitteln sind jetzt zur Auszahlung verfügbar 💸"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "created": "🎉 Herzlichen Glückwunsch! Ihr Abonnement wurde erfolgreich erstellt!\n\n📆 Zeitraum: {period}\n⏱ Gültig bis: {expiredAt}\n\n🔗 Abonnement-Link: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 Stunde",
+    "day": "📅 1 Tag",
+    "month": "📆 1 Monat",
+    "three_month": "📆 3 Monate",
+    "six_month": "📆 6 Monate",
+    "year": "🗓️ 1 Jahr",
+    "two_year": "🗓️ 2 Jahre",
+    "three_year": "🗓️ 3 Jahre",
+    "trial": "🔍 Testzeitraum",
+    "trial_with_days": "🔍 Testzeitraum ({days} {daysText})"
+  },
+  "renewed": "🔄 Ihr Abonnement wurde erfolgreich für den Zeitraum verlängert: {period}. ⏱️ Neues Ablaufdatum: {expiredAt}. Genießen Sie weiterhin den Zugang!",
+  "renewed_user": "✅ Ihr Abonnement wurde erfolgreich verlängert!\n\nZeitraum: {period}\nKosten: {cost} STARS\nGültig bis: {expiredAt}\n\nIhr Verbindungslink: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ Ihr Abonnement konnte für den Zeitraum {period} nicht automatisch verlängert werden. Unzureichendes Guthaben. Erforderlich: {requiredAmount} STARS, aktuelles Guthaben: {currentBalance} STARS. Bitte laden Sie Ihr Guthaben auf, um das Abonnement zu verlängern.",
+  "deactivated": "⏹️ Ihr Abonnement {name} wurde aufgrund des Ablaufs deaktiviert. Um die Nutzung fortzusetzen, verlängern Sie bitte Ihr Abonnement.",
+  "expiration_reminder": "⏰ Erinnerung! Ihr Abonnement \"{name}\" läuft in {days} {daysText} ab. Ablaufdatum: {expiredAt}.",
+  "deleted": "🗑️ Ihr Abonnement \"{name}\" wurde erfolgreich gelöscht. Vielen Dank für die Nutzung unseres Dienstes! Wir hoffen, Sie bald wiederzusehen.",
+  "deleted_auto": "🗑️ Ihr Abonnement \"{name}\" wurde aus dem System gelöscht, da es länger als einen Monat inaktiv war. Wenn Sie unseren Dienst weiterhin nutzen möchten, erwerben Sie bitte ein neues Abonnement.",
+  "token_reset": "🔄 Der Abonnement-Token wurde zurückgesetzt!\n\n⚠️ Sie müssen das Abonnement in der Client-Anwendung erneut verbinden.\n\n📱 Neuer Verbindungslink: {subscriptionUrl}\n\n⏱️ Gültigkeit des Abonnements: bis {expiredAt}\n\nBei Fragen wenden Sie sich bitte an den Support.",
+  "auto_renewal_enabled": "✅ Automatische Abonnementverlängerung aktiviert!\n\nIhr Abonnement wird nun automatisch verlängert, sofern ausreichend Guthaben vorhanden ist.",
+  "auto_renewal_disabled": "❌ Automatische Abonnementverlängerung deaktiviert!\n\nIhr Abonnement wird nicht automatisch verlängert. Vergessen Sie nicht, es manuell vor Ablauf zu verlängern.",
+  "traffic_exhausted": "Ihr Datenvolumen ist erschöpft!",
+  "buy_more_traffic_and_expiration": "Um den Dienst weiterhin nutzen zu können, kaufen Sie bitte mehr Datenvolumen. Das Abonnement wird gelöscht: {date}",
+  "traffic_reset_day": "Wird am nächsten Tag aktualisiert!",
+  "traffic_reset_week": "Wird nächste Woche aktualisiert!",
+  "traffic_reset_month": "Wird nächsten Monat aktualisiert!",
+  "traffic_reset_year": "Wird nächstes Jahr aktualisiert!"
+}

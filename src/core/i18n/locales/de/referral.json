@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 Sie haben eine Empfehlungsprämie erhalten!\n\n⭐ {starsAmount} STARS sind bereits auf Ihrem Konto verfügbar\n\n👤 Empfehlungsgeber: {referralName}\n🔝 Level: {level}",
+  "defaultName": "👤 Benutzer"
+}
