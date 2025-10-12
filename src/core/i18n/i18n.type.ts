@@ -29,8 +29,6 @@ export type I18nTranslations = {
         "defaultName": string;
     };
     "subscription": {
-        "deleted": string;
-        "deleted_auto": string;
         "created": string;
         "period": {
             "hour": string;
@@ -49,10 +47,127 @@ export type I18nTranslations = {
         "renewal_failed_balance": string;
         "deactivated": string;
         "expiration_reminder": string;
-        "expiration_reminder_low_balance": string;
+        "deleted": string;
+        "deleted_auto": string;
         "token_reset": string;
         "auto_renewal_enabled": string;
         "auto_renewal_disabled": string;
+        "traffic_exhausted": string;
+        "buy_more_traffic_and_expiration": string;
+        "traffic_reset_day": string;
+        "traffic_reset_week": string;
+        "traffic_reset_month": string;
+        "traffic_reset_year": string;
+        "status": {
+            "active": string;
+            "inactive": string;
+            "expired": string;
+            "pending": string;
+            "suspended": string;
+            "cancelled": string;
+        };
+        "actions": {
+            "create": string;
+            "renew": string;
+            "deactivate": string;
+            "delete": string;
+            "activate": string;
+            "suspend": string;
+            "resume": string;
+            "cancel": string;
+            "upgrade": string;
+            "downgrade": string;
+        };
+        "info": {
+            "id": string;
+            "status": string;
+            "created_at": string;
+            "updated_at": string;
+            "expired_at": string;
+            "plan": string;
+            "price": string;
+            "period": string;
+            "auto_renewal": string;
+            "payment_method": string;
+            "payment_status": string;
+            "payment_id": string;
+            "user_id": string;
+            "user_name": string;
+            "user_email": string;
+            "user_phone": string;
+            "user_address": string;
+            "user_city": string;
+            "user_country": string;
+            "user_zip": string;
+            "user_ip": string;
+            "user_agent": string;
+            "user_referral": string;
+            "user_referral_id": string;
+            "user_referral_code": string;
+            "user_referral_url": string;
+            "user_referral_count": string;
+            "user_referral_amount": string;
+            "user_referral_currency": string;
+            "user_referral_status": string;
+            "user_referral_date": string;
+            "user_referral_expired": string;
+            "user_referral_expired_at": string;
+            "expires_at": string;
+            "subscription_id": string;
+            "start_date": string;
+            "end_date": string;
+        };
+        "errors": {
+            "not_found": string;
+            "already_exists": string;
+            "invalid_status": string;
+            "invalid_plan": string;
+            "invalid_period": string;
+            "invalid_price": string;
+            "invalid_payment_method": string;
+            "invalid_payment_status": string;
+            "invalid_payment_id": string;
+            "invalid_user_id": string;
+            "invalid_user_name": string;
+            "invalid_user_email": string;
+            "invalid_user_phone": string;
+            "invalid_user_address": string;
+            "invalid_user_city": string;
+            "invalid_user_country": string;
+            "invalid_user_zip": string;
+            "invalid_user_ip": string;
+            "invalid_user_agent": string;
+            "invalid_user_referral": string;
+            "invalid_user_referral_id": string;
+            "invalid_user_referral_code": string;
+            "invalid_user_referral_url": string;
+            "invalid_user_referral_count": string;
+            "invalid_user_referral_amount": string;
+            "invalid_user_referral_currency": string;
+            "invalid_user_referral_status": string;
+            "invalid_user_referral_date": string;
+            "invalid_user_referral_expired": string;
+            "invalid_user_referral_expired_at": string;
+            "payment_failed": string;
+            "insufficient_funds": string;
+            "service_unavailable": string;
+            "already_active": string;
+        };
+        "notifications": {
+            "created": string;
+            "renewed": string;
+            "cancelled": string;
+            "expiring_soon": string;
+            "expired": string;
+            "payment_upcoming": string;
+        };
+        "traffic": {
+            "limit": string;
+            "used": string;
+            "remaining": string;
+            "unlimited": string;
+            "exceeded": string;
+        };
     };
     "subscriptions": {
         "purchase": {
@@ -77,12 +192,30 @@ export type I18nTranslations = {
         "expiration": {
             "notification": string;
             "expired": string;
+            "today": string;
+            "tomorrow": string;
+            "days": string;
         };
     };
     "telegraf": {
         "start": {
             "welcome": string;
-            "TOO_MANY_REQUESTS": string;
+        };
+        "TOO_MANY_REQUESTS": string;
+        "telegram": {
+            "welcome": {
+                "greeting": string;
+                "message1": string;
+                "message2": string;
+                "developedBy": string;
+                "supportedBy": string;
+                "buyStars": string;
+            };
+            "button": {
+                "channel": string;
+                "chatSupport": string;
+                "buyStars": string;
+            };
         };
     };
     "time": {
@@ -90,6 +223,10 @@ export type I18nTranslations = {
             "0": string;
             "1": string;
             "2": string;
+            "one": string;
+            "few": string;
+            "many": string;
+            "other": string;
         };
     };
 };
