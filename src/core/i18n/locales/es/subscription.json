@@ -1,0 +1,31 @@
+{
+  "created": "🎉 ¡Felicidades! ¡Tu suscripción ha sido creada con éxito!\n\n📆 Período: {period}\n⏱ Válido hasta: {expiredAt}\n\n🔗 Enlace de suscripción: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 hora",
+    "day": "📅 1 día",
+    "month": "📆 1 mes",
+    "three_month": "📆 3 meses",
+    "six_month": "📆 6 meses",
+    "year": "🗓️ 1 año",
+    "two_year": "🗓️ 2 años",
+    "three_year": "🗓️ 3 años",
+    "trial": "🔍 Período de prueba",
+    "trial_with_days": "🔍 Período de prueba ({days} {daysText})"
+  },
+  "renewed": "🔄 Tu suscripción ha sido renovada con éxito por el período: {period}. ⏱️ Nueva fecha de vencimiento: {expiredAt}. ¡Disfruta del acceso continuo!",
+  "renewed_user": "✅ ¡Tu suscripción ha sido renovada con éxito!\n\nPeríodo: {period}\nCosto: {cost} STARS\nValido hasta: {expiredAt}\n\nTu enlace de conexión: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ No se pudo renovar automáticamente tu suscripción por el período {period}. Saldo insuficiente. Requerido: {requiredAmount} STARS, saldo actual: {currentBalance} STARS. Por favor, recarga tu saldo para renovar la suscripción.",
+  "deactivated": "⏹️ Tu suscripción {name} ha sido desactivada debido a su vencimiento. Para continuar usándola, por favor, renueva tu suscripción.",
+  "expiration_reminder": "⏰ ¡Recordatorio! Tu suscripción \"{name}\" vence en {days} {daysText}. Fecha de vencimiento: {expiredAt}.",
+  "deleted": "🗑️ Tu suscripción \"{name}\" ha sido eliminada con éxito. ¡Gracias por usar nuestro servicio! Esperamos verte de nuevo.",
+  "deleted_auto": "🗑️ Tu suscripción \"{name}\" ha sido eliminada del sistema porque estuvo inactiva durante más de un mes. Si deseas seguir utilizando nuestro servicio, por favor, adquiere una nueva suscripción.",
+  "token_reset": "🔄 ¡El token de suscripción ha sido restablecido!\n\n⚠️ Debes volver a conectar tu suscripción en la aplicación cliente.\n\n📱 Nuevo enlace de conexión: {subscriptionUrl}\n\n⏱️ Validez de la suscripción: hasta {expiredAt}\n\nSi tienes alguna pregunta, contacta al soporte.",
+  "auto_renewal_enabled": "✅ ¡Renovación automática de suscripción activada!\n\nAhora tu suscripción se renovará automáticamente si tienes suficientes fondos en tu saldo.",
+  "auto_renewal_disabled": "❌ ¡Renovación automática de suscripción desactivada!\n\nTu suscripción no se renovará automáticamente. No olvides renovarla manualmente antes de que expire.",
+  "traffic_exhausted": "¡Tu tráfico se ha agotado!",
+  "buy_more_traffic_and_expiration": "Para seguir usando el servicio, por favor, compra más tráfico. La suscripción se eliminará: {date}",
+  "traffic_reset_day": "¡Se actualizará mañana!",
+  "traffic_reset_week": "¡Se actualizará la próxima semana!",
+  "traffic_reset_month": "¡Se actualizará el próximo mes!",
+  "traffic_reset_year": "¡Se actualizará el próximo año!"
+}

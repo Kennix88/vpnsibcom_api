@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 Recarga de saldo por {amount} STARS",
+    "description": "⭐ Añadiendo {amount} STARS a tu cuenta"
+  },
+  "payment_success": "✅ ¡Éxito! Tu pago de {amount} STARS ha sido procesado exitosamente.",
+  "payment_failed": "❌ ¡Pago fallido! Ocurrió un error al procesar el pago. 🔄 Por favor, inténtalo de nuevo o contacta a nuestro soporte.",
+  "payment_expired": "⏱️ Tu pago de {amount} ha expirado. 🔄 Por favor, crea un nuevo pago si deseas continuar con la compra.",
+  "referral": {
+    "reward_title": "🎁 ¡Felicidades! ¡Has recibido una recompensa por referencia!",
+    "hold_reward": "💰 {amount} STARS estarán disponibles en {days} días (fondos temporalmente congelados)",
+    "available_reward": "✅ ¡{amount} STARS ya están disponibles en tu saldo y listos para usar!",
+    "referral_label": "👤 Referido",
+    "level_label": "🔝 Nivel"
+  },
+  "hold": {
+    "released": "🎉 ¡Grandes noticias! {amount} STARS de los fondos congelados ya están disponibles para retirar 💸"
+  }
+}

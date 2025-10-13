@@ -1,0 +1,21 @@
+{
+  "start": {
+    "welcome": "Iniciado"
+  },
+  "TOO_MANY_REQUESTS": "Demasiadas solicitudes, por favor, inténtalo de nuevo en {0} segundos 🚦",
+  "telegram": {
+    "welcome": {
+      "greeting": "¡Hola, {name}!",
+      "message1": "¡Bienvenido a VPNsib!",
+      "message2": "Una aplicación donde puedes usar VPN y jugar.",
+      "developedBy": "Desarrollado por @KennixDev",
+      "supportedBy": "Con el apoyo de @solycmty",
+      "buyStars": "Puedes comprar Telegram STARS ⭐️ sin KYC, con hasta un 40% de descuento en la plataforma —> <a href=\"https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ\">@split</a>"
+    },
+    "button": {
+      "channel": "Canal",
+      "chatSupport": "Chat y Soporte",
+      "buyStars": "Comprar STARS ⭐️"
+    }
+  }
+}

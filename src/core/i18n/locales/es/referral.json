@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 ¡Has recibido una recompensa por referencia!\n\n⭐ {starsAmount} STARS ya están disponibles en tu saldo\n\n👤 Referido: {referralName}\n🔝 Nivel: {level}",
+  "defaultName": "👤 Usuario"
+}
