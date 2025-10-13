@@ -73,7 +73,12 @@ export class RedisService extends Redis implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
-    await this.waitForConnection()
+    try {
+      await this.waitForConnection()
+    } catch (error) {
+      this.logger.error(`Failed to connect to Redis: ${error.message}`)
+      // Optionally re-throw or handle the error as appropriate for your application's needs
+    }
   }
 
   async waitTillReady(): Promise<void> {
