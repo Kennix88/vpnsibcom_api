@@ -220,7 +220,7 @@ export class SubscriptionManagerService {
             if (
               subscription.usedTraffic >= subscription.dataLimit &&
               !subscription.isUnlimitTraffic &&
-              subscription.announce !== null
+              subscription.announce == null
             ) {
               announceMessages.push(
                 this.i18n.t('subscription.traffic_exhausted', {
