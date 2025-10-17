@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { randomUUID } from 'crypto'
 import Redis from 'ioredis'
 
 @Injectable()
@@ -153,6 +154,140 @@ export class RedisService extends Redis implements OnModuleInit {
     } catch (err) {
       this.logger.error(`hsetWithExpiry failed: ${err.message}`)
       return false
+    }
+  }
+
+  /**
+   * Try to acquire a lock. Returns token (string) if acquired, null otherwise.
+   * retries — сколько раз пытаться (по умолчанию 0, т.е. одна попытка).
+   */
+  async acquireLock(
+    key: string,
+    ttlSeconds: number,
+    retries = 0,
+    retryDelayMs = 200,
+  ): Promise<string | null> {
+    if (ttlSeconds <= 0) throw new Error('TTL must be positive')
+    const token = randomUUID()
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const res = await this.set(key, token, 'EX', ttlSeconds, 'NX')
+        if (res === 'OK') return token
+      } catch (err) {
+        this.logger.error(`acquireLock set failed: ${err.message}`)
+      }
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, retryDelayMs))
+      }
+    }
+    return null
+  }
+
+  /**
+   * Safe release: удалим ключ только если токен совпадает (atomic via Lua).
+   * Возвращает true если удалил, false иначе.
+   */
+  async releaseLock(key: string, token: string): Promise<boolean> {
+    const releaseScript = `
+      if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("del", KEYS[1])
+      else
+        return 0
+      end
+    `
+    try {
+      const res = await this.eval(releaseScript, 1, key, token)
+      return Number(res) > 0
+    } catch (err) {
+      this.logger.error(`releaseLock failed: ${err.message}`)
+      return false
+    }
+  }
+
+  /**
+   * Securely extend TTL if token matches.
+   * Возвращает true если продлил, false — если ключ не соответствует токену или ошибка.
+   */
+  async extendLock(
+    key: string,
+    token: string,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    const extendScript = `
+      if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("expire", KEYS[1], ARGV[2])
+      else
+        return 0
+      end
+    `
+    try {
+      const res = await this.eval(
+        extendScript,
+        1,
+        key,
+        token,
+        String(ttlSeconds),
+      )
+      return Number(res) > 0
+    } catch (err) {
+      this.logger.error(`extendLock failed: ${err.message}`)
+      return false
+    }
+  }
+
+  /**
+   * Helper: run function under lock with optional auto-renew.
+   * opts: { retries, retryDelayMs, autoRenewIntervalSec }.
+   */
+  async withLock<T>(
+    key: string,
+    ttlSeconds: number,
+    fn: () => Promise<T>,
+    opts?: {
+      retries?: number
+      retryDelayMs?: number
+      autoRenewIntervalSec?: number
+    },
+  ): Promise<T | null> {
+    const retries = opts?.retries ?? 0
+    const retryDelayMs = opts?.retryDelayMs ?? 200
+    const autoRenewIntervalSec =
+      opts?.autoRenewIntervalSec ?? Math.floor(ttlSeconds / 3)
+
+    const token = await this.acquireLock(key, ttlSeconds, retries, retryDelayMs)
+    if (!token) {
+      this.logger.log(`Could not acquire lock ${key}`)
+      return null
+    }
+
+    this.logger.log(`Acquired lock ${key}`)
+
+    let renewHandle: NodeJS.Timeout | null = null
+    try {
+      // автопродление, если задача долг running
+      if (autoRenewIntervalSec > 0) {
+        renewHandle = setInterval(async () => {
+          try {
+            const ok = await this.extendLock(key, token, ttlSeconds)
+            if (!ok) {
+              this.logger.warn(`Failed to renew lock ${key} (token mismatch)`)
+            }
+          } catch (err) {
+            this.logger.error(`Error renewing lock ${key}: ${err.message}`)
+          }
+        }, autoRenewIntervalSec * 1000)
+      }
+
+      const result = await fn()
+      return result
+    } finally {
+      if (renewHandle) clearInterval(renewHandle)
+      const released = await this.releaseLock(key, token)
+      if (released) this.logger.log(`Released lock ${key}`)
+      else
+        this.logger.warn(
+          `Lock ${key} was not released (maybe expired or token mismatch)`,
+        )
     }
   }
 }
