@@ -82,262 +82,281 @@ export class SubscriptionManagerService {
    */
   @Cron(CronExpression.EVERY_MINUTE)
   async subscriptionsUpdater() {
-    this.logger.info({
-      msg: 'Starting subscriptions update process',
-      service: this.serviceName,
-    })
-
-    try {
-      const settings = await this.prismaService.settings.findFirst()
-      if (!settings) {
-        this.logger.error({
-          msg: 'Settings not found',
+    await this.redis.withLock(
+      'subscriptionsUpdaterLock',
+      70,
+      async () => {
+        this.logger.info({
+          msg: 'Starting subscriptions update process',
           service: this.serviceName,
         })
-        return
-      }
 
-      // Fetch data in parallel for better performance
-      const [marzbanUsers, subscriptions] = await Promise.all([
-        this.marzbanService.getUsers(),
-        this.prismaService.subscriptions.findMany({
-          include: {
-            user: {
-              include: {
-                language: true,
-                balance: true,
-                role: true,
-              },
-            },
-            plan: true,
-            servers: {
-              include: {
-                greenList: true,
-              },
-            },
-          },
-        }),
-      ])
-
-      this.logger.info({
-        msg: `Found ${subscriptions.length} subscriptions to update`,
-        service: this.serviceName,
-      })
-
-      // Process subscriptions in batches to avoid memory issues with large datasets
-      const batchSize = 50
-      const batches = []
-
-      for (let i = 0; i < subscriptions.length; i += batchSize) {
-        batches.push(subscriptions.slice(i, i + batchSize))
-      }
-
-      let updatedCount = 0
-
-      for (const batch of batches) {
-        const updatedBatch = await Promise.all(
-          batch.map(async (subscription) => {
-            const marzbanUser = marzbanUsers.users.find(
-              (user) => user.username === subscription.username,
-            )
-
-            if (!marzbanUser) {
-              this.logger.warn({
-                msg: `Marzban user not found for subscription ${subscription.id}`,
-                username: subscription.username,
-                service: this.serviceName,
-              })
-              return subscription
-            }
-
-            let baseServers = 0
-            let premiumServers = 0
-
-            const serverCodes =
-              subscription.isAllBaseServers && subscription.isAllPremiumServers
-                ? []
-                : subscription.servers
-                    ?.flatMap((server) => {
-                      if (server.greenList.isPremium) premiumServers++
-                      else baseServers++
-                      return server.greenList.code
-                    })
-                    .filter(Boolean)
-
-            const filteredLinks = marzbanUser.links.filter((link) => {
-              if (!serverCodes.length) return true
-              return serverCodes.some((code) => link.includes(`@${code}`))
+        try {
+          const settings = await this.prismaService.settings.findFirst()
+          if (!settings) {
+            this.logger.error({
+              msg: 'Settings not found',
+              service: this.serviceName,
             })
+            return
+          }
 
-            // Для INDEFINITELY не рассчитываем стоимость продления
-            let nextRenewalStars = null
+          // Fetch data in parallel for better performance
+          const [marzbanUsers, subscriptions] = await Promise.all([
+            this.marzbanService.getUsers(),
+            this.prismaService.subscriptions.findMany({
+              include: {
+                user: {
+                  include: {
+                    language: true,
+                    balance: true,
+                    role: true,
+                  },
+                },
+                plan: true,
+                servers: {
+                  include: {
+                    greenList: true,
+                  },
+                },
+              },
+            }),
+          ])
 
-            // Только для подписок с периодом, отличным от INDEFINITELY
-            if (
-              subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
-              subscription.period !== SubscriptionPeriodEnum.TRIAL &&
-              subscription.period !== SubscriptionPeriodEnum.TRAFFIC
-            ) {
-              nextRenewalStars = calculateSubscriptionCost({
-                plan: subscription.plan as PlansInterface,
-                period: subscription.period as SubscriptionPeriodEnum,
-                isPremium: subscription.isPremium,
-                isTgProgramPartner: subscription.user.isTgProgramPartner,
-                periodMultiplier: subscription.periodMultiplier,
-                devicesCount: subscription.devicesCount,
-                isAllBaseServers: subscription.isAllBaseServers,
-                isAllPremiumServers: subscription.isAllPremiumServers,
-                isUnlimitTraffic: subscription.isUnlimitTraffic,
-                userDiscount: subscription.user.role.discount,
-                settings: settings,
-                serversCount: baseServers,
-                premiumServersCount: premiumServers,
-                trafficLimitGb: subscription.trafficLimitGb,
-              })
-            }
+          this.logger.info({
+            msg: `Found ${subscriptions.length} subscriptions to update`,
+            service: this.serviceName,
+          })
 
-            return {
-              ...subscription,
-              links: filteredLinks,
-              nextRenewalStars,
-              usedTraffic: marzbanUser.used_traffic,
-              lastUserAgent: marzbanUser.sub_last_user_agent,
-              dataLimit: marzbanUser.data_limit,
-              lifeTimeUsedTraffic: marzbanUser.lifetime_used_traffic,
-              onlineAt: marzbanUser.online_at,
-              marzbanData: JSON.stringify(marzbanUser),
-            }
-          }),
-        )
+          // Process subscriptions in batches to avoid memory issues with large datasets
+          const batchSize = 50
+          const batches = []
 
-        // Используем транзакцию для обновления каждой подписки индивидуально
-        await this.prismaService.$transaction(
-          updatedBatch.map((subscription) => {
-            const announceMessages = []
-            const removalAt = new Date(add(new Date(), { days: 7 }))
-            let isRemovalAt = false
+          for (let i = 0; i < subscriptions.length; i += batchSize) {
+            batches.push(subscriptions.slice(i, i + batchSize))
+          }
 
-            if (
-              subscription.usedTraffic >= subscription.dataLimit &&
-              !subscription.isUnlimitTraffic &&
-              subscription.announce == null
-            ) {
-              announceMessages.push(
-                this.i18n.t('subscription.traffic_exhausted', {
-                  lang: subscription.user.language.iso6391,
-                }),
-              )
+          let updatedCount = 0
 
-              if (subscription.plan.key == PlansEnum.TRAFFIC) {
-                announceMessages.push(
-                  this.i18n.t('subscription.buy_more_traffic_and_expiration', {
-                    lang: subscription.user.language.iso6391,
-                    args: {
-                      date: intlFormat(
-                        new Date(subscription.expiredAt),
-                        {
-                          year: 'numeric',
-                          month: 'numeric',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        },
-                        {
-                          locale: subscription.user.language.iso6391,
-                        },
-                      ),
-                    },
-                  }),
-
-                  (isRemovalAt = true),
+          for (const batch of batches) {
+            const updatedBatch = await Promise.all(
+              batch.map(async (subscription) => {
+                const marzbanUser = marzbanUsers.users.find(
+                  (user) => user.username === subscription.username,
                 )
-              } else {
-                const updateTraffic =
-                  subscription.trafficReset == TrafficResetEnum.DAY
-                    ? this.i18n.t('subscription.traffic_reset_day', {
-                        lang: subscription.user.language.iso6391,
-                      })
-                    : subscription.trafficReset == TrafficResetEnum.WEEK
-                    ? this.i18n.t('subscription.traffic_reset_week', {
-                        lang: subscription.user.language.iso6391,
-                      })
-                    : subscription.trafficReset == TrafficResetEnum.MONTH
-                    ? this.i18n.t('subscription.traffic_reset_month', {
-                        lang: subscription.user.language.iso6391,
-                      })
-                    : subscription.trafficReset == TrafficResetEnum.YEAR
-                    ? this.i18n.t('subscription.traffic_reset_year', {
-                        lang: subscription.user.language.iso6391,
-                      })
-                    : ''
-                announceMessages.push(updateTraffic)
-              }
-            }
 
-            if (announceMessages.length > 0) {
-              this.bot.telegram
-                .sendMessage(
-                  subscription.user.telegramId,
-                  announceMessages.join(' '),
-                )
-                .catch((error) => {
-                  this.logger.error({
-                    msg: 'Error sending message to user',
-                    error:
-                      error instanceof Error ? error.message : String(error),
-                    stack: error instanceof Error ? error.stack : undefined,
+                if (!marzbanUser) {
+                  this.logger.warn({
+                    msg: `Marzban user not found for subscription ${subscription.id}`,
+                    username: subscription.username,
                     service: this.serviceName,
                   })
+                  return subscription
+                }
+
+                let baseServers = 0
+                let premiumServers = 0
+
+                const serverCodes =
+                  subscription.isAllBaseServers &&
+                  subscription.isAllPremiumServers
+                    ? []
+                    : subscription.servers
+                        ?.flatMap((server) => {
+                          if (server.greenList.isPremium) premiumServers++
+                          else baseServers++
+                          return server.greenList.code
+                        })
+                        .filter(Boolean)
+
+                const filteredLinks = marzbanUser.links.filter((link) => {
+                  if (!serverCodes.length) return true
+                  return serverCodes.some((code) => link.includes(`@${code}`))
                 })
-            }
 
-            return this.prismaService.subscriptions.update({
-              where: { id: subscription.id },
-              data: {
-                links: subscription.links,
-                nextRenewalStars:
-                  subscription.user.role.discount == 0
-                    ? 0
-                    : subscription.nextRenewalStars,
-                usedTraffic: subscription.usedTraffic / 1024 / 1024,
-                lastUserAgent: subscription.lastUserAgent,
-                dataLimit: subscription.dataLimit / 1024 / 1024,
-                lifeTimeUsedTraffic:
-                  subscription.lifeTimeUsedTraffic / 1024 / 1024,
-                onlineAt: subscription.onlineAt
-                  ? new Date(subscription.onlineAt + 'Z')
-                  : null, // Adding 'Z' to indicate UTC timezone
-                marzbanData: subscription.marzbanData,
-                ...(isRemovalAt ? { removalAt } : {}),
-                announce:
-                  announceMessages.length == 0
-                    ? null
-                    : announceMessages.join(' '),
-              },
+                // Для INDEFINITELY не рассчитываем стоимость продления
+                let nextRenewalStars = null
+
+                // Только для подписок с периодом, отличным от INDEFINITELY
+                if (
+                  subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
+                  subscription.period !== SubscriptionPeriodEnum.TRIAL &&
+                  subscription.period !== SubscriptionPeriodEnum.TRAFFIC
+                ) {
+                  nextRenewalStars = calculateSubscriptionCost({
+                    plan: subscription.plan as PlansInterface,
+                    period: subscription.period as SubscriptionPeriodEnum,
+                    isPremium: subscription.isPremium,
+                    isTgProgramPartner: subscription.user.isTgProgramPartner,
+                    periodMultiplier: subscription.periodMultiplier,
+                    devicesCount: subscription.devicesCount,
+                    isAllBaseServers: subscription.isAllBaseServers,
+                    isAllPremiumServers: subscription.isAllPremiumServers,
+                    isUnlimitTraffic: subscription.isUnlimitTraffic,
+                    userDiscount: subscription.user.role.discount,
+                    settings: settings,
+                    serversCount: baseServers,
+                    premiumServersCount: premiumServers,
+                    trafficLimitGb: subscription.trafficLimitGb,
+                  })
+                }
+
+                return {
+                  ...subscription,
+                  links: filteredLinks,
+                  nextRenewalStars,
+                  usedTraffic: marzbanUser.used_traffic,
+                  lastUserAgent: marzbanUser.sub_last_user_agent,
+                  dataLimit: marzbanUser.data_limit,
+                  lifeTimeUsedTraffic: marzbanUser.lifetime_used_traffic,
+                  onlineAt: marzbanUser.online_at,
+                  marzbanData: JSON.stringify(marzbanUser),
+                }
+              }),
+            )
+
+            // Используем транзакцию для обновления каждой подписки индивидуально
+            await this.prismaService.$transaction(
+              updatedBatch.map((subscription) => {
+                const announceMessages = []
+                const removalAt = new Date(add(new Date(), { days: 7 }))
+                let isRemovalAt = false
+                let isNotAnnounce = false
+
+                if (
+                  subscription.usedTraffic >= subscription.dataLimit &&
+                  !subscription.isUnlimitTraffic &&
+                  subscription.announce == null
+                ) {
+                  announceMessages.push(
+                    this.i18n.t('subscription.traffic_exhausted', {
+                      lang: subscription.user.language.iso6391,
+                    }),
+                  )
+
+                  if (subscription.plan.key == PlansEnum.TRAFFIC) {
+                    announceMessages.push(
+                      this.i18n.t(
+                        'subscription.buy_more_traffic_and_expiration',
+                        {
+                          lang: subscription.user.language.iso6391,
+                          args: {
+                            date: intlFormat(
+                              new Date(removalAt),
+                              {
+                                year: 'numeric',
+                                month: 'numeric',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                              },
+                              {
+                                locale: subscription.user.language.iso6391,
+                              },
+                            ),
+                          },
+                        },
+                      ),
+                    )
+                    isRemovalAt = true
+                  } else {
+                    const updateTraffic =
+                      subscription.trafficReset == TrafficResetEnum.DAY
+                        ? this.i18n.t('subscription.traffic_reset_day', {
+                            lang: subscription.user.language.iso6391,
+                          })
+                        : subscription.trafficReset == TrafficResetEnum.WEEK
+                        ? this.i18n.t('subscription.traffic_reset_week', {
+                            lang: subscription.user.language.iso6391,
+                          })
+                        : subscription.trafficReset == TrafficResetEnum.MONTH
+                        ? this.i18n.t('subscription.traffic_reset_month', {
+                            lang: subscription.user.language.iso6391,
+                          })
+                        : subscription.trafficReset == TrafficResetEnum.YEAR
+                        ? this.i18n.t('subscription.traffic_reset_year', {
+                            lang: subscription.user.language.iso6391,
+                          })
+                        : ''
+                    announceMessages.push(updateTraffic)
+                  }
+                } else if (
+                  subscription.usedTraffic < subscription.dataLimit ||
+                  subscription.isUnlimitTraffic
+                ) {
+                  isNotAnnounce = true
+                }
+
+                if (announceMessages.length > 0 && !isNotAnnounce) {
+                  this.bot.telegram
+                    .sendMessage(
+                      subscription.user.telegramId,
+                      `${subscription.name}: ${announceMessages.join(' ')}`,
+                    )
+                    .catch((error) => {
+                      this.logger.error({
+                        msg: 'Error sending message to user',
+                        error:
+                          error instanceof Error
+                            ? error.message
+                            : String(error),
+                        stack: error instanceof Error ? error.stack : undefined,
+                        service: this.serviceName,
+                      })
+                    })
+                }
+
+                return this.prismaService.subscriptions.update({
+                  where: { id: subscription.id },
+                  data: {
+                    links: subscription.links,
+                    nextRenewalStars:
+                      subscription.user.role.discount == 0
+                        ? 0
+                        : subscription.nextRenewalStars,
+                    usedTraffic: subscription.usedTraffic / 1024 / 1024,
+                    lastUserAgent: subscription.lastUserAgent,
+                    dataLimit: subscription.dataLimit / 1024 / 1024,
+                    lifeTimeUsedTraffic:
+                      subscription.lifeTimeUsedTraffic / 1024 / 1024,
+                    onlineAt: subscription.onlineAt
+                      ? new Date(subscription.onlineAt + 'Z')
+                      : null, // Adding 'Z' to indicate UTC timezone
+                    marzbanData: subscription.marzbanData,
+                    ...(isRemovalAt ? { removalAt } : {}),
+                    ...(announceMessages.length > 0
+                      ? { announce: announceMessages.join(' ') }
+                      : isNotAnnounce
+                      ? { announce: null }
+                      : {}),
+                  },
+                })
+              }),
+            )
+
+            updatedCount += updatedBatch.length
+
+            this.logger.info({
+              msg: `Updated batch of ${updatedBatch.length} subscriptions`,
+              service: this.serviceName,
             })
-          }),
-        )
+          }
 
-        updatedCount += updatedBatch.length
-
-        this.logger.info({
-          msg: `Updated batch of ${updatedBatch.length} subscriptions`,
-          service: this.serviceName,
-        })
-      }
-
-      this.logger.info({
-        msg: `Successfully updated ${updatedCount} subscriptions`,
-        service: this.serviceName,
-      })
-    } catch (error) {
-      this.logger.error({
-        msg: 'Error updating subscriptions',
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
-    }
+          this.logger.info({
+            msg: `Successfully updated ${updatedCount} subscriptions`,
+            service: this.serviceName,
+          })
+        } catch (error) {
+          this.logger.error({
+            msg: 'Error updating subscriptions',
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            service: this.serviceName,
+          })
+        }
+      },
+      { retries: 2, retryDelayMs: 300, autoRenewIntervalSec: 20 },
+    )
   }
 
   /**
