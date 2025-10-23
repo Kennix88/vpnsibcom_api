@@ -328,31 +328,31 @@ services:
       - UM_USERNAME=${UM_USERNAME}
       - UM_PASSWORD=${UM_PASSWORD}
 
-  watchdog:
-    image: docker:24-cli
-    container_name: watchdog
-    restart: unless-stopped
-    depends_on:
-      - api
-      - db
-      - redis
-      - uptime-kuma
-      - xray-checker
-      - caddy
-      - grafana
-      - frontend
-    environment:
-      WATCH_SERVICES: 'api db redis uptime-kuma xray-checker caddy grafana frontend'
-      CHECK_INTERVAL: 15
-      COOLDOWN: 60
-      MAX_RESTARTS_WINDOW: 5
-      WINDOW_SEC: 300
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./docker/watchdog/watchdog.sh:/usr/local/bin/watchdog.sh:ro
-    networks:
-      - token-backend
-    entrypoint: ['/bin/sh', '/usr/local/bin/watchdog.sh']
+  # watchdog:
+  #   image: docker:24-cli
+  #   container_name: watchdog
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - api
+  #     - db
+  #     - redis
+  #     - uptime-kuma
+  #     - xray-checker
+  #     - caddy
+  #     - grafana
+  #     - frontend
+  #   environment:
+  #     WATCH_SERVICES: 'api db redis uptime-kuma xray-checker caddy grafana frontend'
+  #     CHECK_INTERVAL: 15
+  #     COOLDOWN: 60
+  #     MAX_RESTARTS_WINDOW: 5
+  #     WINDOW_SEC: 300
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ./docker/watchdog/watchdog.sh:/usr/local/bin/watchdog.sh:ro
+  #   networks:
+  #     - token-backend
+  #   entrypoint: ['/bin/sh', '/usr/local/bin/watchdog.sh']
 
 networks:
   token-backend:
