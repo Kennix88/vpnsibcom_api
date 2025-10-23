@@ -168,8 +168,10 @@ export class UsersService {
           result: {
             type: 'photo',
             id: 'test',
-            photo_file_id:
-              'AgACAgIAAxkDAAI202jKte1yZyrRA7UAAUofr3X01vO3KgACNPUxG_4mWUqv9rKLQ7g3jwEAAwIAA3MAAzYE',
+            photo_url:
+              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome.jpg',
+            thumbnail_url:
+              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome.jpg',
             caption: 'Use a VPN and play games in one place!',
             reply_markup: {
               inline_keyboard: [
