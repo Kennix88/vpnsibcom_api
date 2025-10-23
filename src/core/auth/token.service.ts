@@ -15,6 +15,34 @@ export class TokenService {
   ) {}
 
   /**
+   * Parses an expiry string (e.g., "7d", "1h", "30m") into seconds.
+   * @param expiryString - The expiry string to parse.
+   * @returns The expiry in seconds.
+   * @throws Error if the expiry string format is invalid.
+   */
+  private parseExpiryToSeconds(expiryString: string): number {
+    const value = parseInt(expiryString.slice(0, -1));
+    const unit = expiryString.slice(-1);
+
+    if (isNaN(value)) {
+      throw new Error(`Invalid expiry string: ${expiryString}. Value is not a number.`);
+    }
+
+    switch (unit) {
+      case 's':
+        return value;
+      case 'm':
+        return value * 60;
+      case 'h':
+        return value * 60 * 60;
+      case 'd':
+        return value * 24 * 60 * 60;
+      default:
+        throw new Error(`Invalid expiry string: ${expiryString}. Unknown unit: ${unit}`);
+    }
+  }
+
+  /**
    * Generates access and refresh tokens for a given payload.
    * @param payload - The JWT payload containing user information.
    * @returns An object with accessToken and refreshToken.
@@ -34,12 +62,20 @@ export class TokenService {
     this.telegramLogger.debug(`Refresh token generated for user ID: ${payload.sub}`)
 
     // Store refresh token in Redis
-    await this.redis.set(
-      `refresh_token:${payload.sub}`,
-      refreshToken,
-      'EX',
-      7 * 24 * 60 * 60, // 7 days in seconds
-    )
+    const refreshTokenExpiry = this.configService.getOrThrow<string>('REFRESH_TOKEN_EXPIRY');
+    const ttlSeconds = this.parseExpiryToSeconds(refreshTokenExpiry);
+
+    try {
+      await this.redis.set(
+        `refresh_token:${payload.sub}`,
+        refreshToken,
+        'EX',
+        ttlSeconds,
+      );
+    } catch (error) {
+      this.telegramLogger.error(`Failed to store refresh token for user ID: ${payload.sub}. Error: ${(error as Error).message}`);
+      throw new Error('Failed to store refresh token');
+    }
     this.telegramLogger.info(`Refresh token stored in Redis for user ID: ${payload.sub}`)
 
     return { accessToken, refreshToken }

@@ -45,6 +45,13 @@ export class AuthController {
     this.telegramLogger.debug(`Telegram login attempt for initData: ${dto.initData}`)
     try {
       const auth = await this.authService.telegramLogin(dto.initData)
+
+      // Check if auth and auth.user are defined to prevent "Cannot read properties of undefined (reading 'id')" error.
+      if (!auth || !auth.user) {
+        this.telegramLogger.error(`Telegram login failed: auth or auth.user is undefined for initData: ${dto.initData}`);
+        throw new BadRequestException('Ошибка авторизации через Telegram: Пользователь не найден или данные авторизации некорректны');
+      }
+
       res.cookie('refreshToken', auth.refreshToken, COOKIE_OPTIONS)
       this.telegramLogger.debug(`Refresh token cookie set for user ${auth.user.id}`)
 
