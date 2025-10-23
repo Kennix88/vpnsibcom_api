@@ -96,7 +96,13 @@ export class AuthService {
     this.telegramLogger.debug(`Tokens generated for user ID: ${user.id}`)
 
     const resUser = await this.userService.getResUserByTgId(user.telegramId)
-    this.telegramLogger.debug(`Retrieved response user data for Telegram ID: ${user.telegramId}`)
+    this.telegramLogger.debug(`Retrieved response user data for Telegram ID: ${user.telegramId}. User data: ${JSON.stringify(resUser)}`)
+
+    // Check if resUser is defined to prevent errors in AuthController
+    if (!resUser) {
+      this.telegramLogger.error(`Telegram login failed: getResUserByTgId returned undefined for Telegram ID: ${user.telegramId}`);
+      throw new UnauthorizedException('Telegram login failed: User data not found after token generation.');
+    }
 
     this.telegramLogger.info(`Telegram login successful for user ID: ${user.id}`)
     return {
