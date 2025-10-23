@@ -94,8 +94,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
-    "@nestjs/cli": "^10.4.9",
-    "@nestjs/schematics": "^10.0.1",
+    "@nestjs/cli": "^11.0.10",
+    "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.0.12",
     "@telegraf/types": "^9.0.0",
     "@types/bcrypt": "^5.0.2",

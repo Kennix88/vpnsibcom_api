@@ -150,14 +150,15 @@ services:
     restart: unless-stopped
     command: >
       sh -c '
-        mkdir -p /usr/local/etc/redis &&
-        echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
-        echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
-        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
-        echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
-        echo "timeout 0" >> /usr/local/etc/redis/redis.conf && # Ensure timeout is 0
-        echo "tcp-keepalive 60" >> /usr/local/etc/redis/redis.conf &&
-        redis-server /usr/local/etc/redis/redis.conf
+      mkdir -p /usr/local/etc/redis &&
+      echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+      echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
+      echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+      echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+      echo "timeout 0" >> /usr/local/etc/redis/redis.conf &&
+      echo "tcp-keepalive 60" >> /usr/local/etc/redis/redis.conf &&
+      echo "maxclients 10000" >> /usr/local/etc/redis/redis.conf &&
+      redis-server /usr/local/etc/redis/redis.conf
       '
     volumes:
       - redis_data:/data
@@ -326,6 +327,32 @@ services:
       - TZ=Etc/UTC
       - UM_USERNAME=${UM_USERNAME}
       - UM_PASSWORD=${UM_PASSWORD}
+
+  watchdog:
+    image: docker:24-cli
+    container_name: watchdog
+    restart: unless-stopped
+    depends_on:
+      - api
+      - db
+      - redis
+      - uptime-kuma
+      - xray-checker
+      - caddy
+      - grafana
+      - frontend
+    environment:
+      WATCH_SERVICES: 'api db redis uptime-kuma xray-checker caddy grafana frontend'
+      CHECK_INTERVAL: 15
+      COOLDOWN: 60
+      MAX_RESTARTS_WINDOW: 5
+      WINDOW_SEC: 300
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker/watchdog/watchdog.sh:/usr/local/bin/watchdog.sh:ro
+    networks:
+      - token-backend
+    entrypoint: ['/bin/sh', '/usr/local/bin/watchdog.sh']
 
 networks:
   token-backend:
