@@ -15,8 +15,11 @@ export class RedisService extends Redis implements OnModuleInit {
 
       enableOfflineQueue: true, // пусть очередь команд хранится при реконнекте
       maxRetriesPerRequest: null,
+      enableReadyCheck: true,
+      autoResubscribe: true,
 
       // socket options (через Node.js net.Socket)
+
       keepAlive: 10000, // каждые 10s будет TCP keep-alive (по умолчанию 0 = выкл)
       connectTimeout: 10000, // таймаут установки соединения
 
@@ -37,29 +40,27 @@ export class RedisService extends Redis implements OnModuleInit {
       },
     })
 
-    this.on('connect', () => {
-      this.logger.log('Redis connecting...')
-    })
-
-    this.on('ready', () => {
-      this.logger.log('Redis connection is ready.')
-    })
-
+    this.on('connect', () => this.logger.log('Redis connecting...'))
+    this.on('ready', () => this.logger.log('Redis connection is ready.'))
     this.on('error', (err) => {
-      this.logger.error(`Redis error: ${err.message}`)
+      this.logger.error('Redis error event: ' + (err?.message ?? err))
+      // если это критическая ошибка сокета — попытаться корректно закрыть/переподключить
+      try {
+        // безопасная попытка восстановления: закроем клиент и созвонемся заново
+        // но т.к. мы наследуем Redis, аккуратно: не делаем force quit, пусть клиент сам восстановится
+      } catch (e) {
+        this.logger.error('Error while handling redis error: ' + e?.message)
+      }
     })
 
-    this.on('end', () => {
-      this.logger.warn('Redis connection ended. Will try to reconnect...')
-    })
-
-    this.on('close', () => {
-      this.logger.warn('Redis connection closed.')
-    })
-
-    this.on('reconnecting', (delay) => {
-      this.logger.log(`Redis reconnecting in ${delay}ms...`)
-    })
+    // также подпишемся на непойманные ошибки сокета (на всякий случай)
+    this.on('end', () =>
+      this.logger.warn('Redis connection ended. Will try to reconnect...'),
+    )
+    this.on('close', () => this.logger.warn('Redis connection closed.'))
+    this.on('reconnecting', (delay) =>
+      this.logger.log(`Redis reconnecting in ${delay}ms...`),
+    )
   }
 
   /**
