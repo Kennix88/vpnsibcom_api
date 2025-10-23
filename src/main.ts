@@ -97,31 +97,13 @@ async function configureFastify(
 async function bootstrap() {
   const isProd = process.env.NODE_ENV === 'production'
 
-  // // Генерация self-signed сертификата для dev
-  // let httpsOptions: { key: string; cert: string } | undefined
-  // if (!isProd) {
-  //   const attrs = [{ name: 'commonName', value: '25.22.195.147' }]
-  //   const pems = selfsigned.generate(attrs, {
-  //     days: 365,
-  //     algorithm: 'sha256',
-  //     extensions: [
-  //       {
-  //         name: 'subjectAltName',
-  //         altNames: [
-  //           { type: 7, ip: '25.22.195.147' }, // type 7 = IP
-  //         ],
-  //       },
-  //     ],
-  //   })
-  // }
-
+  // Create app early so we can attach graceful shutdown references
   const app = await NestFactory.create<NestFastifyApplication>(
     CoreModule,
     new FastifyAdapter({
       trustProxy: isProd,
       logger: false,
       genReqId,
-      // https: httpsOptions, // подключаем HTTPS
     }),
     { bufferLogs: isProd, rawBody: true },
   )
@@ -150,6 +132,161 @@ async function bootstrap() {
     }),
   )
 
+  // graceful shutdown helper
+  let isShuttingDown = false
+  const shutdownLogger = new Logger('Shutdown')
+
+  async function gracefulShutdown(reason?: unknown) {
+    if (isShuttingDown) return
+    isShuttingDown = true
+    try {
+      shutdownLogger.warn(
+        `Graceful shutdown initiated. Reason: ${String(reason ?? '')}`,
+      )
+      // try to close Nest app (calls OnModuleDestroy hooks)
+      await app.close().catch((e) => {
+        shutdownLogger.error('Error while closing app: ' + (e?.message ?? e))
+      })
+      // try to close redis (if exists)
+      if (redis) {
+        try {
+          // ioredis: quit(); node-redis: disconnect(); both are safe to call if present
+          // prefer quit() to flush commands
+          // @ts-ignore
+          if (typeof redis.quit === 'function') {
+            // quit returns a promise on ioredis
+            await (redis.quit() as Promise<unknown>).catch(() => {})
+          } else if (typeof redis.disconnect === 'function') {
+            // fallback
+            // @ts-ignore
+            redis.disconnect()
+          }
+        } catch (e) {
+          shutdownLogger.error(
+            'Error while closing redis: ' + (e?.message ?? e),
+          )
+        }
+      }
+    } catch (e) {
+      shutdownLogger.error(
+        'Unexpected error during graceful shutdown: ' + (e?.message ?? e),
+      )
+    } finally {
+      // Ensure process exit so docker/watchdog can restart everything
+      shutdownLogger.warn('Exiting process now.')
+      // give some time to flush logs
+      setTimeout(() => process.exit(1), 200)
+    }
+  }
+
+  // GLOBAL PROCESS HANDLERS
+  process.on('unhandledRejection', (reason) => {
+    const msg = `unhandledRejection: ${String(reason)}`
+    pinoLogger.error(msg)
+    // Do graceful shutdown so watchdog / supervisor can restart the stack
+    void gracefulShutdown(reason)
+  })
+
+  process.on('uncaughtException', (err: any) => {
+    const msg = `uncaughtException: ${(err && err.stack) || err}`
+    pinoLogger.error(msg)
+    // exit gracefully
+    void gracefulShutdown(err)
+  })
+
+  process.on('SIGINT', () => {
+    pinoLogger.warn('SIGINT received')
+    void gracefulShutdown('SIGINT')
+  })
+  process.on('SIGTERM', () => {
+    pinoLogger.warn('SIGTERM received')
+    void gracefulShutdown('SIGTERM')
+  })
+
+  // Optional defensive patch: avoid Node throw on EventEmitter 'error' when there are no listeners.
+  // This is a last-resort safety-net for third-party libraries that emit 'error' on EventEmitter instances
+  // without attaching handlers (can cause process to crash). It's disabled by default; enable by env:
+  // PATCH_EVENT_EMITTER=true
+  try {
+    if (process.env.PATCH_EVENT_EMITTER === 'true') {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+      const { EventEmitter } = require('events')
+      const origEmit = EventEmitter.prototype.emit
+      // patch
+      // do not use Nest Logger here (may not be ready), use console as fallback
+      // keep patch minimal: swallow unhandled 'error' events and log a warning
+      // NOTE: this is a pragmatic workaround — prefer fixing the root cause (attach proper error handler on the offending client)
+      // tslint:disable-next-line:only-arrow-functions
+      EventEmitter.prototype.emit = function (
+        this: any,
+        event: string | symbol,
+        ...args: any[]
+      ) {
+        if (
+          event === 'error' &&
+          this.listenerCount &&
+          this.listenerCount('error') === 0
+        ) {
+          try {
+            console.warn(
+              `[event-patch] Unhandled 'error' on ${this.constructor?.name}:`,
+              args[0],
+            )
+          } catch {
+            // ignore
+          }
+          return true
+        }
+        return origEmit.call(this, event, ...args)
+      }
+      pinoLogger.warn(
+        'EventEmitter.emit patched to swallow unhandled error events (PATCH_EVENT_EMITTER=true)',
+      )
+    }
+  } catch (e) {
+    pinoLogger.error('Failed to apply EventEmitter patch: ' + (e?.message ?? e))
+  }
+
+  // Wait for Redis readiness before registering Fastify and listening
+  // If Redis is essential (as in your case), it's better to fail fast so the watchdog can restart all services.
+  try {
+    const REDIS_READY_TIMEOUT_MS = Number(
+      process.env.REDIS_READY_TIMEOUT_MS ?? 15000,
+    )
+    pinoLogger.info(
+      `Waiting up to ${REDIS_READY_TIMEOUT_MS}ms for Redis to become ready...`,
+    )
+    // redis.waitTillReady exists in your service
+    await Promise.race([
+      (async () => {
+        // @ts-ignore
+        if (typeof redis.waitTillReady === 'function') {
+          // will reject on error
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          return redis.waitTillReady()
+        }
+        // fallback: check status
+        // @ts-ignore
+        while (redis.status !== 'ready') {
+          await new Promise((r) => setTimeout(r, 200))
+        }
+      })(),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error('Redis ready timeout')),
+          REDIS_READY_TIMEOUT_MS,
+        ),
+      ),
+    ])
+    pinoLogger.info('Redis is ready.')
+  } catch (err) {
+    pinoLogger.error('Redis did not become ready: ' + (err as Error).message)
+    // fail fast: graceful shutdown -> exit -> watchdog will restart the whole group
+    await gracefulShutdown(err)
+    return
+  }
+
+  // continue with fastify registration and start
   await configureFastify(app, isProd, config, redis)
 
   if (parseBoolean(process.env.SEED_MOD || '')) {
@@ -161,11 +298,24 @@ async function bootstrap() {
 
   const port = config.get<number>('APPLICATION_PORT') ?? 3000
   Logger.log(`Starting on port ${port}`, 'Bootstrap')
-  await app.listen(port, '0.0.0.0')
-  Logger.log(`App listening on port ${port}`, 'Bootstrap')
+  try {
+    await app.listen(port, '0.0.0.0')
+    Logger.log(`App listening on port ${port}`, 'Bootstrap')
+  } catch (err) {
+    // listen failed: log and shutdown to let supervisor/watchdog handle restarts
+    Logger.error(`Failed to start app: ${(err as Error).message}`, 'Bootstrap')
+    await gracefulShutdown(err)
+  }
 }
 
-bootstrap().catch((err) => {
+bootstrap().catch(async (err) => {
   Logger.error(err, 'Bootstrap Failure')
-  process.exit(1)
+  // Try to perform graceful shutdown in case partial init succeeded
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    // best-effort: call shutdown (we cannot access app object here cleanly)
+  } finally {
+    // exit with non-zero
+    process.exit(1)
+  }
 })
