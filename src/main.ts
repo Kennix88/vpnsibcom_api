@@ -1,6 +1,5 @@
 import compression from '@fastify/compress'
 import cookie from '@fastify/cookie'
-import fastifyCsrf from '@fastify/csrf-protection'
 import helmet from '@fastify/helmet'
 import fastifyJwt from '@fastify/jwt'
 import fastifyRateLimit from '@fastify/rate-limit'
@@ -31,7 +30,7 @@ async function configureFastify(
 ) {
   await app.register(compression)
   await app.register(cookie)
-  if (!isProd) await app.register(fastifyCsrf)
+  // if (!isProd) await app.register(fastifyCsrf)
   await app.register(helmet, { contentSecurityPolicy: false })
   await app.register(fastifyJwt, {
     secret: config.getOrThrow<string>('JWT_ACCESS_SECRET'),
@@ -70,16 +69,22 @@ async function configureFastify(
   })
   app.enableCors({
     origin: (origin, cb) => {
+      if (!origin) return cb(null, true)
       const allowed = [
-        config.getOrThrow<string>('ALLOWED_ORIGIN'),
+        config.get<string>('ALLOWED_ORIGIN'),
         'https://127.0.0.1:3000',
+        'https://t.me',
+        'https://web.telegram.org',
+        'https://telegram.org',
       ]
-      cb(null, !origin || allowed.includes(origin))
+      cb(
+        null,
+        allowed.some((o) => origin.startsWith(o)),
+      )
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['set-cookie'],
   })
   const fastify = app.getHttpAdapter().getInstance()
   fastify.decorate(
@@ -105,7 +110,7 @@ async function bootstrap() {
       logger: false,
       genReqId,
     }),
-    { bufferLogs: isProd, rawBody: true },
+    { bufferLogs: isProd, rawBody: false },
   )
 
   const config = app.get(ConfigService)
