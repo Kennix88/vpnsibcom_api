@@ -31,6 +31,7 @@ import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
+import { LoggerTelegramService } from 'src/core/logger/logger-telegram.service'
 import { Telegraf } from 'telegraf'
 import { PaymentTypeEnum } from '../types/payment-type.enum'
 import { TelegramPaymentsService } from './telegram-payments.service'
@@ -46,6 +47,7 @@ export class PaymentsService {
     private readonly ratesService: RatesService,
     private readonly telegramPaymentsService: TelegramPaymentsService,
     private readonly marzbanService: MarzbanService,
+    private readonly telegramLogger: LoggerTelegramService,
     @Inject(forwardRef(() => XrayService))
     private readonly xrayService: XrayService,
     private readonly i18n: I18nService<I18nTranslations>,
@@ -65,8 +67,13 @@ export class PaymentsService {
     amountTon: number
     token: string
   }> {
+    this.telegramLogger.info(
+      `Attempting to create invoice for user ${tgId} with amount ${amount} and method ${method}`,
+    )
+
     try {
       return await this.prismaService.$transaction(async (tx) => {
+        // Find payment method
         const getMethod = await tx.paymentMethods.findUnique({
           where: {
             key: method,
@@ -74,9 +81,16 @@ export class PaymentsService {
           },
         })
         if (!getMethod) {
+          this.telegramLogger.warn(
+            `Payment method ${method} not found or not active for user ${tgId}`,
+          )
           throw new Error(`Payment method not found or not active`)
         }
+        this.telegramLogger.debug(
+          `Payment method ${method} found for user ${tgId}`,
+        )
 
+        // Find user
         const getUser = await tx.users.findUnique({
           where: {
             telegramId: tgId,
@@ -86,20 +100,34 @@ export class PaymentsService {
           },
         })
 
+        if (!getUser) {
+          this.telegramLogger.warn(`User with Telegram ID ${tgId} not found`)
+          throw new Error(`User not found`)
+        }
+        this.telegramLogger.debug(
+          `User ${getUser.id} found for Telegram ID ${tgId}`,
+        )
+
+        // Get settings
         const settings = await tx.settings.findUnique({
           where: {
             key: DefaultEnum.DEFAULT,
           },
         })
-
-        if (!getUser) {
-          throw new Error(`User not found`)
+        if (!settings) {
+          this.telegramLogger.error(`Default settings not found`)
+          throw new Error(`Default settings not found`)
         }
+        this.telegramLogger.debug(`Default settings retrieved`)
 
+        // Get rates
         const rates = await this.ratesService.getRates()
+        this.telegramLogger.debug(`Exchange rates retrieved`)
 
         const token = genToken()
+        this.telegramLogger.debug(`Generated payment token: ${token}`)
 
+        // Convert amount based on currency
         const convertedAmount =
           getMethod.currencyKey === CurrencyEnum.XTR
             ? amount
@@ -112,11 +140,15 @@ export class PaymentsService {
                 ),
                 5,
               )
+        this.telegramLogger.debug(
+          `Converted amount: ${convertedAmount} for currency ${getMethod.currencyKey}`,
+        )
 
         const amountStars =
           getMethod.key === PaymentMethodEnum.STARS
             ? Number(amount.toFixed(0))
             : amount
+        this.telegramLogger.debug(`Amount in stars: ${amountStars}`)
 
         const paymentObject = {
           status: PaymentStatusEnum.PENDING,
@@ -133,6 +165,9 @@ export class PaymentsService {
           token,
           userId: getUser.id,
         }
+        this.telegramLogger.debug(
+          `Payment object created: ${JSON.stringify(paymentObject)}`,
+        )
 
         let linkPay: string | null = null
         if (getMethod.key === PaymentMethodEnum.STARS) {
@@ -149,15 +184,27 @@ export class PaymentsService {
                 lang: getUser.language.iso6391,
               })
 
+          this.telegramLogger.debug(
+            `Creating Telegram invoice for user ${tgId} with title: ${title}`,
+          )
           linkPay = await this.telegramPaymentsService.createTelegramInvoice(
             amount,
             token,
             title,
             description,
           )
+          this.telegramLogger.debug(
+            `Telegram invoice link generated: ${linkPay}`,
+          )
         }
 
         if (!linkPay && getMethod.key === PaymentMethodEnum.STARS) {
+          this.telegramLogger.error(
+            `LinkPay not generated for STARS method for user ${tgId}`,
+          )
+          this.telegramLogger.error(
+            `LinkPay not generated for STARS method for user ${tgId}`,
+          )
           throw new Error(`LinkPay not found`)
         }
 
@@ -170,8 +217,11 @@ export class PaymentsService {
             subscriptionId,
           },
         })
+        this.telegramLogger.info(
+          `Payment record created in DB with ID: ${createPayment.id} for user ${tgId}`,
+        )
 
-        return {
+        const response = {
           linkPay:
             getMethod.key === PaymentMethodEnum.TON_TON
               ? this.configService.getOrThrow<string>('TON_WALLET')
@@ -181,12 +231,19 @@ export class PaymentsService {
           amountTon:
             getMethod.key === PaymentMethodEnum.TON_TON ? convertedAmount : 0,
         }
+        this.telegramLogger.info(
+          `Invoice creation successful for user ${tgId}. Response: ${JSON.stringify(
+            response,
+          )}`,
+        )
+        return response
       })
-    } catch (e) {
-      this.logger.error({
-        msg: `Error while creating invoice`,
-        e,
-      })
+    } catch (e: unknown) {
+      const error = e as Error
+      this.telegramLogger.error(
+        `Error while creating invoice for user ${tgId}: ${error.message}`,
+      )
+      throw error // Re-throw the error after logging
     }
   }
 
