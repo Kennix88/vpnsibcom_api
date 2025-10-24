@@ -180,8 +180,8 @@ export class SubscriptionManagerService {
                 // Только для подписок с периодом, отличным от INDEFINITELY
                 if (
                   subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
-                  subscription.period !== SubscriptionPeriodEnum.TRIAL &&
-                  subscription.period !== SubscriptionPeriodEnum.TRAFFIC
+                  subscription.plan.key !== PlansEnum.TRIAL &&
+                  subscription.plan.key !== PlansEnum.TRAFFIC
                 ) {
                   nextRenewalStars = calculateSubscriptionCost({
                     plan: subscription.plan as PlansInterface,
@@ -234,7 +234,10 @@ export class SubscriptionManagerService {
                     }),
                   )
 
-                  if (subscription.plan.key == PlansEnum.TRAFFIC) {
+                  if (
+                    subscription.plan.key == PlansEnum.TRAFFIC ||
+                    subscription.plan.key == PlansEnum.TRIAL
+                  ) {
                     announceMessages.push(
                       this.i18n.t(
                         'subscription.buy_more_traffic_and_expiration',
@@ -382,6 +385,9 @@ export class SubscriptionManagerService {
                 SubscriptionPeriodEnum.INDEFINITELY ||
                 SubscriptionPeriodEnum.TRIAL ||
                 SubscriptionPeriodEnum.TRAFFIC,
+            },
+            planKey: {
+              notIn: [PlansEnum.TRAFFIC, PlansEnum.TRIAL],
             },
             expiredAt: {
               not: null,
