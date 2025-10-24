@@ -1301,6 +1301,14 @@ export class XrayService {
         },
       })
 
+      trafficReset =
+        planKey == PlansEnum.TRAFFIC ? TrafficResetEnum.NO_RESET : trafficReset
+
+      period =
+        planKey == PlansEnum.TRAFFIC
+          ? SubscriptionPeriodEnum.INDEFINITELY
+          : period
+
       const token = genToken()
       const username = `${user.telegramId}_${Math.random()
         .toString(36)
