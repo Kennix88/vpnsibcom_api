@@ -67,10 +67,6 @@ export class PaymentsService {
     amountTon: number
     token: string
   }> {
-    this.telegramLogger.info(
-      `Attempting to create invoice for user ${tgId} with amount ${amount} and method ${method}`,
-    )
-
     try {
       return await this.prismaService.$transaction(async (tx) => {
         // Find payment method
@@ -81,14 +77,8 @@ export class PaymentsService {
           },
         })
         if (!getMethod) {
-          this.telegramLogger.warn(
-            `Payment method ${method} not found or not active for user ${tgId}`,
-          )
           throw new Error(`Payment method not found or not active`)
         }
-        this.telegramLogger.debug(
-          `Payment method ${method} found for user ${tgId}`,
-        )
 
         // Find user
         const getUser = await tx.users.findUnique({
@@ -101,13 +91,8 @@ export class PaymentsService {
         })
 
         if (!getUser) {
-          this.telegramLogger.warn(`User with Telegram ID ${tgId} not found`)
           throw new Error(`User not found`)
         }
-        this.telegramLogger.debug(
-          `User ${getUser.id} found for Telegram ID ${tgId}`,
-        )
-
         // Get settings
         const settings = await tx.settings.findUnique({
           where: {
@@ -115,17 +100,13 @@ export class PaymentsService {
           },
         })
         if (!settings) {
-          this.telegramLogger.error(`Default settings not found`)
           throw new Error(`Default settings not found`)
         }
-        this.telegramLogger.debug(`Default settings retrieved`)
 
         // Get rates
         const rates = await this.ratesService.getRates()
-        this.telegramLogger.debug(`Exchange rates retrieved`)
 
         const token = genToken()
-        this.telegramLogger.debug(`Generated payment token: ${token}`)
 
         // Convert amount based on currency
         const convertedAmount =
@@ -140,15 +121,11 @@ export class PaymentsService {
                 ),
                 5,
               )
-        this.telegramLogger.debug(
-          `Converted amount: ${convertedAmount} for currency ${getMethod.currencyKey}`,
-        )
 
         const amountStars =
           getMethod.key === PaymentMethodEnum.STARS
             ? Number(amount.toFixed(0))
             : amount
-        this.telegramLogger.debug(`Amount in stars: ${amountStars}`)
 
         const paymentObject = {
           status: PaymentStatusEnum.PENDING,
@@ -165,9 +142,6 @@ export class PaymentsService {
           token,
           userId: getUser.id,
         }
-        this.telegramLogger.debug(
-          `Payment object created: ${JSON.stringify(paymentObject)}`,
-        )
 
         let linkPay: string | null = null
         if (getMethod.key === PaymentMethodEnum.STARS) {
@@ -184,27 +158,15 @@ export class PaymentsService {
                 lang: getUser.language.iso6391,
               })
 
-          this.telegramLogger.debug(
-            `Creating Telegram invoice for user ${tgId} with title: ${title}`,
-          )
           linkPay = await this.telegramPaymentsService.createTelegramInvoice(
             amount,
             token,
             title,
             description,
           )
-          this.telegramLogger.debug(
-            `Telegram invoice link generated: ${linkPay}`,
-          )
         }
 
         if (!linkPay && getMethod.key === PaymentMethodEnum.STARS) {
-          this.telegramLogger.error(
-            `LinkPay not generated for STARS method for user ${tgId}`,
-          )
-          this.telegramLogger.error(
-            `LinkPay not generated for STARS method for user ${tgId}`,
-          )
           throw new Error(`LinkPay not found`)
         }
 
@@ -217,9 +179,6 @@ export class PaymentsService {
             subscriptionId,
           },
         })
-        this.telegramLogger.info(
-          `Payment record created in DB with ID: ${createPayment.id} for user ${tgId}`,
-        )
 
         const response = {
           linkPay:
@@ -231,11 +190,6 @@ export class PaymentsService {
           amountTon:
             getMethod.key === PaymentMethodEnum.TON_TON ? convertedAmount : 0,
         }
-        this.telegramLogger.info(
-          `Invoice creation successful for user ${tgId}. Response: ${JSON.stringify(
-            response,
-          )}`,
-        )
         return response
       })
     } catch (e: unknown) {
