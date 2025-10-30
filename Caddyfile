@@ -128,32 +128,3 @@ grafana.fasti.fun {
         img-src 'self' data:;
     "
 }
-
-# Prometheus
-# prometheus.fasti.fun {
-#     import standard_config
-
-#     reverse_proxy prometheus:9090 {
-#         flush_interval -1
-#     }
-
-#     header Content-Security-Policy "default-src 'self';"
-# }
-
-# Xray-checker
-xray-checker.fasti.fun {
-    import standard_config
-    reverse_proxy xray-checker:2112 {
-        header_up X-Forwarded-For {remote_host}
-    }
-    header Content-Security-Policy "default-src 'self';"
-}
-
-# Uptime Kuma
-status.fasti.fun {
-    import standard_config
-    reverse_proxy uptime-kuma:3001 {
-        header_up X-Forwarded-For {remote_host}
-    }
-    header Content-Security-Policy "default-src 'self';"
-}
