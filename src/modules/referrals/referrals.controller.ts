@@ -1,6 +1,6 @@
-import { AuthService } from '@core/auth/auth.service'
 import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
+import { AuthService } from '@core/auth/services/auth.service'
 import { ReferralsService } from '@modules/referrals/referrals.service'
 import { UsersService } from '@modules/users/users.service'
 import {

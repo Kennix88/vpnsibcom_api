@@ -1,4 +1,5 @@
 import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
+import { AuthService } from '@core/auth/services/auth.service'
 import {
   BadRequestException,
   Body,
@@ -14,7 +15,6 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
-import { AuthService } from '@vpnsibcom/src/core/auth/auth.service'
 import { CurrentUser } from '@vpnsibcom/src/core/auth/decorators/current-user.decorator'
 import { JwtAuthGuard } from '@vpnsibcom/src/core/auth/guards/jwt-auth.guard'
 import { JwtPayload } from '@vpnsibcom/src/shared/types/jwt-payload.interface'

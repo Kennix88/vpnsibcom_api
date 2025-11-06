@@ -8,7 +8,6 @@ import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.inte
 import { UserDataInterface } from '@shared/types/user-data.interface'
 import { parse } from '@telegram-apps/init-data-node'
 import { PinoLogger } from 'nestjs-pino'
-import { LoggerTelegramService } from '../logger/logger-telegram.service'
 import { TokenService } from './token.service'
 
 @Injectable()
@@ -20,7 +19,6 @@ export class AuthService {
     private configService: ConfigService,
     private readonly logger: PinoLogger,
     private userService: UsersService,
-    private readonly telegramLogger: LoggerTelegramService,
   ) {}
 
   public async updateUserActivity(token: string) {
@@ -70,9 +68,6 @@ export class AuthService {
           referralKey: refId,
         }),
       })
-      this.telegramLogger.info(
-        `New user created with ID: ${user.id} for Telegram ID: ${userData.user.id}`,
-      )
     }
 
     await this.userService.updateTelegramDataUser(

@@ -21,8 +21,8 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { LoggerTelegramService } from '../logger/logger-telegram.service'
-import { AuthService } from './auth.service'
 import { TelegramAuthGuard } from './guards/telegram-auth.guard'
+import { AuthService } from './services/auth.service'
 
 @Controller('auth')
 export class AuthController {

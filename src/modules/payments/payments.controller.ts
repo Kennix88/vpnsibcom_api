@@ -1,7 +1,7 @@
-import { AuthService } from '@core/auth/auth.service'
 import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
 import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
+import { AuthService } from '@core/auth/services/auth.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
 import { UsersService } from '@modules/users/users.service'
 import {
@@ -21,8 +21,8 @@ import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { Transform, Type } from 'class-transformer'
 import { IsBoolean, IsEnum, IsNumber, IsOptional } from 'class-validator'
 import { FastifyRequest } from 'fastify'
-import { PaymentTypeEnum } from './types/payment-type.enum'
 import { LoggerTelegramService } from '../../core/logger/logger-telegram.service'
+import { PaymentTypeEnum } from './types/payment-type.enum'
 
 class CreateInvoiceDto {
   @IsNumber()
@@ -52,15 +52,21 @@ export class PaymentsController {
   }
 
   private async updateUserActivityFromRequest(req: FastifyRequest) {
-    this.telegramLogger.debug('PaymentsController: Updating user activity from request.')
+    this.telegramLogger.debug(
+      'PaymentsController: Updating user activity from request.',
+    )
     const authHeader = req.headers.authorization
     if (authHeader?.startsWith('Bearer ')) {
-      this.telegramLogger.debug('PaymentsController: Authorization header found.')
+      this.telegramLogger.debug(
+        'PaymentsController: Authorization header found.',
+      )
       const token = authHeader.split(' ')[1]
       await this.authService.updateUserActivity(token)
       this.telegramLogger.info('PaymentsController: User activity updated.')
     } else {
-      this.telegramLogger.debug('PaymentsController: No Authorization header found.')
+      this.telegramLogger.debug(
+        'PaymentsController: No Authorization header found.',
+      )
     }
   }
 
@@ -74,10 +80,14 @@ export class PaymentsController {
     @Body() body: CreateInvoiceDto,
     @Req() req: FastifyRequest,
   ) {
-    this.telegramLogger.debug(`PaymentsController: createInvoice called by user ID: ${user.sub}`)
+    this.telegramLogger.debug(
+      `PaymentsController: createInvoice called by user ID: ${user.sub}`,
+    )
     try {
       await this.updateUserActivityFromRequest(req)
-      this.telegramLogger.debug('PaymentsController: User activity updated for createInvoice.')
+      this.telegramLogger.debug(
+        'PaymentsController: User activity updated for createInvoice.',
+      )
 
       const invoice = await this.paymentService.createInvoice(
         body.amount,
@@ -106,7 +116,9 @@ export class PaymentsController {
       }
     } catch (error) {
       this.telegramLogger.error(
-        `PaymentsController: Error creating invoice for user ID: ${user.sub}. Error: ${(error as Error).message}`,
+        `PaymentsController: Error creating invoice for user ID: ${
+          user.sub
+        }. Error: ${(error as Error).message}`,
       )
       throw error
     }
@@ -122,10 +134,14 @@ export class PaymentsController {
     @Req() req: FastifyRequest,
     @Query() query: GetMethodsQueryDto,
   ) {
-    this.telegramLogger.debug(`PaymentsController: getPaymentMethods called by user ID: ${user.sub}`)
+    this.telegramLogger.debug(
+      `PaymentsController: getPaymentMethods called by user ID: ${user.sub}`,
+    )
     try {
       await this.updateUserActivityFromRequest(req)
-      this.telegramLogger.debug('PaymentsController: User activity updated for getPaymentMethods.')
+      this.telegramLogger.debug(
+        'PaymentsController: User activity updated for getPaymentMethods.',
+      )
 
       const [paymentMethods, userData] = await Promise.all([
         this.paymentService.getPaymentMethods(query.isTma),
@@ -144,7 +160,9 @@ export class PaymentsController {
       }
     } catch (error) {
       this.telegramLogger.error(
-        `PaymentsController: Error getting payment methods for user ID: ${user.sub}. Error: ${(error as Error).message}`,
+        `PaymentsController: Error getting payment methods for user ID: ${
+          user.sub
+        }. Error: ${(error as Error).message}`,
       )
       throw error
     }

@@ -1,4 +1,4 @@
-import { TokenService } from '@core/auth/token.service'
+import { TokenService } from '@core/auth/services/token.service'
 import {
   CanActivate,
   ExecutionContext,
