@@ -233,20 +233,26 @@ services:
     sysctls:
       - net.core.somaxconn=1024
 
-  uptime-kuma:
-    image: louislam/uptime-kuma:latest
-    container_name: uptime-kuma
+  pg-backup:
+    image: postgres:17-alpine
+    container_name: pg-backup
     restart: unless-stopped
-    ports:
-      - '8082:3001'
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_LOG_CHAT_ID=${TELEGRAM_LOG_CHAT_ID}
+      - TELEGRAM_THREAD_ID_BACKUPS=${TELEGRAM_THREAD_ID_BACKUPS}
+      - CRON_SCHEDULE=0 */6 * * *
     networks:
       - token-backend
     volumes:
-      - uptime-kuma-data:/app/data
-    environment:
-      - TZ=Etc/UTC
-      - UM_USERNAME=${UM_USERNAME}
-      - UM_PASSWORD=${UM_PASSWORD}
+      - ./docker/pg-backup/backup.sh:/backup.sh:ro
+    entrypoint: ['/bin/sh', '/backup.sh']
 
   # watchdog:
   #   image: docker:24-cli
