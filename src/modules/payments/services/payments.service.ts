@@ -31,7 +31,6 @@ import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
-import { LoggerTelegramService } from 'src/core/logger/logger-telegram.service'
 import { Telegraf } from 'telegraf'
 import { PaymentTypeEnum } from '../types/payment-type.enum'
 import { TelegramPaymentsService } from './telegram-payments.service'
@@ -47,7 +46,6 @@ export class PaymentsService {
     private readonly ratesService: RatesService,
     private readonly telegramPaymentsService: TelegramPaymentsService,
     private readonly marzbanService: MarzbanService,
-    private readonly telegramLogger: LoggerTelegramService,
     @Inject(forwardRef(() => XrayService))
     private readonly xrayService: XrayService,
     private readonly i18n: I18nService<I18nTranslations>,
@@ -194,7 +192,7 @@ export class PaymentsService {
       })
     } catch (e: unknown) {
       const error = e as Error
-      this.telegramLogger.error(
+      this.logger.error(
         `Error while creating invoice for user ${tgId}: ${error.message}`,
       )
       throw error // Re-throw the error after logging
