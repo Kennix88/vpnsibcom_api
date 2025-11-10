@@ -33,6 +33,7 @@ import { ReferralsModule } from '@modules/referrals/referrals.module'
 import { UsersModule } from '@modules/users/users.module'
 import { XrayModule } from '@modules/xray/xray.module'
 
+import { AdsModule } from '@modules/ads/ads.module'
 import { PreventDuplicateInterceptor } from './auth/guards/prevent-duplicate.interceptor'
 import { CoreController } from './core.controller'
 
@@ -106,6 +107,7 @@ import { CoreController } from './core.controller'
     PaymentsModule,
     PlansModule,
     RatesModule,
+    AdsModule,
   ],
   controllers: [CoreController],
   providers: [
