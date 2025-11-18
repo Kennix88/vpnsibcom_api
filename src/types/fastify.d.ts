@@ -6,4 +6,8 @@ declare module 'fastify' {
     userId?: string
     authenticated?: boolean
   }
+  interface FastifyRequest {
+    user?: any
+    adSession?: any
+  }
 }
