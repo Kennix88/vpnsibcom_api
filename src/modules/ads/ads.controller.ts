@@ -1,60 +1,83 @@
+import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
+import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
+import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
+import { UsersService } from '@modules/users/users.service'
+import { getClientIp } from '@modules/xray/utils/get-client-ip.util'
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Post,
   Req,
+  UseGuards,
 } from '@nestjs/common'
-import { FastifyRequest } from 'fastify'
+import { JwtPayload } from '@shared/types/jwt-payload.interface'
+import type { FastifyRequest } from 'fastify'
+import { AdsService } from './ads.service'
+import { CreateConfirmDto } from './dto/create-confirm.dto'
+import { AdSessionGuard } from './guards/ad-session.guard'
+import { AdsPlaceEnum } from './types/ads-place.enum'
+import { AdsTaskTypeEnum } from './types/ads-task-type.enum'
 
+@UseGuards(JwtAuthGuard)
 @Controller('ads')
 export class AdsController {
-  constructor() {}
+  constructor(
+    private readonly adsService: AdsService,
+    private readonly usersService: UsersService,
+  ) {}
 
-  @Get('adsgram/reward/traffic/:userId')
+  @Get(':place/:type')
+  @PreventDuplicateRequest(120)
   @HttpCode(HttpStatus.OK)
-  async adsgramRewardTraffic(
-    @Param('userId') userId: string,
+  async getAdsTask(
+    @CurrentUser() userJWT: JwtPayload,
+    @Param('place') place: AdsPlaceEnum,
+    @Param('type') type: AdsTaskTypeEnum,
     @Req() req: FastifyRequest,
   ) {
-    try {
-      console.log('=== Adsgram Reward Traffic ===')
-      console.log('UserID:', userId)
-      console.log('URL:', req.url)
-      console.log('Method:', req.method)
-      console.log('IP:', req.ip)
-      console.log('Headers:', JSON.stringify(req.headers, null, 2))
-      console.log('Query:', JSON.stringify(req.query, null, 2))
-      console.log('Body:', JSON.stringify(req.body, null, 2))
-      console.log('==============================')
-      return 'OK'
-    } catch (error) {
-      console.error('Error handling Adsgram reward traffic:', error)
-      return 'ERROR'
-    }
+    const user = (req as any).user
+    const ip = getClientIp(req) ?? 'unknown'
+    const ua = req.headers['user-agent'] as string | undefined
+    return this.adsService.createAdSession({
+      userId: userJWT.sub,
+      telegramId: user.telegramId,
+      place: place as AdsPlaceEnum,
+      type: type as AdsTaskTypeEnum,
+      ip,
+      ua,
+    })
   }
 
-  @Get('adsgram/task/traffic/:userId')
+  @Post('confirm')
+  @UseGuards(AdSessionGuard)
   @HttpCode(HttpStatus.OK)
-  async adsgramTaskTraffic(
-    @Param('userId') userId: string,
+  async confirmAd(
+    @CurrentUser() userJWT: JwtPayload,
+    @Body() dto: CreateConfirmDto,
     @Req() req: FastifyRequest,
   ) {
-    try {
-      console.log('=== Adsgram Task Traffic ===')
-      console.log('UserID:', userId)
-      console.log('URL:', req.url)
-      console.log('Method:', req.method)
-      console.log('IP:', req.ip)
-      console.log('Headers:', JSON.stringify(req.headers, null, 2))
-      console.log('Query:', JSON.stringify(req.query, null, 2))
-      console.log('Body:', JSON.stringify(req.body, null, 2))
-      console.log('============================')
-      return 'OK'
-    } catch (error) {
-      console.error('Error handling Adsgram task traffic:', error)
-      return 'ERROR'
-    }
+    const user = (req as any).user
+    const meta = (req as any).adSession
+    const ip = getClientIp(req) ?? 'unknown'
+    const ua = req.headers['user-agent'] as string | undefined
+
+    const [result, userData] = await Promise.all([
+      this.adsService.confirmAd({
+        userId: userJWT.sub,
+        verifyKey: dto.verifyKey,
+        verificationCode: dto.verificationCode,
+        ip,
+        ua,
+        meta,
+      }),
+      this.usersService.getResUserByTgId(userJWT.telegramId),
+    ])
+
+    // возвращаем result — клиент увидит ok/не ok
+    return { ...result, user: userData }
   }
 }
