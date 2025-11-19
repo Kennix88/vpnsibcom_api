@@ -617,4 +617,84 @@ export class UsersService {
       return { success: false }
     }
   }
+
+  public async addUserBalance(
+    userId: string,
+    amount: number,
+    reason: TransactionReasonEnum,
+    balanceType: BalanceTypeEnum = BalanceTypeEnum.PAYMENT,
+  ): Promise<{
+    success: boolean
+  }> {
+    try {
+      if (amount <= 0) return { success: true }
+      // Get user data with balance information
+      const user = await this.prismaService.users.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          balance: true,
+          language: {
+            select: {
+              iso6391: true,
+            },
+          },
+        },
+      })
+
+      if (!user || !user.balance) {
+        this.logger.error({
+          msg: `User or balance not found for deduction`,
+          userId,
+          balanceType,
+        })
+        return { success: false }
+      }
+
+      // Perform deduction in transaction
+      const result = await this.prismaService.$transaction(async (tx) => {
+        await tx.userBalance.update({
+          where: { id: user.balance.id },
+          data: {
+            ...(balanceType == BalanceTypeEnum.TICKETS
+              ? { tickets: { increment: amount } }
+              : balanceType == BalanceTypeEnum.PAYMENT
+              ? { paymentBalance: { increment: amount } }
+              : {}),
+            ...(balanceType == BalanceTypeEnum.TRAFFIC
+              ? { traffic: { increment: amount } }
+              : {}),
+          },
+        })
+
+        await tx.transactions.create({
+          data: {
+            amount: amount,
+            type: TransactionTypeEnum.PLUS,
+            reason: reason,
+            balanceType: balanceType,
+            balanceId: user.balance.id,
+          },
+        })
+
+        return {
+          success: true,
+        }
+      })
+
+      return result
+    } catch (error) {
+      this.logger.error({
+        msg: `Error while deducting user balance`,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        userId,
+        amount,
+        reason,
+        balanceType,
+      })
+
+      return { success: false }
+    }
+  }
 }
