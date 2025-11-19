@@ -37,9 +37,7 @@ model Settings {
  threeYearRatioPayment       Float       @default(0.64) @map("three_year_ratio_payment")
  indefinitelyRatio           Float       @default(120) @map("indefinitely_ratio")
 
- minWithdrawalStars   Float @default(1000) @map("min_withdrawal_stars")
- adsRewardTraffic     Float @default(102) @map("ads_reward_traffic")
- adsTaskRewardTraffic Float @default(10240) @map("ads_task_reward_traffic")
+ minWithdrawalTon Float @default(50) @map("min_withdrawal_ton")
 
  // Настройки реферальной программы
  referralOneLevelPercent       Float @default(0.1) @map("referral_one_level_percent")
@@ -138,6 +136,7 @@ model Users {
  subscriptions  Subscriptions[]
  withdrawals    Withdrawals[]
  adsViews       AdsViews[]
+ rewardLogs     RewardLog[]
 
  @@index([telegramId])
  @@index([roleId])
@@ -148,33 +147,74 @@ model Users {
 
 /// Модель для просмотров рекламы
 model AdsViews {
- id         String          @id @default(uuid())
- /// Рекламная сеть
- network    AdsNetworks     @relation(fields: [networkKey], references: [key])
- networkKey AdsNetworkEnum  @default(ADSGRAM) @map("network_key")
- /// Тип просмотра рекламы
- type       AdsViewTypeEnum @default(REWARD)
- /// Дата создания
- createdAt  DateTime        @default(now()) @map("created_at")
+ id            String          @id @default(uuid())
+ network       AdsNetworks     @relation(fields: [networkKey], references: [key])
+ networkKey    AdsNetworkEnum  @default(ADSGRAM) @map("network_key")
+ type          AdsViewTypeEnum @default(REWARD)
+ rewardTraffic Float           @default(0) @map("reward_traffic")
+ rewardStars   Float           @default(0) @map("reward_stars")
+ rewardTickets Float           @default(0) @map("reward_tickets")
+ duration      Int             @default(0) @map("duration")
 
- /// Связь с пользователем
- user   Users  @relation(fields: [userId], references: [id])
- userId String @map("user_id")
+ createdAt DateTime  @default(now()) @map("created_at")
+ claimedAt DateTime? @map("claimed_at")
+
+ verifyKey String @map("verify_key")
+
+ user    Users     @relation(fields: [userId], references: [id])
+ userId  String    @map("user_id")
+ block   AdsBlocks @relation(fields: [blockId], references: [id])
+ blockId String    @map("block_id")
 
  @@index([userId])
  @@index([networkKey])
+ @@index([blockId])
  @@map("ads_views")
+}
+
+/// Перечисление типов просмотра рекламы
+enum AdsViewTypeEnum {
+ REWARD
+ TASK
+ VIEW
+}
+
+model AdsBlocks {
+ id            String            @id
+ name          String
+ place         AdsBlockPlaceEnum @unique
+ isActive      Boolean           @default(true) @map("is_active")
+ rewardTraffic Float             @default(0) @map("reward_traffic")
+ rewardStars   Float             @default(0) @map("reward_stars")
+ rewardTickets Float             @default(0) @map("reward_tickets")
+ duration      Int               @default(0) @map("duration")
+ limit         Int               @default(0) @map("limit")
+
+ createdAt DateTime @default(now()) @map("created_at")
+ updatedAt DateTime @updatedAt @map("updated_at")
+
+ network    AdsNetworks    @relation(fields: [networkKey], references: [key])
+ networkKey AdsNetworkEnum @default(ADSGRAM) @map("network_key")
+ views      AdsViews[]
+
+ @@unique([id, place])
+ @@index([networkKey])
+ @@map("ads_blocks")
+}
+
+enum AdsBlockPlaceEnum {
+ TASK
+ REWARD_TASK
+ BANNER
 }
 
 /// Модель для рекламных сетей
 model AdsNetworks {
- key      AdsNetworkEnum @id
- /// Активна ли сеть
- isActive Boolean        @map("is_active")
- /// Название сети
- name     String
- /// Связь с просмотрами рекламы
- adsViews AdsViews[]
+ key       AdsNetworkEnum @id
+ isActive  Boolean        @map("is_active")
+ name      String
+ adsViews  AdsViews[]
+ adsBlocks AdsBlocks[]
 
  @@map("ads_networks")
 }
@@ -189,11 +229,21 @@ enum AdsNetworkEnum {
  MONETAG
 }
 
-/// Перечисление типов просмотра рекламы
-enum AdsViewTypeEnum {
- REWARD
- TASK
- VIEW
+model RewardLog {
+ id            String   @id @default(uuid())
+ rewardStars   Float    @default(0) @map("reward_stars")
+ rewardTickets Float    @default(0) @map("reward_tickets")
+ rewardTraffic Float    @default(0) @map("reward_traffic")
+ source        String   @map("source")
+ reference     String?  @map("reference")
+ ip            String?  @map("ip")
+ ua            String?  @map("ua")
+ createdAt     DateTime @default(now()) @map("created_at")
+
+ user   Users  @relation(fields: [userId], references: [id])
+ userId String @map("user_id")
+
+ @@map("reward_log")
 }
 
 /// Модель баланса пользователя
