@@ -1,5 +1,4 @@
 import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
-import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { UsersService } from '@modules/users/users.service'
 import { getClientIp } from '@modules/xray/utils/get-client-ip.util'
@@ -31,7 +30,6 @@ export class AdsController {
   ) {}
 
   @Get(':place/:type')
-  @PreventDuplicateRequest(120)
   @HttpCode(HttpStatus.OK)
   async getAdsTask(
     @CurrentUser() userJWT: JwtPayload,
@@ -65,17 +63,17 @@ export class AdsController {
     const ip = getClientIp(req) ?? 'unknown'
     const ua = req.headers['user-agent'] as string | undefined
 
-    const [result, userData] = await Promise.all([
-      this.adsService.confirmAd({
-        userId: userJWT.sub,
-        verifyKey: dto.verifyKey,
-        verificationCode: dto.verificationCode,
-        ip,
-        ua,
-        meta,
-      }),
-      this.usersService.getResUserByTgId(userJWT.telegramId),
-    ])
+    const result = await this.adsService.confirmAd({
+      userId: userJWT.sub,
+      verifyKey: dto.verifyKey,
+      verificationCode: dto.verificationCode,
+      ip,
+      ua,
+      meta,
+    })
+    const userData = await this.usersService.getResUserByTgId(
+      userJWT.telegramId,
+    )
 
     // возвращаем result — клиент увидит ok/не ok
     return { ...result, user: userData }
