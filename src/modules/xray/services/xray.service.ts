@@ -273,23 +273,33 @@ export class XrayService {
         .sendMessage(
           Number(process.env.TELEGRAM_LOG_CHAT_ID),
           `<b>➕ ДОБАВЛЕН ТРАФИК НА ${traffic} GB</b>
-<b>Пользователь:</b> ${sub.user.telegramData?.username || ''} <code>${
-            sub.user.telegramData?.firstName || ''
-          } ${sub.user.telegramData?.lastName || ''}</code>
-<b>User ID:</b> <code>${updateSub.userId}</code>
-<b>Telegram ID:</b> <code>${sub.user.telegramId}</code>
+<b>👤 Пользователь:</b> ${
+            sub.user.telegramData?.username
+              ? `@${sub.user.telegramData?.username}`
+              : ''
+          } <code>${sub.user.telegramData?.firstName || ''} ${
+            sub.user.telegramData?.lastName || ''
+          }</code>
+<b>🪪 User ID:</b> <code>${updateSub.userId}</code>
+<b>🆔 Telegram ID:</b> <code>${sub.user.telegramId}</code>
 <b>Имя:</b> <code>${updateSub.name}</code>
 <b>Username :</b> <code>${updateSub.username}</code>
 <b>Тариф:</b> <code>${updateSub.planKey}</code>
-<b>Дата истечения:</b> <code>${updateSub.expiredAt}</code>
-<b>Автопродление:</b> <code>${updateSub.isAutoRenewal}</code>
-<b>Множитель периода:</b> <code>${updateSub.periodMultiplier}</code>
+<b>📅 Дата истечения:</b> <code>${
+            updateSub.expiredAt == null ? '♾️' : updateSub.expiredAt
+          }</code>
+<b>🔁 Автопродление:</b> <code>${updateSub.isAutoRenewal ? '✅' : '🚫'}</code>
+<b>Множитель периода:</b> <code>x${updateSub.periodMultiplier}</code>
 <b>Цена следующей оплаты:</b> <code>${updateSub.nextRenewalStars}</code>
-<b>Премиум:</b> <code>${updateSub.isPremium}</code>
-<b>Устройства:</b> <code>${updateSub.devicesCount}</code> шт.
-<b>Все базовые сервера:</b> <code>${updateSub.isAllBaseServers}</code>
-<b>Все премиум сервера:</b> <code>${updateSub.isAllPremiumServers}</code>
-<b>Лимит трафика:</b> <code>${
+<b>⭐ Премиум:</b> <code>${updateSub.isPremium ? '✅' : '🚫'}</code>
+<b>📱 Устройства:</b> <code>${updateSub.devicesCount}</code> шт.
+<b>Все базовые сервера:</b> <code>${
+            updateSub.isAllBaseServers ? '✅' : '🚫'
+          }</code>
+<b>Все премиум сервера:</b> <code>${
+            updateSub.isAllPremiumServers ? '✅' : '🚫'
+          }</code>
+<b>📉 Лимит трафика:</b> <code>${updateSub.usedTraffic / 1024}</code>/<code>${
             updateSub.trafficLimitGb *
             (updateSub.trafficReset == TrafficResetEnum.DAY
               ? 1
@@ -300,9 +310,9 @@ export class XrayService {
               : updateSub.trafficReset == TrafficResetEnum.YEAR
               ? 365
               : 1)
-          }</code> Гб
+          }</code> Gb
 <b>Сброс трафика:</b> <code>${updateSub.trafficReset}</code>
-<b>Безлимит:</b> <code>${updateSub.isUnlimitTraffic}</code>
+<b>♾️ Безлимит:</b> <code>${updateSub.isUnlimitTraffic ? '✅' : '🚫'}</code>
 `,
           {
             parse_mode: 'HTML',
@@ -1460,23 +1470,37 @@ export class XrayService {
             .sendMessage(
               Number(process.env.TELEGRAM_LOG_CHAT_ID),
               `<b>👍 НОВАЯ ПОДПИСКА СОЗДАНА</b>
-<b>Пользователь:</b> ${user.telegramData?.username || ''} <code>${
-                user.telegramData?.firstName || ''
-              } ${user.telegramData?.lastName || ''}</code>
-<b>User ID:</b> <code>${subscription.userId}</code>
-<b>Telegram ID:</b> <code>${user.telegramId}</code>
+<b>👤 Пользователь:</b> ${
+                user.telegramData?.username
+                  ? `@${user.telegramData?.username}`
+                  : ''
+              } <code>${user.telegramData?.firstName || ''} ${
+                user.telegramData?.lastName || ''
+              }</code>
+<b>🪪 User ID:</b> <code>${subscription.userId}</code>
+<b>🆔 Telegram ID:</b> <code>${user.telegramId}</code>
 <b>Имя:</b> <code>${subscription.name}</code>
 <b>Username :</b> <code>${subscription.username}</code>
 <b>Тариф:</b> <code>${subscription.planKey}</code>
-<b>Дата истечения:</b> <code>${subscription.expiredAt}</code>
-<b>Автопродление:</b> <code>${subscription.isAutoRenewal}</code>
-<b>Множитель периода:</b> <code>${subscription.periodMultiplier}</code>
+<b>📅 Дата истечения:</b> <code>${
+                subscription.expiredAt == null ? '♾️' : subscription.expiredAt
+              }</code>
+<b>🔁 Автопродление:</b> <code>${
+                subscription.isAutoRenewal ? '✅' : '🚫'
+              }</code>
+<b>Множитель периода:</b> <code>x${subscription.periodMultiplier}</code>
 <b>Цена следующей оплаты:</b> <code>${subscription.nextRenewalStars}</code>
-<b>Премиум:</b> <code>${subscription.isPremium}</code>
-<b>Устройства:</b> <code>${subscription.devicesCount}</code>
-<b>Все базовые сервера:</b> <code>${subscription.isAllBaseServers}</code>
-<b>Все премиум сервера:</b> <code>${subscription.isAllPremiumServers}</code>
-<b>Лимит трафика:</b> <code>${
+<b>⭐ Премиум:</b> <code>${subscription.isPremium ? '✅' : '🚫'}</code>
+<b>📱 Устройства:</b> <code>${subscription.devicesCount}</code>
+<b>Все базовые сервера:</b> <code>${
+                subscription.isAllBaseServers ? '✅' : '🚫'
+              }</code>
+<b>Все премиум сервера:</b> <code>${
+                subscription.isAllPremiumServers ? '✅' : '🚫'
+              }</code>
+<b>📉 Лимит трафика:</b> <code>${
+                subscription.usedTraffic / 1024
+              }</code>/<code>${
                 subscription.trafficLimitGb *
                 (trafficReset == TrafficResetEnum.DAY
                   ? 1
@@ -1487,9 +1511,9 @@ export class XrayService {
                   : trafficReset == TrafficResetEnum.YEAR
                   ? 365
                   : 1)
-              }</code>
+              }</code> Gb
 <b>Сброс трафика:</b> <code>${subscription.trafficReset}</code>
-<b>Безлимит:</b> <code>${subscription.isUnlimitTraffic}</code>
+<b>♾️ Безлимит:</b> <code>${subscription.isUnlimitTraffic ? '✅' : '🚫'}</code>
 `,
               {
                 parse_mode: 'HTML',
@@ -2164,7 +2188,9 @@ export class XrayService {
       // Иначе добавляем период к текущей дате
       const now = new Date()
       const newExpiredAt =
-        subscription.expiredAt > now
+        period === SubscriptionPeriodEnum.INDEFINITELY
+          ? null
+          : subscription.expiredAt > now
           ? addHours(subscription.expiredAt, hours)
           : addHours(now, hours)
 
@@ -2220,9 +2246,12 @@ export class XrayService {
             id: subscription.id,
           },
           data: {
-            period: isSavePeriod
-              ? period
-              : (subscription.period as SubscriptionPeriodEnum),
+            period:
+              period === SubscriptionPeriodEnum.INDEFINITELY
+                ? period
+                : isSavePeriod
+                ? period
+                : (subscription.period as SubscriptionPeriodEnum),
             periodMultiplier: isSavePeriod
               ? periodMultiplier
               : subscription.periodMultiplier,
@@ -2247,27 +2276,39 @@ export class XrayService {
         .sendMessage(
           Number(process.env.TELEGRAM_LOG_CHAT_ID),
           `<b>🍥 ПРОДЛЕНИЕ ПОДПИСКИ</b>
-<b>Пользователь:</b> ${user.telegramData?.username || ''} <code>${
-            user.telegramData?.firstName || ''
-          } ${user.telegramData?.lastName || ''}</code>
-<b>User ID:</b> <code>${updatedSubscription.userId}</code>
-<b>Telegram ID:</b> <code>${user.telegramId}</code>
+<b>👤 Пользователь:</b> ${
+            user.telegramData?.username ? `@${user.telegramData?.username}` : ''
+          } <code>${user.telegramData?.firstName || ''} ${
+            user.telegramData?.lastName || ''
+          }</code>
+<b>🪪 User ID:</b> <code>${updatedSubscription.userId}</code>
+<b>🆔 Telegram ID:</b> <code>${user.telegramId}</code>
 <b>Имя:</b> <code>${updatedSubscription.name}</code>
 <b>Username :</b> <code>${updatedSubscription.username}</code>
 <b>Тариф:</b> <code>${updatedSubscription.planKey}</code>
-<b>Дата истечения:</b> <code>${updatedSubscription.expiredAt}</code>
-<b>Автопродление:</b> <code>${updatedSubscription.isAutoRenewal}</code>
-<b>Множитель периода:</b> <code>${updatedSubscription.periodMultiplier}</code>
+<b>📅 Дата истечения:</b> <code>${
+            updatedSubscription.expiredAt == null
+              ? '♾️'
+              : updatedSubscription.expiredAt
+          }</code>
+<b>🔁 Автопродление:</b> <code>${
+            updatedSubscription.isAutoRenewal ? '✅' : '🚫'
+          }</code>
+<b>Множитель периода:</b> <code>x${updatedSubscription.periodMultiplier}</code>
 <b>Цена следующей оплаты:</b> <code>${
             updatedSubscription.nextRenewalStars
           }</code>
-<b>Премиум:</b> <code>${updatedSubscription.isPremium}</code>
-<b>Устройства:</b> <code>${updatedSubscription.devicesCount}</code> шт.
-<b>Все базовые сервера:</b> <code>${updatedSubscription.isAllBaseServers}</code>
-<b>Все премиум сервера:</b> <code>${
-            updatedSubscription.isAllPremiumServers
+<b>⭐ Премиум:</b> <code>${updatedSubscription.isPremium ? '✅' : '🚫'}</code>
+<b>📱 Устройства:</b> <code>${updatedSubscription.devicesCount}</code> шт.
+<b>Все базовые сервера:</b> <code>${
+            updatedSubscription.isAllBaseServers ? '✅' : '🚫'
           }</code>
-<b>Лимит трафика:</b> <code>${
+<b>Все премиум сервера:</b> <code>${
+            updatedSubscription.isAllPremiumServers ? '✅' : '🚫'
+          }</code>
+<b>📉 Лимит трафика:</b> <code>${
+            updatedSubscription.usedTraffic / 1024
+          }</code>/<code>${
             updatedSubscription.trafficLimitGb *
             (trafficReset == TrafficResetEnum.DAY
               ? 1
@@ -2278,9 +2319,11 @@ export class XrayService {
               : trafficReset == TrafficResetEnum.YEAR
               ? 365
               : 1)
-          }</code> Гб
+          }</code> Gb
 <b>Сброс трафика:</b> <code>${updatedSubscription.trafficReset}</code>
-<b>Безлимит:</b> <code>${updatedSubscription.isUnlimitTraffic}</code>
+<b>♾️ Безлимит:</b> <code>${
+            updatedSubscription.isUnlimitTraffic ? '✅' : '🚫'
+          }</code>
 `,
           {
             parse_mode: 'HTML',
