@@ -182,7 +182,7 @@ enum AdsViewTypeEnum {
 model AdsBlocks {
  id            String            @id
  name          String
- place         AdsBlockPlaceEnum @unique
+ place         AdsBlockPlaceEnum
  isActive      Boolean           @default(true) @map("is_active")
  rewardTraffic Float             @default(0) @map("reward_traffic")
  rewardStars   Float             @default(0) @map("reward_stars")
@@ -206,6 +206,13 @@ enum AdsBlockPlaceEnum {
  TASK
  REWARD_TASK
  BANNER
+ BANNER_2
+ BANNER_3
+ BANNER_4
+ BANNER_5
+ BANNER_6
+ BANNER_7
+ BANNER_8
 }
 
 /// Модель для рекламных сетей
