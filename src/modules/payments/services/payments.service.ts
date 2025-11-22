@@ -468,23 +468,47 @@ export class PaymentsService {
         transactionId,
         ...(details && { details: details as Prisma.JsonObject }),
       },
+      include: {
+        user: {
+          include: {
+            telegramData: true,
+          },
+        },
+      },
     })
 
     try {
       await this.bot.telegram
         .sendMessage(
           Number(process.env.TELEGRAM_LOG_CHAT_ID),
-          `<b>НОВЫЙ УСПЕШНЫЙ ПЛАТЕЖ</b>
+          `<b>💳 НОВЫЙ УСПЕШНЫЙ ПЛАТЕЖ</b>
 <b>Статус:</b> <code>${updatedPayment.status}</code>
-<b>Пользователь:</b> <code>${updatedPayment.userId}</code>
+<b>👤 Пользователь:</b> ${
+            updatedPayment.user.telegramData?.username
+              ? `@${updatedPayment.user.telegramData?.username}`
+              : ''
+          } <code>${updatedPayment.user.telegramData?.firstName || ''} ${
+            updatedPayment.user.telegramData?.lastName || ''
+          }</code>
+<b>🪪 User ID:</b> <code>${updatedPayment.user.id}</code>
+<b>🆔 Telegram ID:</b> <code>${updatedPayment.user.telegramId}</code>
+<b>⭐ Премиум:</b> <code>${
+            updatedPayment.user.telegramData?.isPremium ? '✅' : '🚫'
+          }</code>
 <b>Сумма Stars:</b> <code>${updatedPayment.amountStars} ⭐</code>
-<b>Сумма в валюте:</b> <code>${updatedPayment.amount}</code>
+<b>Сумма в валюте:</b> <code>${updatedPayment.amount}</code> <code>${
+            updatedPayment.currencyKey
+          }</code>
 <b>Метод:</b> <code>${updatedPayment.methodKey}</code>
 <b>Валюта:</b> <code>${updatedPayment.currencyKey}</code>
 <b>Rate:</b> <code>${updatedPayment.exchangeRate}</code>
 <b>Комиссия:</b> <code>${updatedPayment.commission}</code>
-<b>Партнер телеграм:</b> <code>${updatedPayment.isTgPartnerProgram}</code>
-<b>Потеря на партнерку:</b> <code>${updatedPayment.amountStarsFeeTgPartner} ⭐</code>
+<b>Партнер телеграм:</b> <code>${
+            updatedPayment.isTgPartnerProgram ? '✅' : '🚫'
+          }</code>
+<b>Потеря на партнерку:</b> <code>${
+            updatedPayment.amountStarsFeeTgPartner
+          } ⭐</code>
 <b>Подписка:</b> <code>${updatedPayment.subscriptionId}</code>
 `,
           {
