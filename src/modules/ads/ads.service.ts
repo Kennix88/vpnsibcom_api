@@ -68,14 +68,9 @@ export class AdsService {
     }
 
     const metaKey = `ad:session:meta:${sessionId}`
-    const remKey = `ad:session:remaining:${sessionId}`
-    const pendingKey = `ad:pending:${userId}`
 
-    // store meta and remaining in Redis
+    // store only meta in Redis with expiration
     await this.redisService.setObjectWithExpiry(metaKey, meta, duration)
-    await this.redisService.setWithExpiry(remKey, String(limit), duration)
-    await this.redisService.rpush(pendingKey, sessionId)
-    await this.redisService.expire(pendingKey, duration)
 
     // сохраняем запись AdsViews (verifyKey пока UUID -> later replaced by JWT returned to client)
     await this.prisma.adsViews.create({
@@ -236,37 +231,11 @@ export class AdsService {
       return { success: false, reason: 'NETWORK_VERIFICATION_FAILED' }
     }
 
-    // 4) Atomic DECR remaining via Lua (returns new value or -1 if missing, 0 if no remaining)
-    const remKey = `ad:session:remaining:${sessionId}`
-    const lua = `
-      local rem = redis.call('GET', KEYS[1])
-      if (not rem) then return -1 end
-      rem = tonumber(rem)
-      if (rem <= 0) then return 0 end
-      return redis.call('DECR', KEYS[1])
-    `
-    let newRem: number
-    try {
-      const evalRes = await (this.redisService as any).eval(lua, 1, remKey)
-      newRem = Number(evalRes)
-    } catch (err) {
-      this.logger.error(
-        `confirmAd: redis eval failed for ${sessionId}: ${err?.message ?? err}`,
-      )
-      return { success: false, reason: 'REDIS_ERROR' }
-    }
-
-    if (newRem === -1) {
-      return { success: false, reason: 'SESSION_MISSING' }
-    }
-    if (newRem === 0) {
-      // no remaining
-      await this.redisService.hincrby(
-        `ad:stats:user:${userId}`,
-        'no_remaining',
-        1,
-      )
-      return { success: false, reason: 'NO_REMAINING' }
+    // 4) Проверяем, что сессия еще не была использована
+    const usedKey = `ad:session:used:${sessionId}`
+    const isUsed = await this.redisService.get(usedKey)
+    if (isUsed !== null) {
+      return { success: false, reason: 'SESSION_ALREADY_USED' }
     }
 
     // 5) grant reward in DB transaction (adapt fields to your schema)
@@ -313,6 +282,9 @@ export class AdsService {
           },
         })
       })
+      // Помечаем сессию как использованную
+      await this.redisService.setWithExpiry(usedKey, '1', metaObj.duration)
+      
       // increment stats success
       try {
         const statsKey = `ad:stats:user:${userId}`
@@ -336,12 +308,12 @@ export class AdsService {
           err?.message ?? err
         }`,
       )
-      // best-effort rollback: increment remaining back
+      // best-effort rollback: удаляем пометку об использовании
       try {
-        await (this.redisService as any).incr(remKey)
+        await this.redisService.del(usedKey)
       } catch (e) {
         this.logger.error(
-          `confirmAd: rollback incr failed for ${sessionId}: ${
+          `confirmAd: rollback del usedKey failed for ${sessionId}: ${
             e?.message ?? e
           }`,
         )
