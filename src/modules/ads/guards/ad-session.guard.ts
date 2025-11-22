@@ -20,16 +20,11 @@ export class AdSessionGuard implements CanActivate {
   ) {}
 
   private extractVerifyKey(req: FastifyRequest): string | null {
-    // ищем JWT: body.verifyKey, query.verifyKey или header x-verify-key
+    // ищем JWT только в body.verifyKey
     // @ts-ignore
     if (req.body && typeof req.body.verifyKey === 'string')
       // @ts-ignore
       return req.body.verifyKey
-    // @ts-ignore
-    if (req.query && typeof (req.query as any).verifyKey === 'string')
-      return (req.query as any).verifyKey
-    const header = req.headers['x-verify-key'] || req.headers['x-verifykey']
-    if (header && typeof header === 'string') return header
     return null
   }
 
@@ -78,13 +73,11 @@ export class AdSessionGuard implements CanActivate {
         throw new ForbiddenException('ad session user mismatch')
       }
 
-      const remKey = `ad:session:remaining:${sessionId}`
-      const remaining = await this.redisService.get(remKey)
-      if (remaining === null) {
-        throw new BadRequestException('ad session remaining missing or expired')
-      }
-      if (Number(remaining) <= 0) {
-        throw new BadRequestException('ad session has no remaining attempts')
+      // Проверяем, что сессия еще не была использована
+      const usedKey = `ad:session:used:${sessionId}`
+      const isUsed = await this.redisService.get(usedKey)
+      if (isUsed !== null) {
+        throw new BadRequestException('ad session already used')
       }
 
       // pass meta and sessionId forward
