@@ -1,3 +1,4 @@
+import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
 import { PaymentTypeEnum } from '@modules/payments/types/payment-type.enum'
@@ -18,7 +19,6 @@ import { genToken } from '@shared/utils/gen-token.util'
 import { addHours } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { UserCreate } from '../types/marzban.types'
@@ -29,6 +29,7 @@ import {
   SubscriptionDataInterface,
   SubscriptionResponseInterface,
 } from '../types/subscription-data.interface'
+import { XrayInboundTypeEnum } from '../types/xray-inbound-type.enum'
 import {
   calculateMbPay,
   calculateSubscriptionCost,
@@ -175,7 +176,9 @@ export class XrayService {
       }
     } catch (error) {
       this.logger.error({
-        msg: `Ошибка при изменении трафика подписки: ${error.message}`,
+        msg: `Ошибка при изменении трафика подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         service: this.serviceName,
       })
       return {
@@ -338,7 +341,9 @@ export class XrayService {
       }
     } catch (error) {
       this.logger.error({
-        msg: `Ошибка при изменении трафика подписки: ${error.message}`,
+        msg: `Ошибка при изменении трафика подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         service: this.serviceName,
       })
       return {
@@ -408,7 +413,9 @@ export class XrayService {
       }
     } catch (error) {
       this.logger.error({
-        msg: `Ошибка при изменении сервера подписки: ${error.message}`,
+        msg: `Ошибка при изменении сервера подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         service: this.serviceName,
       })
       return {
@@ -456,7 +463,9 @@ export class XrayService {
       }
     } catch (error) {
       this.logger.error({
-        msg: `Ошибка при изменении имени подписки: ${error.message}`,
+        msg: `Ошибка при изменении имени подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         service: this.serviceName,
       })
       return {
@@ -696,7 +705,9 @@ export class XrayService {
               : (marzbanData as Record<string, any>)
         } catch (error) {
           this.logger.warn({
-            msg: `Failed to parse Marzban data: ${error.message}`,
+            msg: `Failed to parse Marzban data: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
             service: this.serviceName,
           })
           return
@@ -1328,21 +1339,56 @@ export class XrayService {
         period == SubscriptionPeriodEnum.TRIAL ||
         period == SubscriptionPeriodEnum.TRAFFIC
 
+      const getInbounds = await this.prismaService.xrayInbounds.findMany()
+
+      const isVless =
+        getInbounds.findIndex((el) => el.type == XrayInboundTypeEnum.VLESS) !=
+        -1
+
+      const isTrojan =
+        getInbounds.findIndex((el) => el.type == XrayInboundTypeEnum.TROJAN) !=
+        -1
+
+      const isSS =
+        getInbounds.findIndex(
+          (el) => el.type == XrayInboundTypeEnum.SHADOWSOCKS,
+        ) != -1
+
       // Подготовка данных для Marzban
       const marbanDataStart: UserCreate = {
         username,
-        proxies: {
-          vless: {
-            flow: 'xtls-rprx-vision',
+        ...((isVless || isTrojan || isSS) && {
+          proxies: {
+            ...(isVless && {
+              vless: {
+                flow: 'xtls-rprx-vision',
+              },
+            }),
+            ...(isTrojan && {
+              trojan: {},
+            }),
+            ...(isSS && {
+              shadowsocks: {},
+            }),
           },
-          trojan: {},
-          shadowsocks: {},
-        },
-        inbounds: {
-          vless: ['VLESS'],
-          trojan: ['TROJAN WS TLS'],
-          shadowsocks: ['Shadowsocks TCP'],
-        },
+          inbounds: {
+            ...(isVless && {
+              vless: getInbounds
+                .filter((el) => el.type == XrayInboundTypeEnum.VLESS)
+                .map((el) => el.inboundTag),
+            }),
+            ...(isTrojan && {
+              trojan: getInbounds
+                .filter((el) => el.type == XrayInboundTypeEnum.TROJAN)
+                .map((el) => el.inboundTag),
+            }),
+            ...(isSS && {
+              shadowsocks: getInbounds
+                .filter((el) => el.type == XrayInboundTypeEnum.SHADOWSOCKS)
+                .map((el) => el.inboundTag),
+            }),
+          },
+        }),
         status: 'active',
         ...(!isUnlimitTraffic && {
           data_limit_reset_strategy:
