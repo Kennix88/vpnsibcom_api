@@ -1,3 +1,4 @@
+import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
@@ -8,7 +9,6 @@ import {
   ReferralsDataInterface,
 } from '@shared/types/referrals-data.interface'
 import { PinoLogger } from 'nestjs-pino'
-import { PrismaService } from 'nestjs-prisma'
 
 @Injectable()
 export class ReferralsService {
