@@ -1,3 +1,4 @@
+import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { UserInBotInterface } from '@integrations/telegram/types/user-in-bot.interface'
 import { Injectable } from '@nestjs/common'
@@ -13,7 +14,6 @@ import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.inte
 import { UserDataInterface } from '@shared/types/user-data.interface'
 import { isRtl } from '@shared/utils/is-rtl.util'
 import { PinoLogger } from 'nestjs-pino'
-import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Markup, Telegraf } from 'telegraf'
 
