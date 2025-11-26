@@ -9,8 +9,10 @@ import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { roundUp } from '@modules/xray/utils/calculate-subscription-cost.util'
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Prisma, PrismaClient } from '@prisma/client'
-import { DefaultArgs } from '@prisma/client/runtime/library'
+// import { Prisma, PrismaClient } from '@prisma/client'
+// import { DefaultArgs } from '@prisma/client/runtime/library'
+import { Prisma } from '@core/prisma/generated/client'
+import { PrismaService } from '@core/prisma/prisma.service'
 import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { PaymentMethodTypeEnum } from '@shared/enums/payment-method-type.enum'
@@ -29,7 +31,6 @@ import { TransactionTypeEnum } from '@vpnsibcom/src/shared/enums/transaction-typ
 import { addDays } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { PaymentTypeEnum } from '../types/payment-type.enum'
@@ -211,7 +212,7 @@ export class PaymentsService {
         status,
       })
 
-      const payment = (await this.prismaService.payments.findUnique({
+      const payment = await this.prismaService.payments.findUnique({
         where: {
           token,
           status: {
@@ -240,7 +241,7 @@ export class PaymentsService {
             },
           },
         },
-      })) as PaymentWithRelations | null
+      })
 
       if (!payment) {
         throw new Error(`Payment not found`)
@@ -362,7 +363,7 @@ export class PaymentsService {
    * Обрабатывает успешно завершенный платеж
    */
   private async processCompletedPayment(
-    payment: PaymentWithRelations,
+    payment,
     status: PaymentStatusEnum,
     details?: object,
     isSubscription: boolean = false,
@@ -395,10 +396,7 @@ export class PaymentsService {
   /**
    * Обновляет баланс пользователя
    */
-  private async updateUserBalance(
-    tx: PrismaTransaction,
-    payment: PaymentWithRelations,
-  ) {
+  private async updateUserBalance(tx, payment) {
     await tx.userBalance.update({
       where: {
         id: payment.user.balanceId,
@@ -421,8 +419,8 @@ export class PaymentsService {
    * Создает транзакцию для платежа
    */
   private async createPaymentTransaction(
-    tx: PrismaTransaction,
-    payment: PaymentWithRelations,
+    tx,
+    payment,
     isSubscription: boolean = false,
   ) {
     const transaction = await tx.transactions.create({
@@ -453,7 +451,7 @@ export class PaymentsService {
    * Обновляет статус платежа
    */
   private async updatePaymentStatus(
-    tx: PrismaTransaction,
+    tx,
     token: string,
     status: PaymentStatusEnum,
     transactionId: string,
@@ -545,10 +543,7 @@ export class PaymentsService {
   /**
    * Обрабатывает начисление реферальных комиссий
    */
-  private async processReferralCommissions(
-    tx: PrismaTransaction,
-    payment: PaymentWithRelations,
-  ) {
+  private async processReferralCommissions(tx, payment) {
     const referrers = payment.user.inviters
 
     if (referrers.length === 0) {
@@ -582,12 +577,7 @@ export class PaymentsService {
   /**
    * Обрабатывает начисление комиссии для конкретного реферера
    */
-  private async processReferralCommission(
-    tx: PrismaTransaction,
-    referrer: PaymentWithRelations['user']['inviters'][0],
-    settings,
-    payment: PaymentWithRelations,
-  ) {
+  private async processReferralCommission(tx, referrer, settings, payment) {
     const commissionLvl = this.getReferralCommissionPercent(
       referrer.level,
       settings,
@@ -775,35 +765,3 @@ export class PaymentsService {
     }
   }
 }
-
-// Тип для транзакции Prisma
-type PrismaTransaction = Omit<
-  PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
-  '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'
->
-
-// Тип для платежа с включенными связями
-type PaymentWithRelations = Prisma.PaymentsGetPayload<{
-  include: {
-    subscription: {
-      include: {
-        plan: true
-      }
-    }
-    user: {
-      include: {
-        inviters: {
-          include: {
-            inviter: {
-              include: {
-                balance: true
-              }
-            }
-          }
-        }
-        balance: true
-        telegramData: true
-      }
-    }
-  }
-}>
