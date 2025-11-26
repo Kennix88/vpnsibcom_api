@@ -1,12 +1,12 @@
 generator client {
- provider = "prisma-client-js"
- // output   = "./generated"
+ provider = "prisma-client"
+ output   = "../src/core/prisma/generated"
 }
 
 datasource db {
- provider  = "postgresql"
- url       = env("POSTGRES_URL")
- directUrl = env("POSTGRES_URL")
+ provider = "postgresql"
+ // url       = env("POSTGRES_URL")
+ // directUrl = env("POSTGRES_URL")
 }
 
 enum DefaultEnum {
@@ -418,6 +418,19 @@ enum SubscriptionPeriodEnum {
  TWO_YEAR
  THREE_YEAR
  INDEFINITELY
+}
+
+model XrayInbounds {
+ inboundTag String              @id @map("inbound_tag")
+ type       XrayInboundTypeEnum @default(VLESS) @map("type")
+
+ @@map("xray_inbounds")
+}
+
+enum XrayInboundTypeEnum {
+ VLESS
+ TROJAN
+ SHADOWSOCKS
 }
 
 /// Модель ролей пользователей
