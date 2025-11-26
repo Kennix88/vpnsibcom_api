@@ -1,3 +1,4 @@
+import { PrismaService } from '@core/prisma/prisma.service'
 import { CoinmarketcapResponceDataInterface } from '@modules/rates/types/coinmarketcap.interface'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -8,7 +9,6 @@ import { DefaultEnum } from '@shared/enums/default.enum'
 import { RatesInterface } from '@shared/types/rates.inteface'
 import axios from 'axios'
 import { PinoLogger } from 'nestjs-pino'
-import { PrismaService } from 'nestjs-prisma'
 import { ForexRateInterface } from './types/forexrateapi.interface'
 
 @Injectable()
