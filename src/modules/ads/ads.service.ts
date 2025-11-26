@@ -106,7 +106,9 @@ export class AdsService {
       await this.redisService.expire(statsKey, duration * 2)
     } catch (e) {
       this.logger.warn(
-        `Failed to update stats for user ${userId}: ${e?.message ?? e}`,
+        `Failed to update stats for user ${userId}: ${
+          e instanceof Error ? e.message : String(e)
+        }`,
       )
     }
 
@@ -184,7 +186,9 @@ export class AdsService {
       }
     } catch (e) {
       this.logger.warn(
-        `Failed to push attempt for session ${sessionId}: ${e?.message ?? e}`,
+        `Failed to push attempt for session ${sessionId}: ${
+          e instanceof Error ? e.message : String(e)
+        }`,
       )
     }
 
@@ -205,7 +209,7 @@ export class AdsService {
     } catch (e) {
       this.logger.warn(
         `Failed to create rewardLog attempt for ${sessionId}: ${
-          e?.message ?? e
+          e instanceof Error ? e.message : String(e)
         }`,
       )
     }
@@ -225,7 +229,9 @@ export class AdsService {
         await this.redisService.expire(statsKey, metaObj.duration * 2)
       } catch (e) {
         this.logger.warn(
-          `Failed to update stats for user ${userId}: ${e?.message ?? e}`,
+          `Failed to update stats for user ${userId}: ${
+            e instanceof Error ? e.message : String(e)
+          }`,
         )
       }
       return { success: false, reason: 'NETWORK_VERIFICATION_FAILED' }
@@ -284,7 +290,7 @@ export class AdsService {
       })
       // Помечаем сессию как использованную
       await this.redisService.setWithExpiry(usedKey, '1', metaObj.duration)
-      
+
       // increment stats success
       try {
         const statsKey = `ad:stats:user:${userId}`
@@ -292,7 +298,9 @@ export class AdsService {
         await this.redisService.expire(statsKey, metaObj.duration * 2)
       } catch (e) {
         this.logger.warn(
-          `Failed to update stats for user ${userId}: ${e?.message ?? e}`,
+          `Failed to update stats for user ${userId}: ${
+            e instanceof Error ? e.message : String(e)
+          }`,
         )
       }
 
@@ -305,7 +313,7 @@ export class AdsService {
     } catch (err) {
       this.logger.error(
         `confirmAd: DB transaction failed for ${sessionId}: ${
-          err?.message ?? err
+          err instanceof Error ? err.message : String(err)
         }`,
       )
       // best-effort rollback: удаляем пометку об использовании
@@ -314,7 +322,7 @@ export class AdsService {
       } catch (e) {
         this.logger.error(
           `confirmAd: rollback del usedKey failed for ${sessionId}: ${
-            e?.message ?? e
+            e instanceof Error ? e.message : String(e)
           }`,
         )
       }
