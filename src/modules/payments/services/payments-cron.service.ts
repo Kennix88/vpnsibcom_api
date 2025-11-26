@@ -1,17 +1,16 @@
+import { PrismaService } from '@core/prisma/prisma.service'
 import { XrayService } from '@modules/xray/services/xray.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
-import {
-  BalanceTypeEnum,
-  TransactionReasonEnum,
-  TransactionTypeEnum,
-} from '@prisma/client'
+
+import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
+import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
+import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { PaymentsService } from './payments.service'
