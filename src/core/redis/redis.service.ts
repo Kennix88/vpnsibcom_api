@@ -77,7 +77,11 @@ export class RedisService extends Redis implements OnModuleInit {
     try {
       await this.waitForConnection()
     } catch (error) {
-      this.logger.error(`Failed to connect to Redis: ${error.message}`)
+      this.logger.error(
+        `Failed to connect to Redis: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      )
       // Optionally re-throw or handle the error as appropriate for your application's needs
     }
   }
@@ -96,7 +100,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const result = await this.set(key, value, 'EX', ttlSeconds)
       return result === 'OK'
     } catch (err) {
-      this.logger.error(`setWithExpiry failed: ${err.message}`)
+      this.logger.error(
+        `setWithExpiry failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -110,7 +118,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const str = JSON.stringify(value)
       return this.setWithExpiry(key, str, ttlSeconds)
     } catch (err) {
-      this.logger.error(`setObjectWithExpiry failed: ${err.message}`)
+      this.logger.error(
+        `setObjectWithExpiry failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -125,7 +137,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const result = await this.set(key, value, 'EX', ttlSeconds, 'NX')
       return result === 'OK'
     } catch (err) {
-      this.logger.error(`setWithExpiryNx failed: ${err.message}`)
+      this.logger.error(
+        `setWithExpiryNx failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -135,7 +151,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const data = await this.get(key)
       return data ? JSON.parse(data) : null
     } catch (err) {
-      this.logger.warn(`Failed to parse JSON for key ${key}: ${err.message}`)
+      this.logger.warn(
+        `Failed to parse JSON for key ${key}: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return null
     }
   }
@@ -152,7 +172,11 @@ export class RedisService extends Redis implements OnModuleInit {
       }
       return true
     } catch (err) {
-      this.logger.error(`hsetWithExpiry failed: ${err.message}`)
+      this.logger.error(
+        `hsetWithExpiry failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -174,7 +198,11 @@ export class RedisService extends Redis implements OnModuleInit {
         const res = await this.set(key, token, 'EX', ttlSeconds, 'NX')
         if (res === 'OK') return token
       } catch (err) {
-        this.logger.error(`acquireLock set failed: ${err.message}`)
+        this.logger.error(
+          `acquireLock set failed: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        )
       }
       if (attempt < retries) {
         await new Promise((r) => setTimeout(r, retryDelayMs))
@@ -199,7 +227,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const res = await this.eval(releaseScript, 1, key, token)
       return Number(res) > 0
     } catch (err) {
-      this.logger.error(`releaseLock failed: ${err.message}`)
+      this.logger.error(
+        `releaseLock failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -230,7 +262,11 @@ export class RedisService extends Redis implements OnModuleInit {
       )
       return Number(res) > 0
     } catch (err) {
-      this.logger.error(`extendLock failed: ${err.message}`)
+      this.logger.error(
+        `extendLock failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -273,7 +309,11 @@ export class RedisService extends Redis implements OnModuleInit {
               this.logger.warn(`Failed to renew lock ${key} (token mismatch)`)
             }
           } catch (err) {
-            this.logger.error(`Error renewing lock ${key}: ${err.message}`)
+            this.logger.error(
+              `Error renewing lock ${key}: ${
+                err instanceof Error ? err.message : String(err)
+              }`,
+            )
           }
         }, autoRenewIntervalSec * 1000)
       }
