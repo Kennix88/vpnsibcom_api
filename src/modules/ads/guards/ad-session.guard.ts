@@ -84,7 +84,11 @@ export class AdSessionGuard implements CanActivate {
       ;(req as any).adSession = { ...meta, sessionId, verifyKey }
       return true
     } catch (err) {
-      if (err.status && err.message) throw err
+      if (
+        err instanceof BadRequestException ||
+        err instanceof ForbiddenException
+      )
+        throw err
       throw new InternalServerErrorException('Failed to validate ad session')
     }
   }
