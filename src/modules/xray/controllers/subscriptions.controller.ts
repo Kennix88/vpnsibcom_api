@@ -104,8 +104,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при получение подписки: ${error.message}`,
-        error.stack,
+        `Ошибка при получение подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при получение подписки',
@@ -149,8 +151,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Error when receiving a subscription: ${error.message}`,
-        error.stack,
+        `Error when receiving a subscription: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Error when receiving a subscription',
@@ -215,8 +219,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при активации бесплатного плана: ${error.message}`,
-        error.stack,
+        `Ошибка при активации бесплатного плана: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при активации бесплатного плана',
@@ -254,8 +260,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при получении подписок: ${error.message}`,
-        error.stack,
+        `Ошибка при получении подписок: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при получении подписок',
@@ -325,8 +333,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при покупке подписки: ${error.message}`,
-        error.stack,
+        `Ошибка при покупке подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при покупке подписки',
@@ -383,8 +393,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при Добавлении трафика подписки: ${error.message}`,
-        error.stack,
+        `Ошибка при Добавлении трафика подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при Добавлении трафика подписки',
@@ -439,8 +451,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при изменении сервера подписки: ${error.message}`,
-        error.stack,
+        `Ошибка при изменении сервера подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при изменении сервера подписки',
@@ -499,8 +513,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при изменении имени подписки: ${error.message}`,
-        error.stack,
+        `Ошибка при изменении имени подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при изменении имени подписки',
@@ -581,8 +597,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при удалении подписки: ${error.message}`,
-        error.stack,
+        `Ошибка при удалении подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при удалении подписки',
@@ -647,8 +665,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при продлении подписки: ${error.message}`,
-        error.stack,
+        `Ошибка при продлении подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при продлении подписки',
@@ -729,8 +749,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при сбросе токена подписки: ${error.message}`,
-        error.stack,
+        `Ошибка при сбросе токена подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при сбросе токена подписки',
@@ -813,8 +835,10 @@ export class SubscriptionsController {
       }
     } catch (error) {
       this.logger.error(
-        `Ошибка при изменении статуса автопродления: ${error.message}`,
-        error.stack,
+        `Ошибка при изменении статуса автопродления: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
         'Произошла ошибка при изменении статуса автопродления',
