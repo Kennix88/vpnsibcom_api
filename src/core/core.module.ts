@@ -45,7 +45,7 @@ import { CoreController } from './core.controller'
 
     ConfigModule.forRoot({
       isGlobal: true,
-      ignoreEnvFile: process.env.NODE_ENV !== 'development',
+      // ignoreEnvFile: process.env.NODE_ENV !== 'development',
     }),
 
     PrometheusModule.register(),
