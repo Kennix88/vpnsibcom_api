@@ -1,4 +1,5 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
+import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
@@ -6,7 +7,6 @@ import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { Subscriptions } from '@prisma/client'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
@@ -14,43 +14,12 @@ import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { add, differenceInDays, intlFormat } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
 import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 import { XrayService } from './xray.service'
-
-/**
- * Interface for subscription with user data
- */
-interface SubscriptionWithUser extends Subscriptions {
-  user: {
-    id: string
-    telegramId: string
-    telegramData: {
-      isPremium: boolean
-    }
-    language: {
-      iso6391: string
-    }
-    balance: {
-      id: string
-      paymentBalance: number
-      isUseWithdrawalBalance: boolean
-      withdrawalBalance: number
-    }
-    role: {
-      discount: number
-    }
-  }
-  servers?: {
-    greenList: {
-      code: string
-    }
-  }[]
-}
 
 /**
  * Service for managing subscriptions lifecycle
@@ -422,13 +391,9 @@ export class SubscriptionManagerService {
           subscription.period !== SubscriptionPeriodEnum.TRIAL &&
           subscription.period !== SubscriptionPeriodEnum.TRAFFIC
         ) {
-          await this.processAutoRenewal(
-            subscription as unknown as SubscriptionWithUser,
-          )
+          await this.processAutoRenewal(subscription)
         } else {
-          await this.deactivateSubscription(
-            subscription as unknown as SubscriptionWithUser,
-          )
+          await this.deactivateSubscription(subscription)
         }
       }
 
@@ -451,7 +416,7 @@ export class SubscriptionManagerService {
    * @param subscription - The subscription to process
    * @private
    */
-  private async processAutoRenewal(subscription: SubscriptionWithUser) {
+  private async processAutoRenewal(subscription) {
     this.logger.info({
       msg: `Processing auto-renewal for subscription ${subscription.id}`,
       userId: subscription.userId,
@@ -524,7 +489,7 @@ export class SubscriptionManagerService {
    * @param subscription - The subscription to deactivate
    * @private
    */
-  private async deactivateSubscription(subscription: SubscriptionWithUser) {
+  private async deactivateSubscription(subscription) {
     this.logger.info({
       msg: `Deactivating subscription ${subscription.id}`,
       userId: subscription.userId,
@@ -583,10 +548,7 @@ export class SubscriptionManagerService {
    * @param subscription - Deactivated subscription
    * @private
    */
-  private async sendDeactivationNotification(
-    user: SubscriptionWithUser['user'],
-    subscription: SubscriptionWithUser,
-  ) {
+  private async sendDeactivationNotification(user, subscription) {
     try {
       const message = await this.i18n.t('subscription.deactivated', {
         lang: user.language.iso6391,
@@ -663,10 +625,7 @@ export class SubscriptionManagerService {
 
         // Check if we need to send a reminder for this subscription
         if (this.notificationDays.includes(daysUntilExpiration)) {
-          await this.sendExpirationReminder(
-            subscription as unknown as SubscriptionWithUser,
-            daysUntilExpiration,
-          )
+          await this.sendExpirationReminder(subscription, daysUntilExpiration)
         }
       }
 
@@ -690,10 +649,7 @@ export class SubscriptionManagerService {
    * @param daysLeft - Days left until expiration
    * @private
    */
-  private async sendExpirationReminder(
-    subscription: SubscriptionWithUser,
-    daysLeft: number,
-  ) {
+  private async sendExpirationReminder(subscription, daysLeft: number) {
     const user = subscription.user
     const redisKey = `subscription:reminder:${subscription.id}:${daysLeft}`
 
