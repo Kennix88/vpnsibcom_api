@@ -1,5 +1,5 @@
+import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
-import { PlansEnum } from '@prisma/client'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
