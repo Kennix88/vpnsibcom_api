@@ -1,5 +1,6 @@
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
+import { Prisma } from '@core/prisma/generated/client'
 import { getClientIp } from '@modules/xray/utils/get-client-ip.util'
 import {
   ArgumentsHost,
@@ -10,7 +11,6 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { Prisma } from '@prisma/client'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
@@ -46,7 +46,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         })
       }
     } catch (jwtError) {
-      this.logger.warn(`JWT verification failed: ${jwtError.message}`)
+      this.logger.warn(
+        `JWT verification failed: ${
+          jwtError instanceof Error ? jwtError.message : String(jwtError)
+        }`,
+      )
     }
 
     const { status, message, errorName, errorDetails } =
@@ -94,20 +98,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+      const prismaError = exception as Prisma.PrismaClientKnownRequestError
       return {
         status: 400,
-        message: this.getPrismaErrorMessage(exception),
-        errorName: exception.name,
-        errorDetails: exception.meta,
+        message: this.getPrismaErrorMessage(prismaError),
+        errorName: prismaError.name,
+        errorDetails: prismaError.meta,
       }
     }
 
     if (exception instanceof Prisma.PrismaClientValidationError) {
+      const prismaValidationError =
+        exception as Prisma.PrismaClientValidationError
       return {
         status: 422,
         message: 'Database validation error',
-        errorName: exception.name,
-        errorDetails: exception.message,
+        errorName: prismaValidationError.name,
+        errorDetails: prismaValidationError.message,
       }
     }
 
@@ -197,8 +204,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       await this.telegramLogger.error(messageParts.join('\n\n'))
     } catch (tgErr) {
       this.logger.error(
-        `Failed to send Telegram alert: ${tgErr.message}`,
-        tgErr.stack,
+        `Failed to send Telegram alert: ${
+          tgErr instanceof Error ? tgErr.message : String(tgErr)
+        }`,
+        tgErr instanceof Error ? tgErr.stack : '',
       )
     }
   }
@@ -214,8 +223,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message: error.message,
           stack: error.stack,
           ...(error instanceof Prisma.PrismaClientKnownRequestError && {
-            code: error.code,
-            meta: error.meta,
+            code: (error as Prisma.PrismaClientKnownRequestError).code,
+            meta: (error as Prisma.PrismaClientKnownRequestError).meta,
           }),
         },
         request,
@@ -250,7 +259,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         ...(exception instanceof Error && {
           stack: exception.stack,
           ...(exception instanceof Prisma.PrismaClientKnownRequestError && {
-            errorCode: exception.code,
+            errorCode: (exception as Prisma.PrismaClientKnownRequestError).code,
           }),
         }),
       }),
