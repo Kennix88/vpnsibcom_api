@@ -237,6 +237,8 @@ export class UsersService {
           user.telegramId
         }`,
         inviteMessageId: messageId,
+        nextAdsRewardAt: user.nextAdsRewardAt,
+        nextAdsgramTaskAt: user.nextAdsgramTaskAt,
       }
     } catch (e) {
       this.logger.error({
