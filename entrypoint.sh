@@ -14,7 +14,7 @@ done
 # echo "📦 Running Prisma push..."
 # npx prisma db push
 echo "📦 Running Prisma migrations..."
-npx prisma migrate deploy
+npx prisma migrate deploy --config prisma/prisma.config.ts
 
 if [ "$SEED_MOD" = "true" ]; then
     echo "🌱 Seeding DB..."
