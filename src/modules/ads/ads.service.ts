@@ -5,9 +5,13 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
+import { DefaultEnum } from '@shared/enums/default.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
+import { addMinutes } from 'date-fns'
+import { AdsNetworkEnum } from './types/ads-network.enum'
 import { AdsPlaceEnum } from './types/ads-place.enum'
-import { AdsTaskTypeEnum } from './types/ads-task-type.enum'
+import { AdsResInterface } from './types/ads-res.interface'
+import { AdsTypeEnum } from './types/ads-type.enum'
 
 @Injectable()
 export class AdsService {
@@ -28,10 +32,10 @@ export class AdsService {
     userId: string
     telegramId?: string
     place: AdsPlaceEnum
-    type: AdsTaskTypeEnum
+    type: AdsTypeEnum
     ip?: string
     ua?: string
-  }) {
+  }): Promise<AdsResInterface> {
     const { userId, telegramId, place, type, ip, ua } = opts
 
     // 1) получаем доступные блоки
@@ -41,7 +45,9 @@ export class AdsService {
     })
 
     if (!blocks || blocks.length === 0) {
-      throw new Error('NO_AD_BLOCKS')
+      return {
+        isNoAds: true,
+      }
     }
 
     const block = blocks[Math.floor(Math.random() * blocks.length)]
@@ -53,7 +59,7 @@ export class AdsService {
       sessionId,
       userId,
       telegramId,
-      blockId: block.id,
+      blockId: block.key,
       networkKey: block.networkKey,
       rewards: {
         traffic: Number(block.rewardTraffic ?? 0),
@@ -83,8 +89,8 @@ export class AdsService {
         duration,
         verifyKey: sessionId as string, // сохраняем sid; клиент получит JWT, но в БД храним sid для привязки
         userId,
-        blockId: block.id,
-        ...(type === AdsTaskTypeEnum.VIEW && {
+        blockId: block.key,
+        ...(type === AdsTypeEnum.VIEW && {
           claimedAt: new Date(),
         }),
       },
@@ -117,15 +123,16 @@ export class AdsService {
     )
 
     return {
-      type: opts.type,
-      place,
-      network: block.networkKey,
-      time: new Date(),
-      rewards: meta.rewards,
-      blockId: block.id,
-      limit,
-      verifyKey, // JWT — отдаём клиенту
-      duration,
+      isNoAds: false,
+      ad: {
+        type: opts.type,
+        place,
+        network: block.networkKey as AdsNetworkEnum,
+        time: new Date(),
+        rewards: meta.rewards,
+        blockId: block.id,
+        verifyKey,
+      },
     }
   }
 
@@ -192,27 +199,27 @@ export class AdsService {
       )
     }
 
-    // 2) создаём запись attempt в БД (audit). Здесь мы используем rewardLog для логов попыток (amounts = 0)
-    try {
-      await this.prisma.rewardLog.create({
-        data: {
-          userId,
-          rewardTraffic: 0,
-          rewardStars: 0,
-          rewardTickets: 0,
-          source: `${metaObj?.networkKey ?? 'UNKNOWN'}_ATTEMPT`,
-          reference: sessionId,
-          ip,
-          ua,
-        },
-      })
-    } catch (e) {
-      this.logger.warn(
-        `Failed to create rewardLog attempt for ${sessionId}: ${
-          e instanceof Error ? e.message : String(e)
-        }`,
-      )
-    }
+    // // 2) создаём запись attempt в БД (audit). Здесь мы используем rewardLog для логов попыток (amounts = 0)
+    // try {
+    //   await this.prisma.rewardLog.create({
+    //     data: {
+    //       userId,
+    //       rewardTraffic: 0,
+    //       rewardStars: 0,
+    //       rewardTickets: 0,
+    //       source: `${metaObj?.networkKey ?? 'UNKNOWN'}_ATTEMPT`,
+    //       reference: sessionId,
+    //       ip,
+    //       ua,
+    //     },
+    //   })
+    // } catch (e) {
+    //   this.logger.warn(
+    //     `Failed to create rewardLog attempt for ${sessionId}: ${
+    //       e instanceof Error ? e.message : String(e)
+    //     }`,
+    //   )
+    // }
 
     // 3) network-specific verification
     // const networkOk = await this.verifyWithNetwork(metaObj.networkKey, {
@@ -267,13 +274,45 @@ export class AdsService {
           TransactionReasonEnum.REWARD,
           BalanceTypeEnum.TICKETS,
         )
-        // optionally mark adsViews as claimed (если есть поле)
-        await prisma.adsViews.updateMany({
+
+        const ad = await prisma.adsViews.update({
           where: { verifyKey: sessionId },
           data: {
             claimedAt: new Date(),
           },
         })
+
+        const settings = await prisma.settings.findUnique({
+          where: {
+            key: DefaultEnum.DEFAULT,
+          },
+        })
+
+        if (ad.type == AdsTypeEnum.REWARD || ad.type == AdsTypeEnum.TASK) {
+          await prisma.users.update({
+            where: {
+              id: ad.userId,
+            },
+            data: {
+              ...(ad.type == AdsTypeEnum.REWARD && {
+                nextAdsRewardAt: new Date(
+                  addMinutes(
+                    new Date(),
+                    settings.adsRewardNextCompletionInMinute,
+                  ),
+                ),
+              }),
+              ...(ad.type == AdsTypeEnum.TASK && {
+                nextAdsgramTaskAt: new Date(
+                  addMinutes(
+                    new Date(),
+                    settings.adsgramTaskNextCompletionInMinute,
+                  ),
+                ),
+              }),
+            },
+          })
+        }
         // create rewardLog with actual amounts
         await prisma.rewardLog.create({
           data: {
