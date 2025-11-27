@@ -19,7 +19,7 @@ import { AdsService } from './ads.service'
 import { CreateConfirmDto } from './dto/create-confirm.dto'
 import { AdSessionGuard } from './guards/ad-session.guard'
 import { AdsPlaceEnum } from './types/ads-place.enum'
-import { AdsTaskTypeEnum } from './types/ads-task-type.enum'
+import { AdsTypeEnum } from './types/ads-type.enum'
 
 @UseGuards(JwtAuthGuard)
 @Controller('ads')
@@ -34,7 +34,7 @@ export class AdsController {
   async getAdsTask(
     @CurrentUser() userJWT: JwtPayload,
     @Param('place') place: AdsPlaceEnum,
-    @Param('type') type: AdsTaskTypeEnum,
+    @Param('type') type: AdsTypeEnum,
     @Req() req: FastifyRequest,
   ) {
     const user = (req as any).user
@@ -44,7 +44,7 @@ export class AdsController {
       userId: userJWT.sub,
       telegramId: user.telegramId,
       place: place as AdsPlaceEnum,
-      type: type as AdsTaskTypeEnum,
+      type: type as AdsTypeEnum,
       ip,
       ua,
     })
