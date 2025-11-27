@@ -122,7 +122,9 @@ export const SettingsScalarFieldEnum = {
   isActiveTgPartnerProgram: 'isActiveTgPartnerProgram',
   commissionRatioTgPartnerProgram: 'commissionRatioTgPartnerProgram',
   mouthesCountTgPartnerProgram: 'mouthesCountTgPartnerProgram',
-  telegramPartnerProgramRatio: 'telegramPartnerProgramRatio'
+  telegramPartnerProgramRatio: 'telegramPartnerProgramRatio',
+  adsRewardNextCompletionInMinute: 'adsRewardNextCompletionInMinute',
+  adsgramTaskNextCompletionInMinute: 'adsgramTaskNextCompletionInMinute'
 } as const
 
 export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -176,6 +178,8 @@ export const UsersScalarFieldEnum = {
   banExpiredAt: 'banExpiredAt',
   deletedAt: 'deletedAt',
   tgProgramPartnerExpiredAt: 'tgProgramPartnerExpiredAt',
+  nextAdsRewardAt: 'nextAdsRewardAt',
+  nextAdsgramTaskAt: 'nextAdsgramTaskAt',
   roleId: 'roleId',
   telegramDataId: 'telegramDataId',
   balanceId: 'balanceId',
@@ -206,6 +210,7 @@ export type AdsViewsScalarFieldEnum = (typeof AdsViewsScalarFieldEnum)[keyof typ
 
 export const AdsBlocksScalarFieldEnum = {
   id: 'id',
+  key: 'key',
   name: 'name',
   place: 'place',
   isActive: 'isActive',

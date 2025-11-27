@@ -57,6 +57,8 @@ export type SettingsAvgAggregateOutputType = {
   commissionRatioTgPartnerProgram: number | null
   mouthesCountTgPartnerProgram: number | null
   telegramPartnerProgramRatio: number | null
+  adsRewardNextCompletionInMinute: number | null
+  adsgramTaskNextCompletionInMinute: number | null
 }
 
 export type SettingsSumAggregateOutputType = {
@@ -90,6 +92,8 @@ export type SettingsSumAggregateOutputType = {
   commissionRatioTgPartnerProgram: number | null
   mouthesCountTgPartnerProgram: number | null
   telegramPartnerProgramRatio: number | null
+  adsRewardNextCompletionInMinute: number | null
+  adsgramTaskNextCompletionInMinute: number | null
 }
 
 export type SettingsMinAggregateOutputType = {
@@ -125,6 +129,8 @@ export type SettingsMinAggregateOutputType = {
   commissionRatioTgPartnerProgram: number | null
   mouthesCountTgPartnerProgram: number | null
   telegramPartnerProgramRatio: number | null
+  adsRewardNextCompletionInMinute: number | null
+  adsgramTaskNextCompletionInMinute: number | null
 }
 
 export type SettingsMaxAggregateOutputType = {
@@ -160,6 +166,8 @@ export type SettingsMaxAggregateOutputType = {
   commissionRatioTgPartnerProgram: number | null
   mouthesCountTgPartnerProgram: number | null
   telegramPartnerProgramRatio: number | null
+  adsRewardNextCompletionInMinute: number | null
+  adsgramTaskNextCompletionInMinute: number | null
 }
 
 export type SettingsCountAggregateOutputType = {
@@ -195,6 +203,8 @@ export type SettingsCountAggregateOutputType = {
   commissionRatioTgPartnerProgram: number
   mouthesCountTgPartnerProgram: number
   telegramPartnerProgramRatio: number
+  adsRewardNextCompletionInMinute: number
+  adsgramTaskNextCompletionInMinute: number
   _all: number
 }
 
@@ -230,6 +240,8 @@ export type SettingsAvgAggregateInputType = {
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
   telegramPartnerProgramRatio?: true
+  adsRewardNextCompletionInMinute?: true
+  adsgramTaskNextCompletionInMinute?: true
 }
 
 export type SettingsSumAggregateInputType = {
@@ -263,6 +275,8 @@ export type SettingsSumAggregateInputType = {
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
   telegramPartnerProgramRatio?: true
+  adsRewardNextCompletionInMinute?: true
+  adsgramTaskNextCompletionInMinute?: true
 }
 
 export type SettingsMinAggregateInputType = {
@@ -298,6 +312,8 @@ export type SettingsMinAggregateInputType = {
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
   telegramPartnerProgramRatio?: true
+  adsRewardNextCompletionInMinute?: true
+  adsgramTaskNextCompletionInMinute?: true
 }
 
 export type SettingsMaxAggregateInputType = {
@@ -333,6 +349,8 @@ export type SettingsMaxAggregateInputType = {
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
   telegramPartnerProgramRatio?: true
+  adsRewardNextCompletionInMinute?: true
+  adsgramTaskNextCompletionInMinute?: true
 }
 
 export type SettingsCountAggregateInputType = {
@@ -368,6 +386,8 @@ export type SettingsCountAggregateInputType = {
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
   telegramPartnerProgramRatio?: true
+  adsRewardNextCompletionInMinute?: true
+  adsgramTaskNextCompletionInMinute?: true
   _all?: true
 }
 
@@ -490,6 +510,8 @@ export type SettingsGroupByOutputType = {
   commissionRatioTgPartnerProgram: number
   mouthesCountTgPartnerProgram: number | null
   telegramPartnerProgramRatio: number
+  adsRewardNextCompletionInMinute: number
+  adsgramTaskNextCompletionInMinute: number
   _count: SettingsCountAggregateOutputType | null
   _avg: SettingsAvgAggregateOutputType | null
   _sum: SettingsSumAggregateOutputType | null
@@ -548,6 +570,8 @@ export type SettingsWhereInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableFilter<"Settings"> | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFilter<"Settings"> | number
+  adsRewardNextCompletionInMinute?: Prisma.IntFilter<"Settings"> | number
+  adsgramTaskNextCompletionInMinute?: Prisma.IntFilter<"Settings"> | number
 }
 
 export type SettingsOrderByWithRelationInput = {
@@ -583,6 +607,8 @@ export type SettingsOrderByWithRelationInput = {
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
+  adsRewardNextCompletionInMinute?: Prisma.SortOrder
+  adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
 }
 
 export type SettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -621,6 +647,8 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   commissionRatioTgPartnerProgram?: Prisma.FloatFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableFilter<"Settings"> | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFilter<"Settings"> | number
+  adsRewardNextCompletionInMinute?: Prisma.IntFilter<"Settings"> | number
+  adsgramTaskNextCompletionInMinute?: Prisma.IntFilter<"Settings"> | number
 }, "key">
 
 export type SettingsOrderByWithAggregationInput = {
@@ -656,6 +684,8 @@ export type SettingsOrderByWithAggregationInput = {
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
+  adsRewardNextCompletionInMinute?: Prisma.SortOrder
+  adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
   _avg?: Prisma.SettingsAvgOrderByAggregateInput
   _max?: Prisma.SettingsMaxOrderByAggregateInput
@@ -699,6 +729,8 @@ export type SettingsScalarWhereWithAggregatesInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableWithAggregatesFilter<"Settings"> | number | null
   telegramPartnerProgramRatio?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  adsRewardNextCompletionInMinute?: Prisma.IntWithAggregatesFilter<"Settings"> | number
+  adsgramTaskNextCompletionInMinute?: Prisma.IntWithAggregatesFilter<"Settings"> | number
 }
 
 export type SettingsCreateInput = {
@@ -734,6 +766,8 @@ export type SettingsCreateInput = {
   commissionRatioTgPartnerProgram?: number
   mouthesCountTgPartnerProgram?: number | null
   telegramPartnerProgramRatio?: number
+  adsRewardNextCompletionInMinute?: number
+  adsgramTaskNextCompletionInMinute?: number
 }
 
 export type SettingsUncheckedCreateInput = {
@@ -769,6 +803,8 @@ export type SettingsUncheckedCreateInput = {
   commissionRatioTgPartnerProgram?: number
   mouthesCountTgPartnerProgram?: number | null
   telegramPartnerProgramRatio?: number
+  adsRewardNextCompletionInMinute?: number
+  adsgramTaskNextCompletionInMinute?: number
 }
 
 export type SettingsUpdateInput = {
@@ -804,6 +840,8 @@ export type SettingsUpdateInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFieldUpdateOperationsInput | number
+  adsRewardNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  adsgramTaskNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SettingsUncheckedUpdateInput = {
@@ -839,6 +877,8 @@ export type SettingsUncheckedUpdateInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFieldUpdateOperationsInput | number
+  adsRewardNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  adsgramTaskNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SettingsCreateManyInput = {
@@ -874,6 +914,8 @@ export type SettingsCreateManyInput = {
   commissionRatioTgPartnerProgram?: number
   mouthesCountTgPartnerProgram?: number | null
   telegramPartnerProgramRatio?: number
+  adsRewardNextCompletionInMinute?: number
+  adsgramTaskNextCompletionInMinute?: number
 }
 
 export type SettingsUpdateManyMutationInput = {
@@ -909,6 +951,8 @@ export type SettingsUpdateManyMutationInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFieldUpdateOperationsInput | number
+  adsRewardNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  adsgramTaskNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SettingsUncheckedUpdateManyInput = {
@@ -944,6 +988,8 @@ export type SettingsUncheckedUpdateManyInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFieldUpdateOperationsInput | number
+  adsRewardNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  adsgramTaskNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SettingsCountOrderByAggregateInput = {
@@ -979,6 +1025,8 @@ export type SettingsCountOrderByAggregateInput = {
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
+  adsRewardNextCompletionInMinute?: Prisma.SortOrder
+  adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
 }
 
 export type SettingsAvgOrderByAggregateInput = {
@@ -1012,6 +1060,8 @@ export type SettingsAvgOrderByAggregateInput = {
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
+  adsRewardNextCompletionInMinute?: Prisma.SortOrder
+  adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
 }
 
 export type SettingsMaxOrderByAggregateInput = {
@@ -1047,6 +1097,8 @@ export type SettingsMaxOrderByAggregateInput = {
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
+  adsRewardNextCompletionInMinute?: Prisma.SortOrder
+  adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
 }
 
 export type SettingsMinOrderByAggregateInput = {
@@ -1082,6 +1134,8 @@ export type SettingsMinOrderByAggregateInput = {
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
+  adsRewardNextCompletionInMinute?: Prisma.SortOrder
+  adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
 }
 
 export type SettingsSumOrderByAggregateInput = {
@@ -1115,6 +1169,8 @@ export type SettingsSumOrderByAggregateInput = {
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
+  adsRewardNextCompletionInMinute?: Prisma.SortOrder
+  adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
 }
 
 export type EnumDefaultEnumFieldUpdateOperationsInput = {
@@ -1184,6 +1240,8 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   commissionRatioTgPartnerProgram?: boolean
   mouthesCountTgPartnerProgram?: boolean
   telegramPartnerProgramRatio?: boolean
+  adsRewardNextCompletionInMinute?: boolean
+  adsgramTaskNextCompletionInMinute?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1219,6 +1277,8 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   commissionRatioTgPartnerProgram?: boolean
   mouthesCountTgPartnerProgram?: boolean
   telegramPartnerProgramRatio?: boolean
+  adsRewardNextCompletionInMinute?: boolean
+  adsgramTaskNextCompletionInMinute?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1254,6 +1314,8 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   commissionRatioTgPartnerProgram?: boolean
   mouthesCountTgPartnerProgram?: boolean
   telegramPartnerProgramRatio?: boolean
+  adsRewardNextCompletionInMinute?: boolean
+  adsgramTaskNextCompletionInMinute?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectScalar = {
@@ -1289,9 +1351,11 @@ export type SettingsSelectScalar = {
   commissionRatioTgPartnerProgram?: boolean
   mouthesCountTgPartnerProgram?: boolean
   telegramPartnerProgramRatio?: boolean
+  adsRewardNextCompletionInMinute?: boolean
+  adsgramTaskNextCompletionInMinute?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -1332,6 +1396,8 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     commissionRatioTgPartnerProgram: number
     mouthesCountTgPartnerProgram: number | null
     telegramPartnerProgramRatio: number
+    adsRewardNextCompletionInMinute: number
+    adsgramTaskNextCompletionInMinute: number
   }, ExtArgs["result"]["settings"]>
   composites: {}
 }
@@ -1787,6 +1853,8 @@ export interface SettingsFieldRefs {
   readonly commissionRatioTgPartnerProgram: Prisma.FieldRef<"Settings", 'Float'>
   readonly mouthesCountTgPartnerProgram: Prisma.FieldRef<"Settings", 'Int'>
   readonly telegramPartnerProgramRatio: Prisma.FieldRef<"Settings", 'Float'>
+  readonly adsRewardNextCompletionInMinute: Prisma.FieldRef<"Settings", 'Int'>
+  readonly adsgramTaskNextCompletionInMinute: Prisma.FieldRef<"Settings", 'Int'>
 }
     
 

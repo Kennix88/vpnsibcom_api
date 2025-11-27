@@ -309,6 +309,7 @@ export type AdsViewsOrderByWithRelationInput = {
 
 export type AdsViewsWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  verifyKey?: string
   AND?: Prisma.AdsViewsWhereInput | Prisma.AdsViewsWhereInput[]
   OR?: Prisma.AdsViewsWhereInput[]
   NOT?: Prisma.AdsViewsWhereInput | Prisma.AdsViewsWhereInput[]
@@ -320,13 +321,12 @@ export type AdsViewsWhereUniqueInput = Prisma.AtLeast<{
   duration?: Prisma.IntFilter<"AdsViews"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"AdsViews"> | Date | string | null
-  verifyKey?: Prisma.StringFilter<"AdsViews"> | string
   userId?: Prisma.StringFilter<"AdsViews"> | string
   blockId?: Prisma.StringFilter<"AdsViews"> | string
   network?: Prisma.XOR<Prisma.AdsNetworksScalarRelationFilter, Prisma.AdsNetworksWhereInput>
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   block?: Prisma.XOR<Prisma.AdsBlocksScalarRelationFilter, Prisma.AdsBlocksWhereInput>
-}, "id">
+}, "id" | "verifyKey">
 
 export type AdsViewsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder

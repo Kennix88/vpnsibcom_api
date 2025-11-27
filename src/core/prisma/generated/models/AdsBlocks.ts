@@ -44,6 +44,7 @@ export type AdsBlocksSumAggregateOutputType = {
 
 export type AdsBlocksMinAggregateOutputType = {
   id: string | null
+  key: string | null
   name: string | null
   place: $Enums.AdsBlockPlaceEnum | null
   isActive: boolean | null
@@ -59,6 +60,7 @@ export type AdsBlocksMinAggregateOutputType = {
 
 export type AdsBlocksMaxAggregateOutputType = {
   id: string | null
+  key: string | null
   name: string | null
   place: $Enums.AdsBlockPlaceEnum | null
   isActive: boolean | null
@@ -74,6 +76,7 @@ export type AdsBlocksMaxAggregateOutputType = {
 
 export type AdsBlocksCountAggregateOutputType = {
   id: number
+  key: number
   name: number
   place: number
   isActive: number
@@ -107,6 +110,7 @@ export type AdsBlocksSumAggregateInputType = {
 
 export type AdsBlocksMinAggregateInputType = {
   id?: true
+  key?: true
   name?: true
   place?: true
   isActive?: true
@@ -122,6 +126,7 @@ export type AdsBlocksMinAggregateInputType = {
 
 export type AdsBlocksMaxAggregateInputType = {
   id?: true
+  key?: true
   name?: true
   place?: true
   isActive?: true
@@ -137,6 +142,7 @@ export type AdsBlocksMaxAggregateInputType = {
 
 export type AdsBlocksCountAggregateInputType = {
   id?: true
+  key?: true
   name?: true
   place?: true
   isActive?: true
@@ -239,6 +245,7 @@ export type AdsBlocksGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 
 export type AdsBlocksGroupByOutputType = {
   id: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive: boolean
@@ -277,6 +284,7 @@ export type AdsBlocksWhereInput = {
   OR?: Prisma.AdsBlocksWhereInput[]
   NOT?: Prisma.AdsBlocksWhereInput | Prisma.AdsBlocksWhereInput[]
   id?: Prisma.StringFilter<"AdsBlocks"> | string
+  key?: Prisma.StringFilter<"AdsBlocks"> | string
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
@@ -294,6 +302,7 @@ export type AdsBlocksWhereInput = {
 
 export type AdsBlocksOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -315,6 +324,7 @@ export type AdsBlocksWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AdsBlocksWhereInput | Prisma.AdsBlocksWhereInput[]
   OR?: Prisma.AdsBlocksWhereInput[]
   NOT?: Prisma.AdsBlocksWhereInput | Prisma.AdsBlocksWhereInput[]
+  key?: Prisma.StringFilter<"AdsBlocks"> | string
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
@@ -332,6 +342,7 @@ export type AdsBlocksWhereUniqueInput = Prisma.AtLeast<{
 
 export type AdsBlocksOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -355,6 +366,7 @@ export type AdsBlocksScalarWhereWithAggregatesInput = {
   OR?: Prisma.AdsBlocksScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AdsBlocksScalarWhereWithAggregatesInput | Prisma.AdsBlocksScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AdsBlocks"> | string
+  key?: Prisma.StringWithAggregatesFilter<"AdsBlocks"> | string
   name?: Prisma.StringWithAggregatesFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumWithAggregatesFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolWithAggregatesFilter<"AdsBlocks"> | boolean
@@ -369,7 +381,8 @@ export type AdsBlocksScalarWhereWithAggregatesInput = {
 }
 
 export type AdsBlocksCreateInput = {
-  id: string
+  id?: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -385,7 +398,8 @@ export type AdsBlocksCreateInput = {
 }
 
 export type AdsBlocksUncheckedCreateInput = {
-  id: string
+  id?: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -402,6 +416,7 @@ export type AdsBlocksUncheckedCreateInput = {
 
 export type AdsBlocksUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -418,6 +433,7 @@ export type AdsBlocksUpdateInput = {
 
 export type AdsBlocksUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -433,7 +449,8 @@ export type AdsBlocksUncheckedUpdateInput = {
 }
 
 export type AdsBlocksCreateManyInput = {
-  id: string
+  id?: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -449,6 +466,7 @@ export type AdsBlocksCreateManyInput = {
 
 export type AdsBlocksUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -463,6 +481,7 @@ export type AdsBlocksUpdateManyMutationInput = {
 
 export type AdsBlocksUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -488,6 +507,7 @@ export type AdsBlocksIdPlaceCompoundUniqueInput = {
 
 export type AdsBlocksCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -511,6 +531,7 @@ export type AdsBlocksAvgOrderByAggregateInput = {
 
 export type AdsBlocksMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -526,6 +547,7 @@ export type AdsBlocksMaxOrderByAggregateInput = {
 
 export type AdsBlocksMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -618,7 +640,8 @@ export type AdsBlocksUncheckedUpdateManyWithoutNetworkNestedInput = {
 }
 
 export type AdsBlocksCreateWithoutViewsInput = {
-  id: string
+  id?: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -633,7 +656,8 @@ export type AdsBlocksCreateWithoutViewsInput = {
 }
 
 export type AdsBlocksUncheckedCreateWithoutViewsInput = {
-  id: string
+  id?: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -665,6 +689,7 @@ export type AdsBlocksUpdateToOneWithWhereWithoutViewsInput = {
 
 export type AdsBlocksUpdateWithoutViewsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -680,6 +705,7 @@ export type AdsBlocksUpdateWithoutViewsInput = {
 
 export type AdsBlocksUncheckedUpdateWithoutViewsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -694,7 +720,8 @@ export type AdsBlocksUncheckedUpdateWithoutViewsInput = {
 }
 
 export type AdsBlocksCreateWithoutNetworkInput = {
-  id: string
+  id?: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -709,7 +736,8 @@ export type AdsBlocksCreateWithoutNetworkInput = {
 }
 
 export type AdsBlocksUncheckedCreateWithoutNetworkInput = {
-  id: string
+  id?: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -754,6 +782,7 @@ export type AdsBlocksScalarWhereInput = {
   OR?: Prisma.AdsBlocksScalarWhereInput[]
   NOT?: Prisma.AdsBlocksScalarWhereInput | Prisma.AdsBlocksScalarWhereInput[]
   id?: Prisma.StringFilter<"AdsBlocks"> | string
+  key?: Prisma.StringFilter<"AdsBlocks"> | string
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
@@ -768,7 +797,8 @@ export type AdsBlocksScalarWhereInput = {
 }
 
 export type AdsBlocksCreateManyNetworkInput = {
-  id: string
+  id?: string
+  key: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -783,6 +813,7 @@ export type AdsBlocksCreateManyNetworkInput = {
 
 export type AdsBlocksUpdateWithoutNetworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -798,6 +829,7 @@ export type AdsBlocksUpdateWithoutNetworkInput = {
 
 export type AdsBlocksUncheckedUpdateWithoutNetworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -813,6 +845,7 @@ export type AdsBlocksUncheckedUpdateWithoutNetworkInput = {
 
 export type AdsBlocksUncheckedUpdateManyWithoutNetworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -858,6 +891,7 @@ export type AdsBlocksCountOutputTypeCountViewsArgs<ExtArgs extends runtime.Types
 
 export type AdsBlocksSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  key?: boolean
   name?: boolean
   place?: boolean
   isActive?: boolean
@@ -876,6 +910,7 @@ export type AdsBlocksSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type AdsBlocksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  key?: boolean
   name?: boolean
   place?: boolean
   isActive?: boolean
@@ -892,6 +927,7 @@ export type AdsBlocksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 
 export type AdsBlocksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  key?: boolean
   name?: boolean
   place?: boolean
   isActive?: boolean
@@ -908,6 +944,7 @@ export type AdsBlocksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 
 export type AdsBlocksSelectScalar = {
   id?: boolean
+  key?: boolean
   name?: boolean
   place?: boolean
   isActive?: boolean
@@ -921,7 +958,7 @@ export type AdsBlocksSelectScalar = {
   networkKey?: boolean
 }
 
-export type AdsBlocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "place" | "isActive" | "rewardTraffic" | "rewardStars" | "rewardTickets" | "duration" | "limit" | "createdAt" | "updatedAt" | "networkKey", ExtArgs["result"]["adsBlocks"]>
+export type AdsBlocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "place" | "isActive" | "rewardTraffic" | "rewardStars" | "rewardTickets" | "duration" | "limit" | "createdAt" | "updatedAt" | "networkKey", ExtArgs["result"]["adsBlocks"]>
 export type AdsBlocksInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   views?: boolean | Prisma.AdsBlocks$viewsArgs<ExtArgs>
@@ -942,6 +979,7 @@ export type $AdsBlocksPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    key: string
     name: string
     place: $Enums.AdsBlockPlaceEnum
     isActive: boolean
@@ -1379,6 +1417,7 @@ export interface Prisma__AdsBlocksClient<T, Null = never, ExtArgs extends runtim
  */
 export interface AdsBlocksFieldRefs {
   readonly id: Prisma.FieldRef<"AdsBlocks", 'String'>
+  readonly key: Prisma.FieldRef<"AdsBlocks", 'String'>
   readonly name: Prisma.FieldRef<"AdsBlocks", 'String'>
   readonly place: Prisma.FieldRef<"AdsBlocks", 'AdsBlockPlaceEnum'>
   readonly isActive: Prisma.FieldRef<"AdsBlocks", 'Boolean'>
