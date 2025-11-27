@@ -1,4 +1,4 @@
-export enum AdsViewTypeEnum {
+export enum AdsTypeEnum {
   REWARD = 'REWARD',
   TASK = 'TASK',
   VIEW = 'VIEW',
