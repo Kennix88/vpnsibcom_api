@@ -55,6 +55,9 @@ model Settings {
  mouthesCountTgPartnerProgram    Int?    @map("mouthes_count_tg_partner_program")
  telegramPartnerProgramRatio     Float   @default(1.3) @map("telegram_partner_program_ratio")
 
+ adsRewardNextCompletionInMinute   Int @default(1) @map("ads_reward_next_completion_in_minute")
+ adsgramTaskNextCompletionInMinute Int @default(360) @map("adsgram_task_next_completion_in_minute")
+
  @@map("settings")
 }
 
@@ -119,6 +122,8 @@ model Users {
  banExpiredAt              DateTime? @map("banned_expired_at")
  deletedAt                 DateTime? @map("deleted_at")
  tgProgramPartnerExpiredAt DateTime? @map("tg_program_partner_expired_at")
+ nextAdsRewardAt           DateTime? @map("next_ads_reward_at")
+ nextAdsgramTaskAt         DateTime? @map("next_adsgram_task_at")
 
  role           Roles             @relation(fields: [roleId], references: [key])
  roleId         UserRoleEnum      @default(USER) @map("role_id")
@@ -159,7 +164,7 @@ model AdsViews {
  createdAt DateTime  @default(now()) @map("created_at")
  claimedAt DateTime? @map("claimed_at")
 
- verifyKey String @map("verify_key")
+ verifyKey String @unique @map("verify_key")
 
  user    Users     @relation(fields: [userId], references: [id])
  userId  String    @map("user_id")
@@ -180,7 +185,8 @@ enum AdsViewTypeEnum {
 }
 
 model AdsBlocks {
- id            String            @id
+ id            String            @id @default(uuid())
+ key           String            @default("KEY")
  name          String
  place         AdsBlockPlaceEnum
  isActive      Boolean           @default(true) @map("is_active")
