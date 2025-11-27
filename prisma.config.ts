@@ -9,7 +9,5 @@ export default defineConfig({
   },
   datasource: {
     url: env('POSTGRES_URL'),
-
-    shadowDatabaseUrl: env('POSTGRES_URL'),
   },
 })
