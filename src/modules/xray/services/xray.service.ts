@@ -1631,8 +1631,8 @@ export class XrayService {
             inviter.level > 1
               ? 0
               : user.telegramData?.isPremium
-              ? settings.referralInvitePremiumRewardGb
-              : settings.referralInviteRewardGb
+              ? settings.referralInvitePremiumRewardGb * 1024
+              : settings.referralInviteRewardGb * 1024
 
           try {
             await this.prismaService.$transaction(async (tx) => {

@@ -609,8 +609,8 @@ export class PaymentsService {
         referrer.level > 1
           ? 0
           : payment.user.telegramData.isPremium
-          ? settings.referralInvitePremiumRewardGb
-          : settings.referralInviteRewardGb
+          ? settings.referralInvitePremiumRewardGb * 1024
+          : settings.referralInviteRewardGb * 1024
 
       await tx.referrals.update({
         where: {

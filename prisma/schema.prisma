@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
- provider  = "postgresql"
+ provider = "postgresql"
  // url       = env("POSTGRES_URL")
  // directUrl = env("POSTGRES_URL")
 }
@@ -84,12 +84,9 @@ model UserTelegramData {
 /// Модель для хранения реферальных отношений
 model Referrals {
  id         String @id @default(uuid())
- /// Уровень реферала (1-3)
  level      Int    @default(1)
- /// Связь с пригласившим пользователем
  inviter    Users  @relation("inviter", fields: [inviterId], references: [id])
  inviterId  String @map("inviter_id")
- /// Связь с приглашенным пользователем
  referral   Users  @relation("referral", fields: [referralId], references: [id])
  referralId String @map("referral_id")
 
@@ -270,11 +267,8 @@ model UserBalance {
  traffic        Float  @default(0)
  wager          Float  @default(0)
 
- /// Дата обновления
  updatedAt    DateTime       @updatedAt @map("updated_at")
- /// Связь с пользователем
  user         Users?
- /// Транзакции баланса
  transactions Transactions[]
 
  @@map("user_balance")
