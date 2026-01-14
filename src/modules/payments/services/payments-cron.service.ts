@@ -61,7 +61,8 @@ export class PaymentsCronService {
         payIds.push(transaction.token)
       }
 
-      const getTonPayments = await this.tonPaymentsService.findPayments(payIds)
+      const { payments: getTonPayments, maxUtime } =
+        await this.tonPaymentsService.findPayments(payIds)
 
       for (const transaction of transactions) {
         this.logger.info({
@@ -91,10 +92,13 @@ export class PaymentsCronService {
         )
       }
 
-      await this.tonUtimeService.setLastUtime(
-        this.configService.getOrThrow<string>('TON_WALLET'),
-        Date.now() / 1000 - 2 * 60 * 60,
-      )
+      // Обновляем lastUtime в Redis, чтобы в следующий раз начать с этого момента
+      if (maxUtime > 0) {
+        await this.tonUtimeService.setLastUtime(
+          this.configService.getOrThrow<string>('TON_WALLET'),
+          maxUtime,
+        )
+      }
     } catch (e) {
       this.logger.error({ msg: 'Error checking TON payments', e })
     }
