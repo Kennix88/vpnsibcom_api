@@ -8,4 +8,5 @@ export enum TransactionReasonEnum {
   FINE = 'FINE',
   EXCHANGE = 'EXCHANGE',
   GAME = 'GAME',
+  BONUS = 'BONUS',
 }
