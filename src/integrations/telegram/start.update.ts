@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config'
 import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { Ctx, InjectBot, Start, Update } from 'nestjs-telegraf'
+import { Command, Ctx, Help, InjectBot, Start, Update } from 'nestjs-telegraf'
 import { Markup, Telegraf } from 'telegraf'
 
 @Update()
@@ -28,6 +28,7 @@ export class StartUpdate {
   }
 
   @Start()
+  @Command(['settings', 'profile', 'cancel', 'subscribe', 'policy'])
   async startCommand(@Ctx() ctx: Context) {
     try {
       if (ctx.chat?.type !== 'private' || !ctx.from) return
@@ -92,13 +93,6 @@ ${this.i18n.t('telegraf.telegram.welcome.message2', {
   lang: ctx.from.language_code,
 })}
 
-${this.i18n.t('telegraf.telegram.welcome.developedBy', {
-  lang: ctx.from.language_code,
-})}
-${this.i18n.t('telegraf.telegram.welcome.supportedBy', {
-  lang: ctx.from.language_code,
-})}
-
 ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
   lang: ctx.from.language_code,
 })}`,
@@ -128,16 +122,6 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
               ],
               [
                 Markup.button.url(
-                  'Solyanka Community',
-                  'https://t.me/solycmty',
-                ),
-                Markup.button.url(
-                  'KennixDev',
-                  this.configService.get<string>('KENNIXDEV_URL'),
-                ),
-              ],
-              [
-                Markup.button.url(
                   this.i18n.t('telegraf.telegram.button.buyStars', {
                     lang: ctx.from.language_code,
                   }),
@@ -157,5 +141,35 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
         err: e,
       })
     }
+  }
+
+  @Help()
+  async helpCommand(@Ctx() ctx: Context) {
+    await ctx.replyWithHTML(
+      `<b>Help</b>
+<b>Your Telegram id</b>: <code>${ctx.from.id}</code>
+
+If you have any difficulties with payment, subscription or anything else, write to our chat, we will respond to you!
+
+<b>Commands</b>
+/start - start the bot
+/help - show this help message
+`,
+      {
+        reply_markup: {
+          remove_keyboard: true,
+          inline_keyboard: [
+            [
+              Markup.button.url(
+                this.i18n.t('telegraf.telegram.button.chatSupport', {
+                  lang: ctx.from.language_code,
+                }),
+                this.configService.get<string>('CHAT_URL'),
+              ),
+            ],
+          ],
+        },
+      },
+    )
   }
 }
