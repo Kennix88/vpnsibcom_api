@@ -7,3 +7,8 @@ export interface TonPaymentResult {
 }
 
 export type FindTonPaymentsResult = Record<string, TonPaymentResult | null>
+
+export interface FindTonPaymentsResponse {
+  payments: FindTonPaymentsResult
+  maxUtime: number
+}
