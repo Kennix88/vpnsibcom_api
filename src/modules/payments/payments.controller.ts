@@ -92,6 +92,31 @@ export class PaymentsController {
     }
   }
 
+  @Get('bonuses')
+  @PreventDuplicateRequest(120)
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  async getBonuses(
+    @CurrentUser() user: JwtPayload,
+    @Req() req: FastifyRequest,
+  ) {
+    try {
+      await this.updateUserActivityFromRequest(req)
+
+      const bonuses = await this.paymentService.getBonuses()
+
+      return {
+        data: {
+          success: true,
+          bonuses,
+        },
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   @Get('methods')
   @PreventDuplicateRequest(120)
   @UseGuards(JwtAuthGuard)
