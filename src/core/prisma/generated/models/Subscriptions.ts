@@ -74,6 +74,7 @@ export type SubscriptionsMinAggregateOutputType = {
   expiredAt: Date | null
   removalAt: Date | null
   onlineAt: Date | null
+  deletedAt: Date | null
   userId: string | null
 }
 
@@ -105,6 +106,7 @@ export type SubscriptionsMaxAggregateOutputType = {
   expiredAt: Date | null
   removalAt: Date | null
   onlineAt: Date | null
+  deletedAt: Date | null
   userId: string | null
 }
 
@@ -138,6 +140,7 @@ export type SubscriptionsCountAggregateOutputType = {
   expiredAt: number
   removalAt: number
   onlineAt: number
+  deletedAt: number
   userId: number
   _all: number
 }
@@ -191,6 +194,7 @@ export type SubscriptionsMinAggregateInputType = {
   expiredAt?: true
   removalAt?: true
   onlineAt?: true
+  deletedAt?: true
   userId?: true
 }
 
@@ -222,6 +226,7 @@ export type SubscriptionsMaxAggregateInputType = {
   expiredAt?: true
   removalAt?: true
   onlineAt?: true
+  deletedAt?: true
   userId?: true
 }
 
@@ -255,6 +260,7 @@ export type SubscriptionsCountAggregateInputType = {
   expiredAt?: true
   removalAt?: true
   onlineAt?: true
+  deletedAt?: true
   userId?: true
   _all?: true
 }
@@ -375,6 +381,7 @@ export type SubscriptionsGroupByOutputType = {
   expiredAt: Date | null
   removalAt: Date | null
   onlineAt: Date | null
+  deletedAt: Date | null
   userId: string
   _count: SubscriptionsCountAggregateOutputType | null
   _avg: SubscriptionsAvgAggregateOutputType | null
@@ -431,6 +438,7 @@ export type SubscriptionsWhereInput = {
   expiredAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   removalAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   onlineAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   userId?: Prisma.StringFilter<"Subscriptions"> | string
   plan?: Prisma.XOR<Prisma.PlansScalarRelationFilter, Prisma.PlansWhereInput>
   servers?: Prisma.SubscriptionToGreenListListRelationFilter
@@ -468,6 +476,7 @@ export type SubscriptionsOrderByWithRelationInput = {
   expiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   removalAt?: Prisma.SortOrderInput | Prisma.SortOrder
   onlineAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   plan?: Prisma.PlansOrderByWithRelationInput
   servers?: Prisma.SubscriptionToGreenListOrderByRelationAggregateInput
@@ -508,6 +517,7 @@ export type SubscriptionsWhereUniqueInput = Prisma.AtLeast<{
   expiredAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   removalAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   onlineAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   userId?: Prisma.StringFilter<"Subscriptions"> | string
   plan?: Prisma.XOR<Prisma.PlansScalarRelationFilter, Prisma.PlansWhereInput>
   servers?: Prisma.SubscriptionToGreenListListRelationFilter
@@ -545,6 +555,7 @@ export type SubscriptionsOrderByWithAggregationInput = {
   expiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   removalAt?: Prisma.SortOrderInput | Prisma.SortOrder
   onlineAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   _count?: Prisma.SubscriptionsCountOrderByAggregateInput
   _avg?: Prisma.SubscriptionsAvgOrderByAggregateInput
@@ -586,6 +597,7 @@ export type SubscriptionsScalarWhereWithAggregatesInput = {
   expiredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscriptions"> | Date | string | null
   removalAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscriptions"> | Date | string | null
   onlineAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscriptions"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscriptions"> | Date | string | null
   userId?: Prisma.StringWithAggregatesFilter<"Subscriptions"> | string
 }
 
@@ -618,6 +630,7 @@ export type SubscriptionsCreateInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   plan?: Prisma.PlansCreateNestedOneWithoutSubscriptionsInput
   servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
   user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
@@ -654,6 +667,7 @@ export type SubscriptionsUncheckedCreateInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   userId: string
   servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
   payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
@@ -688,6 +702,7 @@ export type SubscriptionsUpdateInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   plan?: Prisma.PlansUpdateOneRequiredWithoutSubscriptionsNestedInput
   servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
@@ -724,6 +739,7 @@ export type SubscriptionsUncheckedUpdateInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
   payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
@@ -759,6 +775,7 @@ export type SubscriptionsCreateManyInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   userId: string
 }
 
@@ -791,6 +808,7 @@ export type SubscriptionsUpdateManyMutationInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type SubscriptionsUncheckedUpdateManyInput = {
@@ -823,6 +841,7 @@ export type SubscriptionsUncheckedUpdateManyInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -866,6 +885,7 @@ export type SubscriptionsCountOrderByAggregateInput = {
   expiredAt?: Prisma.SortOrder
   removalAt?: Prisma.SortOrder
   onlineAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
@@ -907,6 +927,7 @@ export type SubscriptionsMaxOrderByAggregateInput = {
   expiredAt?: Prisma.SortOrder
   removalAt?: Prisma.SortOrder
   onlineAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
@@ -938,6 +959,7 @@ export type SubscriptionsMinOrderByAggregateInput = {
   expiredAt?: Prisma.SortOrder
   removalAt?: Prisma.SortOrder
   onlineAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
@@ -1112,6 +1134,7 @@ export type SubscriptionsCreateWithoutUserInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   plan?: Prisma.PlansCreateNestedOneWithoutSubscriptionsInput
   servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
   payment?: Prisma.PaymentsCreateNestedManyWithoutSubscriptionInput
@@ -1147,6 +1170,7 @@ export type SubscriptionsUncheckedCreateWithoutUserInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
   payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
 }
@@ -1210,6 +1234,7 @@ export type SubscriptionsScalarWhereInput = {
   expiredAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   removalAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   onlineAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
   userId?: Prisma.StringFilter<"Subscriptions"> | string
 }
 
@@ -1242,6 +1267,7 @@ export type SubscriptionsCreateWithoutPlanInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
   user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
   payment?: Prisma.PaymentsCreateNestedManyWithoutSubscriptionInput
@@ -1276,6 +1302,7 @@ export type SubscriptionsUncheckedCreateWithoutPlanInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   userId: string
   servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
   payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
@@ -1336,6 +1363,7 @@ export type SubscriptionsCreateWithoutServersInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   plan?: Prisma.PlansCreateNestedOneWithoutSubscriptionsInput
   user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
   payment?: Prisma.PaymentsCreateNestedManyWithoutSubscriptionInput
@@ -1371,6 +1399,7 @@ export type SubscriptionsUncheckedCreateWithoutServersInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   userId: string
   payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
 }
@@ -1420,6 +1449,7 @@ export type SubscriptionsUpdateWithoutServersInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   plan?: Prisma.PlansUpdateOneRequiredWithoutSubscriptionsNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
   payment?: Prisma.PaymentsUpdateManyWithoutSubscriptionNestedInput
@@ -1455,6 +1485,7 @@ export type SubscriptionsUncheckedUpdateWithoutServersInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
 }
@@ -1488,6 +1519,7 @@ export type SubscriptionsCreateWithoutPaymentInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   plan?: Prisma.PlansCreateNestedOneWithoutSubscriptionsInput
   servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
   user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
@@ -1523,6 +1555,7 @@ export type SubscriptionsUncheckedCreateWithoutPaymentInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   userId: string
   servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
 }
@@ -1572,6 +1605,7 @@ export type SubscriptionsUpdateWithoutPaymentInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   plan?: Prisma.PlansUpdateOneRequiredWithoutSubscriptionsNestedInput
   servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
@@ -1607,6 +1641,7 @@ export type SubscriptionsUncheckedUpdateWithoutPaymentInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
 }
@@ -1641,6 +1676,7 @@ export type SubscriptionsCreateManyUserInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
 }
 
 export type SubscriptionsUpdateWithoutUserInput = {
@@ -1672,6 +1708,7 @@ export type SubscriptionsUpdateWithoutUserInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   plan?: Prisma.PlansUpdateOneRequiredWithoutSubscriptionsNestedInput
   servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
   payment?: Prisma.PaymentsUpdateManyWithoutSubscriptionNestedInput
@@ -1707,6 +1744,7 @@ export type SubscriptionsUncheckedUpdateWithoutUserInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
   payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
 }
@@ -1741,6 +1779,7 @@ export type SubscriptionsUncheckedUpdateManyWithoutUserInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type SubscriptionsCreateManyPlanInput = {
@@ -1772,6 +1811,7 @@ export type SubscriptionsCreateManyPlanInput = {
   expiredAt?: Date | string | null
   removalAt?: Date | string | null
   onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
   userId: string
 }
 
@@ -1804,6 +1844,7 @@ export type SubscriptionsUpdateWithoutPlanInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
   payment?: Prisma.PaymentsUpdateManyWithoutSubscriptionNestedInput
@@ -1838,6 +1879,7 @@ export type SubscriptionsUncheckedUpdateWithoutPlanInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
   payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
@@ -1872,6 +1914,7 @@ export type SubscriptionsUncheckedUpdateManyWithoutPlanInput = {
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -1945,6 +1988,7 @@ export type SubscriptionsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   expiredAt?: boolean
   removalAt?: boolean
   onlineAt?: boolean
+  deletedAt?: boolean
   userId?: boolean
   plan?: boolean | Prisma.PlansDefaultArgs<ExtArgs>
   servers?: boolean | Prisma.Subscriptions$serversArgs<ExtArgs>
@@ -1983,6 +2027,7 @@ export type SubscriptionsSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   expiredAt?: boolean
   removalAt?: boolean
   onlineAt?: boolean
+  deletedAt?: boolean
   userId?: boolean
   plan?: boolean | Prisma.PlansDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -2018,6 +2063,7 @@ export type SubscriptionsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   expiredAt?: boolean
   removalAt?: boolean
   onlineAt?: boolean
+  deletedAt?: boolean
   userId?: boolean
   plan?: boolean | Prisma.PlansDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -2053,10 +2099,11 @@ export type SubscriptionsSelectScalar = {
   expiredAt?: boolean
   removalAt?: boolean
   onlineAt?: boolean
+  deletedAt?: boolean
   userId?: boolean
 }
 
-export type SubscriptionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "name" | "planKey" | "isActive" | "isAutoRenewal" | "token" | "period" | "periodMultiplier" | "announce" | "nextRenewalStars" | "isPremium" | "devicesCount" | "isAllBaseServers" | "isAllPremiumServers" | "trafficLimitGb" | "isUnlimitTraffic" | "links" | "lastUserAgent" | "dataLimit" | "usedTraffic" | "lifeTimeUsedTraffic" | "trafficReset" | "marzbanData" | "createdAt" | "updatedAt" | "expiredAt" | "removalAt" | "onlineAt" | "userId", ExtArgs["result"]["subscriptions"]>
+export type SubscriptionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "name" | "planKey" | "isActive" | "isAutoRenewal" | "token" | "period" | "periodMultiplier" | "announce" | "nextRenewalStars" | "isPremium" | "devicesCount" | "isAllBaseServers" | "isAllPremiumServers" | "trafficLimitGb" | "isUnlimitTraffic" | "links" | "lastUserAgent" | "dataLimit" | "usedTraffic" | "lifeTimeUsedTraffic" | "trafficReset" | "marzbanData" | "createdAt" | "updatedAt" | "expiredAt" | "removalAt" | "onlineAt" | "deletedAt" | "userId", ExtArgs["result"]["subscriptions"]>
 export type SubscriptionsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   plan?: boolean | Prisma.PlansDefaultArgs<ExtArgs>
   servers?: boolean | Prisma.Subscriptions$serversArgs<ExtArgs>
@@ -2111,6 +2158,7 @@ export type $SubscriptionsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     expiredAt: Date | null
     removalAt: Date | null
     onlineAt: Date | null
+    deletedAt: Date | null
     userId: string
   }, ExtArgs["result"]["subscriptions"]>
   composites: {}
@@ -2568,6 +2616,7 @@ export interface SubscriptionsFieldRefs {
   readonly expiredAt: Prisma.FieldRef<"Subscriptions", 'DateTime'>
   readonly removalAt: Prisma.FieldRef<"Subscriptions", 'DateTime'>
   readonly onlineAt: Prisma.FieldRef<"Subscriptions", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"Subscriptions", 'DateTime'>
   readonly userId: Prisma.FieldRef<"Subscriptions", 'String'>
 }
     

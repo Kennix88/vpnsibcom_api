@@ -29,6 +29,7 @@ export type AggregatePayments = {
 export type PaymentsAvgAggregateOutputType = {
   amount: number | null
   amountStars: number | null
+  bonusStars: number | null
   exchangeRate: number | null
   commission: number | null
   amountStarsFeeTgPartner: number | null
@@ -37,6 +38,7 @@ export type PaymentsAvgAggregateOutputType = {
 export type PaymentsSumAggregateOutputType = {
   amount: number | null
   amountStars: number | null
+  bonusStars: number | null
   exchangeRate: number | null
   commission: number | null
   amountStarsFeeTgPartner: number | null
@@ -48,6 +50,7 @@ export type PaymentsMinAggregateOutputType = {
   type: $Enums.PaymentTypeEnum | null
   amount: number | null
   amountStars: number | null
+  bonusStars: number | null
   exchangeRate: number | null
   commission: number | null
   isTgPartnerProgram: boolean | null
@@ -69,6 +72,7 @@ export type PaymentsMaxAggregateOutputType = {
   type: $Enums.PaymentTypeEnum | null
   amount: number | null
   amountStars: number | null
+  bonusStars: number | null
   exchangeRate: number | null
   commission: number | null
   isTgPartnerProgram: boolean | null
@@ -90,6 +94,7 @@ export type PaymentsCountAggregateOutputType = {
   type: number
   amount: number
   amountStars: number
+  bonusStars: number
   exchangeRate: number
   commission: number
   isTgPartnerProgram: number
@@ -112,6 +117,7 @@ export type PaymentsCountAggregateOutputType = {
 export type PaymentsAvgAggregateInputType = {
   amount?: true
   amountStars?: true
+  bonusStars?: true
   exchangeRate?: true
   commission?: true
   amountStarsFeeTgPartner?: true
@@ -120,6 +126,7 @@ export type PaymentsAvgAggregateInputType = {
 export type PaymentsSumAggregateInputType = {
   amount?: true
   amountStars?: true
+  bonusStars?: true
   exchangeRate?: true
   commission?: true
   amountStarsFeeTgPartner?: true
@@ -131,6 +138,7 @@ export type PaymentsMinAggregateInputType = {
   type?: true
   amount?: true
   amountStars?: true
+  bonusStars?: true
   exchangeRate?: true
   commission?: true
   isTgPartnerProgram?: true
@@ -152,6 +160,7 @@ export type PaymentsMaxAggregateInputType = {
   type?: true
   amount?: true
   amountStars?: true
+  bonusStars?: true
   exchangeRate?: true
   commission?: true
   isTgPartnerProgram?: true
@@ -173,6 +182,7 @@ export type PaymentsCountAggregateInputType = {
   type?: true
   amount?: true
   amountStars?: true
+  bonusStars?: true
   exchangeRate?: true
   commission?: true
   isTgPartnerProgram?: true
@@ -283,6 +293,7 @@ export type PaymentsGroupByOutputType = {
   type: $Enums.PaymentTypeEnum
   amount: number
   amountStars: number
+  bonusStars: number
   exchangeRate: number
   commission: number
   isTgPartnerProgram: boolean
@@ -329,6 +340,7 @@ export type PaymentsWhereInput = {
   type?: Prisma.EnumPaymentTypeEnumFilter<"Payments"> | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFilter<"Payments"> | number
   amountStars?: Prisma.FloatFilter<"Payments"> | number
+  bonusStars?: Prisma.FloatFilter<"Payments"> | number
   exchangeRate?: Prisma.FloatFilter<"Payments"> | number
   commission?: Prisma.FloatFilter<"Payments"> | number
   isTgPartnerProgram?: Prisma.BoolFilter<"Payments"> | boolean
@@ -357,6 +369,7 @@ export type PaymentsOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
+  bonusStars?: Prisma.SortOrder
   exchangeRate?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   isTgPartnerProgram?: Prisma.SortOrder
@@ -390,6 +403,7 @@ export type PaymentsWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumPaymentTypeEnumFilter<"Payments"> | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFilter<"Payments"> | number
   amountStars?: Prisma.FloatFilter<"Payments"> | number
+  bonusStars?: Prisma.FloatFilter<"Payments"> | number
   exchangeRate?: Prisma.FloatFilter<"Payments"> | number
   commission?: Prisma.FloatFilter<"Payments"> | number
   isTgPartnerProgram?: Prisma.BoolFilter<"Payments"> | boolean
@@ -416,6 +430,7 @@ export type PaymentsOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
+  bonusStars?: Prisma.SortOrder
   exchangeRate?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   isTgPartnerProgram?: Prisma.SortOrder
@@ -447,6 +462,7 @@ export type PaymentsScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumPaymentTypeEnumWithAggregatesFilter<"Payments"> | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatWithAggregatesFilter<"Payments"> | number
   amountStars?: Prisma.FloatWithAggregatesFilter<"Payments"> | number
+  bonusStars?: Prisma.FloatWithAggregatesFilter<"Payments"> | number
   exchangeRate?: Prisma.FloatWithAggregatesFilter<"Payments"> | number
   commission?: Prisma.FloatWithAggregatesFilter<"Payments"> | number
   isTgPartnerProgram?: Prisma.BoolWithAggregatesFilter<"Payments"> | boolean
@@ -470,6 +486,7 @@ export type PaymentsCreateInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -493,6 +510,7 @@ export type PaymentsUncheckedCreateInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -516,6 +534,7 @@ export type PaymentsUpdateInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -539,6 +558,7 @@ export type PaymentsUncheckedUpdateInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -562,6 +582,7 @@ export type PaymentsCreateManyInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -585,6 +606,7 @@ export type PaymentsUpdateManyMutationInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -603,6 +625,7 @@ export type PaymentsUncheckedUpdateManyInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -641,6 +664,7 @@ export type PaymentsCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
+  bonusStars?: Prisma.SortOrder
   exchangeRate?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   isTgPartnerProgram?: Prisma.SortOrder
@@ -661,6 +685,7 @@ export type PaymentsCountOrderByAggregateInput = {
 export type PaymentsAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
+  bonusStars?: Prisma.SortOrder
   exchangeRate?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   amountStarsFeeTgPartner?: Prisma.SortOrder
@@ -672,6 +697,7 @@ export type PaymentsMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
+  bonusStars?: Prisma.SortOrder
   exchangeRate?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   isTgPartnerProgram?: Prisma.SortOrder
@@ -693,6 +719,7 @@ export type PaymentsMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
+  bonusStars?: Prisma.SortOrder
   exchangeRate?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   isTgPartnerProgram?: Prisma.SortOrder
@@ -711,6 +738,7 @@ export type PaymentsMinOrderByAggregateInput = {
 export type PaymentsSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
+  bonusStars?: Prisma.SortOrder
   exchangeRate?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   amountStarsFeeTgPartner?: Prisma.SortOrder
@@ -934,6 +962,7 @@ export type PaymentsCreateWithoutUserInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -956,6 +985,7 @@ export type PaymentsUncheckedCreateWithoutUserInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1007,6 +1037,7 @@ export type PaymentsScalarWhereInput = {
   type?: Prisma.EnumPaymentTypeEnumFilter<"Payments"> | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFilter<"Payments"> | number
   amountStars?: Prisma.FloatFilter<"Payments"> | number
+  bonusStars?: Prisma.FloatFilter<"Payments"> | number
   exchangeRate?: Prisma.FloatFilter<"Payments"> | number
   commission?: Prisma.FloatFilter<"Payments"> | number
   isTgPartnerProgram?: Prisma.BoolFilter<"Payments"> | boolean
@@ -1030,6 +1061,7 @@ export type PaymentsCreateWithoutSubscriptionInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1052,6 +1084,7 @@ export type PaymentsUncheckedCreateWithoutSubscriptionInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1100,6 +1133,7 @@ export type PaymentsCreateWithoutCurrencyInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1122,6 +1156,7 @@ export type PaymentsUncheckedCreateWithoutCurrencyInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1170,6 +1205,7 @@ export type PaymentsCreateWithoutTransacrionInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1192,6 +1228,7 @@ export type PaymentsUncheckedCreateWithoutTransacrionInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1230,6 +1267,7 @@ export type PaymentsUpdateWithoutTransacrionInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1252,6 +1290,7 @@ export type PaymentsUncheckedUpdateWithoutTransacrionInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1274,6 +1313,7 @@ export type PaymentsCreateWithoutMethodInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1296,6 +1336,7 @@ export type PaymentsUncheckedCreateWithoutMethodInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1344,6 +1385,7 @@ export type PaymentsCreateManyUserInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1366,6 +1408,7 @@ export type PaymentsUpdateWithoutUserInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1388,6 +1431,7 @@ export type PaymentsUncheckedUpdateWithoutUserInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1410,6 +1454,7 @@ export type PaymentsUncheckedUpdateManyWithoutUserInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1432,6 +1477,7 @@ export type PaymentsCreateManySubscriptionInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1454,6 +1500,7 @@ export type PaymentsUpdateWithoutSubscriptionInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1476,6 +1523,7 @@ export type PaymentsUncheckedUpdateWithoutSubscriptionInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1498,6 +1546,7 @@ export type PaymentsUncheckedUpdateManyWithoutSubscriptionInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1520,6 +1569,7 @@ export type PaymentsCreateManyCurrencyInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1542,6 +1592,7 @@ export type PaymentsUpdateWithoutCurrencyInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1564,6 +1615,7 @@ export type PaymentsUncheckedUpdateWithoutCurrencyInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1586,6 +1638,7 @@ export type PaymentsUncheckedUpdateManyWithoutCurrencyInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1608,6 +1661,7 @@ export type PaymentsCreateManyMethodInput = {
   type?: $Enums.PaymentTypeEnum
   amount?: number
   amountStars?: number
+  bonusStars?: number
   exchangeRate?: number
   commission?: number
   isTgPartnerProgram?: boolean
@@ -1630,6 +1684,7 @@ export type PaymentsUpdateWithoutMethodInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1652,6 +1707,7 @@ export type PaymentsUncheckedUpdateWithoutMethodInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1674,6 +1730,7 @@ export type PaymentsUncheckedUpdateManyWithoutMethodInput = {
   type?: Prisma.EnumPaymentTypeEnumFieldUpdateOperationsInput | $Enums.PaymentTypeEnum
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusStars?: Prisma.FloatFieldUpdateOperationsInput | number
   exchangeRate?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1698,6 +1755,7 @@ export type PaymentsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   type?: boolean
   amount?: boolean
   amountStars?: boolean
+  bonusStars?: boolean
   exchangeRate?: boolean
   commission?: boolean
   isTgPartnerProgram?: boolean
@@ -1726,6 +1784,7 @@ export type PaymentsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   type?: boolean
   amount?: boolean
   amountStars?: boolean
+  bonusStars?: boolean
   exchangeRate?: boolean
   commission?: boolean
   isTgPartnerProgram?: boolean
@@ -1754,6 +1813,7 @@ export type PaymentsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   type?: boolean
   amount?: boolean
   amountStars?: boolean
+  bonusStars?: boolean
   exchangeRate?: boolean
   commission?: boolean
   isTgPartnerProgram?: boolean
@@ -1782,6 +1842,7 @@ export type PaymentsSelectScalar = {
   type?: boolean
   amount?: boolean
   amountStars?: boolean
+  bonusStars?: boolean
   exchangeRate?: boolean
   commission?: boolean
   isTgPartnerProgram?: boolean
@@ -1799,7 +1860,7 @@ export type PaymentsSelectScalar = {
   subscriptionId?: boolean
 }
 
-export type PaymentsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "type" | "amount" | "amountStars" | "exchangeRate" | "commission" | "isTgPartnerProgram" | "amountStarsFeeTgPartner" | "token" | "linkPay" | "details" | "data" | "createdAt" | "updatedAt" | "userId" | "currencyKey" | "methodKey" | "transactionId" | "subscriptionId", ExtArgs["result"]["payments"]>
+export type PaymentsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "type" | "amount" | "amountStars" | "bonusStars" | "exchangeRate" | "commission" | "isTgPartnerProgram" | "amountStarsFeeTgPartner" | "token" | "linkPay" | "details" | "data" | "createdAt" | "updatedAt" | "userId" | "currencyKey" | "methodKey" | "transactionId" | "subscriptionId", ExtArgs["result"]["payments"]>
 export type PaymentsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
@@ -1837,6 +1898,7 @@ export type $PaymentsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     type: $Enums.PaymentTypeEnum
     amount: number
     amountStars: number
+    bonusStars: number
     exchangeRate: number
     commission: number
     isTgPartnerProgram: boolean
@@ -2285,6 +2347,7 @@ export interface PaymentsFieldRefs {
   readonly type: Prisma.FieldRef<"Payments", 'PaymentTypeEnum'>
   readonly amount: Prisma.FieldRef<"Payments", 'Float'>
   readonly amountStars: Prisma.FieldRef<"Payments", 'Float'>
+  readonly bonusStars: Prisma.FieldRef<"Payments", 'Float'>
   readonly exchangeRate: Prisma.FieldRef<"Payments", 'Float'>
   readonly commission: Prisma.FieldRef<"Payments", 'Float'>
   readonly isTgPartnerProgram: Prisma.FieldRef<"Payments", 'Boolean'>

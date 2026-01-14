@@ -382,7 +382,7 @@ export type AdsBlocksScalarWhereWithAggregatesInput = {
 
 export type AdsBlocksCreateInput = {
   id?: string
-  key: string
+  key?: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -399,7 +399,7 @@ export type AdsBlocksCreateInput = {
 
 export type AdsBlocksUncheckedCreateInput = {
   id?: string
-  key: string
+  key?: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -450,7 +450,7 @@ export type AdsBlocksUncheckedUpdateInput = {
 
 export type AdsBlocksCreateManyInput = {
   id?: string
-  key: string
+  key?: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -641,7 +641,7 @@ export type AdsBlocksUncheckedUpdateManyWithoutNetworkNestedInput = {
 
 export type AdsBlocksCreateWithoutViewsInput = {
   id?: string
-  key: string
+  key?: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -657,7 +657,7 @@ export type AdsBlocksCreateWithoutViewsInput = {
 
 export type AdsBlocksUncheckedCreateWithoutViewsInput = {
   id?: string
-  key: string
+  key?: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -721,7 +721,7 @@ export type AdsBlocksUncheckedUpdateWithoutViewsInput = {
 
 export type AdsBlocksCreateWithoutNetworkInput = {
   id?: string
-  key: string
+  key?: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -737,7 +737,7 @@ export type AdsBlocksCreateWithoutNetworkInput = {
 
 export type AdsBlocksUncheckedCreateWithoutNetworkInput = {
   id?: string
-  key: string
+  key?: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
@@ -798,7 +798,7 @@ export type AdsBlocksScalarWhereInput = {
 
 export type AdsBlocksCreateManyNetworkInput = {
   id?: string
-  key: string
+  key?: string
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean

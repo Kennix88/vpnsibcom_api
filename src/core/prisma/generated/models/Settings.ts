@@ -59,6 +59,14 @@ export type SettingsAvgAggregateOutputType = {
   telegramPartnerProgramRatio: number | null
   adsRewardNextCompletionInMinute: number | null
   adsgramTaskNextCompletionInMinute: number | null
+  bonusPayment250: number | null
+  bonusPayment500: number | null
+  bonusPayment1000: number | null
+  bonusPayment2500: number | null
+  bonusPayment5000: number | null
+  bonusPayment10000: number | null
+  bonusPayment20000: number | null
+  bonusPayment50000: number | null
 }
 
 export type SettingsSumAggregateOutputType = {
@@ -94,6 +102,14 @@ export type SettingsSumAggregateOutputType = {
   telegramPartnerProgramRatio: number | null
   adsRewardNextCompletionInMinute: number | null
   adsgramTaskNextCompletionInMinute: number | null
+  bonusPayment250: number | null
+  bonusPayment500: number | null
+  bonusPayment1000: number | null
+  bonusPayment2500: number | null
+  bonusPayment5000: number | null
+  bonusPayment10000: number | null
+  bonusPayment20000: number | null
+  bonusPayment50000: number | null
 }
 
 export type SettingsMinAggregateOutputType = {
@@ -131,6 +147,14 @@ export type SettingsMinAggregateOutputType = {
   telegramPartnerProgramRatio: number | null
   adsRewardNextCompletionInMinute: number | null
   adsgramTaskNextCompletionInMinute: number | null
+  bonusPayment250: number | null
+  bonusPayment500: number | null
+  bonusPayment1000: number | null
+  bonusPayment2500: number | null
+  bonusPayment5000: number | null
+  bonusPayment10000: number | null
+  bonusPayment20000: number | null
+  bonusPayment50000: number | null
 }
 
 export type SettingsMaxAggregateOutputType = {
@@ -168,6 +192,14 @@ export type SettingsMaxAggregateOutputType = {
   telegramPartnerProgramRatio: number | null
   adsRewardNextCompletionInMinute: number | null
   adsgramTaskNextCompletionInMinute: number | null
+  bonusPayment250: number | null
+  bonusPayment500: number | null
+  bonusPayment1000: number | null
+  bonusPayment2500: number | null
+  bonusPayment5000: number | null
+  bonusPayment10000: number | null
+  bonusPayment20000: number | null
+  bonusPayment50000: number | null
 }
 
 export type SettingsCountAggregateOutputType = {
@@ -205,6 +237,14 @@ export type SettingsCountAggregateOutputType = {
   telegramPartnerProgramRatio: number
   adsRewardNextCompletionInMinute: number
   adsgramTaskNextCompletionInMinute: number
+  bonusPayment250: number
+  bonusPayment500: number
+  bonusPayment1000: number
+  bonusPayment2500: number
+  bonusPayment5000: number
+  bonusPayment10000: number
+  bonusPayment20000: number
+  bonusPayment50000: number
   _all: number
 }
 
@@ -242,6 +282,14 @@ export type SettingsAvgAggregateInputType = {
   telegramPartnerProgramRatio?: true
   adsRewardNextCompletionInMinute?: true
   adsgramTaskNextCompletionInMinute?: true
+  bonusPayment250?: true
+  bonusPayment500?: true
+  bonusPayment1000?: true
+  bonusPayment2500?: true
+  bonusPayment5000?: true
+  bonusPayment10000?: true
+  bonusPayment20000?: true
+  bonusPayment50000?: true
 }
 
 export type SettingsSumAggregateInputType = {
@@ -277,6 +325,14 @@ export type SettingsSumAggregateInputType = {
   telegramPartnerProgramRatio?: true
   adsRewardNextCompletionInMinute?: true
   adsgramTaskNextCompletionInMinute?: true
+  bonusPayment250?: true
+  bonusPayment500?: true
+  bonusPayment1000?: true
+  bonusPayment2500?: true
+  bonusPayment5000?: true
+  bonusPayment10000?: true
+  bonusPayment20000?: true
+  bonusPayment50000?: true
 }
 
 export type SettingsMinAggregateInputType = {
@@ -314,6 +370,14 @@ export type SettingsMinAggregateInputType = {
   telegramPartnerProgramRatio?: true
   adsRewardNextCompletionInMinute?: true
   adsgramTaskNextCompletionInMinute?: true
+  bonusPayment250?: true
+  bonusPayment500?: true
+  bonusPayment1000?: true
+  bonusPayment2500?: true
+  bonusPayment5000?: true
+  bonusPayment10000?: true
+  bonusPayment20000?: true
+  bonusPayment50000?: true
 }
 
 export type SettingsMaxAggregateInputType = {
@@ -351,6 +415,14 @@ export type SettingsMaxAggregateInputType = {
   telegramPartnerProgramRatio?: true
   adsRewardNextCompletionInMinute?: true
   adsgramTaskNextCompletionInMinute?: true
+  bonusPayment250?: true
+  bonusPayment500?: true
+  bonusPayment1000?: true
+  bonusPayment2500?: true
+  bonusPayment5000?: true
+  bonusPayment10000?: true
+  bonusPayment20000?: true
+  bonusPayment50000?: true
 }
 
 export type SettingsCountAggregateInputType = {
@@ -388,6 +460,14 @@ export type SettingsCountAggregateInputType = {
   telegramPartnerProgramRatio?: true
   adsRewardNextCompletionInMinute?: true
   adsgramTaskNextCompletionInMinute?: true
+  bonusPayment250?: true
+  bonusPayment500?: true
+  bonusPayment1000?: true
+  bonusPayment2500?: true
+  bonusPayment5000?: true
+  bonusPayment10000?: true
+  bonusPayment20000?: true
+  bonusPayment50000?: true
   _all?: true
 }
 
@@ -512,6 +592,14 @@ export type SettingsGroupByOutputType = {
   telegramPartnerProgramRatio: number
   adsRewardNextCompletionInMinute: number
   adsgramTaskNextCompletionInMinute: number
+  bonusPayment250: number
+  bonusPayment500: number
+  bonusPayment1000: number
+  bonusPayment2500: number
+  bonusPayment5000: number
+  bonusPayment10000: number
+  bonusPayment20000: number
+  bonusPayment50000: number
   _count: SettingsCountAggregateOutputType | null
   _avg: SettingsAvgAggregateOutputType | null
   _sum: SettingsSumAggregateOutputType | null
@@ -570,8 +658,16 @@ export type SettingsWhereInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableFilter<"Settings"> | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFilter<"Settings"> | number
-  adsRewardNextCompletionInMinute?: Prisma.IntFilter<"Settings"> | number
-  adsgramTaskNextCompletionInMinute?: Prisma.IntFilter<"Settings"> | number
+  adsRewardNextCompletionInMinute?: Prisma.FloatFilter<"Settings"> | number
+  adsgramTaskNextCompletionInMinute?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment250?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment500?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment1000?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment2500?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment5000?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
 }
 
 export type SettingsOrderByWithRelationInput = {
@@ -609,6 +705,14 @@ export type SettingsOrderByWithRelationInput = {
   telegramPartnerProgramRatio?: Prisma.SortOrder
   adsRewardNextCompletionInMinute?: Prisma.SortOrder
   adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
+  bonusPayment250?: Prisma.SortOrder
+  bonusPayment500?: Prisma.SortOrder
+  bonusPayment1000?: Prisma.SortOrder
+  bonusPayment2500?: Prisma.SortOrder
+  bonusPayment5000?: Prisma.SortOrder
+  bonusPayment10000?: Prisma.SortOrder
+  bonusPayment20000?: Prisma.SortOrder
+  bonusPayment50000?: Prisma.SortOrder
 }
 
 export type SettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -647,8 +751,16 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   commissionRatioTgPartnerProgram?: Prisma.FloatFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableFilter<"Settings"> | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFilter<"Settings"> | number
-  adsRewardNextCompletionInMinute?: Prisma.IntFilter<"Settings"> | number
-  adsgramTaskNextCompletionInMinute?: Prisma.IntFilter<"Settings"> | number
+  adsRewardNextCompletionInMinute?: Prisma.FloatFilter<"Settings"> | number
+  adsgramTaskNextCompletionInMinute?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment250?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment500?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment1000?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment2500?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment5000?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
+  bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
 }, "key">
 
 export type SettingsOrderByWithAggregationInput = {
@@ -686,6 +798,14 @@ export type SettingsOrderByWithAggregationInput = {
   telegramPartnerProgramRatio?: Prisma.SortOrder
   adsRewardNextCompletionInMinute?: Prisma.SortOrder
   adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
+  bonusPayment250?: Prisma.SortOrder
+  bonusPayment500?: Prisma.SortOrder
+  bonusPayment1000?: Prisma.SortOrder
+  bonusPayment2500?: Prisma.SortOrder
+  bonusPayment5000?: Prisma.SortOrder
+  bonusPayment10000?: Prisma.SortOrder
+  bonusPayment20000?: Prisma.SortOrder
+  bonusPayment50000?: Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
   _avg?: Prisma.SettingsAvgOrderByAggregateInput
   _max?: Prisma.SettingsMaxOrderByAggregateInput
@@ -729,8 +849,16 @@ export type SettingsScalarWhereWithAggregatesInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableWithAggregatesFilter<"Settings"> | number | null
   telegramPartnerProgramRatio?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  adsRewardNextCompletionInMinute?: Prisma.IntWithAggregatesFilter<"Settings"> | number
-  adsgramTaskNextCompletionInMinute?: Prisma.IntWithAggregatesFilter<"Settings"> | number
+  adsRewardNextCompletionInMinute?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  adsgramTaskNextCompletionInMinute?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  bonusPayment250?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  bonusPayment500?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  bonusPayment1000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  bonusPayment2500?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  bonusPayment5000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  bonusPayment10000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  bonusPayment20000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  bonusPayment50000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
 }
 
 export type SettingsCreateInput = {
@@ -768,6 +896,14 @@ export type SettingsCreateInput = {
   telegramPartnerProgramRatio?: number
   adsRewardNextCompletionInMinute?: number
   adsgramTaskNextCompletionInMinute?: number
+  bonusPayment250?: number
+  bonusPayment500?: number
+  bonusPayment1000?: number
+  bonusPayment2500?: number
+  bonusPayment5000?: number
+  bonusPayment10000?: number
+  bonusPayment20000?: number
+  bonusPayment50000?: number
 }
 
 export type SettingsUncheckedCreateInput = {
@@ -805,6 +941,14 @@ export type SettingsUncheckedCreateInput = {
   telegramPartnerProgramRatio?: number
   adsRewardNextCompletionInMinute?: number
   adsgramTaskNextCompletionInMinute?: number
+  bonusPayment250?: number
+  bonusPayment500?: number
+  bonusPayment1000?: number
+  bonusPayment2500?: number
+  bonusPayment5000?: number
+  bonusPayment10000?: number
+  bonusPayment20000?: number
+  bonusPayment50000?: number
 }
 
 export type SettingsUpdateInput = {
@@ -840,8 +984,16 @@ export type SettingsUpdateInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  adsRewardNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
-  adsgramTaskNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  adsRewardNextCompletionInMinute?: Prisma.FloatFieldUpdateOperationsInput | number
+  adsgramTaskNextCompletionInMinute?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment250?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment500?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment1000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment2500?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment5000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 export type SettingsUncheckedUpdateInput = {
@@ -877,8 +1029,16 @@ export type SettingsUncheckedUpdateInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  adsRewardNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
-  adsgramTaskNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  adsRewardNextCompletionInMinute?: Prisma.FloatFieldUpdateOperationsInput | number
+  adsgramTaskNextCompletionInMinute?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment250?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment500?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment1000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment2500?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment5000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 export type SettingsCreateManyInput = {
@@ -916,6 +1076,14 @@ export type SettingsCreateManyInput = {
   telegramPartnerProgramRatio?: number
   adsRewardNextCompletionInMinute?: number
   adsgramTaskNextCompletionInMinute?: number
+  bonusPayment250?: number
+  bonusPayment500?: number
+  bonusPayment1000?: number
+  bonusPayment2500?: number
+  bonusPayment5000?: number
+  bonusPayment10000?: number
+  bonusPayment20000?: number
+  bonusPayment50000?: number
 }
 
 export type SettingsUpdateManyMutationInput = {
@@ -951,8 +1119,16 @@ export type SettingsUpdateManyMutationInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  adsRewardNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
-  adsgramTaskNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  adsRewardNextCompletionInMinute?: Prisma.FloatFieldUpdateOperationsInput | number
+  adsgramTaskNextCompletionInMinute?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment250?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment500?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment1000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment2500?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment5000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 export type SettingsUncheckedUpdateManyInput = {
@@ -988,8 +1164,16 @@ export type SettingsUncheckedUpdateManyInput = {
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   telegramPartnerProgramRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  adsRewardNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
-  adsgramTaskNextCompletionInMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  adsRewardNextCompletionInMinute?: Prisma.FloatFieldUpdateOperationsInput | number
+  adsgramTaskNextCompletionInMinute?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment250?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment500?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment1000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment2500?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment5000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
+  bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 export type SettingsCountOrderByAggregateInput = {
@@ -1027,6 +1211,14 @@ export type SettingsCountOrderByAggregateInput = {
   telegramPartnerProgramRatio?: Prisma.SortOrder
   adsRewardNextCompletionInMinute?: Prisma.SortOrder
   adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
+  bonusPayment250?: Prisma.SortOrder
+  bonusPayment500?: Prisma.SortOrder
+  bonusPayment1000?: Prisma.SortOrder
+  bonusPayment2500?: Prisma.SortOrder
+  bonusPayment5000?: Prisma.SortOrder
+  bonusPayment10000?: Prisma.SortOrder
+  bonusPayment20000?: Prisma.SortOrder
+  bonusPayment50000?: Prisma.SortOrder
 }
 
 export type SettingsAvgOrderByAggregateInput = {
@@ -1062,6 +1254,14 @@ export type SettingsAvgOrderByAggregateInput = {
   telegramPartnerProgramRatio?: Prisma.SortOrder
   adsRewardNextCompletionInMinute?: Prisma.SortOrder
   adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
+  bonusPayment250?: Prisma.SortOrder
+  bonusPayment500?: Prisma.SortOrder
+  bonusPayment1000?: Prisma.SortOrder
+  bonusPayment2500?: Prisma.SortOrder
+  bonusPayment5000?: Prisma.SortOrder
+  bonusPayment10000?: Prisma.SortOrder
+  bonusPayment20000?: Prisma.SortOrder
+  bonusPayment50000?: Prisma.SortOrder
 }
 
 export type SettingsMaxOrderByAggregateInput = {
@@ -1099,6 +1299,14 @@ export type SettingsMaxOrderByAggregateInput = {
   telegramPartnerProgramRatio?: Prisma.SortOrder
   adsRewardNextCompletionInMinute?: Prisma.SortOrder
   adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
+  bonusPayment250?: Prisma.SortOrder
+  bonusPayment500?: Prisma.SortOrder
+  bonusPayment1000?: Prisma.SortOrder
+  bonusPayment2500?: Prisma.SortOrder
+  bonusPayment5000?: Prisma.SortOrder
+  bonusPayment10000?: Prisma.SortOrder
+  bonusPayment20000?: Prisma.SortOrder
+  bonusPayment50000?: Prisma.SortOrder
 }
 
 export type SettingsMinOrderByAggregateInput = {
@@ -1136,6 +1344,14 @@ export type SettingsMinOrderByAggregateInput = {
   telegramPartnerProgramRatio?: Prisma.SortOrder
   adsRewardNextCompletionInMinute?: Prisma.SortOrder
   adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
+  bonusPayment250?: Prisma.SortOrder
+  bonusPayment500?: Prisma.SortOrder
+  bonusPayment1000?: Prisma.SortOrder
+  bonusPayment2500?: Prisma.SortOrder
+  bonusPayment5000?: Prisma.SortOrder
+  bonusPayment10000?: Prisma.SortOrder
+  bonusPayment20000?: Prisma.SortOrder
+  bonusPayment50000?: Prisma.SortOrder
 }
 
 export type SettingsSumOrderByAggregateInput = {
@@ -1171,6 +1387,14 @@ export type SettingsSumOrderByAggregateInput = {
   telegramPartnerProgramRatio?: Prisma.SortOrder
   adsRewardNextCompletionInMinute?: Prisma.SortOrder
   adsgramTaskNextCompletionInMinute?: Prisma.SortOrder
+  bonusPayment250?: Prisma.SortOrder
+  bonusPayment500?: Prisma.SortOrder
+  bonusPayment1000?: Prisma.SortOrder
+  bonusPayment2500?: Prisma.SortOrder
+  bonusPayment5000?: Prisma.SortOrder
+  bonusPayment10000?: Prisma.SortOrder
+  bonusPayment20000?: Prisma.SortOrder
+  bonusPayment50000?: Prisma.SortOrder
 }
 
 export type EnumDefaultEnumFieldUpdateOperationsInput = {
@@ -1242,6 +1466,14 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   telegramPartnerProgramRatio?: boolean
   adsRewardNextCompletionInMinute?: boolean
   adsgramTaskNextCompletionInMinute?: boolean
+  bonusPayment250?: boolean
+  bonusPayment500?: boolean
+  bonusPayment1000?: boolean
+  bonusPayment2500?: boolean
+  bonusPayment5000?: boolean
+  bonusPayment10000?: boolean
+  bonusPayment20000?: boolean
+  bonusPayment50000?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1279,6 +1511,14 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   telegramPartnerProgramRatio?: boolean
   adsRewardNextCompletionInMinute?: boolean
   adsgramTaskNextCompletionInMinute?: boolean
+  bonusPayment250?: boolean
+  bonusPayment500?: boolean
+  bonusPayment1000?: boolean
+  bonusPayment2500?: boolean
+  bonusPayment5000?: boolean
+  bonusPayment10000?: boolean
+  bonusPayment20000?: boolean
+  bonusPayment50000?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1316,6 +1556,14 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   telegramPartnerProgramRatio?: boolean
   adsRewardNextCompletionInMinute?: boolean
   adsgramTaskNextCompletionInMinute?: boolean
+  bonusPayment250?: boolean
+  bonusPayment500?: boolean
+  bonusPayment1000?: boolean
+  bonusPayment2500?: boolean
+  bonusPayment5000?: boolean
+  bonusPayment10000?: boolean
+  bonusPayment20000?: boolean
+  bonusPayment50000?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectScalar = {
@@ -1353,9 +1601,17 @@ export type SettingsSelectScalar = {
   telegramPartnerProgramRatio?: boolean
   adsRewardNextCompletionInMinute?: boolean
   adsgramTaskNextCompletionInMinute?: boolean
+  bonusPayment250?: boolean
+  bonusPayment500?: boolean
+  bonusPayment1000?: boolean
+  bonusPayment2500?: boolean
+  bonusPayment5000?: boolean
+  bonusPayment10000?: boolean
+  bonusPayment20000?: boolean
+  bonusPayment50000?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -1398,6 +1654,14 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     telegramPartnerProgramRatio: number
     adsRewardNextCompletionInMinute: number
     adsgramTaskNextCompletionInMinute: number
+    bonusPayment250: number
+    bonusPayment500: number
+    bonusPayment1000: number
+    bonusPayment2500: number
+    bonusPayment5000: number
+    bonusPayment10000: number
+    bonusPayment20000: number
+    bonusPayment50000: number
   }, ExtArgs["result"]["settings"]>
   composites: {}
 }
@@ -1853,8 +2117,16 @@ export interface SettingsFieldRefs {
   readonly commissionRatioTgPartnerProgram: Prisma.FieldRef<"Settings", 'Float'>
   readonly mouthesCountTgPartnerProgram: Prisma.FieldRef<"Settings", 'Int'>
   readonly telegramPartnerProgramRatio: Prisma.FieldRef<"Settings", 'Float'>
-  readonly adsRewardNextCompletionInMinute: Prisma.FieldRef<"Settings", 'Int'>
-  readonly adsgramTaskNextCompletionInMinute: Prisma.FieldRef<"Settings", 'Int'>
+  readonly adsRewardNextCompletionInMinute: Prisma.FieldRef<"Settings", 'Float'>
+  readonly adsgramTaskNextCompletionInMinute: Prisma.FieldRef<"Settings", 'Float'>
+  readonly bonusPayment250: Prisma.FieldRef<"Settings", 'Float'>
+  readonly bonusPayment500: Prisma.FieldRef<"Settings", 'Float'>
+  readonly bonusPayment1000: Prisma.FieldRef<"Settings", 'Float'>
+  readonly bonusPayment2500: Prisma.FieldRef<"Settings", 'Float'>
+  readonly bonusPayment5000: Prisma.FieldRef<"Settings", 'Float'>
+  readonly bonusPayment10000: Prisma.FieldRef<"Settings", 'Float'>
+  readonly bonusPayment20000: Prisma.FieldRef<"Settings", 'Float'>
+  readonly bonusPayment50000: Prisma.FieldRef<"Settings", 'Float'>
 }
     
 

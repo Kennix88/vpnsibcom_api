@@ -29,11 +29,13 @@ export type AggregateRoles = {
 export type RolesAvgAggregateOutputType = {
   discount: number | null
   limitSubscriptions: number | null
+  minPayStars: number | null
 }
 
 export type RolesSumAggregateOutputType = {
   discount: number | null
   limitSubscriptions: number | null
+  minPayStars: number | null
 }
 
 export type RolesMinAggregateOutputType = {
@@ -41,6 +43,7 @@ export type RolesMinAggregateOutputType = {
   name: string | null
   discount: number | null
   limitSubscriptions: number | null
+  minPayStars: number | null
 }
 
 export type RolesMaxAggregateOutputType = {
@@ -48,6 +51,7 @@ export type RolesMaxAggregateOutputType = {
   name: string | null
   discount: number | null
   limitSubscriptions: number | null
+  minPayStars: number | null
 }
 
 export type RolesCountAggregateOutputType = {
@@ -55,6 +59,7 @@ export type RolesCountAggregateOutputType = {
   name: number
   discount: number
   limitSubscriptions: number
+  minPayStars: number
   _all: number
 }
 
@@ -62,11 +67,13 @@ export type RolesCountAggregateOutputType = {
 export type RolesAvgAggregateInputType = {
   discount?: true
   limitSubscriptions?: true
+  minPayStars?: true
 }
 
 export type RolesSumAggregateInputType = {
   discount?: true
   limitSubscriptions?: true
+  minPayStars?: true
 }
 
 export type RolesMinAggregateInputType = {
@@ -74,6 +81,7 @@ export type RolesMinAggregateInputType = {
   name?: true
   discount?: true
   limitSubscriptions?: true
+  minPayStars?: true
 }
 
 export type RolesMaxAggregateInputType = {
@@ -81,6 +89,7 @@ export type RolesMaxAggregateInputType = {
   name?: true
   discount?: true
   limitSubscriptions?: true
+  minPayStars?: true
 }
 
 export type RolesCountAggregateInputType = {
@@ -88,6 +97,7 @@ export type RolesCountAggregateInputType = {
   name?: true
   discount?: true
   limitSubscriptions?: true
+  minPayStars?: true
   _all?: true
 }
 
@@ -182,6 +192,7 @@ export type RolesGroupByOutputType = {
   name: string
   discount: number
   limitSubscriptions: number
+  minPayStars: number
   _count: RolesCountAggregateOutputType | null
   _avg: RolesAvgAggregateOutputType | null
   _sum: RolesSumAggregateOutputType | null
@@ -212,6 +223,7 @@ export type RolesWhereInput = {
   name?: Prisma.StringFilter<"Roles"> | string
   discount?: Prisma.FloatFilter<"Roles"> | number
   limitSubscriptions?: Prisma.IntFilter<"Roles"> | number
+  minPayStars?: Prisma.IntFilter<"Roles"> | number
   users?: Prisma.UsersListRelationFilter
 }
 
@@ -220,6 +232,7 @@ export type RolesOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
+  minPayStars?: Prisma.SortOrder
   users?: Prisma.UsersOrderByRelationAggregateInput
 }
 
@@ -231,6 +244,7 @@ export type RolesWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Roles"> | string
   discount?: Prisma.FloatFilter<"Roles"> | number
   limitSubscriptions?: Prisma.IntFilter<"Roles"> | number
+  minPayStars?: Prisma.IntFilter<"Roles"> | number
   users?: Prisma.UsersListRelationFilter
 }, "key">
 
@@ -239,6 +253,7 @@ export type RolesOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
+  minPayStars?: Prisma.SortOrder
   _count?: Prisma.RolesCountOrderByAggregateInput
   _avg?: Prisma.RolesAvgOrderByAggregateInput
   _max?: Prisma.RolesMaxOrderByAggregateInput
@@ -254,6 +269,7 @@ export type RolesScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Roles"> | string
   discount?: Prisma.FloatWithAggregatesFilter<"Roles"> | number
   limitSubscriptions?: Prisma.IntWithAggregatesFilter<"Roles"> | number
+  minPayStars?: Prisma.IntWithAggregatesFilter<"Roles"> | number
 }
 
 export type RolesCreateInput = {
@@ -261,6 +277,7 @@ export type RolesCreateInput = {
   name: string
   discount?: number
   limitSubscriptions?: number
+  minPayStars?: number
   users?: Prisma.UsersCreateNestedManyWithoutRoleInput
 }
 
@@ -269,6 +286,7 @@ export type RolesUncheckedCreateInput = {
   name: string
   discount?: number
   limitSubscriptions?: number
+  minPayStars?: number
   users?: Prisma.UsersUncheckedCreateNestedManyWithoutRoleInput
 }
 
@@ -277,6 +295,7 @@ export type RolesUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
+  minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
   users?: Prisma.UsersUpdateManyWithoutRoleNestedInput
 }
 
@@ -285,6 +304,7 @@ export type RolesUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
+  minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
   users?: Prisma.UsersUncheckedUpdateManyWithoutRoleNestedInput
 }
 
@@ -293,6 +313,7 @@ export type RolesCreateManyInput = {
   name: string
   discount?: number
   limitSubscriptions?: number
+  minPayStars?: number
 }
 
 export type RolesUpdateManyMutationInput = {
@@ -300,6 +321,7 @@ export type RolesUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
+  minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type RolesUncheckedUpdateManyInput = {
@@ -307,6 +329,7 @@ export type RolesUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
+  minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type RolesScalarRelationFilter = {
@@ -319,11 +342,13 @@ export type RolesCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
+  minPayStars?: Prisma.SortOrder
 }
 
 export type RolesAvgOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
+  minPayStars?: Prisma.SortOrder
 }
 
 export type RolesMaxOrderByAggregateInput = {
@@ -331,6 +356,7 @@ export type RolesMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
+  minPayStars?: Prisma.SortOrder
 }
 
 export type RolesMinOrderByAggregateInput = {
@@ -338,11 +364,13 @@ export type RolesMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
+  minPayStars?: Prisma.SortOrder
 }
 
 export type RolesSumOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
+  minPayStars?: Prisma.SortOrder
 }
 
 export type RolesCreateNestedOneWithoutUsersInput = {
@@ -364,6 +392,7 @@ export type RolesCreateWithoutUsersInput = {
   name: string
   discount?: number
   limitSubscriptions?: number
+  minPayStars?: number
 }
 
 export type RolesUncheckedCreateWithoutUsersInput = {
@@ -371,6 +400,7 @@ export type RolesUncheckedCreateWithoutUsersInput = {
   name: string
   discount?: number
   limitSubscriptions?: number
+  minPayStars?: number
 }
 
 export type RolesCreateOrConnectWithoutUsersInput = {
@@ -394,6 +424,7 @@ export type RolesUpdateWithoutUsersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
+  minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type RolesUncheckedUpdateWithoutUsersInput = {
@@ -401,6 +432,7 @@ export type RolesUncheckedUpdateWithoutUsersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
+  minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -439,6 +471,7 @@ export type RolesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   name?: boolean
   discount?: boolean
   limitSubscriptions?: boolean
+  minPayStars?: boolean
   users?: boolean | Prisma.Roles$usersArgs<ExtArgs>
   _count?: boolean | Prisma.RolesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["roles"]>
@@ -448,6 +481,7 @@ export type RolesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   discount?: boolean
   limitSubscriptions?: boolean
+  minPayStars?: boolean
 }, ExtArgs["result"]["roles"]>
 
 export type RolesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -455,6 +489,7 @@ export type RolesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   discount?: boolean
   limitSubscriptions?: boolean
+  minPayStars?: boolean
 }, ExtArgs["result"]["roles"]>
 
 export type RolesSelectScalar = {
@@ -462,9 +497,10 @@ export type RolesSelectScalar = {
   name?: boolean
   discount?: boolean
   limitSubscriptions?: boolean
+  minPayStars?: boolean
 }
 
-export type RolesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "name" | "discount" | "limitSubscriptions", ExtArgs["result"]["roles"]>
+export type RolesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "name" | "discount" | "limitSubscriptions" | "minPayStars", ExtArgs["result"]["roles"]>
 export type RolesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Roles$usersArgs<ExtArgs>
   _count?: boolean | Prisma.RolesCountOutputTypeDefaultArgs<ExtArgs>
@@ -482,6 +518,7 @@ export type $RolesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     name: string
     discount: number
     limitSubscriptions: number
+    minPayStars: number
   }, ExtArgs["result"]["roles"]>
   composites: {}
 }
@@ -910,6 +947,7 @@ export interface RolesFieldRefs {
   readonly name: Prisma.FieldRef<"Roles", 'String'>
   readonly discount: Prisma.FieldRef<"Roles", 'Float'>
   readonly limitSubscriptions: Prisma.FieldRef<"Roles", 'Int'>
+  readonly minPayStars: Prisma.FieldRef<"Roles", 'Int'>
 }
     
 

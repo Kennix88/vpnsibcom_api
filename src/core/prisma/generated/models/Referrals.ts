@@ -865,20 +865,11 @@ export type ReferralsIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 export type $ReferralsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Referrals"
   objects: {
-    /**
-     * Связь с пригласившим пользователем
-     */
     inviter: Prisma.$UsersPayload<ExtArgs>
-    /**
-     * Связь с приглашенным пользователем
-     */
     referral: Prisma.$UsersPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    /**
-     * Уровень реферала (1-3)
-     */
     level: number
     inviterId: string
     referralId: string

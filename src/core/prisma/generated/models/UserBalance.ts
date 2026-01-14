@@ -714,13 +714,7 @@ export type UserBalanceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.
 export type $UserBalancePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserBalance"
   objects: {
-    /**
-     * Связь с пользователем
-     */
     user: Prisma.$UsersPayload<ExtArgs> | null
-    /**
-     * Транзакции баланса
-     */
     transactions: Prisma.$TransactionsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -734,9 +728,6 @@ export type $UserBalancePayload<ExtArgs extends runtime.Types.Extensions.Interna
     tickets: number
     traffic: number
     wager: number
-    /**
-     * Дата обновления
-     */
     updatedAt: Date
   }, ExtArgs["result"]["userBalance"]>
   composites: {}

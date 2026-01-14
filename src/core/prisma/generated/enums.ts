@@ -247,7 +247,8 @@ export const TransactionReasonEnum = {
   REFERRAL: 'REFERRAL',
   FINE: 'FINE',
   EXCHANGE: 'EXCHANGE',
-  GAME: 'GAME'
+  GAME: 'GAME',
+  BONUS: 'BONUS'
 } as const
 
 export type TransactionReasonEnum = (typeof TransactionReasonEnum)[keyof typeof TransactionReasonEnum]

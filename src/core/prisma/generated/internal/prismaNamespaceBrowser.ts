@@ -124,7 +124,15 @@ export const SettingsScalarFieldEnum = {
   mouthesCountTgPartnerProgram: 'mouthesCountTgPartnerProgram',
   telegramPartnerProgramRatio: 'telegramPartnerProgramRatio',
   adsRewardNextCompletionInMinute: 'adsRewardNextCompletionInMinute',
-  adsgramTaskNextCompletionInMinute: 'adsgramTaskNextCompletionInMinute'
+  adsgramTaskNextCompletionInMinute: 'adsgramTaskNextCompletionInMinute',
+  bonusPayment250: 'bonusPayment250',
+  bonusPayment500: 'bonusPayment500',
+  bonusPayment1000: 'bonusPayment1000',
+  bonusPayment2500: 'bonusPayment2500',
+  bonusPayment5000: 'bonusPayment5000',
+  bonusPayment10000: 'bonusPayment10000',
+  bonusPayment20000: 'bonusPayment20000',
+  bonusPayment50000: 'bonusPayment50000'
 } as const
 
 export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -331,6 +339,7 @@ export const SubscriptionsScalarFieldEnum = {
   expiredAt: 'expiredAt',
   removalAt: 'removalAt',
   onlineAt: 'onlineAt',
+  deletedAt: 'deletedAt',
   userId: 'userId'
 } as const
 
@@ -358,7 +367,8 @@ export const RolesScalarFieldEnum = {
   key: 'key',
   name: 'name',
   discount: 'discount',
-  limitSubscriptions: 'limitSubscriptions'
+  limitSubscriptions: 'limitSubscriptions',
+  minPayStars: 'minPayStars'
 } as const
 
 export type RolesScalarFieldEnum = (typeof RolesScalarFieldEnum)[keyof typeof RolesScalarFieldEnum]
@@ -426,6 +436,7 @@ export const PaymentsScalarFieldEnum = {
   type: 'type',
   amount: 'amount',
   amountStars: 'amountStars',
+  bonusStars: 'bonusStars',
   exchangeRate: 'exchangeRate',
   commission: 'commission',
   isTgPartnerProgram: 'isTgPartnerProgram',
