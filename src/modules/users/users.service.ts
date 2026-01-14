@@ -239,6 +239,7 @@ export class UsersService {
         inviteMessageId: messageId,
         nextAdsRewardAt: user.nextAdsRewardAt,
         nextAdsgramTaskAt: user.nextAdsgramTaskAt,
+        minPayStars: user.role.minPayStars,
       }
     } catch (e) {
       this.logger.error({
