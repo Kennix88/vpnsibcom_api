@@ -49,7 +49,7 @@ export interface NodeResponse {
   port: number
   api_port: number
   usage_coefficient: number
-  status: string
+  status: 'active' | 'disabled' | 'on_hold' | 'limited' | 'expired'
   message?: string
   xray_version?: string
 }
@@ -116,7 +116,7 @@ export interface UserCreate {
   inbounds?: Record<string, string[]>
   note?: string
   on_hold?: boolean
-  status?: string
+  status?: 'active' | 'disabled' | 'on_hold' | 'limited' | 'expired'
 }
 
 export interface UserModify {
@@ -127,7 +127,7 @@ export interface UserModify {
   inbounds?: Record<string, string[]>
   note?: string
   on_hold?: boolean
-  status?: string
+  status?: 'active' | 'disabled' | 'on_hold' | 'limited' | 'expired'
 }
 
 export interface UserResponse {
@@ -145,7 +145,7 @@ export interface UserResponse {
   lifetime_used_traffic: number
   online_at: string
   on_hold: boolean
-  status: string
+  status: 'active' | 'disabled' | 'on_hold' | 'limited' | 'expired'
   links: string[]
   subscription_url: string
 }
@@ -169,7 +169,7 @@ export interface UsersUsagesResponse {
 
 export interface SubscriptionUserResponse {
   username: string
-  status: string
+  status: 'active' | 'disabled' | 'on_hold' | 'limited' | 'expired'
   used_traffic: number
   data_limit: number
   expire: number
