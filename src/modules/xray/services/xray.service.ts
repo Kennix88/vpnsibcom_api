@@ -256,6 +256,7 @@ export class XrayService {
           onlineAt: marzbanUser.online_at
             ? new Date(marzbanUser.online_at + 'Z')
             : null,
+          removalAt: null,
           marzbanData: JSON.stringify(marzbanUser),
           announce: null,
         },
@@ -1036,6 +1037,7 @@ export class XrayService {
       const subscriptions = await this.prismaService.subscriptions.findMany({
         where: {
           userId: userId,
+          deletedAt: null,
         },
         include: {
           plan: true,
@@ -2001,22 +2003,30 @@ export class XrayService {
         return { success: false, message: 'subscription_not_found' }
       }
 
-      // Удаляем пользователя из Marzban
-      const marzbanResult = await this.marzbanService.removeUser(
+      const marzbanResult = await this.marzbanService.modifyUser(
         subscription.username,
+        {
+          status: 'disabled',
+        },
       )
       if (!marzbanResult) {
         this.logger.error({
           msg: `Не удалось удалить пользователя ${subscription.username} из Marzban`,
           service: this.serviceName,
         })
-        // Продолжаем удаление из БД даже если не удалось удалить из Marzban
+
+        return { success: false, message: 'marzban_error' }
       }
 
-      // Удаляем подписку из базы данных
-      await this.prismaService.subscriptions.delete({
+      // Меняем данные подписки, как будто удалена
+      await this.prismaService.subscriptions.update({
         where: {
           id: subscriptionId,
+        },
+        data: {
+          isActive: false,
+          deletedAt: new Date(),
+          removalAt: null,
         },
       })
 
