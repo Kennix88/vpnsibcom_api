@@ -5,14 +5,12 @@ import { UsersService } from '@modules/users/users.service'
 import { MarzbanService } from '@modules/xray/services/marzban.service'
 import { XrayService } from '@modules/xray/services/xray.service'
 
+import { Prisma } from '@core/prisma/generated/client'
+import { PrismaService } from '@core/prisma/prisma.service'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { roundUp } from '@modules/xray/utils/calculate-subscription-cost.util'
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-// import { Prisma, PrismaClient } from '@prisma/client'
-// import { DefaultArgs } from '@prisma/client/runtime/library'
-import { Prisma } from '@core/prisma/generated/client'
-import { PrismaService } from '@core/prisma/prisma.service'
 import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { PaymentMethodTypeEnum } from '@shared/enums/payment-method-type.enum'
@@ -33,6 +31,7 @@ import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
+import { BonusesInterface } from '../types/bonuses.interface'
 import { PaymentTypeEnum } from '../types/payment-type.enum'
 import { TelegramPaymentsService } from './telegram-payments.service'
 
@@ -126,10 +125,32 @@ export class PaymentsService {
             ? Number(amount.toFixed(0))
             : amount
 
+        const bonusStars =
+          amountStars < 250
+            ? 0
+            : amountStars >= 250 && amountStars < 500
+            ? amountStars * settings.bonusPayment250
+            : amountStars >= 500 && amountStars < 1000
+            ? amountStars * settings.bonusPayment500
+            : amountStars >= 1000 && amountStars < 2500
+            ? amountStars * settings.bonusPayment1000
+            : amountStars >= 2500 && amountStars < 5000
+            ? amountStars * settings.bonusPayment2500
+            : amountStars >= 5000 && amountStars < 10000
+            ? amountStars * settings.bonusPayment5000
+            : amountStars >= 10000 && amountStars < 20000
+            ? amountStars * settings.bonusPayment10000
+            : amountStars >= 20000 && amountStars < 50000
+            ? amountStars * settings.bonusPayment20000
+            : amountStars * settings.bonusPayment50000
+
         const paymentObject = {
           status: PaymentStatusEnum.PENDING,
           amount: convertedAmount,
           amountStars,
+          ...(paymentType === PaymentTypeEnum.ADD_PAYMENT_BALANCE && {
+            bonusStars,
+          }),
           currencyKey: getMethod.currencyKey,
           methodKey: getMethod.key,
           exchangeRate: rates.rates[getMethod.currencyKey],
@@ -333,6 +354,18 @@ export class PaymentsService {
           data.period,
           data.periodMultiplier,
           data.trafficReset,
+        )
+      }
+
+      if (
+        payment.type === PaymentTypeEnum.ADD_PAYMENT_BALANCE &&
+        payment.bonusStars > 0
+      ) {
+        await this.userService.addUserBalance(
+          payment.userId,
+          payment.bonusStars,
+          TransactionReasonEnum.BONUS,
+          BalanceTypeEnum.PAYMENT,
         )
       }
 
@@ -762,6 +795,29 @@ export class PaymentsService {
         msg: `Error while getting payment methods`,
         e,
       })
+    }
+  }
+
+  public async getBonuses(): Promise<BonusesInterface> {
+    try {
+      const settings = await this.prismaService.settings.findUnique({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+
+      return {
+        bonusPayment250: settings.bonusPayment250,
+        bonusPayment500: settings.bonusPayment500,
+        bonusPayment1000: settings.bonusPayment1000,
+        bonusPayment2500: settings.bonusPayment2500,
+        bonusPayment5000: settings.bonusPayment5000,
+        bonusPayment10000: settings.bonusPayment10000,
+        bonusPayment20000: settings.bonusPayment20000,
+        bonusPayment50000: settings.bonusPayment50000,
+      }
+    } catch (e) {
+      console.error(e)
     }
   }
 }
