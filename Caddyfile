@@ -41,6 +41,15 @@
 				import dns_cf
 }
 
+layer4 {
+    listen :7221
+    route {
+        proxy {
+            upstreams frps:7000
+        }
+    }
+}
+
 # Основной фронтенд
 fasti.fun, front.fasti.fun, www.fasti.fun {
     import standard_config
@@ -128,16 +137,6 @@ api.fasti.fun {
     log {
         output file /var/log/caddy/frps-wildcard.access.log
         format json
-    }
-}
-
-layer4 {
-    :7221 {
-        route {
-            proxy {
-                upstreams frps:7000
-            }
-        }
     }
 }
 
