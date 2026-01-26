@@ -6,6 +6,12 @@
     }
 }
 
+(dns_cf) {
+    tls {
+        dns cloudflare
+    }
+}
+
 # Общие заголовки безопасности
 (security_headers) {
     header {
@@ -32,6 +38,7 @@
 (standard_config) {
     import tls_settings
     import security_headers
+				import dns_cf
 }
 
 # Основной фронтенд
@@ -109,6 +116,27 @@ api.fasti.fun {
             roll_size 100MB
             roll_keep 5
         }
+        format json
+    }
+}
+
+*.frps.fasti.fun {
+    import standard_config
+
+    reverse_proxy frps:8090 {
+        header_up Host {host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+
+        transport http {
+            read_timeout 300s
+            write_timeout 300s
+            idle_timeout 120s
+        }
+    }
+
+    log {
+        output file /var/log/caddy/frps-wildcard.access.log
         format json
     }
 }

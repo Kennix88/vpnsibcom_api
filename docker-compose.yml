@@ -214,8 +214,9 @@ services:
     networks:
       - token-backend
     environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - CADDY_DISABLE_HTTP_CHALLENGE=true
-      - ACME_AGREE=true
+      # - ACME_AGREE=true
       - ACME_EMAIL=shel.live@yandex.ru
     depends_on:
       - api
@@ -250,31 +251,19 @@ services:
       - ./docker/pg-backup/backup.sh:/backup.sh:ro
     entrypoint: ['/bin/sh', '/backup.sh']
 
-  # watchdog:
-  #   image: docker:24-cli
-  #   container_name: watchdog
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - api
-  #     - db
-  #     - redis
-  #     - uptime-kuma
-  #     - xray-checker
-  #     - caddy
-  #     - grafana
-  #     - frontend
-  #   environment:
-  #     WATCH_SERVICES: 'api db redis uptime-kuma xray-checker caddy grafana frontend'
-  #     CHECK_INTERVAL: 15
-  #     COOLDOWN: 60
-  #     MAX_RESTARTS_WINDOW: 5
-  #     WINDOW_SEC: 300
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - ./docker/watchdog/watchdog.sh:/usr/local/bin/watchdog.sh:ro
-  #   networks:
-  #     - token-backend
-  #   entrypoint: ['/bin/sh', '/usr/local/bin/watchdog.sh']
+  frps:
+    container_name: frps
+    image: fatedier/frp:latest
+    restart: unless-stopped
+    volumes:
+      - ./frp/frps.ini:/etc/frp/frps.ini:ro
+    command: ['-c', '/etc/frp/frps.ini']
+    ports:
+      - '7221:7000' # порт управления frpc
+      - '8021:8090' # http vhost frps — локально на VPS (доступен для Caddy)
+      - '7521:7500' # dashboard (опционально)
+    networks:
+      - token-backend
 
 networks:
   token-backend:
