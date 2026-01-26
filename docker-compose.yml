@@ -258,8 +258,8 @@ services:
     image: fatedier/frp:latest
     restart: unless-stopped
     volumes:
-      - ./frp/frps.ini:/etc/frp/frps.ini:ro
-    command: ['-c', '/etc/frp/frps.ini']
+      - ./frp/frps.toml:/etc/frp/frps.toml:ro
+    command: ['-c', '/etc/frp/frps.toml']
     ports:
       - '7221:7000' # порт управления frpc
       - '8021:8090' # http vhost frps — локально на VPS (доступен для Caddy)
