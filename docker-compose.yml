@@ -255,7 +255,7 @@ services:
 
   frps:
     container_name: frps
-    image: fatedier/frp:latest
+    image: fatedier/frps:v0.66.0
     restart: unless-stopped
     volumes:
       - ./frp/frps.toml:/etc/frp/frps.toml:ro
