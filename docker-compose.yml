@@ -206,6 +206,7 @@ services:
       - '80:80'
       - '443:443'
       - '443:443/udp'
+      - '7221:7221'
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -261,7 +262,7 @@ services:
       - ./frp/frps.ini:/etc/frp/frps.ini:ro
     command: ['-c', '/etc/frp/frps.ini']
     ports:
-      - '7221:7000' # порт управления frpc
+      # - '7221:7000' # порт управления frpc
       - '8021:8090' # http vhost frps — локально на VPS (доступен для Caddy)
       - '7521:7500' # dashboard (опционально)
     networks:

@@ -131,9 +131,13 @@ api.fasti.fun {
     }
 }
 
-frp.fasti.fun {
-    reverse_proxy *:7221 {
-        transport tcp
+:7221 {
+    layer4 {
+        route {
+            proxy {
+                upstreams frps:7000
+            }
+        }
     }
 }
 
