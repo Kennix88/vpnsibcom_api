@@ -198,7 +198,9 @@ services:
 
   caddy:
     container_name: caddy
-    image: caddy:latest
+    build:
+      context: .
+      dockerfile: ./docker/caddy/Dockerfile
     restart: unless-stopped
     ports:
       - '80:80'

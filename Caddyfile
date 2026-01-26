@@ -8,7 +8,7 @@
 
 (dns_cf) {
     tls {
-        dns cloudflare
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
 }
 
