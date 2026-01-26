@@ -41,15 +41,6 @@
 				import dns_cf
 }
 
-layer4 {
-    listen :7221
-    route {
-        proxy {
-            upstreams frps:7000
-        }
-    }
-}
-
 # Основной фронтенд
 fasti.fun, front.fasti.fun, www.fasti.fun {
     import standard_config
@@ -153,4 +144,19 @@ grafana.fasti.fun {
         style-src 'self' 'unsafe-inline';
         img-src 'self' data:;
     "
+}
+
+# FRP Control (WebSocket)
+frp.fasti.fun {
+    import standard_config
+
+    reverse_proxy frps:7000 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+    }
+
+    log {
+        output file /var/log/caddy/frp.access.log
+        format json
+    }
 }
