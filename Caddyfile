@@ -131,8 +131,8 @@ api.fasti.fun {
     }
 }
 
-:7221 {
-    layer4 {
+layer4 {
+    :7221 {
         route {
             proxy {
                 upstreams frps:7000
