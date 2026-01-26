@@ -54,9 +54,6 @@ fasti.fun, front.fasti.fun, www.fasti.fun {
     }
 
     reverse_proxy frontend:3000 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
         transport http {
             read_buffer 4096
             read_timeout 10s
@@ -98,9 +95,6 @@ api.fasti.fun {
     }
 
     reverse_proxy api:4000 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
         transport http {
             read_buffer 4096
             read_timeout 10s
@@ -124,14 +118,10 @@ api.fasti.fun {
     import standard_config
 
     reverse_proxy frps:8090 {
-        header_up Host {host}
-        header_up X-Forwarded-For {remote_host}
-        header_up X-Real-IP {remote_host}
-
         transport http {
             read_timeout 300s
             write_timeout 300s
-            idle_timeout 120s
+            keepalive 120s
         }
     }
 
@@ -146,7 +136,6 @@ grafana.fasti.fun {
     import standard_config
 
     reverse_proxy grafana:3000 {
-        header_up X-Forwarded-For {remote_host}
     }
 
     header Content-Security-Policy "
