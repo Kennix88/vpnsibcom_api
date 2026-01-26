@@ -131,6 +131,12 @@ api.fasti.fun {
     }
 }
 
+frp.fasti.fun {
+    reverse_proxy *:7221 {
+        transport tcp
+    }
+}
+
 # Grafana
 grafana.fasti.fun {
     import standard_config
