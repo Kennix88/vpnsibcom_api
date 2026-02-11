@@ -68,6 +68,9 @@ services:
       - PAYPALYCH_ID=${PAYPALYCH_ID}
       - PAYPALYCH_TOKEN=${PAYPALYCH_TOKEN}
       - PAYPALYCH_URL=${PAYPALYCH_URL}
+      - TADDY_PUB_KEY=${TADDY_PUB_KEY}
+      - TADDY_API_URL=${TADDY_API_URL}
+      - TADDY_SECRET_KEY=${TADDY_SECRET_KEY}
     volumes:
       - api_logs:/app/logs
     networks:
