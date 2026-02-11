@@ -11,6 +11,8 @@ export interface GetSubscriptionConfigResponseInterface {
 }
 
 export interface SubscriptionResponseInterface {
+  tgStarsToUSD: number
+  adPriceStars: number
   telegramPremiumRatio: number
   devicesPriceStars: number
   serversPriceStars: number
