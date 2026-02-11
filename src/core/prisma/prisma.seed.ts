@@ -101,6 +101,10 @@ export async function PrismaSeed() {
           },
         })
 
+        const adsData = await tx.userAdsData.create({
+          data: {},
+        })
+
         await tx.users.create({
           data: {
             telegramId: el.telegramId,
@@ -114,6 +118,7 @@ export async function PrismaSeed() {
                 ? UserRolesEnum.FRIEND
                 : UserRolesEnum.OLD_USER,
             telegramDataId: tdata.id,
+            adsDataId: adsData.id,
             currencyKey: CurrencyEnum.USD,
           },
         })
