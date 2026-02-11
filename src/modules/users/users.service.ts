@@ -229,8 +229,7 @@ export class UsersService {
           payment: user.balance.paymentBalance,
           hold: user.balance.holdBalance,
           tickets: user.balance.tickets,
-          totalEarned: user.balance.totalEarned,
-          wager: user.balance.wager,
+          ad: user.balance.ad,
           traffic: user.balance.traffic,
         },
         inviteUrl: `${this.configService.get('TMA_URL')}?startapp=r-${
@@ -240,6 +239,7 @@ export class UsersService {
         nextAdsRewardAt: user.nextAdsRewardAt,
         nextAdsgramTaskAt: user.nextAdsgramTaskAt,
         minPayStars: user.role.minPayStars,
+        lastFullscreenViewedAt: user.adsData.lastFullscreenViewedAt,
       }
     } catch (e) {
       this.logger.error({
@@ -269,6 +269,7 @@ export class UsersService {
             },
           },
           telegramData: true,
+          adsData: true,
           currency: true,
           language: true,
           role: true,
@@ -347,6 +348,7 @@ export class UsersService {
         const isRTL = !initData
           ? false
           : isRtl([initData?.user.first_name, initData?.user.last_name])
+
         const tdata = await tx.userTelegramData.create({
           data:
             !initData && !userInBotData
@@ -387,12 +389,21 @@ export class UsersService {
                   isLive: true,
                 },
         })
+
         const language = await tx.language.findUnique({
           where: {
             iso6391:
               initData.user.language_code ||
               userInBotData.language_code ||
               'en',
+          },
+        })
+
+        const adsData = await tx.userAdsData.create({
+          data: {
+            lastFullscreenViewedAt: null,
+            lastMessageAt: null,
+            lastMessageNetwork: null,
           },
         })
 
@@ -403,6 +414,7 @@ export class UsersService {
             balanceId: balance.id,
             roleId: UserRolesEnum.USER,
             telegramDataId: tdata.id,
+            adsDataId: adsData.id,
             currencyKey: CurrencyEnum.USD,
             lastStartedAt: new Date(),
             isTgProgramPartner: isTelegramPartner,
@@ -570,7 +582,7 @@ export class UsersService {
           user.balance.paymentBalance < amount) ||
         (balanceType === BalanceTypeEnum.HOLD &&
           user.balance.holdBalance < amount) ||
-        (balanceType === BalanceTypeEnum.WAGER && user.balance.wager < amount)
+        (balanceType === BalanceTypeEnum.AD && user.balance.ad < amount)
       )
         return { success: false }
 
@@ -586,6 +598,9 @@ export class UsersService {
               : {}),
             ...(balanceType == BalanceTypeEnum.TRAFFIC
               ? { traffic: { decrement: amount } }
+              : {}),
+            ...(balanceType == BalanceTypeEnum.AD
+              ? { ad: { decrement: amount } }
               : {}),
           },
         })
@@ -666,6 +681,9 @@ export class UsersService {
               : {}),
             ...(balanceType == BalanceTypeEnum.TRAFFIC
               ? { traffic: { increment: amount } }
+              : {}),
+            ...(balanceType == BalanceTypeEnum.AD
+              ? { ad: { increment: amount } }
               : {}),
           },
         })
