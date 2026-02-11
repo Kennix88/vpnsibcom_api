@@ -30,6 +30,7 @@ export type AdsBlocksAvgAggregateOutputType = {
   rewardTraffic: number | null
   rewardStars: number | null
   rewardTickets: number | null
+  rewardAd: number | null
   duration: number | null
   limit: number | null
 }
@@ -38,6 +39,7 @@ export type AdsBlocksSumAggregateOutputType = {
   rewardTraffic: number | null
   rewardStars: number | null
   rewardTickets: number | null
+  rewardAd: number | null
   duration: number | null
   limit: number | null
 }
@@ -51,6 +53,7 @@ export type AdsBlocksMinAggregateOutputType = {
   rewardTraffic: number | null
   rewardStars: number | null
   rewardTickets: number | null
+  rewardAd: number | null
   duration: number | null
   limit: number | null
   createdAt: Date | null
@@ -67,6 +70,7 @@ export type AdsBlocksMaxAggregateOutputType = {
   rewardTraffic: number | null
   rewardStars: number | null
   rewardTickets: number | null
+  rewardAd: number | null
   duration: number | null
   limit: number | null
   createdAt: Date | null
@@ -83,6 +87,7 @@ export type AdsBlocksCountAggregateOutputType = {
   rewardTraffic: number
   rewardStars: number
   rewardTickets: number
+  rewardAd: number
   duration: number
   limit: number
   createdAt: number
@@ -96,6 +101,7 @@ export type AdsBlocksAvgAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
   limit?: true
 }
@@ -104,6 +110,7 @@ export type AdsBlocksSumAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
   limit?: true
 }
@@ -117,6 +124,7 @@ export type AdsBlocksMinAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -133,6 +141,7 @@ export type AdsBlocksMaxAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -149,6 +158,7 @@ export type AdsBlocksCountAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -252,6 +262,7 @@ export type AdsBlocksGroupByOutputType = {
   rewardTraffic: number
   rewardStars: number
   rewardTickets: number
+  rewardAd: number
   duration: number
   limit: number
   createdAt: Date
@@ -291,6 +302,7 @@ export type AdsBlocksWhereInput = {
   rewardTraffic?: Prisma.FloatFilter<"AdsBlocks"> | number
   rewardStars?: Prisma.FloatFilter<"AdsBlocks"> | number
   rewardTickets?: Prisma.FloatFilter<"AdsBlocks"> | number
+  rewardAd?: Prisma.FloatFilter<"AdsBlocks"> | number
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -309,6 +321,7 @@ export type AdsBlocksOrderByWithRelationInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -331,6 +344,7 @@ export type AdsBlocksWhereUniqueInput = Prisma.AtLeast<{
   rewardTraffic?: Prisma.FloatFilter<"AdsBlocks"> | number
   rewardStars?: Prisma.FloatFilter<"AdsBlocks"> | number
   rewardTickets?: Prisma.FloatFilter<"AdsBlocks"> | number
+  rewardAd?: Prisma.FloatFilter<"AdsBlocks"> | number
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -349,6 +363,7 @@ export type AdsBlocksOrderByWithAggregationInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -373,6 +388,7 @@ export type AdsBlocksScalarWhereWithAggregatesInput = {
   rewardTraffic?: Prisma.FloatWithAggregatesFilter<"AdsBlocks"> | number
   rewardStars?: Prisma.FloatWithAggregatesFilter<"AdsBlocks"> | number
   rewardTickets?: Prisma.FloatWithAggregatesFilter<"AdsBlocks"> | number
+  rewardAd?: Prisma.FloatWithAggregatesFilter<"AdsBlocks"> | number
   duration?: Prisma.IntWithAggregatesFilter<"AdsBlocks"> | number
   limit?: Prisma.IntWithAggregatesFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AdsBlocks"> | Date | string
@@ -389,6 +405,7 @@ export type AdsBlocksCreateInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -406,6 +423,7 @@ export type AdsBlocksUncheckedCreateInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -423,6 +441,7 @@ export type AdsBlocksUpdateInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -440,6 +459,7 @@ export type AdsBlocksUncheckedUpdateInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -457,6 +477,7 @@ export type AdsBlocksCreateManyInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -473,6 +494,7 @@ export type AdsBlocksUpdateManyMutationInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -488,6 +510,7 @@ export type AdsBlocksUncheckedUpdateManyInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -514,6 +537,7 @@ export type AdsBlocksCountOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -525,6 +549,7 @@ export type AdsBlocksAvgOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
 }
@@ -538,6 +563,7 @@ export type AdsBlocksMaxOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -554,6 +580,7 @@ export type AdsBlocksMinOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -565,6 +592,7 @@ export type AdsBlocksSumOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
 }
@@ -648,6 +676,7 @@ export type AdsBlocksCreateWithoutViewsInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -664,6 +693,7 @@ export type AdsBlocksUncheckedCreateWithoutViewsInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -696,6 +726,7 @@ export type AdsBlocksUpdateWithoutViewsInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -712,6 +743,7 @@ export type AdsBlocksUncheckedUpdateWithoutViewsInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -728,6 +760,7 @@ export type AdsBlocksCreateWithoutNetworkInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -744,6 +777,7 @@ export type AdsBlocksUncheckedCreateWithoutNetworkInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -789,6 +823,7 @@ export type AdsBlocksScalarWhereInput = {
   rewardTraffic?: Prisma.FloatFilter<"AdsBlocks"> | number
   rewardStars?: Prisma.FloatFilter<"AdsBlocks"> | number
   rewardTickets?: Prisma.FloatFilter<"AdsBlocks"> | number
+  rewardAd?: Prisma.FloatFilter<"AdsBlocks"> | number
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -805,6 +840,7 @@ export type AdsBlocksCreateManyNetworkInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -820,6 +856,7 @@ export type AdsBlocksUpdateWithoutNetworkInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -836,6 +873,7 @@ export type AdsBlocksUncheckedUpdateWithoutNetworkInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -852,6 +890,7 @@ export type AdsBlocksUncheckedUpdateManyWithoutNetworkInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -898,6 +937,7 @@ export type AdsBlocksSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   rewardTraffic?: boolean
   rewardStars?: boolean
   rewardTickets?: boolean
+  rewardAd?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -917,6 +957,7 @@ export type AdsBlocksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   rewardTraffic?: boolean
   rewardStars?: boolean
   rewardTickets?: boolean
+  rewardAd?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -934,6 +975,7 @@ export type AdsBlocksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   rewardTraffic?: boolean
   rewardStars?: boolean
   rewardTickets?: boolean
+  rewardAd?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -951,6 +993,7 @@ export type AdsBlocksSelectScalar = {
   rewardTraffic?: boolean
   rewardStars?: boolean
   rewardTickets?: boolean
+  rewardAd?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -958,7 +1001,7 @@ export type AdsBlocksSelectScalar = {
   networkKey?: boolean
 }
 
-export type AdsBlocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "place" | "isActive" | "rewardTraffic" | "rewardStars" | "rewardTickets" | "duration" | "limit" | "createdAt" | "updatedAt" | "networkKey", ExtArgs["result"]["adsBlocks"]>
+export type AdsBlocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "place" | "isActive" | "rewardTraffic" | "rewardStars" | "rewardTickets" | "rewardAd" | "duration" | "limit" | "createdAt" | "updatedAt" | "networkKey", ExtArgs["result"]["adsBlocks"]>
 export type AdsBlocksInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   views?: boolean | Prisma.AdsBlocks$viewsArgs<ExtArgs>
@@ -986,6 +1029,7 @@ export type $AdsBlocksPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     rewardTraffic: number
     rewardStars: number
     rewardTickets: number
+    rewardAd: number
     duration: number
     limit: number
     createdAt: Date
@@ -1424,6 +1468,7 @@ export interface AdsBlocksFieldRefs {
   readonly rewardTraffic: Prisma.FieldRef<"AdsBlocks", 'Float'>
   readonly rewardStars: Prisma.FieldRef<"AdsBlocks", 'Float'>
   readonly rewardTickets: Prisma.FieldRef<"AdsBlocks", 'Float'>
+  readonly rewardAd: Prisma.FieldRef<"AdsBlocks", 'Float'>
   readonly duration: Prisma.FieldRef<"AdsBlocks", 'Int'>
   readonly limit: Prisma.FieldRef<"AdsBlocks", 'Int'>
   readonly createdAt: Prisma.FieldRef<"AdsBlocks", 'DateTime'>

@@ -28,6 +28,7 @@ export type AggregateSettings = {
 
 export type SettingsAvgAggregateOutputType = {
   tgStarsToUSD: number | null
+  adPriceStars: number | null
   telegramPremiumRatio: number | null
   devicesPriceStars: number | null
   serversPriceStars: number | null
@@ -71,6 +72,7 @@ export type SettingsAvgAggregateOutputType = {
 
 export type SettingsSumAggregateOutputType = {
   tgStarsToUSD: number | null
+  adPriceStars: number | null
   telegramPremiumRatio: number | null
   devicesPriceStars: number | null
   serversPriceStars: number | null
@@ -115,6 +117,7 @@ export type SettingsSumAggregateOutputType = {
 export type SettingsMinAggregateOutputType = {
   key: $Enums.DefaultEnum | null
   tgStarsToUSD: number | null
+  adPriceStars: number | null
   telegramPremiumRatio: number | null
   devicesPriceStars: number | null
   serversPriceStars: number | null
@@ -160,6 +163,7 @@ export type SettingsMinAggregateOutputType = {
 export type SettingsMaxAggregateOutputType = {
   key: $Enums.DefaultEnum | null
   tgStarsToUSD: number | null
+  adPriceStars: number | null
   telegramPremiumRatio: number | null
   devicesPriceStars: number | null
   serversPriceStars: number | null
@@ -205,6 +209,7 @@ export type SettingsMaxAggregateOutputType = {
 export type SettingsCountAggregateOutputType = {
   key: number
   tgStarsToUSD: number
+  adPriceStars: number
   telegramPremiumRatio: number
   devicesPriceStars: number
   serversPriceStars: number
@@ -251,6 +256,7 @@ export type SettingsCountAggregateOutputType = {
 
 export type SettingsAvgAggregateInputType = {
   tgStarsToUSD?: true
+  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -294,6 +300,7 @@ export type SettingsAvgAggregateInputType = {
 
 export type SettingsSumAggregateInputType = {
   tgStarsToUSD?: true
+  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -338,6 +345,7 @@ export type SettingsSumAggregateInputType = {
 export type SettingsMinAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
+  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -383,6 +391,7 @@ export type SettingsMinAggregateInputType = {
 export type SettingsMaxAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
+  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -428,6 +437,7 @@ export type SettingsMaxAggregateInputType = {
 export type SettingsCountAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
+  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -560,6 +570,7 @@ export type SettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type SettingsGroupByOutputType = {
   key: $Enums.DefaultEnum
   tgStarsToUSD: number
+  adPriceStars: number
   telegramPremiumRatio: number
   devicesPriceStars: number
   serversPriceStars: number
@@ -628,6 +639,7 @@ export type SettingsWhereInput = {
   NOT?: Prisma.SettingsWhereInput | Prisma.SettingsWhereInput[]
   key?: Prisma.EnumDefaultEnumFilter<"Settings"> | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFilter<"Settings"> | number
+  adPriceStars?: Prisma.FloatFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatFilter<"Settings"> | number
   devicesPriceStars?: Prisma.FloatFilter<"Settings"> | number
   serversPriceStars?: Prisma.FloatFilter<"Settings"> | number
@@ -673,6 +685,7 @@ export type SettingsWhereInput = {
 export type SettingsOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
+  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -721,6 +734,7 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SettingsWhereInput[]
   NOT?: Prisma.SettingsWhereInput | Prisma.SettingsWhereInput[]
   tgStarsToUSD?: Prisma.FloatFilter<"Settings"> | number
+  adPriceStars?: Prisma.FloatFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatFilter<"Settings"> | number
   devicesPriceStars?: Prisma.FloatFilter<"Settings"> | number
   serversPriceStars?: Prisma.FloatFilter<"Settings"> | number
@@ -766,6 +780,7 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
 export type SettingsOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
+  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -819,6 +834,7 @@ export type SettingsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SettingsScalarWhereWithAggregatesInput | Prisma.SettingsScalarWhereWithAggregatesInput[]
   key?: Prisma.EnumDefaultEnumWithAggregatesFilter<"Settings"> | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  adPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   devicesPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   serversPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
@@ -864,6 +880,7 @@ export type SettingsScalarWhereWithAggregatesInput = {
 export type SettingsCreateInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
+  adPriceStars?: number
   telegramPremiumRatio?: number
   devicesPriceStars?: number
   serversPriceStars?: number
@@ -909,6 +926,7 @@ export type SettingsCreateInput = {
 export type SettingsUncheckedCreateInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
+  adPriceStars?: number
   telegramPremiumRatio?: number
   devicesPriceStars?: number
   serversPriceStars?: number
@@ -954,6 +972,7 @@ export type SettingsUncheckedCreateInput = {
 export type SettingsUpdateInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
+  adPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
   devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -999,6 +1018,7 @@ export type SettingsUpdateInput = {
 export type SettingsUncheckedUpdateInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
+  adPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
   devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1044,6 +1064,7 @@ export type SettingsUncheckedUpdateInput = {
 export type SettingsCreateManyInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
+  adPriceStars?: number
   telegramPremiumRatio?: number
   devicesPriceStars?: number
   serversPriceStars?: number
@@ -1089,6 +1110,7 @@ export type SettingsCreateManyInput = {
 export type SettingsUpdateManyMutationInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
+  adPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
   devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1134,6 +1156,7 @@ export type SettingsUpdateManyMutationInput = {
 export type SettingsUncheckedUpdateManyInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
+  adPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
   devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1179,6 +1202,7 @@ export type SettingsUncheckedUpdateManyInput = {
 export type SettingsCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
+  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1223,6 +1247,7 @@ export type SettingsCountOrderByAggregateInput = {
 
 export type SettingsAvgOrderByAggregateInput = {
   tgStarsToUSD?: Prisma.SortOrder
+  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1267,6 +1292,7 @@ export type SettingsAvgOrderByAggregateInput = {
 export type SettingsMaxOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
+  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1312,6 +1338,7 @@ export type SettingsMaxOrderByAggregateInput = {
 export type SettingsMinOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
+  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1356,6 +1383,7 @@ export type SettingsMinOrderByAggregateInput = {
 
 export type SettingsSumOrderByAggregateInput = {
   tgStarsToUSD?: Prisma.SortOrder
+  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1434,6 +1462,7 @@ export type NullableIntFieldUpdateOperationsInput = {
 export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   tgStarsToUSD?: boolean
+  adPriceStars?: boolean
   telegramPremiumRatio?: boolean
   devicesPriceStars?: boolean
   serversPriceStars?: boolean
@@ -1479,6 +1508,7 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   tgStarsToUSD?: boolean
+  adPriceStars?: boolean
   telegramPremiumRatio?: boolean
   devicesPriceStars?: boolean
   serversPriceStars?: boolean
@@ -1524,6 +1554,7 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   tgStarsToUSD?: boolean
+  adPriceStars?: boolean
   telegramPremiumRatio?: boolean
   devicesPriceStars?: boolean
   serversPriceStars?: boolean
@@ -1569,6 +1600,7 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type SettingsSelectScalar = {
   key?: boolean
   tgStarsToUSD?: boolean
+  adPriceStars?: boolean
   telegramPremiumRatio?: boolean
   devicesPriceStars?: boolean
   serversPriceStars?: boolean
@@ -1611,17 +1643,15 @@ export type SettingsSelectScalar = {
   bonusPayment50000?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "adPriceStars" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     key: $Enums.DefaultEnum
-    /**
-     * Курс обмена Telegram Stars к USD
-     */
     tgStarsToUSD: number
+    adPriceStars: number
     telegramPremiumRatio: number
     devicesPriceStars: number
     serversPriceStars: number
@@ -2087,6 +2117,7 @@ export interface Prisma__SettingsClient<T, Null = never, ExtArgs extends runtime
 export interface SettingsFieldRefs {
   readonly key: Prisma.FieldRef<"Settings", 'DefaultEnum'>
   readonly tgStarsToUSD: Prisma.FieldRef<"Settings", 'Float'>
+  readonly adPriceStars: Prisma.FieldRef<"Settings", 'Float'>
   readonly telegramPremiumRatio: Prisma.FieldRef<"Settings", 'Float'>
   readonly devicesPriceStars: Prisma.FieldRef<"Settings", 'Float'>
   readonly serversPriceStars: Prisma.FieldRef<"Settings", 'Float'>

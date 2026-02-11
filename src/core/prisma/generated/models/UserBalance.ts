@@ -29,29 +29,26 @@ export type AggregateUserBalance = {
 export type UserBalanceAvgAggregateOutputType = {
   paymentBalance: number | null
   holdBalance: number | null
-  totalEarned: number | null
   tickets: number | null
   traffic: number | null
-  wager: number | null
+  ad: number | null
 }
 
 export type UserBalanceSumAggregateOutputType = {
   paymentBalance: number | null
   holdBalance: number | null
-  totalEarned: number | null
   tickets: number | null
   traffic: number | null
-  wager: number | null
+  ad: number | null
 }
 
 export type UserBalanceMinAggregateOutputType = {
   id: string | null
   paymentBalance: number | null
   holdBalance: number | null
-  totalEarned: number | null
   tickets: number | null
   traffic: number | null
-  wager: number | null
+  ad: number | null
   updatedAt: Date | null
 }
 
@@ -59,10 +56,9 @@ export type UserBalanceMaxAggregateOutputType = {
   id: string | null
   paymentBalance: number | null
   holdBalance: number | null
-  totalEarned: number | null
   tickets: number | null
   traffic: number | null
-  wager: number | null
+  ad: number | null
   updatedAt: Date | null
 }
 
@@ -70,10 +66,9 @@ export type UserBalanceCountAggregateOutputType = {
   id: number
   paymentBalance: number
   holdBalance: number
-  totalEarned: number
   tickets: number
   traffic: number
-  wager: number
+  ad: number
   updatedAt: number
   _all: number
 }
@@ -82,29 +77,26 @@ export type UserBalanceCountAggregateOutputType = {
 export type UserBalanceAvgAggregateInputType = {
   paymentBalance?: true
   holdBalance?: true
-  totalEarned?: true
   tickets?: true
   traffic?: true
-  wager?: true
+  ad?: true
 }
 
 export type UserBalanceSumAggregateInputType = {
   paymentBalance?: true
   holdBalance?: true
-  totalEarned?: true
   tickets?: true
   traffic?: true
-  wager?: true
+  ad?: true
 }
 
 export type UserBalanceMinAggregateInputType = {
   id?: true
   paymentBalance?: true
   holdBalance?: true
-  totalEarned?: true
   tickets?: true
   traffic?: true
-  wager?: true
+  ad?: true
   updatedAt?: true
 }
 
@@ -112,10 +104,9 @@ export type UserBalanceMaxAggregateInputType = {
   id?: true
   paymentBalance?: true
   holdBalance?: true
-  totalEarned?: true
   tickets?: true
   traffic?: true
-  wager?: true
+  ad?: true
   updatedAt?: true
 }
 
@@ -123,10 +114,9 @@ export type UserBalanceCountAggregateInputType = {
   id?: true
   paymentBalance?: true
   holdBalance?: true
-  totalEarned?: true
   tickets?: true
   traffic?: true
-  wager?: true
+  ad?: true
   updatedAt?: true
   _all?: true
 }
@@ -221,10 +211,9 @@ export type UserBalanceGroupByOutputType = {
   id: string
   paymentBalance: number
   holdBalance: number
-  totalEarned: number
   tickets: number
   traffic: number
-  wager: number
+  ad: number
   updatedAt: Date
   _count: UserBalanceCountAggregateOutputType | null
   _avg: UserBalanceAvgAggregateOutputType | null
@@ -255,10 +244,9 @@ export type UserBalanceWhereInput = {
   id?: Prisma.StringFilter<"UserBalance"> | string
   paymentBalance?: Prisma.FloatFilter<"UserBalance"> | number
   holdBalance?: Prisma.FloatFilter<"UserBalance"> | number
-  totalEarned?: Prisma.FloatFilter<"UserBalance"> | number
   tickets?: Prisma.FloatFilter<"UserBalance"> | number
   traffic?: Prisma.FloatFilter<"UserBalance"> | number
-  wager?: Prisma.FloatFilter<"UserBalance"> | number
+  ad?: Prisma.FloatFilter<"UserBalance"> | number
   updatedAt?: Prisma.DateTimeFilter<"UserBalance"> | Date | string
   user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
   transactions?: Prisma.TransactionsListRelationFilter
@@ -268,10 +256,9 @@ export type UserBalanceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  totalEarned?: Prisma.SortOrder
   tickets?: Prisma.SortOrder
   traffic?: Prisma.SortOrder
-  wager?: Prisma.SortOrder
+  ad?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UsersOrderByWithRelationInput
   transactions?: Prisma.TransactionsOrderByRelationAggregateInput
@@ -284,10 +271,9 @@ export type UserBalanceWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserBalanceWhereInput | Prisma.UserBalanceWhereInput[]
   paymentBalance?: Prisma.FloatFilter<"UserBalance"> | number
   holdBalance?: Prisma.FloatFilter<"UserBalance"> | number
-  totalEarned?: Prisma.FloatFilter<"UserBalance"> | number
   tickets?: Prisma.FloatFilter<"UserBalance"> | number
   traffic?: Prisma.FloatFilter<"UserBalance"> | number
-  wager?: Prisma.FloatFilter<"UserBalance"> | number
+  ad?: Prisma.FloatFilter<"UserBalance"> | number
   updatedAt?: Prisma.DateTimeFilter<"UserBalance"> | Date | string
   user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
   transactions?: Prisma.TransactionsListRelationFilter
@@ -297,10 +283,9 @@ export type UserBalanceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  totalEarned?: Prisma.SortOrder
   tickets?: Prisma.SortOrder
   traffic?: Prisma.SortOrder
-  wager?: Prisma.SortOrder
+  ad?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserBalanceCountOrderByAggregateInput
   _avg?: Prisma.UserBalanceAvgOrderByAggregateInput
@@ -316,10 +301,9 @@ export type UserBalanceScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"UserBalance"> | string
   paymentBalance?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
   holdBalance?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
-  totalEarned?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
   tickets?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
   traffic?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
-  wager?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
+  ad?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserBalance"> | Date | string
 }
 
@@ -327,10 +311,9 @@ export type UserBalanceCreateInput = {
   id?: string
   paymentBalance?: number
   holdBalance?: number
-  totalEarned?: number
   tickets?: number
   traffic?: number
-  wager?: number
+  ad?: number
   updatedAt?: Date | string
   user?: Prisma.UsersCreateNestedOneWithoutBalanceInput
   transactions?: Prisma.TransactionsCreateNestedManyWithoutBalanceInput
@@ -340,10 +323,9 @@ export type UserBalanceUncheckedCreateInput = {
   id?: string
   paymentBalance?: number
   holdBalance?: number
-  totalEarned?: number
   tickets?: number
   traffic?: number
-  wager?: number
+  ad?: number
   updatedAt?: Date | string
   user?: Prisma.UsersUncheckedCreateNestedOneWithoutBalanceInput
   transactions?: Prisma.TransactionsUncheckedCreateNestedManyWithoutBalanceInput
@@ -353,10 +335,9 @@ export type UserBalanceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
   holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalEarned?: Prisma.FloatFieldUpdateOperationsInput | number
   tickets?: Prisma.FloatFieldUpdateOperationsInput | number
   traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  wager?: Prisma.FloatFieldUpdateOperationsInput | number
+  ad?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUpdateOneWithoutBalanceNestedInput
   transactions?: Prisma.TransactionsUpdateManyWithoutBalanceNestedInput
@@ -366,10 +347,9 @@ export type UserBalanceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
   holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalEarned?: Prisma.FloatFieldUpdateOperationsInput | number
   tickets?: Prisma.FloatFieldUpdateOperationsInput | number
   traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  wager?: Prisma.FloatFieldUpdateOperationsInput | number
+  ad?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUncheckedUpdateOneWithoutBalanceNestedInput
   transactions?: Prisma.TransactionsUncheckedUpdateManyWithoutBalanceNestedInput
@@ -379,10 +359,9 @@ export type UserBalanceCreateManyInput = {
   id?: string
   paymentBalance?: number
   holdBalance?: number
-  totalEarned?: number
   tickets?: number
   traffic?: number
-  wager?: number
+  ad?: number
   updatedAt?: Date | string
 }
 
@@ -390,10 +369,9 @@ export type UserBalanceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
   holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalEarned?: Prisma.FloatFieldUpdateOperationsInput | number
   tickets?: Prisma.FloatFieldUpdateOperationsInput | number
   traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  wager?: Prisma.FloatFieldUpdateOperationsInput | number
+  ad?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -401,10 +379,9 @@ export type UserBalanceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
   holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalEarned?: Prisma.FloatFieldUpdateOperationsInput | number
   tickets?: Prisma.FloatFieldUpdateOperationsInput | number
   traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  wager?: Prisma.FloatFieldUpdateOperationsInput | number
+  ad?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -417,30 +394,27 @@ export type UserBalanceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  totalEarned?: Prisma.SortOrder
   tickets?: Prisma.SortOrder
   traffic?: Prisma.SortOrder
-  wager?: Prisma.SortOrder
+  ad?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserBalanceAvgOrderByAggregateInput = {
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  totalEarned?: Prisma.SortOrder
   tickets?: Prisma.SortOrder
   traffic?: Prisma.SortOrder
-  wager?: Prisma.SortOrder
+  ad?: Prisma.SortOrder
 }
 
 export type UserBalanceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  totalEarned?: Prisma.SortOrder
   tickets?: Prisma.SortOrder
   traffic?: Prisma.SortOrder
-  wager?: Prisma.SortOrder
+  ad?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -448,20 +422,18 @@ export type UserBalanceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  totalEarned?: Prisma.SortOrder
   tickets?: Prisma.SortOrder
   traffic?: Prisma.SortOrder
-  wager?: Prisma.SortOrder
+  ad?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserBalanceSumOrderByAggregateInput = {
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  totalEarned?: Prisma.SortOrder
   tickets?: Prisma.SortOrder
   traffic?: Prisma.SortOrder
-  wager?: Prisma.SortOrder
+  ad?: Prisma.SortOrder
 }
 
 export type UserBalanceCreateNestedOneWithoutUserInput = {
@@ -500,10 +472,9 @@ export type UserBalanceCreateWithoutUserInput = {
   id?: string
   paymentBalance?: number
   holdBalance?: number
-  totalEarned?: number
   tickets?: number
   traffic?: number
-  wager?: number
+  ad?: number
   updatedAt?: Date | string
   transactions?: Prisma.TransactionsCreateNestedManyWithoutBalanceInput
 }
@@ -512,10 +483,9 @@ export type UserBalanceUncheckedCreateWithoutUserInput = {
   id?: string
   paymentBalance?: number
   holdBalance?: number
-  totalEarned?: number
   tickets?: number
   traffic?: number
-  wager?: number
+  ad?: number
   updatedAt?: Date | string
   transactions?: Prisma.TransactionsUncheckedCreateNestedManyWithoutBalanceInput
 }
@@ -540,10 +510,9 @@ export type UserBalanceUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
   holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalEarned?: Prisma.FloatFieldUpdateOperationsInput | number
   tickets?: Prisma.FloatFieldUpdateOperationsInput | number
   traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  wager?: Prisma.FloatFieldUpdateOperationsInput | number
+  ad?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionsUpdateManyWithoutBalanceNestedInput
 }
@@ -552,10 +521,9 @@ export type UserBalanceUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
   holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalEarned?: Prisma.FloatFieldUpdateOperationsInput | number
   tickets?: Prisma.FloatFieldUpdateOperationsInput | number
   traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  wager?: Prisma.FloatFieldUpdateOperationsInput | number
+  ad?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionsUncheckedUpdateManyWithoutBalanceNestedInput
 }
@@ -564,10 +532,9 @@ export type UserBalanceCreateWithoutTransactionsInput = {
   id?: string
   paymentBalance?: number
   holdBalance?: number
-  totalEarned?: number
   tickets?: number
   traffic?: number
-  wager?: number
+  ad?: number
   updatedAt?: Date | string
   user?: Prisma.UsersCreateNestedOneWithoutBalanceInput
 }
@@ -576,10 +543,9 @@ export type UserBalanceUncheckedCreateWithoutTransactionsInput = {
   id?: string
   paymentBalance?: number
   holdBalance?: number
-  totalEarned?: number
   tickets?: number
   traffic?: number
-  wager?: number
+  ad?: number
   updatedAt?: Date | string
   user?: Prisma.UsersUncheckedCreateNestedOneWithoutBalanceInput
 }
@@ -604,10 +570,9 @@ export type UserBalanceUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
   holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalEarned?: Prisma.FloatFieldUpdateOperationsInput | number
   tickets?: Prisma.FloatFieldUpdateOperationsInput | number
   traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  wager?: Prisma.FloatFieldUpdateOperationsInput | number
+  ad?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUpdateOneWithoutBalanceNestedInput
 }
@@ -616,10 +581,9 @@ export type UserBalanceUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
   holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalEarned?: Prisma.FloatFieldUpdateOperationsInput | number
   tickets?: Prisma.FloatFieldUpdateOperationsInput | number
   traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  wager?: Prisma.FloatFieldUpdateOperationsInput | number
+  ad?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUncheckedUpdateOneWithoutBalanceNestedInput
 }
@@ -659,10 +623,9 @@ export type UserBalanceSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   paymentBalance?: boolean
   holdBalance?: boolean
-  totalEarned?: boolean
   tickets?: boolean
   traffic?: boolean
-  wager?: boolean
+  ad?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserBalance$userArgs<ExtArgs>
   transactions?: boolean | Prisma.UserBalance$transactionsArgs<ExtArgs>
@@ -673,10 +636,9 @@ export type UserBalanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   paymentBalance?: boolean
   holdBalance?: boolean
-  totalEarned?: boolean
   tickets?: boolean
   traffic?: boolean
-  wager?: boolean
+  ad?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["userBalance"]>
 
@@ -684,10 +646,9 @@ export type UserBalanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   paymentBalance?: boolean
   holdBalance?: boolean
-  totalEarned?: boolean
   tickets?: boolean
   traffic?: boolean
-  wager?: boolean
+  ad?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["userBalance"]>
 
@@ -695,14 +656,13 @@ export type UserBalanceSelectScalar = {
   id?: boolean
   paymentBalance?: boolean
   holdBalance?: boolean
-  totalEarned?: boolean
   tickets?: boolean
   traffic?: boolean
-  wager?: boolean
+  ad?: boolean
   updatedAt?: boolean
 }
 
-export type UserBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "paymentBalance" | "holdBalance" | "totalEarned" | "tickets" | "traffic" | "wager" | "updatedAt", ExtArgs["result"]["userBalance"]>
+export type UserBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "paymentBalance" | "holdBalance" | "tickets" | "traffic" | "ad" | "updatedAt", ExtArgs["result"]["userBalance"]>
 export type UserBalanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserBalance$userArgs<ExtArgs>
   transactions?: boolean | Prisma.UserBalance$transactionsArgs<ExtArgs>
@@ -724,10 +684,9 @@ export type $UserBalancePayload<ExtArgs extends runtime.Types.Extensions.Interna
      */
     paymentBalance: number
     holdBalance: number
-    totalEarned: number
     tickets: number
     traffic: number
-    wager: number
+    ad: number
     updatedAt: Date
   }, ExtArgs["result"]["userBalance"]>
   composites: {}
@@ -1157,10 +1116,9 @@ export interface UserBalanceFieldRefs {
   readonly id: Prisma.FieldRef<"UserBalance", 'String'>
   readonly paymentBalance: Prisma.FieldRef<"UserBalance", 'Float'>
   readonly holdBalance: Prisma.FieldRef<"UserBalance", 'Float'>
-  readonly totalEarned: Prisma.FieldRef<"UserBalance", 'Float'>
   readonly tickets: Prisma.FieldRef<"UserBalance", 'Float'>
   readonly traffic: Prisma.FieldRef<"UserBalance", 'Float'>
-  readonly wager: Prisma.FieldRef<"UserBalance", 'Float'>
+  readonly ad: Prisma.FieldRef<"UserBalance", 'Float'>
   readonly updatedAt: Prisma.FieldRef<"UserBalance", 'DateTime'>
 }
     

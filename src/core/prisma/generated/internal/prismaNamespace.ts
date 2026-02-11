@@ -388,6 +388,7 @@ export const ModelName = {
   UserTelegramData: 'UserTelegramData',
   Referrals: 'Referrals',
   Users: 'Users',
+  UserAdsData: 'UserAdsData',
   AdsViews: 'AdsViews',
   AdsBlocks: 'AdsBlocks',
   AdsNetworks: 'AdsNetworks',
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "settings" | "userTelegramData" | "referrals" | "users" | "adsViews" | "adsBlocks" | "adsNetworks" | "rewardLog" | "userBalance" | "greenList" | "plans" | "subscriptions" | "subscriptionToGreenList" | "xrayInbounds" | "roles" | "language" | "currency" | "transactions" | "withdrawals" | "payments" | "paymentMethods"
+    modelProps: "settings" | "userTelegramData" | "referrals" | "users" | "userAdsData" | "adsViews" | "adsBlocks" | "adsNetworks" | "rewardLog" | "userBalance" | "greenList" | "plans" | "subscriptions" | "subscriptionToGreenList" | "xrayInbounds" | "roles" | "language" | "currency" | "transactions" | "withdrawals" | "payments" | "paymentMethods"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -717,6 +718,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UsersCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UsersCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserAdsData: {
+      payload: Prisma.$UserAdsDataPayload<ExtArgs>
+      fields: Prisma.UserAdsDataFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserAdsDataFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserAdsDataFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>
+        }
+        findFirst: {
+          args: Prisma.UserAdsDataFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserAdsDataFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>
+        }
+        findMany: {
+          args: Prisma.UserAdsDataFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>[]
+        }
+        create: {
+          args: Prisma.UserAdsDataCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>
+        }
+        createMany: {
+          args: Prisma.UserAdsDataCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserAdsDataCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>[]
+        }
+        delete: {
+          args: Prisma.UserAdsDataDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>
+        }
+        update: {
+          args: Prisma.UserAdsDataUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserAdsDataDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserAdsDataUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserAdsDataUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserAdsDataUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAdsDataPayload>
+        }
+        aggregate: {
+          args: Prisma.UserAdsDataAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserAdsData>
+        }
+        groupBy: {
+          args: Prisma.UserAdsDataGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserAdsDataGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserAdsDataCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserAdsDataCountAggregateOutputType> | number
         }
       }
     }
@@ -2020,6 +2095,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const SettingsScalarFieldEnum = {
   key: 'key',
   tgStarsToUSD: 'tgStarsToUSD',
+  adPriceStars: 'adPriceStars',
   telegramPremiumRatio: 'telegramPremiumRatio',
   devicesPriceStars: 'devicesPriceStars',
   serversPriceStars: 'serversPriceStars',
@@ -2119,10 +2195,23 @@ export const UsersScalarFieldEnum = {
   telegramDataId: 'telegramDataId',
   balanceId: 'balanceId',
   languageId: 'languageId',
-  currencyKey: 'currencyKey'
+  currencyKey: 'currencyKey',
+  adsDataId: 'adsDataId'
 } as const
 
 export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
+
+
+export const UserAdsDataScalarFieldEnum = {
+  id: 'id',
+  lastFullscreenViewedAt: 'lastFullscreenViewedAt',
+  lastViewedNetwork: 'lastViewedNetwork',
+  lastMessageAt: 'lastMessageAt',
+  lastMessageNetwork: 'lastMessageNetwork',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserAdsDataScalarFieldEnum = (typeof UserAdsDataScalarFieldEnum)[keyof typeof UserAdsDataScalarFieldEnum]
 
 
 export const AdsViewsScalarFieldEnum = {
@@ -2152,6 +2241,7 @@ export const AdsBlocksScalarFieldEnum = {
   rewardTraffic: 'rewardTraffic',
   rewardStars: 'rewardStars',
   rewardTickets: 'rewardTickets',
+  rewardAd: 'rewardAd',
   duration: 'duration',
   limit: 'limit',
   createdAt: 'createdAt',
@@ -2191,10 +2281,9 @@ export const UserBalanceScalarFieldEnum = {
   id: 'id',
   paymentBalance: 'paymentBalance',
   holdBalance: 'holdBalance',
-  totalEarned: 'totalEarned',
   tickets: 'tickets',
   traffic: 'traffic',
-  wager: 'wager',
+  ad: 'ad',
   updatedAt: 'updatedAt'
 } as const
 
@@ -2902,6 +2991,7 @@ export type GlobalOmitConfig = {
   userTelegramData?: Prisma.UserTelegramDataOmit
   referrals?: Prisma.ReferralsOmit
   users?: Prisma.UsersOmit
+  userAdsData?: Prisma.UserAdsDataOmit
   adsViews?: Prisma.AdsViewsOmit
   adsBlocks?: Prisma.AdsBlocksOmit
   adsNetworks?: Prisma.AdsNetworksOmit

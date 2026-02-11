@@ -38,6 +38,11 @@ export type Referrals = Prisma.ReferralsModel
  */
 export type Users = Prisma.UsersModel
 /**
+ * Model UserAdsData
+ * 
+ */
+export type UserAdsData = Prisma.UserAdsDataModel
+/**
  * Model AdsViews
  * Модель для просмотров рекламы
  */

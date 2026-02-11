@@ -280,6 +280,23 @@ export type EnumCurrencyEnumWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumCurrencyEnumFilter<$PrismaModel>
 }
 
+export type EnumAdsNetworkEnumNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdsNetworkEnum | Prisma.EnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumAdsNetworkEnumNullableFilter<$PrismaModel> | $Enums.AdsNetworkEnum | null
+}
+
+export type EnumAdsNetworkEnumNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdsNetworkEnum | Prisma.EnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumAdsNetworkEnumNullableWithAggregatesFilter<$PrismaModel> | $Enums.AdsNetworkEnum | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdsNetworkEnumNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdsNetworkEnumNullableFilter<$PrismaModel>
+}
+
 export type EnumAdsNetworkEnumFilter<$PrismaModel = never> = {
   equals?: $Enums.AdsNetworkEnum | Prisma.EnumAdsNetworkEnumFieldRefInput<$PrismaModel>
   in?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel>
@@ -930,6 +947,23 @@ export type NestedEnumCurrencyEnumWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCurrencyEnumFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCurrencyEnumFilter<$PrismaModel>
+}
+
+export type NestedEnumAdsNetworkEnumNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdsNetworkEnum | Prisma.EnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumAdsNetworkEnumNullableFilter<$PrismaModel> | $Enums.AdsNetworkEnum | null
+}
+
+export type NestedEnumAdsNetworkEnumNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdsNetworkEnum | Prisma.EnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.AdsNetworkEnum[] | Prisma.ListEnumAdsNetworkEnumFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumAdsNetworkEnumNullableWithAggregatesFilter<$PrismaModel> | $Enums.AdsNetworkEnum | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdsNetworkEnumNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdsNetworkEnumNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumAdsNetworkEnumFilter<$PrismaModel = never> = {

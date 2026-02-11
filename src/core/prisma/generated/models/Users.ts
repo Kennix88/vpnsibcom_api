@@ -44,6 +44,7 @@ export type UsersMinAggregateOutputType = {
   balanceId: string | null
   languageId: string | null
   currencyKey: $Enums.CurrencyEnum | null
+  adsDataId: string | null
 }
 
 export type UsersMaxAggregateOutputType = {
@@ -66,6 +67,7 @@ export type UsersMaxAggregateOutputType = {
   balanceId: string | null
   languageId: string | null
   currencyKey: $Enums.CurrencyEnum | null
+  adsDataId: string | null
 }
 
 export type UsersCountAggregateOutputType = {
@@ -88,6 +90,7 @@ export type UsersCountAggregateOutputType = {
   balanceId: number
   languageId: number
   currencyKey: number
+  adsDataId: number
   _all: number
 }
 
@@ -112,6 +115,7 @@ export type UsersMinAggregateInputType = {
   balanceId?: true
   languageId?: true
   currencyKey?: true
+  adsDataId?: true
 }
 
 export type UsersMaxAggregateInputType = {
@@ -134,6 +138,7 @@ export type UsersMaxAggregateInputType = {
   balanceId?: true
   languageId?: true
   currencyKey?: true
+  adsDataId?: true
 }
 
 export type UsersCountAggregateInputType = {
@@ -156,6 +161,7 @@ export type UsersCountAggregateInputType = {
   balanceId?: true
   languageId?: true
   currencyKey?: true
+  adsDataId?: true
   _all?: true
 }
 
@@ -251,6 +257,7 @@ export type UsersGroupByOutputType = {
   balanceId: string | null
   languageId: string
   currencyKey: $Enums.CurrencyEnum
+  adsDataId: string | null
   _count: UsersCountAggregateOutputType | null
   _min: UsersMinAggregateOutputType | null
   _max: UsersMaxAggregateOutputType | null
@@ -294,6 +301,7 @@ export type UsersWhereInput = {
   balanceId?: Prisma.StringNullableFilter<"Users"> | string | null
   languageId?: Prisma.StringFilter<"Users"> | string
   currencyKey?: Prisma.EnumCurrencyEnumFilter<"Users"> | $Enums.CurrencyEnum
+  adsDataId?: Prisma.StringNullableFilter<"Users"> | string | null
   role?: Prisma.XOR<Prisma.RolesScalarRelationFilter, Prisma.RolesWhereInput>
   payments?: Prisma.PaymentsListRelationFilter
   referrals?: Prisma.ReferralsListRelationFilter
@@ -306,6 +314,7 @@ export type UsersWhereInput = {
   withdrawals?: Prisma.WithdrawalsListRelationFilter
   adsViews?: Prisma.AdsViewsListRelationFilter
   rewardLogs?: Prisma.RewardLogListRelationFilter
+  adsData?: Prisma.XOR<Prisma.UserAdsDataNullableScalarRelationFilter, Prisma.UserAdsDataWhereInput> | null
 }
 
 export type UsersOrderByWithRelationInput = {
@@ -328,6 +337,7 @@ export type UsersOrderByWithRelationInput = {
   balanceId?: Prisma.SortOrderInput | Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  adsDataId?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.RolesOrderByWithRelationInput
   payments?: Prisma.PaymentsOrderByRelationAggregateInput
   referrals?: Prisma.ReferralsOrderByRelationAggregateInput
@@ -340,6 +350,7 @@ export type UsersOrderByWithRelationInput = {
   withdrawals?: Prisma.WithdrawalsOrderByRelationAggregateInput
   adsViews?: Prisma.AdsViewsOrderByRelationAggregateInput
   rewardLogs?: Prisma.RewardLogOrderByRelationAggregateInput
+  adsData?: Prisma.UserAdsDataOrderByWithRelationInput
 }
 
 export type UsersWhereUniqueInput = Prisma.AtLeast<{
@@ -347,6 +358,7 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
   telegramId?: string
   telegramDataId?: string
   balanceId?: string
+  adsDataId?: string
   AND?: Prisma.UsersWhereInput | Prisma.UsersWhereInput[]
   OR?: Prisma.UsersWhereInput[]
   NOT?: Prisma.UsersWhereInput | Prisma.UsersWhereInput[]
@@ -377,7 +389,8 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
   withdrawals?: Prisma.WithdrawalsListRelationFilter
   adsViews?: Prisma.AdsViewsListRelationFilter
   rewardLogs?: Prisma.RewardLogListRelationFilter
-}, "id" | "telegramId" | "telegramDataId" | "balanceId">
+  adsData?: Prisma.XOR<Prisma.UserAdsDataNullableScalarRelationFilter, Prisma.UserAdsDataWhereInput> | null
+}, "id" | "telegramId" | "telegramDataId" | "balanceId" | "adsDataId">
 
 export type UsersOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -399,6 +412,7 @@ export type UsersOrderByWithAggregationInput = {
   balanceId?: Prisma.SortOrderInput | Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  adsDataId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UsersCountOrderByAggregateInput
   _max?: Prisma.UsersMaxOrderByAggregateInput
   _min?: Prisma.UsersMinOrderByAggregateInput
@@ -427,6 +441,7 @@ export type UsersScalarWhereWithAggregatesInput = {
   balanceId?: Prisma.StringNullableWithAggregatesFilter<"Users"> | string | null
   languageId?: Prisma.StringWithAggregatesFilter<"Users"> | string
   currencyKey?: Prisma.EnumCurrencyEnumWithAggregatesFilter<"Users"> | $Enums.CurrencyEnum
+  adsDataId?: Prisma.StringNullableWithAggregatesFilter<"Users"> | string | null
 }
 
 export type UsersCreateInput = {
@@ -456,6 +471,7 @@ export type UsersCreateInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateInput = {
@@ -478,6 +494,7 @@ export type UsersUncheckedCreateInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -514,6 +531,7 @@ export type UsersUpdateInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateInput = {
@@ -536,6 +554,7 @@ export type UsersUncheckedUpdateInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -565,6 +584,7 @@ export type UsersCreateManyInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
 }
 
 export type UsersUpdateManyMutationInput = {
@@ -604,6 +624,7 @@ export type UsersUncheckedUpdateManyInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UsersNullableScalarRelationFilter = {
@@ -636,6 +657,7 @@ export type UsersCountOrderByAggregateInput = {
   balanceId?: Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  adsDataId?: Prisma.SortOrder
 }
 
 export type UsersMaxOrderByAggregateInput = {
@@ -658,6 +680,7 @@ export type UsersMaxOrderByAggregateInput = {
   balanceId?: Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  adsDataId?: Prisma.SortOrder
 }
 
 export type UsersMinOrderByAggregateInput = {
@@ -680,6 +703,7 @@ export type UsersMinOrderByAggregateInput = {
   balanceId?: Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  adsDataId?: Prisma.SortOrder
 }
 
 export type UsersListRelationFilter = {
@@ -762,6 +786,38 @@ export type EnumUserRoleEnumFieldUpdateOperationsInput = {
 
 export type EnumCurrencyEnumFieldUpdateOperationsInput = {
   set?: $Enums.CurrencyEnum
+}
+
+export type UsersCreateNestedOneWithoutAdsDataInput = {
+  create?: Prisma.XOR<Prisma.UsersCreateWithoutAdsDataInput, Prisma.UsersUncheckedCreateWithoutAdsDataInput>
+  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutAdsDataInput
+  connect?: Prisma.UsersWhereUniqueInput
+}
+
+export type UsersUncheckedCreateNestedOneWithoutAdsDataInput = {
+  create?: Prisma.XOR<Prisma.UsersCreateWithoutAdsDataInput, Prisma.UsersUncheckedCreateWithoutAdsDataInput>
+  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutAdsDataInput
+  connect?: Prisma.UsersWhereUniqueInput
+}
+
+export type UsersUpdateOneWithoutAdsDataNestedInput = {
+  create?: Prisma.XOR<Prisma.UsersCreateWithoutAdsDataInput, Prisma.UsersUncheckedCreateWithoutAdsDataInput>
+  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutAdsDataInput
+  upsert?: Prisma.UsersUpsertWithoutAdsDataInput
+  disconnect?: Prisma.UsersWhereInput | boolean
+  delete?: Prisma.UsersWhereInput | boolean
+  connect?: Prisma.UsersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutAdsDataInput, Prisma.UsersUpdateWithoutAdsDataInput>, Prisma.UsersUncheckedUpdateWithoutAdsDataInput>
+}
+
+export type UsersUncheckedUpdateOneWithoutAdsDataNestedInput = {
+  create?: Prisma.XOR<Prisma.UsersCreateWithoutAdsDataInput, Prisma.UsersUncheckedCreateWithoutAdsDataInput>
+  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutAdsDataInput
+  upsert?: Prisma.UsersUpsertWithoutAdsDataInput
+  disconnect?: Prisma.UsersWhereInput | boolean
+  delete?: Prisma.UsersWhereInput | boolean
+  connect?: Prisma.UsersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutAdsDataInput, Prisma.UsersUpdateWithoutAdsDataInput>, Prisma.UsersUncheckedUpdateWithoutAdsDataInput>
 }
 
 export type UsersCreateNestedOneWithoutAdsViewsInput = {
@@ -1018,6 +1074,7 @@ export type UsersCreateWithoutTelegramDataInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutTelegramDataInput = {
@@ -1039,6 +1096,7 @@ export type UsersUncheckedCreateWithoutTelegramDataInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -1090,6 +1148,7 @@ export type UsersUpdateWithoutTelegramDataInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutTelegramDataInput = {
@@ -1111,6 +1170,7 @@ export type UsersUncheckedUpdateWithoutTelegramDataInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -1146,6 +1206,7 @@ export type UsersCreateWithoutReferralsInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutReferralsInput = {
@@ -1168,6 +1229,7 @@ export type UsersUncheckedCreateWithoutReferralsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
@@ -1207,6 +1269,7 @@ export type UsersCreateWithoutInvitersInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutInvitersInput = {
@@ -1229,6 +1292,7 @@ export type UsersUncheckedCreateWithoutInvitersInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
@@ -1279,6 +1343,7 @@ export type UsersUpdateWithoutReferralsInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutReferralsInput = {
@@ -1301,6 +1366,7 @@ export type UsersUncheckedUpdateWithoutReferralsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
@@ -1346,6 +1412,7 @@ export type UsersUpdateWithoutInvitersInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutInvitersInput = {
@@ -1368,8 +1435,141 @@ export type UsersUncheckedUpdateWithoutInvitersInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
+  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
+  withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
+  adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
+  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UsersCreateWithoutAdsDataInput = {
+  id?: string
+  telegramId: string
+  isTgProgramPartner?: boolean
+  isFreePlanAvailable?: boolean
+  isBanned?: boolean
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastStartedAt?: Date | string | null
+  banExpiredAt?: Date | string | null
+  deletedAt?: Date | string | null
+  tgProgramPartnerExpiredAt?: Date | string | null
+  nextAdsRewardAt?: Date | string | null
+  nextAdsgramTaskAt?: Date | string | null
+  role?: Prisma.RolesCreateNestedOneWithoutUsersInput
+  payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
+  referrals?: Prisma.ReferralsCreateNestedManyWithoutInviterInput
+  inviters?: Prisma.ReferralsCreateNestedManyWithoutReferralInput
+  telegramData?: Prisma.UserTelegramDataCreateNestedOneWithoutUserInput
+  balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
+  language: Prisma.LanguageCreateNestedOneWithoutUsersInput
+  currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
+  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
+  adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
+  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+}
+
+export type UsersUncheckedCreateWithoutAdsDataInput = {
+  id?: string
+  telegramId: string
+  isTgProgramPartner?: boolean
+  isFreePlanAvailable?: boolean
+  isBanned?: boolean
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastStartedAt?: Date | string | null
+  banExpiredAt?: Date | string | null
+  deletedAt?: Date | string | null
+  tgProgramPartnerExpiredAt?: Date | string | null
+  nextAdsRewardAt?: Date | string | null
+  nextAdsgramTaskAt?: Date | string | null
+  roleId?: $Enums.UserRoleEnum
+  telegramDataId?: string | null
+  balanceId?: string | null
+  languageId: string
+  currencyKey?: $Enums.CurrencyEnum
+  payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
+  referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
+  inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
+  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
+  withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
+  adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
+  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UsersCreateOrConnectWithoutAdsDataInput = {
+  where: Prisma.UsersWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsersCreateWithoutAdsDataInput, Prisma.UsersUncheckedCreateWithoutAdsDataInput>
+}
+
+export type UsersUpsertWithoutAdsDataInput = {
+  update: Prisma.XOR<Prisma.UsersUpdateWithoutAdsDataInput, Prisma.UsersUncheckedUpdateWithoutAdsDataInput>
+  create: Prisma.XOR<Prisma.UsersCreateWithoutAdsDataInput, Prisma.UsersUncheckedCreateWithoutAdsDataInput>
+  where?: Prisma.UsersWhereInput
+}
+
+export type UsersUpdateToOneWithWhereWithoutAdsDataInput = {
+  where?: Prisma.UsersWhereInput
+  data: Prisma.XOR<Prisma.UsersUpdateWithoutAdsDataInput, Prisma.UsersUncheckedUpdateWithoutAdsDataInput>
+}
+
+export type UsersUpdateWithoutAdsDataInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  telegramId?: Prisma.StringFieldUpdateOperationsInput | string
+  isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  banExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
+  payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
+  referrals?: Prisma.ReferralsUpdateManyWithoutInviterNestedInput
+  inviters?: Prisma.ReferralsUpdateManyWithoutReferralNestedInput
+  telegramData?: Prisma.UserTelegramDataUpdateOneWithoutUserNestedInput
+  balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
+  language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
+  currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
+  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
+  adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
+  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+}
+
+export type UsersUncheckedUpdateWithoutAdsDataInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  telegramId?: Prisma.StringFieldUpdateOperationsInput | string
+  isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  banExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
+  telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languageId?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
+  referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
+  inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
@@ -1402,6 +1602,7 @@ export type UsersCreateWithoutAdsViewsInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutAdsViewsInput = {
@@ -1424,6 +1625,7 @@ export type UsersUncheckedCreateWithoutAdsViewsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -1474,6 +1676,7 @@ export type UsersUpdateWithoutAdsViewsInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutAdsViewsInput = {
@@ -1496,6 +1699,7 @@ export type UsersUncheckedUpdateWithoutAdsViewsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -1530,6 +1734,7 @@ export type UsersCreateWithoutRewardLogsInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutRewardLogsInput = {
@@ -1552,6 +1757,7 @@ export type UsersUncheckedCreateWithoutRewardLogsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -1602,6 +1808,7 @@ export type UsersUpdateWithoutRewardLogsInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutRewardLogsInput = {
@@ -1624,6 +1831,7 @@ export type UsersUncheckedUpdateWithoutRewardLogsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -1658,6 +1866,7 @@ export type UsersCreateWithoutBalanceInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutBalanceInput = {
@@ -1679,6 +1888,7 @@ export type UsersUncheckedCreateWithoutBalanceInput = {
   telegramDataId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -1730,6 +1940,7 @@ export type UsersUpdateWithoutBalanceInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutBalanceInput = {
@@ -1751,6 +1962,7 @@ export type UsersUncheckedUpdateWithoutBalanceInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -1786,6 +1998,7 @@ export type UsersCreateWithoutSubscriptionsInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutSubscriptionsInput = {
@@ -1808,6 +2021,7 @@ export type UsersUncheckedCreateWithoutSubscriptionsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -1858,6 +2072,7 @@ export type UsersUpdateWithoutSubscriptionsInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutSubscriptionsInput = {
@@ -1880,6 +2095,7 @@ export type UsersUncheckedUpdateWithoutSubscriptionsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -1914,6 +2130,7 @@ export type UsersCreateWithoutRoleInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutRoleInput = {
@@ -1935,6 +2152,7 @@ export type UsersUncheckedCreateWithoutRoleInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -1993,6 +2211,7 @@ export type UsersScalarWhereInput = {
   balanceId?: Prisma.StringNullableFilter<"Users"> | string | null
   languageId?: Prisma.StringFilter<"Users"> | string
   currencyKey?: Prisma.EnumCurrencyEnumFilter<"Users"> | $Enums.CurrencyEnum
+  adsDataId?: Prisma.StringNullableFilter<"Users"> | string | null
 }
 
 export type UsersCreateWithoutLanguageInput = {
@@ -2021,6 +2240,7 @@ export type UsersCreateWithoutLanguageInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutLanguageInput = {
@@ -2042,6 +2262,7 @@ export type UsersUncheckedCreateWithoutLanguageInput = {
   telegramDataId?: string | null
   balanceId?: string | null
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -2103,6 +2324,7 @@ export type UsersCreateWithoutCurrencyInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutCurrencyInput = {
@@ -2124,6 +2346,7 @@ export type UsersUncheckedCreateWithoutCurrencyInput = {
   telegramDataId?: string | null
   balanceId?: string | null
   languageId: string
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -2185,6 +2408,7 @@ export type UsersCreateWithoutWithdrawalsInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutWithdrawalsInput = {
@@ -2207,6 +2431,7 @@ export type UsersUncheckedCreateWithoutWithdrawalsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
@@ -2257,6 +2482,7 @@ export type UsersUpdateWithoutWithdrawalsInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutWithdrawalsInput = {
@@ -2279,6 +2505,7 @@ export type UsersUncheckedUpdateWithoutWithdrawalsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -2313,6 +2540,7 @@ export type UsersCreateWithoutPaymentsInput = {
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
+  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutPaymentsInput = {
@@ -2335,6 +2563,7 @@ export type UsersUncheckedCreateWithoutPaymentsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
@@ -2385,6 +2614,7 @@ export type UsersUpdateWithoutPaymentsInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutPaymentsInput = {
@@ -2407,6 +2637,7 @@ export type UsersUncheckedUpdateWithoutPaymentsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
@@ -2434,6 +2665,7 @@ export type UsersCreateManyRoleInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
 }
 
 export type UsersUpdateWithoutRoleInput = {
@@ -2462,6 +2694,7 @@ export type UsersUpdateWithoutRoleInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutRoleInput = {
@@ -2483,6 +2716,7 @@ export type UsersUncheckedUpdateWithoutRoleInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -2511,6 +2745,7 @@ export type UsersUncheckedUpdateManyWithoutRoleInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UsersCreateManyLanguageInput = {
@@ -2532,6 +2767,7 @@ export type UsersCreateManyLanguageInput = {
   telegramDataId?: string | null
   balanceId?: string | null
   currencyKey?: $Enums.CurrencyEnum
+  adsDataId?: string | null
 }
 
 export type UsersUpdateWithoutLanguageInput = {
@@ -2560,6 +2796,7 @@ export type UsersUpdateWithoutLanguageInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutLanguageInput = {
@@ -2581,6 +2818,7 @@ export type UsersUncheckedUpdateWithoutLanguageInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -2609,6 +2847,7 @@ export type UsersUncheckedUpdateManyWithoutLanguageInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UsersCreateManyCurrencyInput = {
@@ -2630,6 +2869,7 @@ export type UsersCreateManyCurrencyInput = {
   telegramDataId?: string | null
   balanceId?: string | null
   languageId: string
+  adsDataId?: string | null
 }
 
 export type UsersUpdateWithoutCurrencyInput = {
@@ -2658,6 +2898,7 @@ export type UsersUpdateWithoutCurrencyInput = {
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
+  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutCurrencyInput = {
@@ -2679,6 +2920,7 @@ export type UsersUncheckedUpdateWithoutCurrencyInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
@@ -2707,6 +2949,7 @@ export type UsersUncheckedUpdateManyWithoutCurrencyInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
+  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -2814,6 +3057,7 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   balanceId?: boolean
   languageId?: boolean
   currencyKey?: boolean
+  adsDataId?: boolean
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
   payments?: boolean | Prisma.Users$paymentsArgs<ExtArgs>
   referrals?: boolean | Prisma.Users$referralsArgs<ExtArgs>
@@ -2826,6 +3070,7 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   withdrawals?: boolean | Prisma.Users$withdrawalsArgs<ExtArgs>
   adsViews?: boolean | Prisma.Users$adsViewsArgs<ExtArgs>
   rewardLogs?: boolean | Prisma.Users$rewardLogsArgs<ExtArgs>
+  adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
   _count?: boolean | Prisma.UsersCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["users"]>
 
@@ -2849,11 +3094,13 @@ export type UsersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   balanceId?: boolean
   languageId?: boolean
   currencyKey?: boolean
+  adsDataId?: boolean
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
   telegramData?: boolean | Prisma.Users$telegramDataArgs<ExtArgs>
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
 }, ExtArgs["result"]["users"]>
 
 export type UsersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2876,11 +3123,13 @@ export type UsersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   balanceId?: boolean
   languageId?: boolean
   currencyKey?: boolean
+  adsDataId?: boolean
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
   telegramData?: boolean | Prisma.Users$telegramDataArgs<ExtArgs>
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
 }, ExtArgs["result"]["users"]>
 
 export type UsersSelectScalar = {
@@ -2903,9 +3152,10 @@ export type UsersSelectScalar = {
   balanceId?: boolean
   languageId?: boolean
   currencyKey?: boolean
+  adsDataId?: boolean
 }
 
-export type UsersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramId" | "isTgProgramPartner" | "isFreePlanAvailable" | "isBanned" | "isDeleted" | "createdAt" | "updatedAt" | "lastStartedAt" | "banExpiredAt" | "deletedAt" | "tgProgramPartnerExpiredAt" | "nextAdsRewardAt" | "nextAdsgramTaskAt" | "roleId" | "telegramDataId" | "balanceId" | "languageId" | "currencyKey", ExtArgs["result"]["users"]>
+export type UsersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramId" | "isTgProgramPartner" | "isFreePlanAvailable" | "isBanned" | "isDeleted" | "createdAt" | "updatedAt" | "lastStartedAt" | "banExpiredAt" | "deletedAt" | "tgProgramPartnerExpiredAt" | "nextAdsRewardAt" | "nextAdsgramTaskAt" | "roleId" | "telegramDataId" | "balanceId" | "languageId" | "currencyKey" | "adsDataId", ExtArgs["result"]["users"]>
 export type UsersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
   payments?: boolean | Prisma.Users$paymentsArgs<ExtArgs>
@@ -2919,6 +3169,7 @@ export type UsersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   withdrawals?: boolean | Prisma.Users$withdrawalsArgs<ExtArgs>
   adsViews?: boolean | Prisma.Users$adsViewsArgs<ExtArgs>
   rewardLogs?: boolean | Prisma.Users$rewardLogsArgs<ExtArgs>
+  adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
   _count?: boolean | Prisma.UsersCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UsersIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2927,6 +3178,7 @@ export type UsersIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
 }
 export type UsersIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
@@ -2934,6 +3186,7 @@ export type UsersIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
 }
 
 export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2951,6 +3204,7 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     withdrawals: Prisma.$WithdrawalsPayload<ExtArgs>[]
     adsViews: Prisma.$AdsViewsPayload<ExtArgs>[]
     rewardLogs: Prisma.$RewardLogPayload<ExtArgs>[]
+    adsData: Prisma.$UserAdsDataPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2972,6 +3226,7 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     balanceId: string | null
     languageId: string
     currencyKey: $Enums.CurrencyEnum
+    adsDataId: string | null
   }, ExtArgs["result"]["users"]>
   composites: {}
 }
@@ -3378,6 +3633,7 @@ export interface Prisma__UsersClient<T, Null = never, ExtArgs extends runtime.Ty
   withdrawals<T extends Prisma.Users$withdrawalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$withdrawalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WithdrawalsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adsViews<T extends Prisma.Users$adsViewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$adsViewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdsViewsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   rewardLogs<T extends Prisma.Users$rewardLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$rewardLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  adsData<T extends Prisma.Users$adsDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$adsDataArgs<ExtArgs>>): Prisma.Prisma__UserAdsDataClient<runtime.Types.Result.GetResult<Prisma.$UserAdsDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3426,6 +3682,7 @@ export interface UsersFieldRefs {
   readonly balanceId: Prisma.FieldRef<"Users", 'String'>
   readonly languageId: Prisma.FieldRef<"Users", 'String'>
   readonly currencyKey: Prisma.FieldRef<"Users", 'CurrencyEnum'>
+  readonly adsDataId: Prisma.FieldRef<"Users", 'String'>
 }
     
 
@@ -4025,6 +4282,25 @@ export type Users$rewardLogsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.RewardLogScalarFieldEnum | Prisma.RewardLogScalarFieldEnum[]
+}
+
+/**
+ * Users.adsData
+ */
+export type Users$adsDataArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserAdsData
+   */
+  select?: Prisma.UserAdsDataSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserAdsData
+   */
+  omit?: Prisma.UserAdsDataOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserAdsDataInclude<ExtArgs> | null
+  where?: Prisma.UserAdsDataWhereInput
 }
 
 /**
