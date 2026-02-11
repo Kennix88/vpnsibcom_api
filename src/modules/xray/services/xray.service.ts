@@ -34,6 +34,7 @@ import {
   calculateMbPay,
   calculateSubscriptionCost,
   calculateTrafficPrice,
+  starsToAD,
 } from '../utils/calculate-subscription-cost.util'
 import { filterConfig } from '../utils/filter-config.util'
 import { getXrayConfigFormat } from '../utils/get-xray-config-fromat.util'
@@ -66,7 +67,7 @@ export class XrayService {
   public async addTraffic(
     subscriptionId: string,
     traffic: number,
-    method: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC',
+    method: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC' | 'AD',
     userId: string,
   ) {
     try {
@@ -102,11 +103,22 @@ export class XrayService {
         },
       })
 
-      if (method === 'TRAFFIC' || method === 'BALANCE') {
+      if (method === 'TRAFFIC' || method === 'BALANCE' || method === 'AD') {
         const updateBalance = await this.userService.deductUserBalance(
           userId,
           method === 'TRAFFIC'
             ? traffic * 1024
+            : method === 'AD'
+            ? starsToAD(
+                calculateTrafficPrice(
+                  traffic,
+                  sub.isPremium,
+                  sub.user.isTgProgramPartner,
+                  sub.user.role.discount,
+                  settings,
+                ),
+                settings.adPriceStars,
+              )
             : calculateTrafficPrice(
                 traffic,
                 sub.isPremium,
@@ -117,6 +129,8 @@ export class XrayService {
           TransactionReasonEnum.SUBSCRIPTIONS,
           method === 'TRAFFIC'
             ? BalanceTypeEnum.TRAFFIC
+            : method === 'AD'
+            ? BalanceTypeEnum.AD
             : BalanceTypeEnum.PAYMENT,
         )
 
@@ -1208,6 +1222,8 @@ export class XrayService {
       }
 
       return {
+        tgStarsToUSD: settings.tgStarsToUSD,
+        adPriceStars: settings.adPriceStars,
         telegramPremiumRatio: settings.telegramPremiumRatio,
         devicesPriceStars: settings.devicesPriceStars,
         serversPriceStars: settings.serversPriceStars,
@@ -1782,7 +1798,7 @@ export class XrayService {
     trafficReset: TrafficResetEnum
     servers?: string[]
     isAutoRenewal?: boolean
-    method?: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC'
+    method?: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC' | 'AD'
   }) {
     try {
       this.logger.info({
@@ -1856,17 +1872,21 @@ export class XrayService {
         trafficLimitGb,
       })
 
-      if (method == 'BALANCE' || method == 'TRAFFIC') {
+      if (method == 'BALANCE' || method == 'TRAFFIC' || method == 'AD') {
         // Создание подписки и списание средств в транзакции
         // Используем метод deductUserBalance из UsersService для списания средств
         const deductResult = await this.userService.deductUserBalance(
           user.id,
-          method == 'TRAFFIC'
+          method === 'AD'
+            ? starsToAD(cost, settings.adPriceStars)
+            : method == 'TRAFFIC'
             ? calculateMbPay(cost, settings.trafficGbPriceStars)
             : cost,
           TransactionReasonEnum.SUBSCRIPTIONS,
           method == 'TRAFFIC'
             ? BalanceTypeEnum.TRAFFIC
+            : method == 'AD'
+            ? BalanceTypeEnum.AD
             : BalanceTypeEnum.PAYMENT,
         )
 
@@ -2050,7 +2070,7 @@ export class XrayService {
   public async renewSubscription(
     telegramId: string,
     subscriptionId: string,
-    method: PaymentMethodEnum | 'BALANCE',
+    method: PaymentMethodEnum | 'BALANCE' | 'AD',
     isSavePeriod: boolean,
     period: SubscriptionPeriodEnum,
     periodMultiplier: number,
@@ -2111,12 +2131,12 @@ export class XrayService {
         settings,
       })
 
-      if (method === 'BALANCE') {
+      if (method === 'BALANCE' || method === 'AD') {
         const updateBalance = await this.userService.deductUserBalance(
           user.id,
-          cost,
+          method === 'AD' ? starsToAD(cost, settings.adPriceStars) : cost,
           TransactionReasonEnum.SUBSCRIPTIONS,
-          BalanceTypeEnum.PAYMENT,
+          method === 'AD' ? BalanceTypeEnum.AD : BalanceTypeEnum.PAYMENT,
         )
 
         if (!updateBalance.success) {
