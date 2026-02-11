@@ -11,7 +11,11 @@ import { SubscriptionManagerService } from './services/subscription-manager.serv
 
 @Global()
 @Module({
-  imports: [AuthModule, UsersModule, forwardRef(() => PaymentsModule)],
+  imports: [
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersModule),
+    forwardRef(() => PaymentsModule),
+  ],
   controllers: [ServersController, SubscriptionsController],
   providers: [
     XrayService,
