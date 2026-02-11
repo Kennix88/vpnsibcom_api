@@ -4,6 +4,7 @@ import { Public } from '@core/auth/decorators/public.decorator'
 import { RefreshDto } from '@core/auth/dto/refresh.dto'
 import { TelegramAuthDto } from '@core/auth/dto/telegram-auth.dto'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
+import { getClientIp } from '@modules/xray/utils/get-client-ip.util'
 import {
   BadRequestException,
   Body,
@@ -43,7 +44,9 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     try {
-      const auth = await this.authService.telegramLogin(dto.initData)
+      const ip = getClientIp(req) ?? 'unknown'
+      const ua = req.headers['user-agent'] as string | undefined
+      const auth = await this.authService.telegramLogin(dto.initData, ip, ua)
 
       // Check if auth and auth.user are defined to prevent "Cannot read properties of undefined (reading 'id')" error.
       if (!auth || !auth.user) {
