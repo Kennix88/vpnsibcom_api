@@ -1,3 +1,5 @@
+import { TaddyService } from '@modules/ads/taddy.service'
+import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -19,6 +21,7 @@ export class AuthService {
     private configService: ConfigService,
     private readonly logger: PinoLogger,
     private userService: UsersService,
+    private taddyService: TaddyService,
   ) {}
 
   public async updateUserActivity(token: string) {
@@ -42,7 +45,11 @@ export class AuthService {
    * @param initData - The initialization data from Telegram.
    * @returns An object containing access token, refresh token, and user data.
    */
-  async telegramLogin(initData: string): Promise<{
+  async telegramLogin(
+    initData: string,
+    ip: string,
+    ua: string | undefined,
+  ): Promise<{
     accessToken: string
     refreshToken: string
     user: UserDataInterface
@@ -53,6 +60,21 @@ export class AuthService {
       msg: `Telegram login InitData`,
       userData,
       service: this.serviceName,
+    })
+
+    this.taddyService.startEvent({
+      user: {
+        id: Number(userData.user.id),
+        firstName: userData.user.first_name,
+        lastName: userData.user.last_name,
+        username: userData.user.username,
+        premium: userData.user.is_premium,
+        language: userData.user.language_code,
+        ip,
+        userAgent: ua,
+      },
+      origin: TaddyOriginEnum.WEB,
+      start: userData.start_param,
     })
 
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
