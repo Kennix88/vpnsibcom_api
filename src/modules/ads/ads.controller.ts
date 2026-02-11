@@ -44,7 +44,10 @@ export class AdsController {
       userId: userJWT.sub,
       telegramId: user.telegramId,
       place: place as AdsPlaceEnum,
-      type: type as AdsTypeEnum,
+      type:
+        place === AdsPlaceEnum.FULLSCREEN || place === AdsPlaceEnum.BANNER
+          ? AdsTypeEnum.VIEW
+          : (type as AdsTypeEnum),
       ip,
       ua,
     })
