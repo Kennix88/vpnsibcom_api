@@ -13,8 +13,8 @@ import { TonUtimeService } from './services/ton-uptime.service'
 @Global()
 @Module({
   imports: [
-    AuthModule,
-    UsersModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersModule),
     RatesModule,
     forwardRef(() => XrayModule),
     forwardRef(() => TelegramModule),
