@@ -1,5 +1,7 @@
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
+import { TaddyService } from '@modules/ads/taddy.service'
+import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
 import { TonPaymentsService } from '@modules/payments/services/ton-payments.service'
 import { RatesService } from '@modules/rates/rates.service'
 import { ReferralsService } from '@modules/referrals/referrals.service'
@@ -22,6 +24,7 @@ export class StartUpdate {
     private readonly ratesService: RatesService,
     private readonly userService: UsersService,
     private readonly tonPaymentsService: TonPaymentsService,
+    private taddyService: TaddyService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(StartUpdate.name)
@@ -34,6 +37,19 @@ export class StartUpdate {
       if (ctx.chat?.type !== 'private' || !ctx.from) return
 
       const startParam = ctx.startPayload
+
+      this.taddyService.startEvent({
+        user: {
+          id: Number(ctx.from.id),
+          firstName: ctx.from.first_name,
+          lastName: ctx.from.last_name,
+          username: ctx.from.username,
+          premium: ctx.from.is_premium,
+          language: ctx.from.language_code,
+        },
+        origin: TaddyOriginEnum.SERVER,
+        start: startParam,
+      })
 
       // можно выделить реф. ID и партнёрский флаг
       const isTelegramPartner = /^_tgr_[\w-]+$/.test(startParam ?? '')
