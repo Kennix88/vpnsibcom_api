@@ -16,8 +16,8 @@ enum DefaultEnum {
 /// Модель настроек приложения
 model Settings {
  key                         DefaultEnum @id @default(DEFAULT)
- /// Курс обмена Telegram Stars к USD
  tgStarsToUSD                Float       @default(0.013) @map("tg_stars_to_usd")
+ adPriceStars                Float       @default(0.125) @map("ad_price_stars")
  telegramPremiumRatio        Float       @default(1.5) @map("telegram_premium_ratio")
  devicesPriceStars           Float       @default(50) @map("devices_price_stars")
  serversPriceStars           Float       @default(20) @map("servers_price_stars")
@@ -148,12 +148,27 @@ model Users {
  withdrawals    Withdrawals[]
  adsViews       AdsViews[]
  rewardLogs     RewardLog[]
+ adsData        UserAdsData?      @relation(fields: [adsDataId], references: [id])
+ adsDataId      String?           @unique @map("ads_data_id")
 
  @@index([telegramId])
  @@index([roleId])
  @@index([languageId])
  @@index([currencyKey])
  @@map("users")
+}
+
+model UserAdsData {
+ id                     String          @id @default(uuid())
+ lastFullscreenViewedAt DateTime?       @map("last_fullscreen_viewed_at")
+ lastViewedNetwork      AdsNetworkEnum? @map("last_viewed_network")
+ lastMessageAt          DateTime?       @map("last_message_at")
+ lastMessageNetwork     AdsNetworkEnum? @map("last_message_network")
+
+ updatedAt DateTime @updatedAt @map("updated_at")
+ user      Users?
+
+ @@map("user_ads_data")
 }
 
 /// Модель для просмотров рекламы
@@ -199,6 +214,7 @@ model AdsBlocks {
  rewardTraffic Float             @default(0) @map("reward_traffic")
  rewardStars   Float             @default(0) @map("reward_stars")
  rewardTickets Float             @default(0) @map("reward_tickets")
+ rewardAd      Float             @default(0) @map("reward_ad")
  duration      Int               @default(0) @map("duration")
  limit         Int               @default(0) @map("limit")
 
@@ -218,13 +234,7 @@ enum AdsBlockPlaceEnum {
  TASK
  REWARD_TASK
  BANNER
- BANNER_2
- BANNER_3
- BANNER_4
- BANNER_5
- BANNER_6
- BANNER_7
- BANNER_8
+ FULLSCREEN
 }
 
 /// Модель для рекламных сетей
@@ -246,6 +256,8 @@ enum AdsNetworkEnum {
  ADSONAR
  GIGA
  MONETAG
+ TADDY
+ RICHADS
 }
 
 model RewardLog {
@@ -271,10 +283,9 @@ model UserBalance {
  /// Баланс для оплаты
  paymentBalance Float  @default(0) @map("payment_balance")
  holdBalance    Float  @default(0) @map("hold_balance")
- totalEarned    Float  @default(0) @map("total_earned")
  tickets        Float  @default(0)
  traffic        Float  @default(0)
- wager          Float  @default(0)
+ ad             Float  @default(0)
 
  updatedAt    DateTime       @updatedAt @map("updated_at")
  user         Users?
@@ -633,6 +644,7 @@ enum BalanceTypeEnum {
  HOLD
  TRAFFIC
  NOT_BALANCE
+ AD
 }
 
 /// Перечисление причин транзакций
