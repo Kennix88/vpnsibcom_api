@@ -3,7 +3,8 @@ import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { TelegramAuthGuard } from '@core/auth/guards/telegram-auth.guard'
 import { AuthService } from '@core/auth/services/auth.service'
 import { TokenService } from '@core/auth/services/token.service'
-import { Global, Module } from '@nestjs/common'
+import { AdsModule } from '@modules/ads/ads.module'
+import { forwardRef, Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtModule, JwtService } from '@nestjs/jwt'
 
@@ -17,6 +18,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt'
       }),
       inject: [ConfigService],
     }),
+    forwardRef(() => AdsModule),
   ],
   controllers: [AuthController],
   providers: [
