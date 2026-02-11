@@ -5,6 +5,6 @@ export class AddTrafficSubscriptionDto {
   @IsNumber()
   traffic: number
 
-  @IsEnum([...Object.values(PaymentMethodEnum), 'BALANCE', 'TRAFFIC'])
-  method: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC'
+  @IsEnum([...Object.values(PaymentMethodEnum), 'BALANCE', 'TRAFFIC', 'AD'])
+  method: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC' | 'AD'
 }
