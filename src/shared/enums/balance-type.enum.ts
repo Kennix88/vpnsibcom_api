@@ -6,4 +6,5 @@ export enum BalanceTypeEnum {
   TRAFFIC = 'TRAFFIC',
   TICKETS = 'TICKETS',
   NOT_BALANCE = 'NOT_BALANCE',
+  AD = 'AD',
 }
