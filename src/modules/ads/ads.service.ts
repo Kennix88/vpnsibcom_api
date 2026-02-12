@@ -65,11 +65,11 @@ export class AdsService {
         place: place,
         isActive: true,
         network: {
-          ...(user.adsData.lastViewedNetwork && {
-            NOT: {
-              key: user.adsData.lastViewedNetwork,
-            },
-          }),
+          // ...(user.adsData.lastViewedNetwork && {
+          //   NOT: {
+          //     key: user.adsData.lastViewedNetwork,
+          //   },
+          // }),
           isActive: true,
         },
       },
