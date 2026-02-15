@@ -1,7 +1,7 @@
-import { AuthService } from '@core/auth/auth.service'
 import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
 import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
+import { AuthService } from '@core/auth/services/auth.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
 import { UsersService } from '@modules/users/users.service'
 import {
@@ -21,6 +21,7 @@ import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { Transform, Type } from 'class-transformer'
 import { IsBoolean, IsEnum, IsNumber, IsOptional } from 'class-validator'
 import { FastifyRequest } from 'fastify'
+import { PaymentTypeEnum } from './types/payment-type.enum'
 
 class CreateInvoiceDto {
   @IsNumber()
@@ -64,23 +65,55 @@ export class PaymentsController {
     @Body() body: CreateInvoiceDto,
     @Req() req: FastifyRequest,
   ) {
-    await this.updateUserActivityFromRequest(req)
+    try {
+      await this.updateUserActivityFromRequest(req)
 
-    const invoice = await this.paymentService.createInvoice(
-      body.amount,
-      body.method,
-      user.telegramId,
-    )
+      const invoice = await this.paymentService.createInvoice(
+        body.amount,
+        body.method,
+        user.telegramId,
+        PaymentTypeEnum.ADD_PAYMENT_BALANCE,
+      )
 
-    const userData = await this.userService.getResUserByTgId(user.telegramId)
+      const userData = await this.userService.getResUserByTgId(user.telegramId)
 
-    return {
-      data: {
-        success: true,
-        linkPay: invoice.linkPay,
-        isTmaIvoice: invoice.isTmaIvoice,
-        user: userData,
-      },
+      return {
+        data: {
+          success: true,
+          linkPay: invoice.linkPay,
+          isTonPayment: invoice.isTonPayment,
+          token: invoice.token,
+          user: userData,
+          amountTon: invoice.amountTon,
+        },
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  @Get('bonuses')
+  @PreventDuplicateRequest(120)
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  async getBonuses(
+    @CurrentUser() user: JwtPayload,
+    @Req() req: FastifyRequest,
+  ) {
+    try {
+      await this.updateUserActivityFromRequest(req)
+
+      const bonuses = await this.paymentService.getBonuses()
+
+      return {
+        data: {
+          success: true,
+          bonuses,
+        },
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -94,19 +127,23 @@ export class PaymentsController {
     @Req() req: FastifyRequest,
     @Query() query: GetMethodsQueryDto,
   ) {
-    await this.updateUserActivityFromRequest(req)
+    try {
+      await this.updateUserActivityFromRequest(req)
 
-    const [paymentMethods, userData] = await Promise.all([
-      this.paymentService.getPaymentMethods(query.isTma),
-      this.userService.getResUserByTgId(user.telegramId),
-    ])
+      const [paymentMethods, userData] = await Promise.all([
+        this.paymentService.getPaymentMethods(query.isTma),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
 
-    return {
-      data: {
-        success: true,
-        methods: paymentMethods,
-        user: userData,
-      },
+      return {
+        data: {
+          success: true,
+          methods: paymentMethods,
+          user: userData,
+        },
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 }

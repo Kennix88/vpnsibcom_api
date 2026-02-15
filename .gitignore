@@ -3,6 +3,8 @@
 .env2
 *.log
 *.log.gz
+frps.ini
+frps.toml
 
 /.trae
 

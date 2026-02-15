@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 Referans ödülü kazandınız!\n\n⭐ {starsAmount} STARS şu anda bakiyenizde mevcut\n\n👤 Referans: {referralName}\n🔝 Seviye: {level}",
+  "defaultName": "👤 Kullanıcı"
+}

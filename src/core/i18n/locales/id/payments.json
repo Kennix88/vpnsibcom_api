@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 Pengisian saldo sebesar {amount} STARS",
+    "description": "⭐ Menambahkan {amount} STARS ke akun Anda"
+  },
+  "payment_success": "✅ Berhasil! Pembayaran Anda sebesar {amount} STARS telah berhasil diproses!",
+  "payment_failed": "❌ Pembayaran gagal! Terjadi kesalahan saat memproses pembayaran. 🔄 Silakan coba lagi atau hubungi layanan dukungan kami.",
+  "payment_expired": "⏱️ Pembayaran Anda sebesar {amount} telah kedaluwarsa. 🔄 Silakan buat pembayaran baru jika Anda ingin melanjutkan pembelian.",
+  "referral": {
+    "reward_title": "🎁 Selamat! Anda telah menerima hadiah referral!",
+    "hold_reward": "💰 {amount} STARS akan tersedia dalam {days} hari (dana sementara dibekukan)",
+    "available_reward": "✅ {amount} STARS sudah tersedia di saldo Anda dan siap digunakan!",
+    "referral_label": "👤 Referral",
+    "level_label": "🔝 Level"
+  },
+  "hold": {
+    "released": "🎉 Kabar baik! {amount} STARS dari dana yang dibekukan sekarang tersedia untuk penarikan 💸"
+  }
+}

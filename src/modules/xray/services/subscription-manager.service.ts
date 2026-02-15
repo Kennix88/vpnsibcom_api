@@ -1,54 +1,25 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
+import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
+import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { Subscriptions } from '@prisma/client'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
+import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
-import { differenceInDays, format } from 'date-fns'
+import { add, differenceInDays, intlFormat } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { PrismaService } from 'nestjs-prisma'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
 import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 import { XrayService } from './xray.service'
-
-/**
- * Interface for subscription with user data
- */
-interface SubscriptionWithUser extends Subscriptions {
-  user: {
-    id: string
-    telegramId: string
-    telegramData: {
-      isPremium: boolean
-    }
-    language: {
-      iso6391: string
-    }
-    balance: {
-      id: string
-      paymentBalance: number
-      isUseWithdrawalBalance: boolean
-      withdrawalBalance: number
-    }
-    role: {
-      discount: number
-    }
-  }
-  servers?: {
-    greenList: {
-      code: string
-    }
-  }[]
-}
 
 /**
  * Service for managing subscriptions lifecycle
@@ -80,185 +51,284 @@ export class SubscriptionManagerService {
    */
   @Cron(CronExpression.EVERY_MINUTE)
   async subscriptionsUpdater() {
-    this.logger.info({
-      msg: 'Starting subscriptions update process',
-      service: this.serviceName,
-    })
-
-    try {
-      const settings = await this.prismaService.settings.findFirst()
-      if (!settings) {
-        this.logger.error({
-          msg: 'Settings not found',
+    await this.redis.withLock(
+      'subscriptionsUpdaterLock',
+      70,
+      async () => {
+        this.logger.info({
+          msg: 'Starting subscriptions update process',
           service: this.serviceName,
         })
-        return
-      }
 
-      // Fetch data in parallel for better performance
-      const [marzbanUsers, subscriptions] = await Promise.all([
-        this.marzbanService.getUsers(),
-        this.prismaService.subscriptions.findMany({
-          include: {
-            user: {
-              include: {
-                language: true,
-                balance: true,
-                role: true,
-              },
-            },
-            plan: true,
-            servers: {
-              include: {
-                greenList: true,
-              },
-            },
-          },
-        }),
-      ])
-
-      this.logger.info({
-        msg: `Found ${subscriptions.length} subscriptions to update`,
-        service: this.serviceName,
-      })
-
-      // Process subscriptions in batches to avoid memory issues with large datasets
-      const batchSize = 50
-      const batches = []
-
-      for (let i = 0; i < subscriptions.length; i += batchSize) {
-        batches.push(subscriptions.slice(i, i + batchSize))
-      }
-
-      let updatedCount = 0
-
-      for (const batch of batches) {
-        const updatedBatch = await Promise.all(
-          batch.map(async (subscription) => {
-            const marzbanUser = marzbanUsers.users.find(
-              (user) => user.username === subscription.username,
-            )
-
-            if (!marzbanUser) {
-              this.logger.warn({
-                msg: `Marzban user not found for subscription ${subscription.id}`,
-                username: subscription.username,
-                service: this.serviceName,
-              })
-              return subscription
-            }
-
-            let baseServers = 0
-            let premiumServers = 0
-
-            const serverCodes =
-              subscription.isAllBaseServers && subscription.isAllPremiumServers
-                ? []
-                : subscription.servers
-                    ?.flatMap((server) => {
-                      if (server.greenList.isPremium) premiumServers++
-                      else baseServers++
-                      return server.greenList.code
-                    })
-                    .filter(Boolean)
-
-            const filteredLinks = marzbanUser.links.filter((link) => {
-              if (!serverCodes.length) return true
-              return serverCodes.some((code) => link.includes(code))
+        try {
+          const settings = await this.prismaService.settings.findFirst()
+          if (!settings) {
+            this.logger.error({
+              msg: 'Settings not found',
+              service: this.serviceName,
             })
+            return
+          }
 
-            // Для INDEFINITELY не рассчитываем стоимость продления
-            let nextRenewalStars = null
-
-            // Только для подписок с периодом, отличным от INDEFINITELY
-            if (
-              subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
-              subscription.period !== SubscriptionPeriodEnum.TRIAL
-            ) {
-              const cost = calculateSubscriptionCost({
-                plan: subscription.plan as PlansInterface,
-                period: subscription.period as SubscriptionPeriodEnum,
-                isPremium: subscription.isPremium,
-                periodMultiplier: subscription.periodMultiplier,
-                devicesCount: subscription.devicesCount,
-                isAllBaseServers: subscription.isAllBaseServers,
-                isAllPremiumServers: subscription.isAllPremiumServers,
-                isUnlimitTraffic: subscription.isUnlimitTraffic,
-                userDiscount: subscription.user.role.discount,
-                settings: settings,
-                serversCount: baseServers,
-                premiumServersCount: premiumServers,
-                trafficLimitGb: subscription.trafficLimitGb,
-              })
-
-              const partnerCost = subscription.user.isTgProgramPartner
-                ? cost * settings.telegramPartnerProgramRatio
-                : cost
-
-              nextRenewalStars = subscription.isFixedPrice
-                ? subscription.fixedPriceStars
-                : partnerCost
-            }
-
-            return {
-              ...subscription,
-              links: filteredLinks,
-              nextRenewalStars,
-              usedTraffic: marzbanUser.used_traffic,
-              lastUserAgent: marzbanUser.sub_last_user_agent,
-              dataLimit: marzbanUser.data_limit,
-              lifeTimeUsedTraffic: marzbanUser.lifetime_used_traffic,
-              onlineAt: marzbanUser.online_at,
-              marzbanData: JSON.stringify(marzbanUser),
-            }
-          }),
-        )
-
-        // Используем транзакцию для обновления каждой подписки индивидуально
-        await this.prismaService.$transaction(
-          updatedBatch.map((subscription) =>
-            this.prismaService.subscriptions.update({
-              where: { id: subscription.id },
-              data: {
-                links: subscription.links,
-                nextRenewalStars:
-                  subscription.user.role.discount == 0
-                    ? 0
-                    : subscription.nextRenewalStars,
-                usedTraffic: subscription.usedTraffic / 1024 / 1024,
-                lastUserAgent: subscription.lastUserAgent,
-                dataLimit: subscription.dataLimit / 1024 / 1024,
-                lifeTimeUsedTraffic:
-                  subscription.lifeTimeUsedTraffic / 1024 / 1024,
-                onlineAt: subscription.onlineAt
-                  ? new Date(subscription.onlineAt + 'Z')
-                  : null, // Adding 'Z' to indicate UTC timezone
-                marzbanData: subscription.marzbanData,
+          // Fetch data in parallel for better performance
+          const [marzbanUsers, subscriptions] = await Promise.all([
+            this.marzbanService.getUsers(),
+            this.prismaService.subscriptions.findMany({
+              include: {
+                user: {
+                  include: {
+                    language: true,
+                    balance: true,
+                    role: true,
+                  },
+                },
+                plan: true,
+                servers: {
+                  include: {
+                    greenList: true,
+                  },
+                },
               },
             }),
-          ),
-        )
+          ])
 
-        updatedCount += updatedBatch.length
+          this.logger.info({
+            msg: `Found ${subscriptions.length} subscriptions to update`,
+            service: this.serviceName,
+          })
 
-        this.logger.info({
-          msg: `Updated batch of ${updatedBatch.length} subscriptions`,
-          service: this.serviceName,
-        })
-      }
+          // Process subscriptions in batches to avoid memory issues with large datasets
+          const batchSize = 50
+          const batches = []
 
-      this.logger.info({
-        msg: `Successfully updated ${updatedCount} subscriptions`,
-        service: this.serviceName,
-      })
-    } catch (error) {
-      this.logger.error({
-        msg: 'Error updating subscriptions',
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
-    }
+          for (let i = 0; i < subscriptions.length; i += batchSize) {
+            batches.push(subscriptions.slice(i, i + batchSize))
+          }
+
+          let updatedCount = 0
+
+          for (const batch of batches) {
+            const updatedBatch = await Promise.all(
+              batch.map(async (subscription) => {
+                const marzbanUser = marzbanUsers.users.find(
+                  (user) => user.username === subscription.username,
+                )
+
+                if (!marzbanUser) {
+                  this.logger.warn({
+                    msg: `Marzban user not found for subscription ${subscription.id}`,
+                    username: subscription.username,
+                    service: this.serviceName,
+                  })
+                  return subscription
+                }
+
+                let baseServers = 0
+                let premiumServers = 0
+
+                const serverCodes =
+                  subscription.isAllBaseServers &&
+                  subscription.isAllPremiumServers
+                    ? []
+                    : subscription.servers
+                        ?.flatMap((server) => {
+                          if (server.greenList.isPremium) premiumServers++
+                          else baseServers++
+                          return server.greenList.code
+                        })
+                        .filter(Boolean)
+
+                const filteredLinks = marzbanUser.links.filter((link) => {
+                  if (!serverCodes.length) return true
+                  return serverCodes.some((code) => link.includes(`@${code}`))
+                })
+
+                // Для INDEFINITELY не рассчитываем стоимость продления
+                let nextRenewalStars = null
+
+                // Только для подписок с периодом, отличным от INDEFINITELY
+                if (
+                  subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
+                  subscription.plan.key !== PlansEnum.TRIAL &&
+                  subscription.plan.key !== PlansEnum.TRAFFIC
+                ) {
+                  nextRenewalStars = calculateSubscriptionCost({
+                    plan: subscription.plan as PlansInterface,
+                    period: subscription.period as SubscriptionPeriodEnum,
+                    isPremium: subscription.isPremium,
+                    isTgProgramPartner: subscription.user.isTgProgramPartner,
+                    periodMultiplier: subscription.periodMultiplier,
+                    devicesCount: subscription.devicesCount,
+                    isAllBaseServers: subscription.isAllBaseServers,
+                    isAllPremiumServers: subscription.isAllPremiumServers,
+                    isUnlimitTraffic: subscription.isUnlimitTraffic,
+                    userDiscount: subscription.user.role.discount,
+                    settings: settings,
+                    serversCount: baseServers,
+                    premiumServersCount: premiumServers,
+                    trafficLimitGb: subscription.trafficLimitGb,
+                  })
+                }
+
+                return {
+                  ...subscription,
+                  links: filteredLinks,
+                  nextRenewalStars,
+                  usedTraffic: marzbanUser.used_traffic,
+                  lastUserAgent: marzbanUser.sub_last_user_agent,
+                  dataLimit: marzbanUser.data_limit,
+                  lifeTimeUsedTraffic: marzbanUser.lifetime_used_traffic,
+                  onlineAt: marzbanUser.online_at,
+                  marzbanData: JSON.stringify(marzbanUser),
+                }
+              }),
+            )
+
+            // Используем транзакцию для обновления каждой подписки индивидуально
+            await this.prismaService.$transaction(
+              updatedBatch.map((subscription) => {
+                const announceMessages = []
+                const removalAt = new Date(add(new Date(), { days: 7 }))
+                let isRemovalAt = false
+                let isNotAnnounce = false
+
+                if (
+                  subscription.usedTraffic >= subscription.dataLimit &&
+                  !subscription.isUnlimitTraffic &&
+                  subscription.announce == null
+                ) {
+                  announceMessages.push(
+                    this.i18n.t('subscription.traffic_exhausted', {
+                      lang: subscription.user.language.iso6391,
+                    }),
+                  )
+
+                  if (
+                    subscription.plan.key == PlansEnum.TRAFFIC ||
+                    subscription.plan.key == PlansEnum.TRIAL
+                  ) {
+                    announceMessages.push(
+                      this.i18n.t(
+                        'subscription.buy_more_traffic_and_expiration',
+                        {
+                          lang: subscription.user.language.iso6391,
+                          args: {
+                            date: intlFormat(
+                              new Date(removalAt),
+                              {
+                                year: 'numeric',
+                                month: 'numeric',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                              },
+                              {
+                                locale: subscription.user.language.iso6391,
+                              },
+                            ),
+                          },
+                        },
+                      ),
+                    )
+                    isRemovalAt = true
+                  } else {
+                    const updateTraffic =
+                      subscription.trafficReset == TrafficResetEnum.DAY
+                        ? this.i18n.t('subscription.traffic_reset_day', {
+                            lang: subscription.user.language.iso6391,
+                          })
+                        : subscription.trafficReset == TrafficResetEnum.WEEK
+                        ? this.i18n.t('subscription.traffic_reset_week', {
+                            lang: subscription.user.language.iso6391,
+                          })
+                        : subscription.trafficReset == TrafficResetEnum.MONTH
+                        ? this.i18n.t('subscription.traffic_reset_month', {
+                            lang: subscription.user.language.iso6391,
+                          })
+                        : subscription.trafficReset == TrafficResetEnum.YEAR
+                        ? this.i18n.t('subscription.traffic_reset_year', {
+                            lang: subscription.user.language.iso6391,
+                          })
+                        : ''
+                    announceMessages.push(updateTraffic)
+                  }
+                } else if (
+                  subscription.usedTraffic < subscription.dataLimit ||
+                  subscription.isUnlimitTraffic
+                ) {
+                  isNotAnnounce = true
+                }
+
+                if (announceMessages.length > 0 && !isNotAnnounce) {
+                  this.bot.telegram
+                    .sendMessage(
+                      subscription.user.telegramId,
+                      `${subscription.name}: ${announceMessages.join(' ')}`,
+                    )
+                    .catch((error) => {
+                      this.logger.error({
+                        msg: 'Error sending message to user',
+                        error:
+                          error instanceof Error
+                            ? error.message
+                            : String(error),
+                        stack: error instanceof Error ? error.stack : undefined,
+                        service: this.serviceName,
+                      })
+                    })
+                }
+
+                return this.prismaService.subscriptions.update({
+                  where: { id: subscription.id },
+                  data: {
+                    links: subscription.links,
+                    nextRenewalStars:
+                      subscription.user.role.discount == 0
+                        ? 0
+                        : subscription.nextRenewalStars,
+                    usedTraffic: subscription.usedTraffic / 1024 / 1024,
+                    lastUserAgent: subscription.lastUserAgent,
+                    dataLimit: subscription.dataLimit / 1024 / 1024,
+                    lifeTimeUsedTraffic:
+                      subscription.lifeTimeUsedTraffic / 1024 / 1024,
+                    onlineAt: subscription.onlineAt
+                      ? new Date(subscription.onlineAt + 'Z')
+                      : null, // Adding 'Z' to indicate UTC timezone
+                    marzbanData: subscription.marzbanData,
+                    ...(isRemovalAt ? { removalAt } : {}),
+                    ...(announceMessages.length > 0
+                      ? { announce: announceMessages.join(' ') }
+                      : isNotAnnounce
+                      ? { announce: null }
+                      : {}),
+                  },
+                })
+              }),
+            )
+
+            updatedCount += updatedBatch.length
+
+            this.logger.info({
+              msg: `Updated batch of ${updatedBatch.length} subscriptions`,
+              service: this.serviceName,
+            })
+          }
+
+          this.logger.info({
+            msg: `Successfully updated ${updatedCount} subscriptions`,
+            service: this.serviceName,
+          })
+        } catch (error) {
+          this.logger.error({
+            msg: 'Error updating subscriptions',
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            service: this.serviceName,
+          })
+        }
+      },
+      { retries: 2, retryDelayMs: 300, autoRenewIntervalSec: 20 },
+    )
   }
 
   /**
@@ -279,11 +349,17 @@ export class SubscriptionManagerService {
         await this.prismaService.subscriptions.findMany({
           where: {
             isActive: true,
-            isInvoicing: false,
             period: {
-              not: SubscriptionPeriodEnum.INDEFINITELY,
+              not:
+                SubscriptionPeriodEnum.INDEFINITELY ||
+                SubscriptionPeriodEnum.TRIAL ||
+                SubscriptionPeriodEnum.TRAFFIC,
+            },
+            planKey: {
+              notIn: [PlansEnum.TRAFFIC, PlansEnum.TRIAL],
             },
             expiredAt: {
+              not: null,
               lt: new Date(),
             },
           },
@@ -312,15 +388,12 @@ export class SubscriptionManagerService {
       for (const subscription of expiredSubscriptions) {
         if (
           subscription.isAutoRenewal &&
-          subscription.period !== SubscriptionPeriodEnum.TRIAL
+          subscription.period !== SubscriptionPeriodEnum.TRIAL &&
+          subscription.period !== SubscriptionPeriodEnum.TRAFFIC
         ) {
-          await this.processAutoRenewal(
-            subscription as unknown as SubscriptionWithUser,
-          )
+          await this.processAutoRenewal(subscription)
         } else {
-          await this.deactivateSubscription(
-            subscription as unknown as SubscriptionWithUser,
-          )
+          await this.deactivateSubscription(subscription)
         }
       }
 
@@ -343,7 +416,7 @@ export class SubscriptionManagerService {
    * @param subscription - The subscription to process
    * @private
    */
-  private async processAutoRenewal(subscription: SubscriptionWithUser) {
+  private async processAutoRenewal(subscription) {
     this.logger.info({
       msg: `Processing auto-renewal for subscription ${subscription.id}`,
       userId: subscription.userId,
@@ -364,7 +437,6 @@ export class SubscriptionManagerService {
         subscription.user.role.discount == 0 ? 0 : cost,
         TransactionReasonEnum.SUBSCRIPTIONS,
         BalanceTypeEnum.PAYMENT,
-        { forceUseWithdrawalBalance: user.balance.isUseWithdrawalBalance },
       )
 
       if (deductResult.success) {
@@ -379,30 +451,11 @@ export class SubscriptionManagerService {
           },
         })
 
-        // Логируем информацию о списании средств
-        if (deductResult.paymentAmount > 0) {
-          this.logger.info({
-            msg: `Used ${deductResult.paymentAmount} from payment balance for subscription renewal`,
-            userId: user.id,
-            subscriptionId: subscription.id,
-            service: this.serviceName,
-          })
-        }
-
-        if (deductResult.withdrawalAmount > 0) {
-          this.logger.info({
-            msg: `Used ${deductResult.withdrawalAmount} from withdrawal balance for subscription renewal`,
-            userId: user.id,
-            subscriptionId: subscription.id,
-            service: this.serviceName,
-          })
-        }
-
         // Send notification about successful renewal
-        await this.sendRenewalSuccessNotification(user, {
-          ...subscription,
-          period: renewalPeriod, // Use the new period for notification
-        })
+        // await this.sendRenewalSuccessNotification(user, {
+        //   ...subscription,
+        //   period: renewalPeriod, // Use the new period for notification
+        // })
 
         this.logger.info({
           msg: `Successfully renewed subscription ${subscription.id}`,
@@ -415,7 +468,7 @@ export class SubscriptionManagerService {
         await this.deactivateSubscription(subscription)
 
         // Send notification about failed renewal due to insufficient balance
-        await this.sendInsufficientBalanceNotification(user, subscription, cost)
+        // await this.sendInsufficientBalanceNotification(user, subscription, cost)
       }
     } catch (error) {
       this.logger.error({
@@ -436,7 +489,7 @@ export class SubscriptionManagerService {
    * @param subscription - The subscription to deactivate
    * @private
    */
-  private async deactivateSubscription(subscription: SubscriptionWithUser) {
+  private async deactivateSubscription(subscription) {
     this.logger.info({
       msg: `Deactivating subscription ${subscription.id}`,
       userId: subscription.userId,
@@ -446,17 +499,17 @@ export class SubscriptionManagerService {
     try {
       // First, deactivate in Marzban
 
-      if (subscription.isCreated) {
-        const marzbanResult = await this.marzbanService.deactivateUser(
-          subscription.username,
-        )
+      const marzbanResult = await this.marzbanService.deactivateUser(
+        subscription.username,
+      )
 
-        if (!marzbanResult) {
-          throw new Error(
-            `Failed to deactivate user ${subscription.username} in Marzban`,
-          )
-        }
+      if (!marzbanResult) {
+        throw new Error(
+          `Failed to deactivate user ${subscription.username} in Marzban`,
+        )
       }
+
+      const removalAt = new Date(add(new Date(), { days: 7 }))
 
       // Then update database status
       await this.prismaService.subscriptions.update({
@@ -465,6 +518,7 @@ export class SubscriptionManagerService {
         },
         data: {
           isActive: false,
+          removalAt,
         },
       })
 
@@ -489,92 +543,17 @@ export class SubscriptionManagerService {
   }
 
   /**
-   * Send notification about successful subscription renewal
-   * @param user - User to notify
-   * @param subscription - Renewed subscription
-   * @private
-   */
-  private async sendRenewalSuccessNotification(
-    user: SubscriptionWithUser['user'],
-    subscription: SubscriptionWithUser,
-  ) {
-    try {
-      const message = await this.i18n.t('subscription.renewed', {
-        lang: user.language.iso6391,
-        args: {
-          period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period as SubscriptionPeriodEnum,
-            user.language.iso6391,
-          ),
-          expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
-        },
-      })
-
-      await this.bot.telegram.sendMessage(user.telegramId, message)
-    } catch (error) {
-      this.logger.error({
-        msg: 'Error sending renewal success notification',
-        userId: user.id,
-        error,
-        service: this.serviceName,
-      })
-    }
-  }
-
-  /**
-   * Send notification about insufficient balance for renewal
-   * @param user - User to notify
-   * @param subscription - Subscription that failed to renew
-   * @param requiredAmount - Amount required for renewal
-   * @private
-   */
-  private async sendInsufficientBalanceNotification(
-    user: SubscriptionWithUser['user'],
-    subscription: SubscriptionWithUser,
-    requiredAmount: number,
-  ) {
-    try {
-      const message = await this.i18n.t('subscription.renewal_failed_balance', {
-        lang: user.language.iso6391,
-        args: {
-          period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period as SubscriptionPeriodEnum,
-            user.language.iso6391,
-          ),
-          requiredAmount,
-          currentBalance: user.balance.paymentBalance,
-        },
-      })
-
-      await this.bot.telegram.sendMessage(user.telegramId, message)
-    } catch (error) {
-      this.logger.error({
-        msg: 'Error sending insufficient balance notification',
-        userId: user.id,
-        error,
-        service: this.serviceName,
-      })
-    }
-  }
-
-  /**
    * Send notification about subscription deactivation
    * @param user - User to notify
    * @param subscription - Deactivated subscription
    * @private
    */
-  private async sendDeactivationNotification(
-    user: SubscriptionWithUser['user'],
-    subscription: SubscriptionWithUser,
-  ) {
+  private async sendDeactivationNotification(user, subscription) {
     try {
       const message = await this.i18n.t('subscription.deactivated', {
         lang: user.language.iso6391,
         args: {
-          period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period as SubscriptionPeriodEnum,
-            user.language.iso6391,
-          ),
+          name: subscription.name,
         },
       })
 
@@ -646,10 +625,7 @@ export class SubscriptionManagerService {
 
         // Check if we need to send a reminder for this subscription
         if (this.notificationDays.includes(daysUntilExpiration)) {
-          await this.sendExpirationReminder(
-            subscription as unknown as SubscriptionWithUser,
-            daysUntilExpiration,
-          )
+          await this.sendExpirationReminder(subscription, daysUntilExpiration)
         }
       }
 
@@ -673,10 +649,7 @@ export class SubscriptionManagerService {
    * @param daysLeft - Days left until expiration
    * @private
    */
-  private async sendExpirationReminder(
-    subscription: SubscriptionWithUser,
-    daysLeft: number,
-  ) {
+  private async sendExpirationReminder(subscription, daysLeft: number) {
     const user = subscription.user
     const redisKey = `subscription:reminder:${subscription.id}:${daysLeft}`
 
@@ -704,7 +677,7 @@ export class SubscriptionManagerService {
         ? 'subscription.expiration_reminder'
         : 'subscription.expiration_reminder_low_balance'
 
-      const message = await this.i18n.t(messageKey, {
+      const message = await this.i18n.t('subscription.expiration_reminder', {
         lang: user.language.iso6391,
         args: {
           days: daysLeft,
@@ -714,13 +687,20 @@ export class SubscriptionManagerService {
             )}` as keyof I18nTranslations,
             { lang: user.language.iso6391 },
           ),
-          period: await this.xrayService.getLocalizedPeriodText(
-            renewalPeriod as SubscriptionPeriodEnum,
-            user.language.iso6391,
+          name: subscription.name,
+          expiredAt: intlFormat(
+            new Date(subscription.expiredAt),
+            {
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+            },
+            {
+              locale: subscription.user.language.iso6391,
+            },
           ),
-          expiredAt: format(subscription.expiredAt, 'dd.MM.yyyy HH:mm'),
-          requiredAmount,
-          currentBalance: user.balance.paymentBalance,
         },
       })
 
@@ -767,9 +747,20 @@ export class SubscriptionManagerService {
         await this.prismaService.subscriptions.findMany({
           where: {
             isActive: false,
-            expiredAt: {
-              lt: oneWeekAgo,
-            },
+            OR: [
+              {
+                expiredAt: {
+                  not: null,
+                  lt: oneWeekAgo,
+                },
+              },
+              {
+                removalAt: {
+                  not: null,
+                  lt: new Date(),
+                },
+              },
+            ],
           },
           include: {
             user: {
@@ -872,10 +863,7 @@ export class SubscriptionManagerService {
       const message = await this.i18n.t('subscription.deleted_auto', {
         lang: user.language.iso6391,
         args: {
-          period: await this.xrayService.getLocalizedPeriodText(
-            subscription.period,
-            user.language.iso6391,
-          ),
+          name: subscription.name,
         },
       })
 

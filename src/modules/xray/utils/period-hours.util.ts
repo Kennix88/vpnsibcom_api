@@ -11,7 +11,6 @@ import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 export function periodHours(
   period: SubscriptionPeriodEnum,
   periodMultiplier: number,
-  trialDays?: number,
 ): number | null {
   switch (period) {
     case SubscriptionPeriodEnum.HOUR:
@@ -35,7 +34,7 @@ export function periodHours(
     case SubscriptionPeriodEnum.INDEFINITELY:
       return null
     case SubscriptionPeriodEnum.TRIAL:
-      return trialDays && trialDays > 0 ? trialDays * 24 : 0
+      return 0
     default:
       return 0
   }

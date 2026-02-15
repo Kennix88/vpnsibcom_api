@@ -1,0 +1,31 @@
+{
+  "created": "🎉 Tebrikler! Aboneliğiniz başarıyla oluşturuldu!\n\n📆 Dönem: {period}\n⏱ Geçerlilik süresi: {expiredAt}\n\n🔗 Abonelik bağlantısı: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 saat",
+    "day": "📅 1 gün",
+    "month": "📆 1 ay",
+    "three_month": "📆 3 ay",
+    "six_month": "📆 6 ay",
+    "year": "🗓️ 1 yıl",
+    "two_year": "🗓️ 2 yıl",
+    "three_year": "🗓️ 3 yıl",
+    "trial": "🔍 Deneme süresi",
+    "trial_with_days": "🔍 Deneme süresi ({days} {daysText})"
+  },
+  "renewed": "🔄 Aboneliğiniz şu dönem için başarıyla yenilendi: {period}. ⏱️ Yeni bitiş tarihi: {expiredAt}. Kesintisiz erişimin keyfini çıkarın!",
+  "renewed_user": "✅ Aboneliğiniz başarıyla yenilendi!\n\nDönem: {period}\nÜcret: {cost} STARS\nGeçerlilik süresi: {expiredAt}\n\nBağlantı linkiniz: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ Aboneliğiniz {period} dönemi için otomatik olarak yenilenemedi. Bakiyeniz yetersiz. Gereken: {requiredAmount} STARS, mevcut bakiye: {currentBalance} STARS. Aboneliğinizi yenilemek için lütfen bakiyenizi yükleyin.",
+  "deactivated": "⏹️ {name} aboneliğiniz süresi dolduğu için devre dışı bırakıldı. Kullanmaya devam etmek için lütfen aboneliğinizi yenileyin.",
+  "expiration_reminder": "⏰ Hatırlatma! \"{name}\" aboneliğinizin süresi {days} {daysText} içinde dolacak. Bitiş tarihi: {expiredAt}.",
+  "deleted": "🗑️ \"{name}\" aboneliğiniz başarıyla silindi. Hizmetimizi kullandığınız için teşekkür ederiz! Sizi tekrar görmeyi umuyoruz.",
+  "deleted_auto": "🗑️ \"{name}\" aboneliğiniz bir aydan fazla süredir aktif olmadığı için sistemden silindi. Hizmetimizi kullanmaya devam etmek istiyorsanız, lütfen yeni bir abonelik satın alın.",
+  "token_reset": "🔄 Abonelik jetonu sıfırlandı!\n\n⚠️ Aboneliğinizi istemci uygulamasında yeniden bağlamanız gerekiyor.\n\n📱 Yeni bağlantı linki: {subscriptionUrl}\n\n⏱️ Abonelik süresi: {expiredAt} tarihine kadar\n\nSorularınız varsa, lütfen destek ekibimizle iletişime geçin.",
+  "auto_renewal_enabled": "✅ Otomatik yenileme etkinleştirildi!\n\nArtık bakiyenizde yeterli miktar olduğunda aboneliğiniz otomatik olarak yenilenecek.",
+  "auto_renewal_disabled": "❌ Otomatik yenileme devre dışı bırakıldı!\n\nAboneliğiniz otomatik olarak yenilenmeyecek. Süresi dolmadan önce manuel olarak yenilemeyi unutmayın.",
+  "traffic_exhausted": "Trafiğiniz tükendi!",
+  "buy_more_traffic_and_expiration": "Hizmeti kullanmaya devam etmek için lütfen daha fazla trafik satın alın. Abonelik silinecek: {date}",
+  "traffic_reset_day": "Bir sonraki gün yenilenecek!",
+  "traffic_reset_week": "Bir sonraki hafta yenilenecek!",
+  "traffic_reset_month": "Bir sonraki ay yenilenecek!",
+  "traffic_reset_year": "Bir sonraki yıl yenilenecek!"
+}

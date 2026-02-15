@@ -1,11 +1,15 @@
-import { Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
-import { PrismaService as NestjsPrismaService } from 'nestjs-prisma'
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from './generated/client'
 
-export class PrismaService
-  extends NestjsPrismaService
-  implements OnModuleInit, OnModuleDestroy
-{
+@Injectable()
+export class PrismaService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger(PrismaService.name)
+
+  constructor() {
+    const pool = new PrismaPg({ connectionString: process.env.POSTGRES_URL! })
+    super({ adapter: pool })
+  }
 
   async onModuleInit() {
     try {
@@ -22,5 +26,7 @@ export class PrismaService
     this.logger.log('Prisma disconnected from the database')
   }
 
-  // Можно добавить кастомные методы, если нужно
+  // Proxy calls to extended client if needed, or just use the base methods.
+  // Note: In NestJS, if we want the service itself to use the extended client,
+  // we might need to change how it's used throughout the app.
 }

@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 Doładowanie salda o {amount} STARS",
+    "description": "⭐ Dodanie {amount} STARS do Twojego konta"
+  },
+  "payment_success": "✅ Sukces! Twoja płatność w wysokości {amount} STARS została pomyślnie przetworzona!",
+  "payment_failed": "❌ Płatność nieudana! Wystąpił błąd podczas przetwarzania płatności. 🔄 Spróbuj ponownie lub skontaktuj się z naszym działem obsługi.",
+  "payment_expired": "⏱️ Twoja płatność w wysokości {amount} wygasła. 🔄 Utwórz nową płatność, jeśli chcesz kontynuować zakup.",
+  "referral": {
+    "reward_title": "🎁 Gratulacje! Otrzymałeś nagrodę za polecenie!",
+    "hold_reward": "💰 {amount} STARS będzie dostępne za {days} dni (środki tymczasowo zamrożone)",
+    "available_reward": "✅ {amount} STARS jest już dostępne na Twoim saldzie i gotowe do użycia!",
+    "referral_label": "👤 Polecony",
+    "level_label": "🔝 Poziom"
+  },
+  "hold": {
+    "released": "🎉 Świetne wiadomości! {amount} STARS z zamrożonych środków jest teraz dostępne do wypłaty 💸"
+  }
+}

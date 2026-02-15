@@ -1,37 +1,37 @@
-import { AdsNeworkEnum } from '@shared/enums/ads-nework.enum'
+import { AdsNetworkEnum } from '@modules/ads/types/ads-network.enum'
 
 export const AdsNetworksData: {
-  key: AdsNeworkEnum
+  key: AdsNetworkEnum
   isActive: boolean
   name: string
 }[] = [
   {
-    key: AdsNeworkEnum.YANDEX,
+    key: AdsNetworkEnum.YANDEX,
     isActive: false,
     name: 'Yandex',
   },
   {
-    key: AdsNeworkEnum.ADSGRAM,
+    key: AdsNetworkEnum.ADSGRAM,
     isActive: false,
     name: 'Adsgram',
   },
   {
-    key: AdsNeworkEnum.ONCLICKA,
+    key: AdsNetworkEnum.ONCLICKA,
     isActive: false,
     name: 'Onclicka',
   },
   {
-    key: AdsNeworkEnum.ADSONAR,
+    key: AdsNetworkEnum.ADSONAR,
     isActive: false,
     name: 'Adsonar',
   },
   {
-    key: AdsNeworkEnum.GIGA,
+    key: AdsNetworkEnum.GIGA,
     isActive: false,
     name: 'Giga',
   },
   {
-    key: AdsNeworkEnum.MONETAG,
+    key: AdsNetworkEnum.MONETAG,
     isActive: false,
     name: 'Monetag',
   },

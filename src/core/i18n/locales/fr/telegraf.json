@@ -1,0 +1,21 @@
+{
+  "start": {
+    "welcome": "👋 Bienvenue sur le service VPN basé sur le noyau Xray ! \n\n🔐 Nous fournissons une connexion VPN sécurisée et rapide pour votre appareil. \n\n🚀 Cliquez sur le bouton ci-dessous pour ouvrir l'application et commencer à utiliser nos services."
+  },
+  "TOO_MANY_REQUESTS": "Trop de requêtes, veuillez réessayer dans {0} secondes 🚦",
+  "telegram": {
+    "welcome": {
+      "greeting": "Bonjour, {name}!",
+      "message1": "Bienvenue sur VPNsib!",
+      "message2": "Une application où vous pouvez utiliser un VPN et jouer à des jeux.",
+      "developedBy": "Développé par @KennixDev",
+      "supportedBy": "Soutenu par @solycmty",
+      "buyStars": "Achetez des Telegram STARS ⭐️ sans KYC, avec jusqu'à 40% d'économies sur la plateforme —> <a href=\"https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ\">@split</a>"
+    },
+    "button": {
+      "channel": "Canal",
+      "chatSupport": "Chat&Support",
+      "buyStars": "Acheter STARS ⭐️"
+    }
+  }
+}

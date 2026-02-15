@@ -1,48 +1,93 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { randomUUID } from 'crypto'
 import Redis from 'ioredis'
 
 @Injectable()
 export class RedisService extends Redis implements OnModuleInit {
   private readonly logger = new Logger(RedisService.name)
-  private readonly MAX_RETRIES = 5
-  private readonly RETRY_DELAY = 2000
 
   constructor(private readonly configService: ConfigService) {
     super({
       host: configService.get('REDIS_HOST'),
       port: configService.get('REDIS_PORT'),
       password: configService.get('REDIS_PASSWORD'),
-      // keyPrefix: configService.get('REDIS_PREFIX'),
-      enableOfflineQueue: false,
+
+      enableOfflineQueue: true, // пусть очередь команд хранится при реконнекте
       maxRetriesPerRequest: null,
+
+      // socket options (через Node.js net.Socket)
+      keepAlive: 10000, // каждые 10s будет TCP keep-alive (по умолчанию 0 = выкл)
+      connectTimeout: 10000, // таймаут установки соединения
+
+      // retry strategy (на случай обрыва соединения)
       retryStrategy: (times) => {
-        if (times > 3) return null
-        return Math.min(times * 500, 2000)
+        // times = сколько раз пытались подключиться
+        const delay = Math.min(times * 500, 10000) // от 500ms до 10s
+        return delay
       },
+
+      // если хочешь ещё более жёсткий контроль над реконнектом
+      reconnectOnError: (err) => {
+        // например, переподключаемся только на сетевые ошибки
+        if (err.message.includes('READONLY')) {
+          return false // не пытаться реконнектиться при failover sentinel
+        }
+        return true
+      },
+    })
+
+    this.on('connect', () => {
+      this.logger.log('Redis connecting...')
+    })
+
+    this.on('ready', () => {
+      this.logger.log('Redis connection is ready.')
     })
 
     this.on('error', (err) => {
       this.logger.error(`Redis error: ${err.message}`)
     })
+
+    this.on('end', () => {
+      this.logger.warn('Redis connection ended. Will try to reconnect...')
+    })
+
+    this.on('close', () => {
+      this.logger.warn('Redis connection closed.')
+    })
+
+    this.on('reconnecting', (delay) => {
+      this.logger.log(`Redis reconnecting in ${delay}ms...`)
+    })
   }
 
-  async onModuleInit() {
-    for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
-      try {
-        await this.ping()
-        this.logger.log('Redis connected successfully')
-        return
-      } catch (err) {
-        this.logger.error(
-          `Connection attempt ${attempt} failed: ${err.message}`,
-        )
-        if (attempt === this.MAX_RETRIES) {
-          throw new Error('Redis connection failed after max retries')
-        }
-        await new Promise((r) => setTimeout(r, this.RETRY_DELAY))
-      }
+  /**
+   * Wait until Redis connection is established (even after reconnects).
+   */
+  private async waitForConnection(): Promise<void> {
+    if (this.status === 'ready') return
+    await new Promise<void>((resolve, reject) => {
+      this.once('ready', () => resolve())
+      this.once('error', (err) => reject(err))
+    })
+  }
+
+  async onModuleInit(): Promise<void> {
+    try {
+      await this.waitForConnection()
+    } catch (error) {
+      this.logger.error(
+        `Failed to connect to Redis: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      )
+      // Optionally re-throw or handle the error as appropriate for your application's needs
     }
+  }
+
+  async waitTillReady(): Promise<void> {
+    await this.waitForConnection()
   }
 
   async setWithExpiry(
@@ -55,7 +100,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const result = await this.set(key, value, 'EX', ttlSeconds)
       return result === 'OK'
     } catch (err) {
-      this.logger.error(`setWithExpiry failed: ${err.message}`)
+      this.logger.error(
+        `setWithExpiry failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -69,7 +118,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const str = JSON.stringify(value)
       return this.setWithExpiry(key, str, ttlSeconds)
     } catch (err) {
-      this.logger.error(`setObjectWithExpiry failed: ${err.message}`)
+      this.logger.error(
+        `setObjectWithExpiry failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -84,7 +137,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const result = await this.set(key, value, 'EX', ttlSeconds, 'NX')
       return result === 'OK'
     } catch (err) {
-      this.logger.error(`setWithExpiryNx failed: ${err.message}`)
+      this.logger.error(
+        `setWithExpiryNx failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
     }
   }
@@ -94,7 +151,11 @@ export class RedisService extends Redis implements OnModuleInit {
       const data = await this.get(key)
       return data ? JSON.parse(data) : null
     } catch (err) {
-      this.logger.warn(`Failed to parse JSON for key ${key}: ${err.message}`)
+      this.logger.warn(
+        `Failed to parse JSON for key ${key}: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return null
     }
   }
@@ -111,8 +172,162 @@ export class RedisService extends Redis implements OnModuleInit {
       }
       return true
     } catch (err) {
-      this.logger.error(`hsetWithExpiry failed: ${err.message}`)
+      this.logger.error(
+        `hsetWithExpiry failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
       return false
+    }
+  }
+
+  /**
+   * Try to acquire a lock. Returns token (string) if acquired, null otherwise.
+   * retries — сколько раз пытаться (по умолчанию 0, т.е. одна попытка).
+   */
+  async acquireLock(
+    key: string,
+    ttlSeconds: number,
+    retries = 0,
+    retryDelayMs = 200,
+  ): Promise<string | null> {
+    if (ttlSeconds <= 0) throw new Error('TTL must be positive')
+    const token = randomUUID()
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const res = await this.set(key, token, 'EX', ttlSeconds, 'NX')
+        if (res === 'OK') return token
+      } catch (err) {
+        this.logger.error(
+          `acquireLock set failed: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        )
+      }
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, retryDelayMs))
+      }
+    }
+    return null
+  }
+
+  /**
+   * Safe release: удалим ключ только если токен совпадает (atomic via Lua).
+   * Возвращает true если удалил, false иначе.
+   */
+  async releaseLock(key: string, token: string): Promise<boolean> {
+    const releaseScript = `
+      if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("del", KEYS[1])
+      else
+        return 0
+      end
+    `
+    try {
+      const res = await this.eval(releaseScript, 1, key, token)
+      return Number(res) > 0
+    } catch (err) {
+      this.logger.error(
+        `releaseLock failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
+      return false
+    }
+  }
+
+  /**
+   * Securely extend TTL if token matches.
+   * Возвращает true если продлил, false — если ключ не соответствует токену или ошибка.
+   */
+  async extendLock(
+    key: string,
+    token: string,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    const extendScript = `
+      if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("expire", KEYS[1], ARGV[2])
+      else
+        return 0
+      end
+    `
+    try {
+      const res = await this.eval(
+        extendScript,
+        1,
+        key,
+        token,
+        String(ttlSeconds),
+      )
+      return Number(res) > 0
+    } catch (err) {
+      this.logger.error(
+        `extendLock failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
+      return false
+    }
+  }
+
+  /**
+   * Helper: run function under lock with optional auto-renew.
+   * opts: { retries, retryDelayMs, autoRenewIntervalSec }.
+   */
+  async withLock<T>(
+    key: string,
+    ttlSeconds: number,
+    fn: () => Promise<T>,
+    opts?: {
+      retries?: number
+      retryDelayMs?: number
+      autoRenewIntervalSec?: number
+    },
+  ): Promise<T | null> {
+    const retries = opts?.retries ?? 0
+    const retryDelayMs = opts?.retryDelayMs ?? 200
+    const autoRenewIntervalSec =
+      opts?.autoRenewIntervalSec ?? Math.floor(ttlSeconds / 3)
+
+    const token = await this.acquireLock(key, ttlSeconds, retries, retryDelayMs)
+    if (!token) {
+      this.logger.log(`Could not acquire lock ${key}`)
+      return null
+    }
+
+    this.logger.log(`Acquired lock ${key}`)
+
+    let renewHandle: NodeJS.Timeout | null = null
+    try {
+      // автопродление, если задача долг running
+      if (autoRenewIntervalSec > 0) {
+        renewHandle = setInterval(async () => {
+          try {
+            const ok = await this.extendLock(key, token, ttlSeconds)
+            if (!ok) {
+              this.logger.warn(`Failed to renew lock ${key} (token mismatch)`)
+            }
+          } catch (err) {
+            this.logger.error(
+              `Error renewing lock ${key}: ${
+                err instanceof Error ? err.message : String(err)
+              }`,
+            )
+          }
+        }, autoRenewIntervalSec * 1000)
+      }
+
+      const result = await fn()
+      return result
+    } finally {
+      if (renewHandle) clearInterval(renewHandle)
+      const released = await this.releaseLock(key, token)
+      if (released) this.logger.log(`Released lock ${key}`)
+      else
+        this.logger.warn(
+          `Lock ${key} was not released (maybe expired or token mismatch)`,
+        )
     }
   }
 }

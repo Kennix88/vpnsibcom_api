@@ -7,10 +7,12 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2022",
     "sourceMap": true,
+    "incremental": true,
+    "emitDeclarationOnly": false,
+    "target": "ES2023",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "src",
     "baseUrl": "./",
     "paths": {
       "@core/*": ["src/core/*"],
@@ -19,7 +21,6 @@
       "@integrations/*": ["src/integrations/*"],
       "@vpnsibcom/*": ["*"]
     },
-    "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
     "strictBindCallApply": false,
@@ -31,7 +32,7 @@
     "noImplicitReturns": false,
     "noImplicitThis": true,
     "resolveJsonModule": true,
-    "jsx": "react"
+    "jsx": "preserve"
   },
   "include": ["src"]
 }

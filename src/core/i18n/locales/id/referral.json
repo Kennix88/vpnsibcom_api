@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 Anda telah menerima hadiah referral!\n\n⭐ {starsAmount} STARS sudah tersedia di saldo Anda\n\n👤 Referral: {referralName}\n🔝 Level: {level}",
+  "defaultName": "👤 Pengguna"
+}

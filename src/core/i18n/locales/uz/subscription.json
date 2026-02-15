@@ -1,0 +1,31 @@
+{
+  "created": "🎉 Tabriklaymiz! Obunangiz muvaffaqiyatli yaratildi!\n\n📆 Davr: {period}\n⏱ Amal qilish muddati: {expiredAt}\n\n🔗 Obuna havolasi: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 soat",
+    "day": "📅 1 kun",
+    "month": "📆 1 oy",
+    "three_month": "📆 3 oy",
+    "six_month": "📆 6 oy",
+    "year": "🗓️ 1 yil",
+    "two_year": "🗓️ 2 yil",
+    "three_year": "🗓️ 3 yil",
+    "trial": "🔍 Sinov davri",
+    "trial_with_days": "🔍 Sinov davri ({days} {daysText})"
+  },
+  "renewed": "🔄 Obunangiz muvaffaqiyatli uzaytirildi: {period}. ⏱️ Yangi tugash sanasi: {expiredAt}. Xizmatdan foydalanishda davom eting!",
+  "renewed_user": "✅ Obunangiz muvaffaqiyatli uzaytirildi!\n\nDavr: {period}\nNarxi: {cost} STARS\nAmal qilish muddati: {expiredAt}\n\nUlanish havolangiz: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ Obunangizni {period} davriga avtomatik uzaytirish imkoni bo'lmadi. Hisobingizda mablag' yetarli emas. Kerak: {requiredAmount} STARS, joriy balans: {currentBalance} STARS. Iltimos, obunani uzaytirish uchun hisobingizni to'ldiring.",
+  "deactivated": "⏹️ {name} obunangiz muddat tugashi sababli faolsizlantirildi. Xizmatdan foydalanishni davom ettirish uchun, iltimos, obunani uzaytiring.",
+  "expiration_reminder": "⏰ Eslatma! \"{name}\" obunangiz {days} {daysText} ichida tugaydi. Tugash sanasi: {expiredAt}.",
+  "deleted": "🗑️ \"{name}\" obunangiz muvaffaqiyatli o'chirildi. Xizmatimizdan foydalanganingiz uchun rahmat! Sizni yana ko'rishga umid qilamiz.",
+  "deleted_auto": "🗑️ \"{name}\" obunangiz tizimdan o'chirildi, chunki u bir oydan ortiq faol emas edi. Agar xizmatimizdan foydalanishni davom ettirmoqchi bo'lsangiz, iltimos, yangi obuna sotib oling.",
+  "token_reset": "🔄 Obuna tokeni qayta o'rnatildi!\n\n⚠️ Siz obunani mijoz ilovasida qayta ulashingiz kerak.\n\n📱 Ulanish uchun yangi havola: {subscriptionUrl}\n\n⏱️ Obuna muddati: {expiredAt} gacha\n\nAgar savollaringiz bo'lsa, qo'llab-quvvatlash xizmatiga murojaat qiling.",
+  "auto_renewal_enabled": "✅ Avtomatik obuna uzaytirish yoqildi!\n\nEndi hisobingizda yetarli mablag' bo'lsa, obunangiz avtomatik ravishda uzaytiriladi.",
+  "auto_renewal_disabled": "❌ Avtomatik obuna uzaytirish o'chirildi!\n\nObunangiz avtomatik ravishda uzaytirilmaydi. Muddat tugashidan oldin uni qo'lda uzaytirishni unutmang.",
+  "traffic_exhausted": "Trafikingiz tugadi!",
+  "buy_more_traffic_and_expiration": "Xizmatdan foydalanishni davom ettirish uchun, iltimos, qo'shimcha trafik sotib oling. Obuna o'chiriladi: {date}",
+  "traffic_reset_day": "Keyingi kunda yangilanadi!",
+  "traffic_reset_week": "Keyingi haftada yangilanadi!",
+  "traffic_reset_month": "Keyingi oyda yangilanadi!",
+  "traffic_reset_year": "Keyingi yilda yangilanadi!"
+}

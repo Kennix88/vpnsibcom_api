@@ -5,7 +5,7 @@ export interface UserDataInterface {
   id: string
   telegramId: string
   isFreePlanAvailable: boolean
-  freePlanDays?: number
+  trialGb?: number
   isBanned: boolean
   isDeleted: boolean
   banExpiredAt?: Date
@@ -24,14 +24,18 @@ export interface UserDataInterface {
   isTgProgramPartner: boolean
   tgProgramPartnerExpiredAt?: Date
   balance: UserBalanceInterface
+  inviteUrl: string
+  inviteMessageId: string
+  nextAdsRewardAt?: Date
+  nextAdsgramTaskAt?: Date
+  minPayStars: number
+  lastFullscreenViewedAt?: Date
 }
 
 export interface UserBalanceInterface {
-  paymentBalance: number
-  holdBalance: number
-  totalEarnedWithdrawalBalance: number
-  withdrawalBalance: number
-  ticketsBalance: number
-  isUseWithdrawalBalance: boolean
-  exchangeLimit: number
+  payment: number
+  hold: number
+  ad: number
+  tickets: number
+  traffic: number
 }

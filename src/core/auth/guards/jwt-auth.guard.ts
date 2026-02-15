@@ -1,4 +1,4 @@
-import { TokenService } from '@core/auth/token.service'
+import { TokenService } from '@core/auth/services/token.service'
 import {
   CanActivate,
   ExecutionContext,
@@ -26,13 +26,13 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      // Проверка на blacklist
+      // Check for blacklist
       const isBlacklisted = await this.tokenService.isTokenBlacklisted(token)
       if (isBlacklisted) {
         throw new UnauthorizedException('Token revoked')
       }
 
-      // Верификация токена
+      // Token verification
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
       })
@@ -41,28 +41,26 @@ export class JwtAuthGuard implements CanActivate {
       return true
     } catch (error) {
       throw new UnauthorizedException(
-        error?.message || 'Invalid or expired token',
+        error instanceof Error ? error.message : 'Invalid or expired token',
       )
     }
   }
 
   public extractTokenFromRequest(request: FastifyRequest): string | null {
-    // 1. Проверка в cookies
+    // 1. Check in cookies
     const cookieToken = request.cookies?.access_token
     if (cookieToken && typeof cookieToken === 'string') {
       return cookieToken
     }
 
-    // 2. Проверка в Authorization header
+    // 2. Check in Authorization header
     const authHeader = request.headers?.authorization
     if (authHeader && typeof authHeader === 'string') {
       const [type, token] = authHeader.split(' ')
-      if (type === 'Bearer' && token) return token
+      if (type === 'Bearer' && token) {
+        return token
+      }
     }
-
-    // 3. (опционально) query-параметры
-    // const queryToken = request.query?.token
-    // if (typeof queryToken === 'string') return queryToken
 
     return null
   }

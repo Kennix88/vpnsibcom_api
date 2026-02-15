@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 {amount} STARS tutarında bakiye yükleme",
+    "description": "⭐ Hesabınıza {amount} STARS ekleme"
+  },
+  "payment_success": "✅ Başarılı! {amount} STARS tutarındaki ödemeniz başarıyla işlendi!",
+  "payment_failed": "❌ Ödeme başarısız! Ödeme işlemi sırasında bir hata oluştu. 🔄 Lütfen tekrar deneyin veya destek ekibimizle iletişime geçin.",
+  "payment_expired": "⏱️ {amount} tutarındaki ödemenizin süresi doldu. 🔄 Satın almaya devam etmek istiyorsanız lütfen yeni bir ödeme oluşturun.",
+  "referral": {
+    "reward_title": "🎁 Tebrikler! Referans ödülü kazandınız!",
+    "hold_reward": "💰 {amount} STARS, {days} gün içinde kullanılabilir olacak (fonlar geçici olarak donduruldu)",
+    "available_reward": "✅ {amount} STARS şu anda bakiyenizde mevcut ve kullanıma hazır!",
+    "referral_label": "👤 Referans",
+    "level_label": "🔝 Seviye"
+  },
+  "hold": {
+    "released": "🎉 Harika haber! Dondurulmuş fonlardan {amount} STARS artık çekim için kullanılabilir 💸"
+  }
+}

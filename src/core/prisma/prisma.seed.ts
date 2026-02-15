@@ -6,19 +6,16 @@ import { PaymentMethodsData } from '@core/prisma/data/payment-methods.data'
 import { RolesData } from '@core/prisma/data/roles.data'
 import { SettingsData } from '@core/prisma/data/settings.data'
 import { Logger } from '@nestjs/common'
-import { CurrencyEnum, PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { FriendsListData } from './data/friends-list.data'
 import { OldUsersData } from './data/old-users.data'
 import { PlansData } from './data/plans.data'
+import { PrismaClient } from './generated/client'
 
-const prisma = new PrismaClient({
-  transactionOptions: {
-    maxWait: 5000,
-    timeout: 10000,
-    isolationLevel: 'Serializable',
-  },
-})
+const pool = new PrismaPg({ connectionString: process.env.POSTGRES_URL! })
+const prisma = new PrismaClient({ adapter: pool })
 
 export async function PrismaSeed() {
   Logger.log('The beginning of filling in the database', 'Prisma-Seed')
@@ -104,6 +101,10 @@ export async function PrismaSeed() {
           },
         })
 
+        const adsData = await tx.userAdsData.create({
+          data: {},
+        })
+
         await tx.users.create({
           data: {
             telegramId: el.telegramId,
@@ -117,6 +118,7 @@ export async function PrismaSeed() {
                 ? UserRolesEnum.FRIEND
                 : UserRolesEnum.OLD_USER,
             telegramDataId: tdata.id,
+            adsDataId: adsData.id,
             currencyKey: CurrencyEnum.USD,
           },
         })

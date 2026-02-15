@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 Påfyllning av saldo med {amount} STARS",
+    "description": "⭐ Lägger till {amount} STARS på ditt konto"
+  },
+  "payment_success": "✅ Framgång! Din betalning på {amount} STARS har behandlats framgångsrikt!",
+  "payment_failed": "❌ Betalningen misslyckades! Ett fel uppstod vid behandling av betalningen. 🔄 Försök igen eller kontakta vår kundtjänst.",
+  "payment_expired": "⏱️ Din betalning på {amount} har löpt ut. 🔄 Skapa en ny betalning om du vill fortsätta köpet.",
+  "referral": {
+    "reward_title": "🎁 Grattis! Du har fått en referensbelöning!",
+    "hold_reward": "💰 {amount} STARS kommer att vara tillgängliga om {days} dagar (medel tillfälligt frysta)",
+    "available_reward": "✅ {amount} STARS finns redan på ditt saldo och är redo att användas!",
+    "referral_label": "👤 Referens",
+    "level_label": "🔝 Nivå"
+  },
+  "hold": {
+    "released": "🎉 Goda nyheter! {amount} STARS från frysta medel är nu tillgängliga för uttag 💸"
+  }
+}

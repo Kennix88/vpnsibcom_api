@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 Du har fått en referensbelöning!\n\n⭐ {starsAmount} STARS finns redan tillgängliga på ditt saldo\n\n👤 Referens: {referralName}\n🔝 Nivå: {level}",
+  "defaultName": "👤 Användare"
+}

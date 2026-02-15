@@ -1,0 +1,31 @@
+{
+  "created": "🎉 恭喜！您的订阅已成功创建！\n\n📆 周期：{period}\n⏱ 有效期至：{expiredAt}\n\n🔗 订阅链接：{subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 小时",
+    "day": "📅 1 天",
+    "month": "📆 1 个月",
+    "three_month": "📆 3 个月",
+    "six_month": "📆 6 个月",
+    "year": "🗓️ 1 年",
+    "two_year": "🗓️ 2 年",
+    "three_year": "🗓️ 3 年",
+    "trial": "🔍 试用期",
+    "trial_with_days": "🔍 试用期 ({days} {daysText})"
+  },
+  "renewed": "🔄 您的订阅已成功续订 {period}。⏱️ 新的到期日期：{expiredAt}。继续享受访问！",
+  "renewed_user": "✅ 您的订阅已成功续订！\n\n周期：{period}\n费用：{cost} STARS\n有效期至：{expiredAt}\n\n您的连接链接：{subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ 无法自动续订您的 {period} 订阅。余额不足。需要：{requiredAmount} STARS，当前余额：{currentBalance} STARS。请充值以续订订阅。",
+  "deactivated": "⏹️ 您的订阅 {name} 已因到期而停用。要继续使用，请续订订阅。",
+  "expiration_reminder": "⏰ 提醒！您的订阅 \"{name}\" 将在 {days} {daysText} 后到期。到期日期：{expiredAt}。",
+  "deleted": "🗑️ 您的订阅 \"{name}\" 已成功删除。感谢您使用我们的服务！希望再次见到您。",
+  "deleted_auto": "🗑️ 您的订阅 \"{name}\" 已从系统中删除，因为它已超过一个月未激活。如果您想继续使用我们的服务，请购买新订阅。",
+  "token_reset": "🔄 订阅令牌已重置！\n\n⚠️ 您需要重新连接客户端应用程序中的订阅。\n\n📱 新的连接链接：{subscriptionUrl}\n\n⏱️ 订阅有效期至：{expiredAt}\n\n如果您有任何问题，请联系支持。",
+  "auto_renewal_enabled": "✅ 自动续订已启用！\n\n现在，您的订阅将在余额充足时自动续订。",
+  "auto_renewal_disabled": "❌ 自动续订已禁用！\n\n您的订阅将不会自动续订。请务必在到期前手动续订。",
+  "traffic_exhausted": "您的流量已用尽！",
+  "buy_more_traffic_and_expiration": "要继续使用服务，请购买更多流量。订阅将删除：{date}",
+  "traffic_reset_day": "明天更新！",
+  "traffic_reset_week": "下周更新！",
+  "traffic_reset_month": "下个月更新！",
+  "traffic_reset_year": "明年更新！"
+}

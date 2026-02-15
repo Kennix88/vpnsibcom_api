@@ -1,0 +1,31 @@
+{
+  "created": "🎉 Gefeliciteerd! Uw abonnement is succesvol aangemaakt!\n\n📆 Periode: {period}\n⏱ Geldig tot: {expiredAt}\n\n🔗 Abonnementslink: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 uur",
+    "day": "📅 1 dag",
+    "month": "📆 1 maand",
+    "three_month": "📆 3 maanden",
+    "six_month": "📆 6 maanden",
+    "year": "🗓️ 1 jaar",
+    "two_year": "🗓️ 2 jaar",
+    "three_year": "🗓️ 3 jaar",
+    "trial": "🔍 Proefperiode",
+    "trial_with_days": "🔍 Proefperiode ({days} {daysText})"
+  },
+  "renewed": "🔄 Uw abonnement is succesvol verlengd voor de periode: {period}. ⏱️ Nieuwe einddatum: {expiredAt}. Geniet van voortgezet toegang!",
+  "renewed_user": "✅ Uw abonnement is succesvol verlengd!\n\nPeriode: {period}\nKosten: {cost} STARS\nGeldig tot: {expiredAt}\n\nUw verbindingslink: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ Het automatisch verlengen van uw abonnement voor de periode {period} is mislukt. Onvoldoende saldo. Vereist: {requiredAmount} STARS, huidig saldo: {currentBalance} STARS. Waardeer uw saldo op om het abonnement te verlengen.",
+  "deactivated": "⏹️ Uw abonnement {name} is gedeactiveerd vanwege het verlopen van de geldigheidsduur. Om verder gebruik te maken, dient u het abonnement te verlengen.",
+  "expiration_reminder": "⏰ Herinnering! Uw abonnement \"{name}\" verloopt over {days} {daysText}. Einddatum: {expiredAt}.",
+  "deleted": "🗑️ Uw abonnement \"{name}\" is succesvol verwijderd. Bedankt voor het gebruik van onze service! We hopen u snel weer te zien.",
+  "deleted_auto": "🗑️ Uw abonnement \"{name}\" is uit het systeem verwijderd omdat het langer dan een maand inactief was. Als u onze service wilt blijven gebruiken, schaf dan een nieuw abonnement aan.",
+  "token_reset": "🔄 Het abonnementstoken is gereset!\n\n⚠️ U moet het abonnement opnieuw verbinden in de client-applicatie.\n\n📱 Nieuwe verbindingslink: {subscriptionUrl}\n\n⏱️ Geldigheidsduur abonnement: tot {expiredAt}\n\nNeem contact op met de ondersteuning als u vragen heeft.",
+  "auto_renewal_enabled": "✅ Automatische verlenging van het abonnement is ingeschakeld!\n\nUw abonnement wordt nu automatisch verlengd als er voldoende saldo is.",
+  "auto_renewal_disabled": "❌ Automatische verlenging van het abonnement is uitgeschakeld!\n\nUw abonnement wordt niet automatisch verlengd. Vergeet niet om het handmatig te verlengen voordat het verloopt.",
+  "traffic_exhausted": "Uw verkeer is op!",
+  "buy_more_traffic_and_expiration": "Om de service te blijven gebruiken, koop alstublieft meer verkeer. Abonnement wordt verwijderd: {date}",
+  "traffic_reset_day": "Wordt morgen vernieuwd!",
+  "traffic_reset_week": "Wordt volgende week vernieuwd!",
+  "traffic_reset_month": "Wordt volgende maand vernieuwd!",
+  "traffic_reset_year": "Wordt volgend jaar vernieuwd!"
+}

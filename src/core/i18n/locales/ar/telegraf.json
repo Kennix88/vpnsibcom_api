@@ -1,0 +1,21 @@
+{
+  "start": {
+    "welcome": "تم التشغيل"
+  },
+  "TOO_MANY_REQUESTS": "طلبات كثيرة جدًا، يرجى المحاولة مرة أخرى بعد {0} ثانية 🚦",
+  "telegram": {
+    "welcome": {
+      "greeting": "مرحبًا، {name}!",
+      "message1": "مرحبًا بك في VPNsib!",
+      "message2": "تطبيق يمكنك استخدام VPN واللعب فيه.",
+      "developedBy": "تم التطوير بواسطة @KennixDev",
+      "supportedBy": "بدعم من @solycmty",
+      "buyStars": "اشترِ نجوم تيليجرام STARS ⭐️ بدون KYC، بخصم يصل إلى 40٪ على منصة —> <a href=\"https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ\">@split</a>"
+    },
+    "button": {
+      "channel": "القناة",
+      "chatSupport": "الدردشة والدعم",
+      "buyStars": "شراء STARS ⭐️"
+    }
+  }
+}

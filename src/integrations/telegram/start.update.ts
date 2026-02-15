@@ -1,6 +1,8 @@
-import { I18nTranslations } from '@core/i18n/i18n.type'
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
+import { TaddyService } from '@modules/ads/taddy.service'
+import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
+import { TonPaymentsService } from '@modules/payments/services/ton-payments.service'
 import { RatesService } from '@modules/rates/rates.service'
 import { ReferralsService } from '@modules/referrals/referrals.service'
 import { UsersService } from '@modules/users/users.service'
@@ -8,7 +10,7 @@ import { ConfigService } from '@nestjs/config'
 import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { Ctx, InjectBot, Start, Update } from 'nestjs-telegraf'
+import { Command, Ctx, Help, InjectBot, Start, Update } from 'nestjs-telegraf'
 import { Markup, Telegraf } from 'telegraf'
 
 @Update()
@@ -16,22 +18,38 @@ export class StartUpdate {
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
-    private readonly i18n: I18nService<I18nTranslations>,
+    private readonly i18n: I18nService,
     private readonly referralsService: ReferralsService,
     private readonly telegramLogger: LoggerTelegramService,
     private readonly ratesService: RatesService,
     private readonly userService: UsersService,
+    private readonly tonPaymentsService: TonPaymentsService,
+    private taddyService: TaddyService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(StartUpdate.name)
   }
 
   @Start()
+  @Command(['settings', 'profile', 'cancel', 'subscribe', 'policy'])
   async startCommand(@Ctx() ctx: Context) {
     try {
       if (ctx.chat?.type !== 'private' || !ctx.from) return
 
       const startParam = ctx.startPayload
+
+      this.taddyService.startEvent({
+        user: {
+          id: Number(ctx.from.id),
+          firstName: ctx.from.first_name,
+          lastName: ctx.from.last_name,
+          username: ctx.from.username,
+          premium: ctx.from.is_premium,
+          language: ctx.from.language_code,
+        },
+        origin: TaddyOriginEnum.SERVER,
+        start: startParam,
+      })
 
       // можно выделить реф. ID и партнёрский флаг
       const isTelegramPartner = /^_tgr_[\w-]+$/.test(startParam ?? '')
@@ -58,6 +76,12 @@ export class StartUpdate {
       }
 
       if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
+        // const transactions = await this.tonPaymentsService.getTransactions(10)
+        // const transactions = await this.tonPaymentsService.findPayments([
+        //   'order-sadasfewgw',
+        //   'sada',
+        // ])
+        // console.log(JSON.stringify(transactions, null, 2))
         // await this.ratesService.updateApilayerRates()
         // await this.ratesService.updateStarsRate()
         //
@@ -72,39 +96,52 @@ export class StartUpdate {
       //   }),
 
       await ctx.sendPhoto(
-        { source: createReadStream('assets/welcome.png') },
+        { source: createReadStream('assets/welcome.jpg') },
         {
-          caption: `<b>Привет, ${ctx.from.first_name}!</b>
-Добро пожаловать в VPNsib!
-Для подключения к VPN, пожалуйста, нажмите кнопку ниже.`,
+          caption: `<b>${this.i18n.t('telegraf.telegram.welcome.greeting', {
+            args: { name: ctx.from.first_name },
+            lang: ctx.from.language_code,
+          })}</b>
+${this.i18n.t('telegraf.telegram.welcome.message1', {
+  lang: ctx.from.language_code,
+})}
+${this.i18n.t('telegraf.telegram.welcome.message2', {
+  lang: ctx.from.language_code,
+})}
+
+${this.i18n.t('telegraf.telegram.welcome.buyStars', {
+  lang: ctx.from.language_code,
+})}`,
           parse_mode: 'HTML',
           reply_markup: {
             remove_keyboard: true,
             inline_keyboard: [
               [
                 Markup.button.webApp(
-                  'Подключиться',
+                  'VPN&GAMES',
                   this.configService.get<string>('WEBAPP_URL'),
                 ),
               ],
               [
                 Markup.button.url(
-                  'Канал',
+                  this.i18n.t('telegraf.telegram.button.channel', {
+                    lang: ctx.from.language_code,
+                  }),
                   this.configService.get<string>('CHANNEL_URL'),
                 ),
                 Markup.button.url(
-                  'Чат',
+                  this.i18n.t('telegraf.telegram.button.chatSupport', {
+                    lang: ctx.from.language_code,
+                  }),
                   this.configService.get<string>('CHAT_URL'),
                 ),
               ],
               [
                 Markup.button.url(
-                  'Open-Source',
-                  this.configService.get<string>('OPENSOURCE_URL'),
-                ),
-                Markup.button.url(
-                  'by KennixDev',
-                  this.configService.get<string>('KENNIXDEV_URL'),
+                  this.i18n.t('telegraf.telegram.button.buyStars', {
+                    lang: ctx.from.language_code,
+                  }),
+                  'https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
                 ),
               ],
             ],
@@ -120,5 +157,35 @@ export class StartUpdate {
         err: e,
       })
     }
+  }
+
+  @Help()
+  async helpCommand(@Ctx() ctx: Context) {
+    await ctx.replyWithHTML(
+      `<b>Help</b>
+<b>Your Telegram id</b>: <code>${ctx.from.id}</code>
+
+If you have any difficulties with payment, subscription or anything else, write to our chat, we will respond to you!
+
+<b>Commands</b>
+/start - start the bot
+/help - show this help message
+`,
+      {
+        reply_markup: {
+          remove_keyboard: true,
+          inline_keyboard: [
+            [
+              Markup.button.url(
+                this.i18n.t('telegraf.telegram.button.chatSupport', {
+                  lang: ctx.from.language_code,
+                }),
+                this.configService.get<string>('CHAT_URL'),
+              ),
+            ],
+          ],
+        },
+      },
+    )
   }
 }

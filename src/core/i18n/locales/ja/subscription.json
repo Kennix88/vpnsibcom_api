@@ -1,0 +1,31 @@
+{
+  "created": "🎉 おめでとうございます！サブスクリプションが正常に作成されました！\n\n📆 期間: {period}\n⏱ 有効期限: {expiredAt}\n\n🔗 サブスクリプションリンク: {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1時間",
+    "day": "📅 1日",
+    "month": "📆 1ヶ月",
+    "three_month": "📆 3ヶ月",
+    "six_month": "📆 6ヶ月",
+    "year": "🗓️ 1年",
+    "two_year": "🗓️ 2年",
+    "three_year": "🗓️ 3年",
+    "trial": "🔍 トライアル期間",
+    "trial_with_days": "🔍 トライアル期間 ({days} {daysText})"
+  },
+  "renewed": "🔄 サブスクリプションは期間: {period}で正常に更新されました。⏱️ 新しい有効期限: {expiredAt}。引き続きアクセスをお楽しみください！",
+  "renewed_user": "✅ サブスクリプションが正常に更新されました！\n\n期間: {period}\n費用: {cost} STARS\n有効期限: {expiredAt}\n\n接続リンク: {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ サブスクリプションの自動更新に失敗しました（期間: {period}）。残高が不足しています。必要な金額: {requiredAmount} STARS、現在の残高: {currentBalance} STARS。サブスクリプションを更新するには、残高を補充してください。",
+  "deactivated": "⏹️ サブスクリプション「{name}」は有効期限切れのため無効化されました。引き続きご利用いただくには、サブスクリプションを更新してください。",
+  "expiration_reminder": "⏰ リマインダー！サブスクリプション「{name}」は{days} {daysText}後に期限切れになります。有効期限: {expiredAt}。",
+  "deleted": "🗑️ サブスクリプション「{name}」は正常に削除されました。当社のサービスをご利用いただきありがとうございます！またのご利用をお待ちしております。",
+  "deleted_auto": "🗑️ サブスクリプション「{name}」は1ヶ月以上非アクティブだったため、システムから削除されました。引き続き当社のサービスをご利用になりたい場合は、新しいサブスクリプションをご購入ください。",
+  "token_reset": "🔄 サブスクリプショントークンがリセットされました！\n\n⚠️ クライアントアプリケーションでサブスクリプションを再接続する必要があります。\n\n📱 新しい接続リンク: {subscriptionUrl}\n\n⏱️ サブスクリプションの有効期限: {expiredAt}まで\n\nご不明な点がございましたら、サポートにお問い合わせください。",
+  "auto_renewal_enabled": "✅ サブスクリプションの自動更新が有効になりました！\n\nこれで、残高が十分であればサブスクリプションは自動的に更新されます。",
+  "auto_renewal_disabled": "❌ サブスクリプションの自動更新が無効になりました！\n\nサブスクリプションは自動的に更新されません。有効期限が切れる前に手動で更新することを忘れないでください。",
+  "traffic_exhausted": "トラフィックがなくなりました！",
+  "buy_more_traffic_and_expiration": "サービスを継続して利用するには、トラフィックを追加購入してください。サブスクリプションは{date}に削除されます。",
+  "traffic_reset_day": "翌日に更新されます！",
+  "traffic_reset_week": "来週更新されます！",
+  "traffic_reset_month": "来月更新されます！",
+  "traffic_reset_year": "来年更新されます！"
+}

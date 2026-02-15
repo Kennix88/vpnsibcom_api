@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 {amount} STARS 충전",
+    "description": "⭐ 계정에 {amount} STARS 추가"
+  },
+  "payment_success": "✅ 성공! {amount} STARS 결제가 성공적으로 처리되었습니다!",
+  "payment_failed": "❌ 결제 실패! 결제 처리 중 오류가 발생했습니다. 🔄 다시 시도하거나 고객 지원팀에 문의하십시오.",
+  "payment_expired": "⏱️ {amount} 결제가 만료되었습니다. 🔄 구매를 계속하려면 새 결제를 생성하십시오.",
+  "referral": {
+    "reward_title": "🎁 축하합니다! 추천 보상을 받았습니다!",
+    "hold_reward": "💰 {days}일 후에 {amount} STARS를 사용할 수 있습니다 (자금 일시적으로 동결됨)",
+    "available_reward": "✅ {amount} STARS가 이미 잔액에 있으며 사용할 준비가 되었습니다!",
+    "referral_label": "👤 추천인",
+    "level_label": "🔝 레벨"
+  },
+  "hold": {
+    "released": "🎉 좋은 소식입니다! 동결된 자금 중 {amount} STARS를 이제 인출할 수 있습니다 💸"
+  }
+}

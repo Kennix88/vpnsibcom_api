@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ Abonnement succesvol gekocht! Geniet van premium toegang.",
+    "failed": "❌ Abonnement kon niet worden gekocht. Probeer het opnieuw of neem contact op met de ondersteuning.",
+    "insufficient_balance": "⚠️ Onvoldoende saldo om de aankoop te voltooien. Waardeer uw account op.",
+    "subscription_limit_exceeded": "🛑 Abonnementslimiet overschreden. U heeft het maximale aantal actieve abonnementen bereikt.",
+    "user_not_found": "❓ Gebruiker niet gevonden. Zorg ervoor dat u correct bent ingelogd."
+  },
+  "free_plan": {
+    "activated": "🎁 Gratis abonnement succesvol geactiveerd! Geniet van gratis toegang.",
+    "failed": "❌ Gratis abonnement kon niet worden geactiveerd. Probeer het later opnieuw.",
+    "not_available": "⛔ Gratis abonnement is momenteel niet beschikbaar. Controleer later opnieuw."
+  },
+  "auto_renewal": {
+    "enabled": "🔄 Automatische verlenging van het abonnement ingeschakeld. Uw abonnement wordt automatisch verlengd.",
+    "disabled": "⏹️ Automatische verlenging van het abonnement uitgeschakeld. Vergeet niet handmatig te verlengen voor de vervaldatum.",
+    "success": "✅ Abonnement succesvol verlengd! Uw toegang wordt zonder onderbreking voortgezet.",
+    "failed": "❌ Abonnement kon niet worden verlengd. Controleer uw betaalmethode.",
+    "insufficient_balance": "⚠️ Onvoldoende saldo voor automatische verlenging van het abonnement. Waardeer uw account op."
+  },
+  "expiration": {
+    "notification": "⏰ Uw abonnement verloopt over {days} {days, plural, one {dag} few {dagen} many {dagen} other {dagen}}. Vergeet niet te verlengen!",
+    "expired": "⌛ Uw abonnement is verlopen. Verleng nu om onze diensten te blijven gebruiken!"
+  }
+}

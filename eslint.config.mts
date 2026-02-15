@@ -32,5 +32,13 @@ export default tseslint.config([
     files: ['**/*.{js,mjs,cjs,ts}'],
     languageOptions: { globals: globals.node },
   },
+  {
+    files: ['prisma.config.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: false,
+      },
+    },
+  },
   eslintConfigPrettier,
 ])

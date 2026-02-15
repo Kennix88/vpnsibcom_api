@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ Abonelik başarıyla satın alındı! Premium erişimin keyfini çıkarın.",
+    "failed": "❌ Abonelik satın alınamadı. Lütfen tekrar deneyin veya destek ekibiyle iletişime geçin.",
+    "insufficient_balance": "⚠️ Satın alma işlemini tamamlamak için bakiyeniz yetersiz. Lütfen hesabınızı yükleyin.",
+    "subscription_limit_exceeded": "🛑 Abonelik limiti aşıldı. Maksimum aktif abonelik sayısına ulaştınız.",
+    "user_not_found": "❓ Kullanıcı bulunamadı. Lütfen doğru şekilde giriş yaptığınızdan emin olun."
+  },
+  "free_plan": {
+    "activated": "🎁 Ücretsiz plan başarıyla etkinleştirildi! Ücretsiz erişimin keyfini çıkarın.",
+    "failed": "❌ Ücretsiz plan etkinleştirilemedi. Lütfen daha sonra tekrar deneyin.",
+    "not_available": "⛔ Ücretsiz plan şu anda mevcut değil. Lütfen daha sonra tekrar kontrol edin."
+  },
+  "auto_renewal": {
+    "enabled": "🔄 Otomatik yenileme etkinleştirildi. Aboneliğiniz otomatik olarak yenilenecek.",
+    "disabled": "⏹️ Otomatik yenileme devre dışı bırakıldı. Süresi dolmadan önce manuel olarak yenilemeyi unutmayın.",
+    "success": "✅ Abonelik başarıyla yenilendi! Erişiminiz kesintisiz devam ediyor.",
+    "failed": "❌ Abonelik yenilenemedi. Lütfen ödeme yönteminizi kontrol edin.",
+    "insufficient_balance": "⚠️ Aboneliğin otomatik yenilenmesi için bakiyeniz yetersiz. Lütfen hesabınızı yükleyin."
+  },
+  "expiration": {
+    "notification": "⏰ Aboneliğinizin süresi {days} gün içinde dolacak. Yenilemeyi unutmayın!",
+    "expired": "⌛ Aboneliğinizin süresi doldu. Hizmetlerimizi kullanmaya devam etmek için şimdi yenileyin!"
+  }
+}

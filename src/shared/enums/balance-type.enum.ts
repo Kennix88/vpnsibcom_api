@@ -1,6 +1,10 @@
 export enum BalanceTypeEnum {
   PAYMENT = 'PAYMENT',
   WITHDRAWAL = 'WITHDRAWAL',
+  HOLD = 'HOLD',
+  WAGER = 'WAGER',
+  TRAFFIC = 'TRAFFIC',
   TICKETS = 'TICKETS',
   NOT_BALANCE = 'NOT_BALANCE',
+  AD = 'AD',
 }

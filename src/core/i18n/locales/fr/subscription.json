@@ -1,0 +1,78 @@
+{
+  "created": "🎉 Félicitations ! Votre abonnement a été créé avec succès !\n\n📆 Période : {period}\n⏱ Valable jusqu'au : {expiredAt}\n\n🔗 Lien d'abonnement : {subscriptionUrl}",
+  "period": {
+    "hour": "⏱️ 1 heure",
+    "day": "📅 1 jour",
+    "month": "📆 1 mois",
+    "three_month": "📆 3 mois",
+    "six_month": "📆 6 mois",
+    "year": "🗓️ 1 an",
+    "two_year": "🗓️ 2 ans",
+    "three_year": "🗓️ 3 ans",
+    "trial": "🔍 Période d'essai",
+    "trial_with_days": "🔍 Période d'essai ({days} {daysText})"
+  },
+  "renewed": "🔄 Votre abonnement a été renouvelé avec succès pour la période : {period}. ⏱️ Nouvelle date d'expiration : {expiredAt}. Profitez de votre accès continu !",
+  "renewed_user": "✅ Votre abonnement a été renouvelé avec succès !\n\nPériode : {period}\nCoût : {cost} STARS\nValable jusqu'au : {expiredAt}\n\nVotre lien de connexion : {subscriptionUrl}",
+  "renewal_failed_balance": "⚠️ Impossible de renouveler automatiquement votre abonnement pour la période {period}. Solde insuffisant. Requis : {requiredAmount} STARS, solde actuel : {currentBalance} STARS. Veuillez recharger votre solde pour renouveler votre abonnement.",
+  "deactivated": "⏹️ Votre abonnement {name} a été désactivé en raison de son expiration. Pour continuer à utiliser le service, veuillez renouveler votre abonnement.",
+  "expiration_reminder": "⏰ Rappel ! Votre abonnement \"{name}\" expire dans {days} {daysText}. Date d'expiration : {expiredAt}.",
+  "deleted": "🗑️ Votre abonnement \"{name}\" a été supprimé avec succès. Merci d'avoir utilisé notre service ! Nous espérons vous revoir bientôt.",
+  "deleted_auto": "🗑️ Votre abonnement \"{name}\" a été supprimé du système car il était inactif depuis plus d'un mois. Si vous souhaitez continuer à utiliser notre service, veuillez acheter un nouvel abonnement.",
+  "token_reset": "🔄 Le jeton d'abonnement a été réinitialisé !\n\n⚠️ Vous devez reconnecter votre abonnement dans l'application client.\n\n📱 Nouveau lien de connexion : {subscriptionUrl}\n\n⏱️ Durée de l'abonnement : jusqu'au {expiredAt}\n\nSi vous avez des questions, contactez le support.",
+  "auto_renewal_enabled": "✅ Renouvellement automatique activé !\n\nVotre abonnement sera désormais renouvelé automatiquement si vous disposez de fonds suffisants sur votre compte.",
+  "auto_renewal_disabled": "❌ Renouvellement automatique désactivé !\n\nVotre abonnement ne sera pas renouvelé automatiquement. N'oubliez pas de le renouveler manuellement avant son expiration.",
+  "traffic_exhausted": "Votre trafic est épuisé !",
+  "buy_more_traffic_and_expiration": "Pour continuer à utiliser le service, veuillez acheter plus de trafic. L'abonnement sera supprimé le : {date}",
+  "traffic_reset_day": "Sera mis à jour le jour suivant !",
+  "traffic_reset_week": "Sera mis à jour la semaine prochaine !",
+  "traffic_reset_month": "Sera mis à jour le mois prochain !",
+  "traffic_reset_year": "Sera mis à jour l'année prochaine !",
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "expired": "Expirée",
+    "pending": "En attente",
+    "cancelled": "Annulée"
+  },
+  "actions": {
+    "create": "Créer un abonnement",
+    "renew": "Renouveler l'abonnement",
+    "cancel": "Annuler l'abonnement",
+    "activate": "Activer l'abonnement",
+    "deactivate": "Désactiver l'abonnement"
+  },
+  "info": {
+    "created_at": "Créé le",
+    "expires_at": "Expire le",
+    "plan": "Plan",
+    "price": "Prix",
+    "auto_renewal": "Renouvellement automatique",
+    "payment_method": "Méthode de paiement",
+    "subscription_id": "ID d'abonnement",
+    "status": "Statut"
+  },
+  "errors": {
+    "not_found": "Abonnement non trouvé",
+    "already_exists": "L'abonnement existe déjà",
+    "invalid_plan": "Plan d'abonnement invalide",
+    "payment_failed": "Échec du paiement",
+    "insufficient_funds": "Fonds insuffisants",
+    "service_unavailable": "Service temporairement indisponible"
+  },
+  "notifications": {
+    "created": "Abonnement créé avec succès",
+    "renewed": "Abonnement renouvelé avec succès",
+    "cancelled": "Abonnement annulé",
+    "expiring_soon": "Votre abonnement expire bientôt",
+    "expired": "Votre abonnement a expiré",
+    "payment_upcoming": "Le paiement pour le renouvellement de l'abonnement sera bientôt effectué"
+  },
+  "traffic": {
+    "limit": "Limite de trafic",
+    "used": "Trafic utilisé",
+    "remaining": "Trafic restant",
+    "unlimited": "Trafic illimité",
+    "exceeded": "Limite de trafic dépassée"
+  }
+}

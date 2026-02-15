@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 추천 보상을 받았습니다!\n\n⭐ {starsAmount} STARS가 이미 잔액에 있습니다\n\n👤 추천인: {referralName}\n🔝 레벨: {level}",
+  "defaultName": "👤 사용자"
+}

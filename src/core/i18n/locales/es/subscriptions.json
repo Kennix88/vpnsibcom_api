@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ ¡Suscripción comprada con éxito! Disfruta del acceso premium.",
+    "failed": "❌ No se pudo comprar la suscripción. Por favor, inténtalo de nuevo o contacta con soporte.",
+    "insufficient_balance": "⚠️ Saldo insuficiente para completar la compra. Por favor, recarga tu cuenta.",
+    "subscription_limit_exceeded": "🛑 Límite de suscripciones excedido. Has alcanzado el número máximo de suscripciones activas.",
+    "user_not_found": "❓ Usuario no encontrado. Por favor, asegúrate de haber iniciado sesión correctamente."
+  },
+  "free_plan": {
+    "activated": "🎁 ¡Plan gratuito activado con éxito! Disfruta del acceso gratuito.",
+    "failed": "❌ No se pudo activar el plan gratuito. Por favor, inténtalo de nuevo más tarde.",
+    "not_available": "⛔ El plan gratuito no está disponible actualmente. Por favor, compruébalo más tarde."
+  },
+  "auto_renewal": {
+    "enabled": "🔄 Renovación automática de suscripción activada. Tu suscripción se renovará automáticamente.",
+    "disabled": "⏹️ Renovación automática de suscripción desactivada. No olvides renovarla manualmente antes de que expire.",
+    "success": "✅ ¡Suscripción renovada con éxito! Tu acceso continúa sin interrupciones.",
+    "failed": "❌ No se pudo renovar la suscripción. Por favor, verifica tu método de pago.",
+    "insufficient_balance": "⚠️ Saldo insuficiente para la renovación automática de la suscripción. Por favor, recarga tu cuenta."
+  },
+  "expiration": {
+    "notification": "⏰ Tu suscripción expira en {days} {days, plural, one {día} few {días} many {días} other {días}}. ¡No olvides renovar!",
+    "expired": "⌛ Tu suscripción ha expirado. ¡Renueva ahora para seguir disfrutando de nuestros servicios!"
+  }
+}

@@ -6,6 +6,12 @@
     }
 }
 
+(dns_cf) {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
+
 # Общие заголовки безопасности
 (security_headers) {
     header {
@@ -32,6 +38,7 @@
 (standard_config) {
     import tls_settings
     import security_headers
+				import dns_cf
 }
 
 # Основной фронтенд
@@ -47,9 +54,6 @@ fasti.fun, front.fasti.fun, www.fasti.fun {
     }
 
     reverse_proxy frontend:3000 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
         transport http {
             read_buffer 4096
             read_timeout 10s
@@ -91,9 +95,6 @@ api.fasti.fun {
     }
 
     reverse_proxy api:4000 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
         transport http {
             read_buffer 4096
             read_timeout 10s
@@ -113,12 +114,28 @@ api.fasti.fun {
     }
 }
 
+*.frps.fasti.fun {
+    import standard_config
+
+    reverse_proxy frps:8090 {
+        transport http {
+            read_timeout 300s
+            write_timeout 300s
+            keepalive 120s
+        }
+    }
+
+    log {
+        output file /var/log/caddy/frps-wildcard.access.log
+        format json
+    }
+}
+
 # Grafana
 grafana.fasti.fun {
     import standard_config
 
     reverse_proxy grafana:3000 {
-        header_up X-Forwarded-For {remote_host}
     }
 
     header Content-Security-Policy "
@@ -129,31 +146,17 @@ grafana.fasti.fun {
     "
 }
 
-# Prometheus
-# prometheus.fasti.fun {
-#     import standard_config
-
-#     reverse_proxy prometheus:9090 {
-#         flush_interval -1
-#     }
-
-#     header Content-Security-Policy "default-src 'self';"
-# }
-
-# Xray-checker
-xray-checker.fasti.fun {
+# FRP Control (WebSocket)
+frp.fasti.fun {
     import standard_config
-    reverse_proxy xray-checker:2112 {
-        header_up X-Forwarded-For {remote_host}
-    }
-    header Content-Security-Policy "default-src 'self';"
-}
 
-# Uptime Kuma
-status.fasti.fun {
-    import standard_config
-    reverse_proxy uptime-kuma:3001 {
-        header_up X-Forwarded-For {remote_host}
+    reverse_proxy frps:7000 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
     }
-    header Content-Security-Policy "default-src 'self';"
+
+    log {
+        output file /var/log/caddy/frp.access.log
+        format json
+    }
 }

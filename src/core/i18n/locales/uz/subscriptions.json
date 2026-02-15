@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ Obuna muvaffaqiyatli sotib olindi! Premium imkoniyatlardan foydalaning.",
+    "failed": "❌ Obunani sotib olish imkoni bo'lmadi. Iltimos, qayta urinib ko'ring yoki qo'llab-quvvatlash xizmatiga murojaat qiling.",
+    "insufficient_balance": "⚠️ Xaridni yakunlash uchun hisobingizda mablag' yetarli emas. Iltimos, hisobingizni to'ldiring.",
+    "subscription_limit_exceeded": "🛑 Obunalar chegarasi oshib ketdi. Siz maksimal faol obunalar soniga yetdingiz.",
+    "user_not_found": "❓ Foydalanuvchi topilmadi. Iltimos, tizimga to'g'ri kirilganligini tekshiring."
+  },
+  "free_plan": {
+    "activated": "🎁 Bepul reja muvaffaqiyatli faollashtirildi! Bepul kirish imkoniyatidan foydalaning.",
+    "failed": "❌ Bepul rejani faollashtirish imkoni bo'lmadi. Iltimos, keyinroq urinib ko'ring.",
+    "not_available": "⛔ Bepul reja hozirda mavjud emas. Iltimos, keyinroq tekshiring."
+  },
+  "auto_renewal": {
+    "enabled": "🔄 Avtomatik obuna uzaytirish yoqildi. Obunangiz avtomatik ravishda uzaytiriladi.",
+    "disabled": "⏹️ Avtomatik obuna uzaytirish o'chirildi. Muddat tugashidan oldin qo'lda uzaytirishni unutmang.",
+    "success": "✅ Obuna muvaffaqiyatli uzaytirildi! Kirishingiz uzilishsiz davom etadi.",
+    "failed": "❌ Obunani uzaytirish imkoni bo'lmadi. Iltimos, to'lov usulini tekshiring.",
+    "insufficient_balance": "⚠️ Obunani avtomatik uzaytirish uchun hisobingizda mablag' yetarli emas. Iltimos, hisobingizni to'ldiring."
+  },
+  "expiration": {
+    "notification": "⏰ Obunangiz {days} kundan so'ng tugaydi. Uzaytirishni unutmang!",
+    "expired": "⌛ Obunangiz tugadi. Xizmatlarimizdan foydalanishni davom ettirish uchun hozir uzaytiring!"
+  }
+}

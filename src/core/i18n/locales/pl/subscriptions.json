@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ Subskrypcja została pomyślnie zakupiona! Ciesz się dostępem premium.",
+    "failed": "❌ Nie udało się zakupić subskrypcji. Spróbuj ponownie lub skontaktuj się z pomocą techniczną.",
+    "insufficient_balance": "⚠️ Niewystarczające środki na koncie, aby zakończyć zakup. Proszę doładuj swoje konto.",
+    "subscription_limit_exceeded": "🛑 Przekroczono limit subskrypcji. Osiągnąłeś maksymalną liczbę aktywnych subskrypcji.",
+    "user_not_found": "❓ Użytkownik nie znaleziony. Upewnij się, że jesteś poprawnie zalogowany."
+  },
+  "free_plan": {
+    "activated": "🎁 Plan darmowy został pomyślnie aktywowany! Ciesz się darmowym dostępem.",
+    "failed": "❌ Nie udało się aktywować planu darmowego. Spróbuj ponownie później.",
+    "not_available": "⛔ Plan darmowy jest obecnie niedostępny. Sprawdź ponownie później."
+  },
+  "auto_renewal": {
+    "enabled": "🔄 Automatyczne odnawianie subskrypcji włączone. Twoja subskrypcja będzie odnawiana automatycznie.",
+    "disabled": "⏹️ Automatyczne odnawianie subskrypcji wyłączone. Pamiętaj, aby odnowić ręcznie przed wygaśnięciem.",
+    "success": "✅ Subskrypcja pomyślnie odnowiona! Twój dostęp jest kontynuowany bez przerwy.",
+    "failed": "❌ Nie udało się odnowić subskrypcji. Sprawdź swoją metodę płatności.",
+    "insufficient_balance": "⚠️ Niewystarczające środki na koncie do automatycznego odnowienia subskrypcji. Proszę doładuj swoje konto."
+  },
+  "expiration": {
+    "notification": "⏰ Twoja subskrypcja wygasa za {days} dni. Pamiętaj, aby ją odnowić!",
+    "expired": "⌛ Twoja subskrypcja wygasła. Odnów teraz, aby kontynuować korzystanie z naszych usług!"
+  }
+}

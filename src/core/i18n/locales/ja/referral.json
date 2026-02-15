@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 紹介報酬を受け取りました！\n\n⭐ {starsAmount} STARSが残高に利用可能です\n\n👤 紹介者: {referralName}\n🔝 レベル: {level}",
+  "defaultName": "👤 ユーザー"
+}

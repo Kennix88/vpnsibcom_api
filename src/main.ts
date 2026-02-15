@@ -96,9 +96,15 @@ async function configureFastify(
 
 async function bootstrap() {
   const isProd = process.env.NODE_ENV === 'production'
+
   const app = await NestFactory.create<NestFastifyApplication>(
     CoreModule,
-    new FastifyAdapter({ trustProxy: isProd, logger: false, genReqId }),
+    new FastifyAdapter({
+      trustProxy: isProd,
+      logger: false,
+      genReqId,
+      // https: httpsOptions, // подключаем HTTPS
+    }),
     { bufferLogs: isProd, rawBody: true },
   )
 

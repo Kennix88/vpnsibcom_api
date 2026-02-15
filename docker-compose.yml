@@ -12,6 +12,8 @@ services:
       - NODE_ENV=${NODE_ENV}
       - SEED_MOD=${SEED_MOD}
       - APPLICATION_PORT=${APPLICATION_PORT}
+      - TONAPI_KEY=${TONAPI_KEY}
+      - TON_WALLET=${TON_WALLET}
       - APPLICATION_URL=${APPLICATION_URL}
       - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
       - TMA_URL=${TMA_URL}
@@ -19,7 +21,7 @@ services:
       - BOT_URL=${BOT_URL}
       - CHANNEL_URL=${CHANNEL_URL}
       - CHAT_URL=${CHAT_URL}
-      - KENNIXDEV_URL=${KENNIXDEV_URL}
+      - ADS_SESSION_SECRET=${ADS_SESSION_SECRET}
       - OPENSOURCE_URL=${OPENSOURCE_URL}
       - DOMAIN=${DOMAIN}
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
@@ -39,12 +41,12 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}
+      - POSTGRES_URL=${POSTGRES_URL}
       - REDIS_USER=${REDIS_USER}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
-      - REDIS_URL=redis://${REDIS_USER}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}
+      - REDIS_URL=${REDIS_URL}
       - TELEGRAM_ADMIN_ID=${TELEGRAM_ADMIN_ID}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_LOG_CHAT_ID=${TELEGRAM_LOG_CHAT_ID}
@@ -63,12 +65,12 @@ services:
       - COINMARKETCAP_URL=${COINMARKETCAP_URL}
       - FOREXRATEAPI_URL=${FOREXRATEAPI_URL}
       - FOREXRATEAPI_TOKEN=${FOREXRATEAPI_TOKEN}
-      - CRYPTOMUS_MERCHANT=${CRYPTOMUS_MERCHANT}
-      - CRYPTOMUS_TOKEN=${CRYPTOMUS_TOKEN}
-      - CRYPTOMUS_URL=${CRYPTOMUS_URL}
       - PAYPALYCH_ID=${PAYPALYCH_ID}
       - PAYPALYCH_TOKEN=${PAYPALYCH_TOKEN}
       - PAYPALYCH_URL=${PAYPALYCH_URL}
+      - TADDY_PUB_KEY=${TADDY_PUB_KEY}
+      - TADDY_API_URL=${TADDY_API_URL}
+      - TADDY_SECRET_KEY=${TADDY_SECRET_KEY}
     volumes:
       - api_logs:/app/logs
     networks:
@@ -101,13 +103,13 @@ services:
       - NEXT_PUBLIC_API_PORT=${NEXT_PUBLIC_API_PORT}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
       - NEXT_PUBLIC_APP_PORT=${NEXT_PUBLIC_APP_PORT}
-      - NEXT_PUBLIC_TELEGRAM_KENNIXDEV_URL=${NEXT_PUBLIC_TELEGRAM_KENNIXDEV_URL}
       - NEXT_PUBLIC_TELEGRAM_CHANNEL_URL=${NEXT_PUBLIC_TELEGRAM_CHANNEL_URL}
       - NEXT_PUBLIC_TELEGRAM_CHAT_URL=${NEXT_PUBLIC_TELEGRAM_CHAT_URL}
       - NEXT_PUBLIC_GITHUBREPO_URL=${NEXT_PUBLIC_GITHUBREPO_URL}
       - NEXT_PUBLIC_TON_CONNECT_MANIFEST_URL=${NEXT_PUBLIC_TON_CONNECT_MANIFEST_URL}
       - NEXT_PUBLIC_SPLIT_TG_REF_URL=${NEXT_PUBLIC_SPLIT_TG_REF_URL}
       - NEXT_PUBLIC_BOT_URL=${NEXT_PUBLIC_BOT_URL}
+      - NEXT_PUBLIC_GRASPIL_ID=${NEXT_PUBLIC_GRASPIL_ID}
     networks:
       - token-backend
     expose:
@@ -142,29 +144,28 @@ services:
       retries: 5
     tty: true
     stdin_open: true
+    command: postgres -c idle_in_transaction_session_timeout=0 -c statement_timeout=0
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:7-alpine
     restart: unless-stopped
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: >
       sh -c '
-        mkdir -p /usr/local/etc/redis &&
-        echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
-        echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
-        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
-        echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
-        echo "user default on nopass ~* +@all" > /usr/local/etc/redis/users.acl &&
-        redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+      mkdir -p /usr/local/etc/redis &&
+      echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+      echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
+      echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+      echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+      echo "timeout 0" >> /usr/local/etc/redis/redis.conf &&
+      echo "tcp-keepalive 60" >> /usr/local/etc/redis/redis.conf &&
+      echo "maxclients 10000" >> /usr/local/etc/redis/redis.conf &&
+      redis-server /usr/local/etc/redis/redis.conf
       '
     volumes:
       - redis_data:/data
     networks:
       - token-backend
-    expose:
-      - '6379'
     ports:
       - '6379:6379'
     healthcheck:
@@ -198,31 +199,11 @@ services:
     tty: true
     stdin_open: true
 
-  # prometheus:
-  #   container_name: prometheus
-  #   image: prom/prometheus:latest
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-  #     - ./prometheus/marzban_targets.yml:/etc/prometheus/marzban_targets.yml
-  #     - prometheus_data:/prometheus
-  #   command:
-  #     - '--config.file=/etc/prometheus/prometheus.yml'
-  #   networks:
-  #     - token-backend
-  #   expose:
-  #     - '9090'
-  #   healthcheck:
-  #     test: ['CMD', 'wget', '-qO-', 'http://localhost:9090/-/healthy']
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  #   tty: true
-  #   stdin_open: true
-
   caddy:
     container_name: caddy
-    image: caddy:latest
+    build:
+      context: .
+      dockerfile: ./docker/caddy/Dockerfile
     restart: unless-stopped
     ports:
       - '80:80'
@@ -238,16 +219,14 @@ services:
     networks:
       - token-backend
     environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - CADDY_DISABLE_HTTP_CHALLENGE=true
-      - ACME_AGREE=true
+      # - ACME_AGREE=true
       - ACME_EMAIL=shel.live@yandex.ru
     depends_on:
       - api
-      - frontend
+      # - frontend
       - grafana
-      # - prometheus
-      - xray-checker
-      - uptime-kuma
     healthcheck:
       test: ['CMD', 'caddy', 'validate', '--config', '/etc/caddy/Caddyfile']
       interval: 30s
@@ -256,78 +235,40 @@ services:
     sysctls:
       - net.core.somaxconn=1024
 
-  xray-checker:
-    container_name: xray-checker
-    image: kutovoys/xray-checker
+  pg-backup:
+    image: postgres:17-alpine
+    container_name: pg-backup
     restart: unless-stopped
+    depends_on:
+      - db
     environment:
-      - SUBSCRIPTION_URL=${XRAY_CHECHER_SUBSCRIPTION_URL}
-      - METRICS_PROTECTED=true
-      - METRICS_USERNAME=${XRAY_CHECHER_USERNAME}
-      - METRICS_PASSWORD=${XRAY_CHECHER_PASSWORD}
-    ports:
-      - '2112:2112'
-    networks:
-      - token-backend
-
-  # postgres_exporter:
-  #   image: prometheuscommunity/postgres-exporter
-  #   container_name: postgres_exporter
-  #   restart: unless-stopped
-  #   environment:
-  #     DATA_SOURCE_NAME: 'postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DATABASE}?sslmode=disable'
-  #   networks:
-  #     - token-backend
-  #   ports:
-  #     - '9187:9187'
-
-  # redis_exporter:
-  #   image: oliver006/redis_exporter
-  #   container_name: redis_exporter
-  #   restart: unless-stopped
-  #   command: --redis.addr=redis://redis:6379 --redis.password=${REDIS_PASSWORD}
-  #   networks:
-  #     - token-backend
-  #   ports:
-  #     - '9121:9121'
-
-  # cadvisor:
-  #   image: gcr.io/cadvisor/cadvisor:latest
-  #   container_name: cadvisor
-  #   restart: unless-stopped
-  #   ports:
-  #     - '8080:8080'
-  #   volumes:
-  #     - /:/rootfs:ro
-  #     - /var/run:/var/run:ro
-  #     - /sys:/sys:ro
-  #     - /var/lib/docker/:/var/lib/docker:ro
-  #   networks:
-  #     - token-backend
-
-  # node_exporter:
-  #   image: prom/node-exporter
-  #   container_name: node_exporter
-  #   restart: unless-stopped
-  #   ports:
-  #     - '9100:9100'
-  #   networks:
-  #     - token-backend
-
-  uptime-kuma:
-    image: louislam/uptime-kuma:latest
-    container_name: uptime-kuma
-    restart: unless-stopped
-    ports:
-      - '8082:3001'
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_LOG_CHAT_ID=${TELEGRAM_LOG_CHAT_ID}
+      - TELEGRAM_THREAD_ID_BACKUPS=${TELEGRAM_THREAD_ID_BACKUPS}
+      - CRON_SCHEDULE=0 */6 * * *
     networks:
       - token-backend
     volumes:
-      - uptime-kuma-data:/app/data
-    environment:
-      - TZ=Etc/UTC
-      - UM_USERNAME=${UM_USERNAME}
-      - UM_PASSWORD=${UM_PASSWORD}
+      - ./docker/pg-backup/backup.sh:/backup.sh:ro
+    entrypoint: ['/bin/sh', '/backup.sh']
+
+  frps:
+    container_name: frps
+    image: fatedier/frps:v0.66.0
+    restart: unless-stopped
+    volumes:
+      - ./frp/frps.toml:/etc/frp/frps.toml:ro
+    command: ['-c', '/etc/frp/frps.toml']
+    ports:
+      - '7221:7000' # порт управления frpc
+      - '8021:8090' # http vhost frps — локально на VPS (доступен для Caddy)
+      - '7521:7500' # dashboard (опционально)
+    networks:
+      - token-backend
 
 networks:
   token-backend:
@@ -346,8 +287,4 @@ volumes:
   caddy_config:
     driver: local
   grafana_data:
-    driver: local
-  # prometheus_data:
-  #   driver: local
-  uptime-kuma-data:
     driver: local

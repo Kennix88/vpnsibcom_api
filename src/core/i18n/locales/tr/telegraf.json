@@ -1,0 +1,21 @@
+{
+  "start": {
+    "welcome": "Başlatıldı"
+  },
+  "TOO_MANY_REQUESTS": "Çok fazla istek, lütfen {0} saniye sonra tekrar deneyin 🚦",
+  "telegram": {
+    "welcome": {
+      "greeting": "Merhaba, {name}!",
+      "message1": "VPNsib'e hoş geldiniz!",
+      "message2": "VPN kullanabileceğiniz ve oyun oynayabileceğiniz bir uygulama.",
+      "developedBy": "Geliştiren @KennixDev",
+      "supportedBy": "@solycmty desteğiyle",
+      "buyStars": "KYC olmadan, %40'a varan avantajla Telegram STARS ⭐️ satın alın —> <a href=\"https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ\">@split</a>"
+    },
+    "button": {
+      "channel": "Kanal",
+      "chatSupport": "Sohbet&Destek",
+      "buyStars": "STARS Satın Al ⭐️"
+    }
+  }
+}

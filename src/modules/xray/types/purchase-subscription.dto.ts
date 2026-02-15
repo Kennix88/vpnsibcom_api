@@ -1,11 +1,14 @@
 import { PlansEnum } from '@modules/plans/types/plans.enum'
+import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
+import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import {
   IsArray,
   IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
+  IsString,
 } from 'class-validator'
 
 /**
@@ -18,13 +21,15 @@ export class PurchaseSubscriptionDto {
   @IsEnum(PlansEnum)
   planKey: PlansEnum
 
+  @IsEnum([...Object.values(PaymentMethodEnum), 'BALANCE', 'TRAFFIC', 'AD'])
+  method: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC' | 'AD'
+
+  @IsString()
+  name: string
+
   @IsNumber()
   @IsOptional()
   periodMultiplier?: number = 1
-
-  @IsBoolean()
-  @IsOptional()
-  isFixedPrice?: boolean = false
 
   @IsNumber()
   devicesCount: number
@@ -44,6 +49,9 @@ export class PurchaseSubscriptionDto {
   @IsBoolean()
   @IsOptional()
   isUnlimitTraffic?: boolean = false
+
+  @IsEnum(TrafficResetEnum)
+  trafficReset: TrafficResetEnum
 
   @IsArray()
   servers: string[] = []

@@ -9,7 +9,7 @@ export class TelegramAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest()
 
-    // Проверяем наличие и тип initData
+    // Checking for initData presence and type
     if (
       !request.body ||
       typeof request.body !== 'object' ||
@@ -24,9 +24,9 @@ export class TelegramAuthGuard implements CanActivate {
       const telegramBotToken =
         this.configService.getOrThrow<string>('TELEGRAM_BOT_TOKEN')
 
-      return isValid(initData, telegramBotToken)
+      const isValidResult = isValid(initData, telegramBotToken)
+      return isValidResult
     } catch (error) {
-      console.error('Telegram auth validation failed:', error)
       return false
     }
   }

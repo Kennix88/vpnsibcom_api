@@ -1,0 +1,19 @@
+{
+  "invoice": {
+    "title": "💳 Saldo opwaarderen met {amount} STARS",
+    "description": "⭐ {amount} STARS toevoegen aan uw account"
+  },
+  "payment_success": "✅ Succes! Uw betaling van {amount} STARS is succesvol verwerkt!",
+  "payment_failed": "❌ Betaling mislukt! Er is een fout opgetreden bij het verwerken van de betaling. 🔄 Probeer het opnieuw of neem contact op met onze klantenservice.",
+  "payment_expired": "⏱️ Uw betaling van {amount} is verlopen. 🔄 Maak een nieuwe betaling aan als u de aankoop wilt voortzetten.",
+  "referral": {
+    "reward_title": "🎁 Gefeliciteerd! U heeft een verwijzingsbeloning ontvangen!",
+    "hold_reward": "💰 {amount} STARS zijn over {days} dagen beschikbaar (fondsen tijdelijk bevroren)",
+    "available_reward": "✅ {amount} STARS zijn al beschikbaar op uw saldo en klaar voor gebruik!",
+    "referral_label": "👤 Verwijzer",
+    "level_label": "🔝 Niveau"
+  },
+  "hold": {
+    "released": "🎉 Geweldig nieuws! {amount} STARS van bevroren fondsen zijn nu beschikbaar voor opname 💸"
+  }
+}

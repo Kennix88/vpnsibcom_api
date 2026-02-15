@@ -1,0 +1,21 @@
+{
+  "start": {
+    "welcome": "Ishga tushirildi"
+  },
+  "TOO_MANY_REQUESTS": "Juda ko'p so'rovlar, iltimos, {0} soniyadan so'ng qayta urinib ko'ring 🚦",
+  "telegram": {
+    "welcome": {
+      "greeting": "Salom, {name}!",
+      "message1": "VPNsib-ga xush kelibsiz!",
+      "message2": "VPN-dan foydalanish va o'yinlar o'ynash mumkin bo'lgan ilova.",
+      "developedBy": "@KennixDev tomonidan ishlab chiqilgan",
+      "supportedBy": "@solycmty yordami bilan",
+      "buyStars": "Telegram STARS ⭐️ ni KYC siz, 40% gacha foyda bilan sotib olish mumkin —> <a href=\"https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ\">@split</a>"
+    },
+    "button": {
+      "channel": "Kanal",
+      "chatSupport": "Chat&Yordam",
+      "buyStars": "STARS ⭐️ sotib olish"
+    }
+  }
+}

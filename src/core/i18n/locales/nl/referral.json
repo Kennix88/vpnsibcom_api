@@ -1,0 +1,4 @@
+{
+  "rewardReceived": "💰 U heeft een verwijzingsbeloning ontvangen!\n\n⭐ {starsAmount} STARS zijn al beschikbaar op uw saldo\n\n👤 Verwijzer: {referralName}\n🔝 Niveau: {level}",
+  "defaultName": "👤 Gebruiker"
+}

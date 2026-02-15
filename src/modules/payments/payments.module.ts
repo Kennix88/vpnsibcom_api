@@ -7,18 +7,30 @@ import { RatesModule } from '@modules/rates/rates.module'
 import { UsersModule } from '@modules/users/users.module'
 import { XrayModule } from '@modules/xray/xray.module'
 import { forwardRef, Global, Module } from '@nestjs/common'
+import { TonPaymentsService } from './services/ton-payments.service'
+import { TonUtimeService } from './services/ton-uptime.service'
 
 @Global()
 @Module({
   imports: [
-    AuthModule,
-    UsersModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersModule),
     RatesModule,
     forwardRef(() => XrayModule),
     forwardRef(() => TelegramModule),
   ],
   controllers: [PaymentsController],
-  providers: [PaymentsService, PaymentsCronService],
-  exports: [PaymentsService, PaymentsCronService],
+  providers: [
+    PaymentsService,
+    PaymentsCronService,
+    TonPaymentsService,
+    TonUtimeService,
+  ],
+  exports: [
+    PaymentsService,
+    PaymentsCronService,
+    TonPaymentsService,
+    TonUtimeService,
+  ],
 })
 export class PaymentsModule {}

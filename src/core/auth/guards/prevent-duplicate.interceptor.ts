@@ -136,8 +136,8 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
         user: req.user,
         realIp: getClientIp(req),
         details: {
-          error: err.message,
-          stack: err.stack,
+          error: err instanceof Error ? err.message : String(err),
+          stack: err instanceof Error ? err.stack : '',
         },
       })
       return next.handle()
@@ -198,7 +198,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
         path: context?.path || 'UNKNOWN',
         details: {
           error: 'Redis operation failed',
-          message: err.message,
+          message: err instanceof Error ? err.message : String(err),
         },
       })
       return null

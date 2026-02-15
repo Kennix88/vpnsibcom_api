@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
+import axiosRetry from 'axios-retry'
 import { PinoLogger } from 'nestjs-pino'
 import {
   Admin,
@@ -54,6 +55,22 @@ export class MarzbanService {
       baseURL,
       headers: {
         'Content-Type': 'application/json',
+      },
+    })
+
+    // Apply axios-retry to the client instance
+    axiosRetry(this.client, {
+      retries: 3, // Number of retries
+      retryDelay: axiosRetry.exponentialDelay, // Exponential backoff retry delay
+      retryCondition: (error) => {
+        // Retry on network errors or 5xx errors
+        return axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error)
+      },
+      onRetry: (retryCount, error, requestConfig) => {
+        this.logger.warn({
+          msg: `Retry attempt ${retryCount} for ${requestConfig.method?.toUpperCase()} ${requestConfig.url}: ${error.message}`,
+          service: this.serviceName,
+        })
       },
     })
 
@@ -421,21 +438,59 @@ export class MarzbanService {
     return response.data
   }
 
+  /**
+   * Получение конфигурации подписки
+   * @param token Токен подписки
+   * @param format Формат конфигурации
+   * @param userAgent User-Agent клиента
+   * @returns Ответ с конфигурацией
+   */
   async getSubscriptionConfig(
     token: string,
     format: XrayConfigFromatType,
     userAgent: string,
   ): Promise<AxiosResponse> {
-    const response: AxiosResponse = await this.logApiCall(
-      'getSubscriptionConfig',
-      () =>
-        this.client.get(`/sub/${token}/${format}`, {
-          headers: {
-            'User-Agent': userAgent,
-          },
-        }),
-    )
-    return response
+    try {
+      this.logger.info({
+        msg: `Requesting subscription config with token: ${token}, format: ${format}`,
+        service: this.serviceName,
+      })
+      
+      // Очищаем токен от возможных лишних символов
+      const cleanToken = token.trim().replace(/[`"'\s]+/g, '')
+      
+      if (cleanToken !== token) {
+        this.logger.warn({
+          msg: `Token was cleaned from extra characters: '${token}' -> '${cleanToken}'`,
+          service: this.serviceName,
+        })
+      }
+      
+      const response: AxiosResponse = await this.logApiCall(
+        'getSubscriptionConfig',
+        () =>
+          this.client.get(`/sub/${cleanToken}/${format}`, {
+            headers: {
+              'User-Agent': userAgent,
+            },
+          }),
+      )
+      return response
+    } catch (error) {
+      const axiosError = error as AxiosError
+      this.logger.error({
+        msg: `Ошибка при вызове getSubscriptionConfig: ${axiosError.message}`,
+        req: {
+          token,
+          format,
+          userAgent,
+          baseURL: this.baseURL,
+        },
+        service: this.serviceName,
+        error,
+      })
+      throw error
+    }
   }
 
   /**

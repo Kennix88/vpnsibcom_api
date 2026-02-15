@@ -1,0 +1,25 @@
+{
+  "purchase": {
+    "success": "✅ Abonnement erfolgreich gekauft! Genießen Sie Premium-Zugang.",
+    "failed": "❌ Abonnement konnte nicht gekauft werden. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support.",
+    "insufficient_balance": "⚠️ Unzureichendes Guthaben für den Abschluss des Kaufs. Bitte laden Sie Ihr Konto auf.",
+    "subscription_limit_exceeded": "🛑 Abonnementlimit überschritten. Sie haben die maximale Anzahl aktiver Abonnements erreicht.",
+    "user_not_found": "❓ Benutzer nicht gefunden. Bitte stellen Sie sicher, dass Sie korrekt angemeldet sind."
+  },
+  "free_plan": {
+    "activated": "🎁 Kostenloser Plan erfolgreich aktiviert! Genießen Sie kostenlosen Zugang.",
+    "failed": "❌ Kostenloser Plan konnte nicht aktiviert werden. Bitte versuchen Sie es später erneut.",
+    "not_available": "⛔ Kostenloser Plan ist derzeit nicht verfügbar. Bitte überprüfen Sie dies später."
+  },
+  "auto_renewal": {
+    "enabled": "🔄 Automatische Abonnementverlängerung aktiviert. Ihr Abonnement wird automatisch verlängert.",
+    "disabled": "⏹️ Automatische Abonnementverlängerung deaktiviert. Vergessen Sie nicht, manuell vor Ablauf zu verlängern.",
+    "success": "✅ Abonnement erfolgreich verlängert! Ihr Zugang wird ohne Unterbrechung fortgesetzt.",
+    "failed": "❌ Abonnement konnte nicht verlängert werden. Bitte überprüfen Sie Ihre Zahlungsmethode.",
+    "insufficient_balance": "⚠️ Unzureichendes Guthaben für die automatische Verlängerung des Abonnements. Bitte laden Sie Ihr Konto auf."
+  },
+  "expiration": {
+    "notification": "⏰ Ihr Abonnement läuft in {days} {days, plural, one {Tag} other {Tagen}} ab. Vergessen Sie nicht zu verlängern!",
+    "expired": "⌛ Ihr Abonnement ist abgelaufen. Verlängern Sie jetzt, um unsere Dienste weiterhin nutzen zu können!"
+  }
+}
