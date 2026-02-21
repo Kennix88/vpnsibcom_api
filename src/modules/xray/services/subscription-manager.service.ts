@@ -134,13 +134,13 @@ export class SubscriptionManagerService {
                         ?.flatMap((server) => {
                           if (server.greenList.isPremium) premiumServers++
                           else baseServers++
-                          return server.greenList.code
+                          return server.greenList.green
                         })
                         .filter(Boolean)
 
                 const filteredLinks = marzbanUser.links.filter((link) => {
                   if (!serverCodes.length) return true
-                  return serverCodes.some((code) => link.includes(`@${code}`))
+                  return serverCodes.some((code) => link.includes(`${code}`))
                 })
 
                 // Для INDEFINITELY не рассчитываем стоимость продления
