@@ -10,6 +10,15 @@ export function telegrafConfig(
 
   return {
     token: configService.getOrThrow<string>('TELEGRAM_BOT_TOKEN'),
+    launchOptions: {
+      dropPendingUpdates: true,
+      allowedUpdates: ['message', 'callback_query'],
+      webhook: {
+        domain: configService.getOrThrow<string>('APPLICATION_URL'),
+        hookPath: '/telegraf/webhook',
+        maxConnections: 10,
+      },
+    },
     middlewares: [
       session({
         store: Redis({
