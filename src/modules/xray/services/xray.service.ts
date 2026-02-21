@@ -658,12 +658,12 @@ export class XrayService {
         return
       }
 
-      // Формируем список кодов серверов
+      // Формируем список кодов серверов // TODO: ИСРПАВИТЬ ЗДЕСЬ ЛОГИКУ ВЫДАЧИ СЕРВЕРА
       const serverCodes =
         subscription.isAllBaseServers && subscription.isAllPremiumServers
           ? []
           : subscription.servers
-              ?.flatMap((server) => server.greenList.code)
+              ?.flatMap((server) => server.greenList.green)
               .filter(Boolean)
 
       // Логируем информацию о серверах
@@ -673,7 +673,7 @@ export class XrayService {
       })
 
       this.logger.info({
-        msg: `Server codes: ${
+        msg: `Servers: ${
           serverCodes?.length ? serverCodes.join(', ') : 'all servers'
         }`,
         service: this.serviceName,
