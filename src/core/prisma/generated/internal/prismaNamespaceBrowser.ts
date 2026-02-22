@@ -134,7 +134,8 @@ export const SettingsScalarFieldEnum = {
   bonusPayment5000: 'bonusPayment5000',
   bonusPayment10000: 'bonusPayment10000',
   bonusPayment20000: 'bonusPayment20000',
-  bonusPayment50000: 'bonusPayment50000'
+  bonusPayment50000: 'bonusPayment50000',
+  defaultAnnounce: 'defaultAnnounce'
 } as const
 
 export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -506,20 +507,20 @@ export const NullableJsonNullValueInput = {
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 export const JsonNullValueFilter = {

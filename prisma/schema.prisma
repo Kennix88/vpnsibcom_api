@@ -67,6 +67,8 @@ model Settings {
  bonusPayment20000 Float @default(0.20) @map("bonus_payment_20000")
  bonusPayment50000 Float @default(0.25) @map("bonus_payment_50000")
 
+ defaultAnnounce String? @default("(🇳🇱⏪🇷🇺) - Double Tunnel, 🆓 - Free Server, ⭐️ - Premium Server") @map("default_announce")
+
  @@map("settings")
 }
 

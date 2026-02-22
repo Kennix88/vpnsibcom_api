@@ -158,6 +158,7 @@ export type SettingsMinAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  defaultAnnounce: string | null
 }
 
 export type SettingsMaxAggregateOutputType = {
@@ -204,6 +205,7 @@ export type SettingsMaxAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  defaultAnnounce: string | null
 }
 
 export type SettingsCountAggregateOutputType = {
@@ -250,6 +252,7 @@ export type SettingsCountAggregateOutputType = {
   bonusPayment10000: number
   bonusPayment20000: number
   bonusPayment50000: number
+  defaultAnnounce: number
   _all: number
 }
 
@@ -386,6 +389,7 @@ export type SettingsMinAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  defaultAnnounce?: true
 }
 
 export type SettingsMaxAggregateInputType = {
@@ -432,6 +436,7 @@ export type SettingsMaxAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  defaultAnnounce?: true
 }
 
 export type SettingsCountAggregateInputType = {
@@ -478,6 +483,7 @@ export type SettingsCountAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  defaultAnnounce?: true
   _all?: true
 }
 
@@ -611,6 +617,7 @@ export type SettingsGroupByOutputType = {
   bonusPayment10000: number
   bonusPayment20000: number
   bonusPayment50000: number
+  defaultAnnounce: string | null
   _count: SettingsCountAggregateOutputType | null
   _avg: SettingsAvgAggregateOutputType | null
   _sum: SettingsSumAggregateOutputType | null
@@ -680,6 +687,7 @@ export type SettingsWhereInput = {
   bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
+  defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
 }
 
 export type SettingsOrderByWithRelationInput = {
@@ -726,6 +734,7 @@ export type SettingsOrderByWithRelationInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type SettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -775,6 +784,7 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
+  defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
 }, "key">
 
 export type SettingsOrderByWithAggregationInput = {
@@ -821,6 +831,7 @@ export type SettingsOrderByWithAggregationInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
   _avg?: Prisma.SettingsAvgOrderByAggregateInput
   _max?: Prisma.SettingsMaxOrderByAggregateInput
@@ -875,6 +886,7 @@ export type SettingsScalarWhereWithAggregatesInput = {
   bonusPayment10000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  defaultAnnounce?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
 }
 
 export type SettingsCreateInput = {
@@ -921,6 +933,7 @@ export type SettingsCreateInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  defaultAnnounce?: string | null
 }
 
 export type SettingsUncheckedCreateInput = {
@@ -967,6 +980,7 @@ export type SettingsUncheckedCreateInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  defaultAnnounce?: string | null
 }
 
 export type SettingsUpdateInput = {
@@ -1013,6 +1027,7 @@ export type SettingsUpdateInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsUncheckedUpdateInput = {
@@ -1059,6 +1074,7 @@ export type SettingsUncheckedUpdateInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsCreateManyInput = {
@@ -1105,6 +1121,7 @@ export type SettingsCreateManyInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  defaultAnnounce?: string | null
 }
 
 export type SettingsUpdateManyMutationInput = {
@@ -1151,6 +1168,7 @@ export type SettingsUpdateManyMutationInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsUncheckedUpdateManyInput = {
@@ -1197,6 +1215,7 @@ export type SettingsUncheckedUpdateManyInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsCountOrderByAggregateInput = {
@@ -1243,6 +1262,7 @@ export type SettingsCountOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrder
 }
 
 export type SettingsAvgOrderByAggregateInput = {
@@ -1333,6 +1353,7 @@ export type SettingsMaxOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrder
 }
 
 export type SettingsMinOrderByAggregateInput = {
@@ -1379,6 +1400,7 @@ export type SettingsMinOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrder
 }
 
 export type SettingsSumOrderByAggregateInput = {
@@ -1457,6 +1479,10 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 
 
 export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1503,6 +1529,7 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1549,6 +1576,7 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1595,6 +1623,7 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectScalar = {
@@ -1641,9 +1670,10 @@ export type SettingsSelectScalar = {
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  defaultAnnounce?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "adPriceStars" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "adPriceStars" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "defaultAnnounce", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -1692,6 +1722,7 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     bonusPayment10000: number
     bonusPayment20000: number
     bonusPayment50000: number
+    defaultAnnounce: string | null
   }, ExtArgs["result"]["settings"]>
   composites: {}
 }
@@ -2158,6 +2189,7 @@ export interface SettingsFieldRefs {
   readonly bonusPayment10000: Prisma.FieldRef<"Settings", 'Float'>
   readonly bonusPayment20000: Prisma.FieldRef<"Settings", 'Float'>
   readonly bonusPayment50000: Prisma.FieldRef<"Settings", 'Float'>
+  readonly defaultAnnounce: Prisma.FieldRef<"Settings", 'String'>
 }
     
 
