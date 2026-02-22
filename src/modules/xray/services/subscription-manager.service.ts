@@ -278,6 +278,19 @@ export class SubscriptionManagerService {
                     })
                 }
 
+                const defaultAnnounce = settings.defaultAnnounce
+
+                const announce =
+                  announceMessages.length > 0
+                    ? `${announceMessages.join(' ')}${
+                        defaultAnnounce ? `\n${defaultAnnounce}` : ''
+                      }`
+                    : defaultAnnounce
+                    ? defaultAnnounce
+                    : isNotAnnounce
+                    ? null
+                    : undefined
+
                 return this.prismaService.subscriptions.update({
                   where: { id: subscription.id },
                   data: {
@@ -296,11 +309,7 @@ export class SubscriptionManagerService {
                       : null, // Adding 'Z' to indicate UTC timezone
                     marzbanData: subscription.marzbanData,
                     ...(isRemovalAt ? { removalAt } : {}),
-                    ...(announceMessages.length > 0
-                      ? { announce: announceMessages.join(' ') }
-                      : isNotAnnounce
-                      ? { announce: null }
-                      : {}),
+                    ...(announce === undefined ? {} : { announce }),
                   },
                 })
               }),
