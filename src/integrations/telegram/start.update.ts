@@ -10,7 +10,15 @@ import { ConfigService } from '@nestjs/config'
 import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { Command, Ctx, Help, InjectBot, Start, Update } from 'nestjs-telegraf'
+import {
+  Command,
+  Ctx,
+  Help,
+  InjectBot,
+  On,
+  Start,
+  Update,
+} from 'nestjs-telegraf'
 import { Markup, Telegraf } from 'telegraf'
 
 @Update()
@@ -30,7 +38,44 @@ export class StartUpdate {
     this.logger.setContext(StartUpdate.name)
   }
 
+  @Help()
+  async helpCommand(@Ctx() ctx: Context) {
+    await ctx.replyWithHTML(
+      `<b>Help</b>
+<b>Your Telegram id</b>: <code>${ctx.from.id}</code>
+
+If you have any difficulties with payment, subscription or anything else, write to our chat, we will respond to you!
+
+<b>Commands</b>
+/start - start the bot
+/help - show this help message
+`,
+      {
+        reply_markup: {
+          remove_keyboard: true,
+          inline_keyboard: [
+            [
+              Markup.button.url(
+                this.i18n.t('telegraf.telegram.button.chatSupport', {
+                  lang: ctx.from.language_code,
+                }),
+                this.configService.get<string>('CHAT_URL'),
+              ),
+            ],
+            [
+              Markup.button.url(
+                'Private support',
+                this.configService.get<string>('CHANNEL_URL') + '?direct',
+              ),
+            ],
+          ],
+        },
+      },
+    )
+  }
+
   @Start()
+  @On('message')
   @Command(['settings', 'profile', 'cancel', 'subscribe', 'policy'])
   async startCommand(@Ctx() ctx: Context) {
     try {
@@ -75,25 +120,18 @@ export class StartUpdate {
         })
       }
 
-      if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
-        // const transactions = await this.tonPaymentsService.getTransactions(10)
-        // const transactions = await this.tonPaymentsService.findPayments([
-        //   'order-sadasfewgw',
-        //   'sada',
-        // ])
-        // console.log(JSON.stringify(transactions, null, 2))
-        // await this.ratesService.updateApilayerRates()
-        // await this.ratesService.updateStarsRate()
-        //
-        // const rates = await this.ratesService.getRates()
-        //
-        // console.log(JSON.stringify(rates, null, 2))
-      }
+      // if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
+      // }
 
-      // await ctx.replyWithHTML(
-      //   this.i18n.t('telegraf.start.welcome', {
-      //     ...(ctx.from.language_code && { lang: ctx.from.language_code }),
-      //   }),
+      // await ctx.reply(
+      //   'Выбери действие',
+      //   Markup.keyboard([['Продолжить']]).resize(),
+      // )
+
+      ctx
+        .reply('...', Markup.removeKeyboard())
+        .then((msg) => ctx.deleteMessage(msg.message_id))
+        .catch(console.error)
 
       await ctx.sendPhoto(
         { source: createReadStream('assets/welcome.jpg') },
@@ -117,10 +155,14 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
             remove_keyboard: true,
             inline_keyboard: [
               [
-                Markup.button.webApp(
-                  'VPN&GAMES',
-                  this.configService.get<string>('WEBAPP_URL'),
-                ),
+                {
+                  ...Markup.button.webApp(
+                    'VPN&GAMES',
+                    this.configService.get<string>('WEBAPP_URL'),
+                  ),
+                  // @ts-ignore
+                  style: 'success',
+                },
               ],
               [
                 Markup.button.url(
@@ -138,11 +180,21 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
               ],
               [
                 Markup.button.url(
-                  this.i18n.t('telegraf.telegram.button.buyStars', {
-                    lang: ctx.from.language_code,
-                  }),
-                  'https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
+                  'Private support',
+                  this.configService.get<string>('CHANNEL_URL') + '?direct',
                 ),
+              ],
+              [
+                {
+                  ...Markup.button.url(
+                    this.i18n.t('telegraf.telegram.button.buyStars', {
+                      lang: ctx.from.language_code,
+                    }),
+                    'https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
+                  ),
+                  // @ts-ignore
+                  style: 'primary',
+                },
               ],
             ],
           },
@@ -157,35 +209,5 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
         err: e,
       })
     }
-  }
-
-  @Help()
-  async helpCommand(@Ctx() ctx: Context) {
-    await ctx.replyWithHTML(
-      `<b>Help</b>
-<b>Your Telegram id</b>: <code>${ctx.from.id}</code>
-
-If you have any difficulties with payment, subscription or anything else, write to our chat, we will respond to you!
-
-<b>Commands</b>
-/start - start the bot
-/help - show this help message
-`,
-      {
-        reply_markup: {
-          remove_keyboard: true,
-          inline_keyboard: [
-            [
-              Markup.button.url(
-                this.i18n.t('telegraf.telegram.button.chatSupport', {
-                  lang: ctx.from.language_code,
-                }),
-                this.configService.get<string>('CHAT_URL'),
-              ),
-            ],
-          ],
-        },
-      },
-    )
   }
 }

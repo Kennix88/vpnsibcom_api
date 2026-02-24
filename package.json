@@ -96,7 +96,7 @@
     "@nestjs/cli": "^11.0.10",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.0.12",
-    "@telegraf/types": "^9.0.0",
+    "@telegraf/types": "^9.2.1",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie": "^0.6.0",
     "@types/cookie-parser": "^1.4.8",
