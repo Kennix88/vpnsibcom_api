@@ -149,7 +149,6 @@ model Users {
  subscriptions  Subscriptions[]
  withdrawals    Withdrawals[]
  adsViews       AdsViews[]
- rewardLogs     RewardLog[]
  adsData        UserAdsData?      @relation(fields: [adsDataId], references: [id])
  adsDataId      String?           @unique @map("ads_data_id")
 
@@ -182,7 +181,10 @@ model AdsViews {
  rewardTraffic Float           @default(0) @map("reward_traffic")
  rewardStars   Float           @default(0) @map("reward_stars")
  rewardTickets Float           @default(0) @map("reward_tickets")
+ rewardAd      Float           @default(0) @map("reward_ad")
  duration      Int             @default(0) @map("duration")
+ ip            String?
+ ua            String?
 
  createdAt DateTime  @default(now()) @map("created_at")
  claimedAt DateTime? @map("claimed_at")
@@ -260,23 +262,6 @@ enum AdsNetworkEnum {
  MONETAG
  TADDY
  RICHADS
-}
-
-model RewardLog {
- id            String   @id @default(uuid())
- rewardStars   Float    @default(0) @map("reward_stars")
- rewardTickets Float    @default(0) @map("reward_tickets")
- rewardTraffic Float    @default(0) @map("reward_traffic")
- source        String   @map("source")
- reference     String?  @map("reference")
- ip            String?  @map("ip")
- ua            String?  @map("ua")
- createdAt     DateTime @default(now()) @map("created_at")
-
- user   Users  @relation(fields: [userId], references: [id])
- userId String @map("user_id")
-
- @@map("reward_log")
 }
 
 /// Модель баланса пользователя
