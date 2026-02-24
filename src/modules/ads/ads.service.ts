@@ -119,9 +119,12 @@ export class AdsService {
         rewardTraffic: meta.rewards.traffic,
         rewardStars: meta.rewards.stars,
         rewardTickets: meta.rewards.tickets,
+        rewardAd: meta.rewards.ad,
         duration,
         verifyKey: sessionId as string, // сохраняем sid; клиент получит JWT, но в БД храним sid для привязки
         userId,
+        ip: ip ?? null,
+        ua: ua ?? null,
         blockId: block.id,
         ...(type === AdsTypeEnum.VIEW && {
           claimedAt: new Date(),
@@ -358,20 +361,6 @@ export class AdsService {
           },
           data: {
             lastViewedNetwork: ad.networkKey,
-          },
-        })
-
-        // create rewardLog with actual amounts
-        await prisma.rewardLog.create({
-          data: {
-            userId,
-            rewardTraffic: rewards.traffic ?? 0,
-            rewardStars: rewards.stars ?? 0,
-            rewardTickets: rewards.tickets ?? 0,
-            source: metaObj.networkKey,
-            reference: sessionId,
-            ip,
-            ua,
           },
         })
       })
