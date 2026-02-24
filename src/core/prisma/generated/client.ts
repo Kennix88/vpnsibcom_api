@@ -78,11 +78,6 @@ export type AdsBlocks = Prisma.AdsBlocksModel
  */
 export type AdsNetworks = Prisma.AdsNetworksModel
 /**
- * Model RewardLog
- * 
- */
-export type RewardLog = Prisma.RewardLogModel
-/**
  * Model UserBalance
  * Модель баланса пользователя
  */

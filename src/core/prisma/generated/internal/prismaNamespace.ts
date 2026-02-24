@@ -392,7 +392,6 @@ export const ModelName = {
   AdsViews: 'AdsViews',
   AdsBlocks: 'AdsBlocks',
   AdsNetworks: 'AdsNetworks',
-  RewardLog: 'RewardLog',
   UserBalance: 'UserBalance',
   GreenList: 'GreenList',
   Plans: 'Plans',
@@ -421,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "settings" | "userTelegramData" | "referrals" | "users" | "userAdsData" | "adsViews" | "adsBlocks" | "adsNetworks" | "rewardLog" | "userBalance" | "greenList" | "plans" | "subscriptions" | "subscriptionToGreenList" | "xrayInbounds" | "roles" | "language" | "currency" | "transactions" | "withdrawals" | "payments" | "paymentMethods"
+    modelProps: "settings" | "userTelegramData" | "referrals" | "users" | "userAdsData" | "adsViews" | "adsBlocks" | "adsNetworks" | "userBalance" | "greenList" | "plans" | "subscriptions" | "subscriptionToGreenList" | "xrayInbounds" | "roles" | "language" | "currency" | "transactions" | "withdrawals" | "payments" | "paymentMethods"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1014,80 +1013,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AdsNetworksCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AdsNetworksCountAggregateOutputType> | number
-        }
-      }
-    }
-    RewardLog: {
-      payload: Prisma.$RewardLogPayload<ExtArgs>
-      fields: Prisma.RewardLogFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.RewardLogFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.RewardLogFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>
-        }
-        findFirst: {
-          args: Prisma.RewardLogFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.RewardLogFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>
-        }
-        findMany: {
-          args: Prisma.RewardLogFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>[]
-        }
-        create: {
-          args: Prisma.RewardLogCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>
-        }
-        createMany: {
-          args: Prisma.RewardLogCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.RewardLogCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>[]
-        }
-        delete: {
-          args: Prisma.RewardLogDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>
-        }
-        update: {
-          args: Prisma.RewardLogUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>
-        }
-        deleteMany: {
-          args: Prisma.RewardLogDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.RewardLogUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.RewardLogUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>[]
-        }
-        upsert: {
-          args: Prisma.RewardLogUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardLogPayload>
-        }
-        aggregate: {
-          args: Prisma.RewardLogAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateRewardLog>
-        }
-        groupBy: {
-          args: Prisma.RewardLogGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RewardLogGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.RewardLogCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RewardLogCountAggregateOutputType> | number
         }
       }
     }
@@ -2222,7 +2147,10 @@ export const AdsViewsScalarFieldEnum = {
   rewardTraffic: 'rewardTraffic',
   rewardStars: 'rewardStars',
   rewardTickets: 'rewardTickets',
+  rewardAd: 'rewardAd',
   duration: 'duration',
+  ip: 'ip',
+  ua: 'ua',
   createdAt: 'createdAt',
   claimedAt: 'claimedAt',
   verifyKey: 'verifyKey',
@@ -2260,22 +2188,6 @@ export const AdsNetworksScalarFieldEnum = {
 } as const
 
 export type AdsNetworksScalarFieldEnum = (typeof AdsNetworksScalarFieldEnum)[keyof typeof AdsNetworksScalarFieldEnum]
-
-
-export const RewardLogScalarFieldEnum = {
-  id: 'id',
-  rewardStars: 'rewardStars',
-  rewardTickets: 'rewardTickets',
-  rewardTraffic: 'rewardTraffic',
-  source: 'source',
-  reference: 'reference',
-  ip: 'ip',
-  ua: 'ua',
-  createdAt: 'createdAt',
-  userId: 'userId'
-} as const
-
-export type RewardLogScalarFieldEnum = (typeof RewardLogScalarFieldEnum)[keyof typeof RewardLogScalarFieldEnum]
 
 
 export const UserBalanceScalarFieldEnum = {
@@ -2996,7 +2908,6 @@ export type GlobalOmitConfig = {
   adsViews?: Prisma.AdsViewsOmit
   adsBlocks?: Prisma.AdsBlocksOmit
   adsNetworks?: Prisma.AdsNetworksOmit
-  rewardLog?: Prisma.RewardLogOmit
   userBalance?: Prisma.UserBalanceOmit
   greenList?: Prisma.GreenListOmit
   plans?: Prisma.PlansOmit

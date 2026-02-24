@@ -30,6 +30,7 @@ export type AdsViewsAvgAggregateOutputType = {
   rewardTraffic: number | null
   rewardStars: number | null
   rewardTickets: number | null
+  rewardAd: number | null
   duration: number | null
 }
 
@@ -37,6 +38,7 @@ export type AdsViewsSumAggregateOutputType = {
   rewardTraffic: number | null
   rewardStars: number | null
   rewardTickets: number | null
+  rewardAd: number | null
   duration: number | null
 }
 
@@ -47,7 +49,10 @@ export type AdsViewsMinAggregateOutputType = {
   rewardTraffic: number | null
   rewardStars: number | null
   rewardTickets: number | null
+  rewardAd: number | null
   duration: number | null
+  ip: string | null
+  ua: string | null
   createdAt: Date | null
   claimedAt: Date | null
   verifyKey: string | null
@@ -62,7 +67,10 @@ export type AdsViewsMaxAggregateOutputType = {
   rewardTraffic: number | null
   rewardStars: number | null
   rewardTickets: number | null
+  rewardAd: number | null
   duration: number | null
+  ip: string | null
+  ua: string | null
   createdAt: Date | null
   claimedAt: Date | null
   verifyKey: string | null
@@ -77,7 +85,10 @@ export type AdsViewsCountAggregateOutputType = {
   rewardTraffic: number
   rewardStars: number
   rewardTickets: number
+  rewardAd: number
   duration: number
+  ip: number
+  ua: number
   createdAt: number
   claimedAt: number
   verifyKey: number
@@ -91,6 +102,7 @@ export type AdsViewsAvgAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
 }
 
@@ -98,6 +110,7 @@ export type AdsViewsSumAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
 }
 
@@ -108,7 +121,10 @@ export type AdsViewsMinAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
+  ip?: true
+  ua?: true
   createdAt?: true
   claimedAt?: true
   verifyKey?: true
@@ -123,7 +139,10 @@ export type AdsViewsMaxAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
+  ip?: true
+  ua?: true
   createdAt?: true
   claimedAt?: true
   verifyKey?: true
@@ -138,7 +157,10 @@ export type AdsViewsCountAggregateInputType = {
   rewardTraffic?: true
   rewardStars?: true
   rewardTickets?: true
+  rewardAd?: true
   duration?: true
+  ip?: true
+  ua?: true
   createdAt?: true
   claimedAt?: true
   verifyKey?: true
@@ -240,7 +262,10 @@ export type AdsViewsGroupByOutputType = {
   rewardTraffic: number
   rewardStars: number
   rewardTickets: number
+  rewardAd: number
   duration: number
+  ip: string | null
+  ua: string | null
   createdAt: Date
   claimedAt: Date | null
   verifyKey: string
@@ -278,7 +303,10 @@ export type AdsViewsWhereInput = {
   rewardTraffic?: Prisma.FloatFilter<"AdsViews"> | number
   rewardStars?: Prisma.FloatFilter<"AdsViews"> | number
   rewardTickets?: Prisma.FloatFilter<"AdsViews"> | number
+  rewardAd?: Prisma.FloatFilter<"AdsViews"> | number
   duration?: Prisma.IntFilter<"AdsViews"> | number
+  ip?: Prisma.StringNullableFilter<"AdsViews"> | string | null
+  ua?: Prisma.StringNullableFilter<"AdsViews"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"AdsViews"> | Date | string | null
   verifyKey?: Prisma.StringFilter<"AdsViews"> | string
@@ -296,7 +324,10 @@ export type AdsViewsOrderByWithRelationInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrderInput | Prisma.SortOrder
+  ua?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -318,7 +349,10 @@ export type AdsViewsWhereUniqueInput = Prisma.AtLeast<{
   rewardTraffic?: Prisma.FloatFilter<"AdsViews"> | number
   rewardStars?: Prisma.FloatFilter<"AdsViews"> | number
   rewardTickets?: Prisma.FloatFilter<"AdsViews"> | number
+  rewardAd?: Prisma.FloatFilter<"AdsViews"> | number
   duration?: Prisma.IntFilter<"AdsViews"> | number
+  ip?: Prisma.StringNullableFilter<"AdsViews"> | string | null
+  ua?: Prisma.StringNullableFilter<"AdsViews"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"AdsViews"> | Date | string | null
   userId?: Prisma.StringFilter<"AdsViews"> | string
@@ -335,7 +369,10 @@ export type AdsViewsOrderByWithAggregationInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrderInput | Prisma.SortOrder
+  ua?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -358,7 +395,10 @@ export type AdsViewsScalarWhereWithAggregatesInput = {
   rewardTraffic?: Prisma.FloatWithAggregatesFilter<"AdsViews"> | number
   rewardStars?: Prisma.FloatWithAggregatesFilter<"AdsViews"> | number
   rewardTickets?: Prisma.FloatWithAggregatesFilter<"AdsViews"> | number
+  rewardAd?: Prisma.FloatWithAggregatesFilter<"AdsViews"> | number
   duration?: Prisma.IntWithAggregatesFilter<"AdsViews"> | number
+  ip?: Prisma.StringNullableWithAggregatesFilter<"AdsViews"> | string | null
+  ua?: Prisma.StringNullableWithAggregatesFilter<"AdsViews"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdsViews"> | Date | string | null
   verifyKey?: Prisma.StringWithAggregatesFilter<"AdsViews"> | string
@@ -372,7 +412,10 @@ export type AdsViewsCreateInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -388,7 +431,10 @@ export type AdsViewsUncheckedCreateInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -402,7 +448,10 @@ export type AdsViewsUpdateInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -418,7 +467,10 @@ export type AdsViewsUncheckedUpdateInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -433,7 +485,10 @@ export type AdsViewsCreateManyInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -447,7 +502,10 @@ export type AdsViewsUpdateManyMutationInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -460,7 +518,10 @@ export type AdsViewsUncheckedUpdateManyInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -485,7 +546,10 @@ export type AdsViewsCountOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrder
+  ua?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -497,6 +561,7 @@ export type AdsViewsAvgOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
 }
 
@@ -507,7 +572,10 @@ export type AdsViewsMaxOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrder
+  ua?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -522,7 +590,10 @@ export type AdsViewsMinOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrder
+  ua?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -534,6 +605,7 @@ export type AdsViewsSumOrderByAggregateInput = {
   rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
   rewardTickets?: Prisma.SortOrder
+  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
 }
 
@@ -677,7 +749,10 @@ export type AdsViewsCreateWithoutUserInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -692,7 +767,10 @@ export type AdsViewsUncheckedCreateWithoutUserInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -735,7 +813,10 @@ export type AdsViewsScalarWhereInput = {
   rewardTraffic?: Prisma.FloatFilter<"AdsViews"> | number
   rewardStars?: Prisma.FloatFilter<"AdsViews"> | number
   rewardTickets?: Prisma.FloatFilter<"AdsViews"> | number
+  rewardAd?: Prisma.FloatFilter<"AdsViews"> | number
   duration?: Prisma.IntFilter<"AdsViews"> | number
+  ip?: Prisma.StringNullableFilter<"AdsViews"> | string | null
+  ua?: Prisma.StringNullableFilter<"AdsViews"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"AdsViews"> | Date | string | null
   verifyKey?: Prisma.StringFilter<"AdsViews"> | string
@@ -749,7 +830,10 @@ export type AdsViewsCreateWithoutBlockInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -764,7 +848,10 @@ export type AdsViewsUncheckedCreateWithoutBlockInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -803,7 +890,10 @@ export type AdsViewsCreateWithoutNetworkInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -817,7 +907,10 @@ export type AdsViewsUncheckedCreateWithoutNetworkInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -858,7 +951,10 @@ export type AdsViewsCreateManyUserInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -871,7 +967,10 @@ export type AdsViewsUpdateWithoutUserInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -886,7 +985,10 @@ export type AdsViewsUncheckedUpdateWithoutUserInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -900,7 +1002,10 @@ export type AdsViewsUncheckedUpdateManyWithoutUserInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -914,7 +1019,10 @@ export type AdsViewsCreateManyBlockInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -927,7 +1035,10 @@ export type AdsViewsUpdateWithoutBlockInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -942,7 +1053,10 @@ export type AdsViewsUncheckedUpdateWithoutBlockInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -956,7 +1070,10 @@ export type AdsViewsUncheckedUpdateManyWithoutBlockInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -969,7 +1086,10 @@ export type AdsViewsCreateManyNetworkInput = {
   rewardTraffic?: number
   rewardStars?: number
   rewardTickets?: number
+  rewardAd?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -983,7 +1103,10 @@ export type AdsViewsUpdateWithoutNetworkInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -997,7 +1120,10 @@ export type AdsViewsUncheckedUpdateWithoutNetworkInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1011,7 +1137,10 @@ export type AdsViewsUncheckedUpdateManyWithoutNetworkInput = {
   rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
+  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1028,7 +1157,10 @@ export type AdsViewsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   rewardTraffic?: boolean
   rewardStars?: boolean
   rewardTickets?: boolean
+  rewardAd?: boolean
   duration?: boolean
+  ip?: boolean
+  ua?: boolean
   createdAt?: boolean
   claimedAt?: boolean
   verifyKey?: boolean
@@ -1046,7 +1178,10 @@ export type AdsViewsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   rewardTraffic?: boolean
   rewardStars?: boolean
   rewardTickets?: boolean
+  rewardAd?: boolean
   duration?: boolean
+  ip?: boolean
+  ua?: boolean
   createdAt?: boolean
   claimedAt?: boolean
   verifyKey?: boolean
@@ -1064,7 +1199,10 @@ export type AdsViewsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   rewardTraffic?: boolean
   rewardStars?: boolean
   rewardTickets?: boolean
+  rewardAd?: boolean
   duration?: boolean
+  ip?: boolean
+  ua?: boolean
   createdAt?: boolean
   claimedAt?: boolean
   verifyKey?: boolean
@@ -1082,7 +1220,10 @@ export type AdsViewsSelectScalar = {
   rewardTraffic?: boolean
   rewardStars?: boolean
   rewardTickets?: boolean
+  rewardAd?: boolean
   duration?: boolean
+  ip?: boolean
+  ua?: boolean
   createdAt?: boolean
   claimedAt?: boolean
   verifyKey?: boolean
@@ -1090,7 +1231,7 @@ export type AdsViewsSelectScalar = {
   blockId?: boolean
 }
 
-export type AdsViewsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "networkKey" | "type" | "rewardTraffic" | "rewardStars" | "rewardTickets" | "duration" | "createdAt" | "claimedAt" | "verifyKey" | "userId" | "blockId", ExtArgs["result"]["adsViews"]>
+export type AdsViewsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "networkKey" | "type" | "rewardTraffic" | "rewardStars" | "rewardTickets" | "rewardAd" | "duration" | "ip" | "ua" | "createdAt" | "claimedAt" | "verifyKey" | "userId" | "blockId", ExtArgs["result"]["adsViews"]>
 export type AdsViewsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -1121,7 +1262,10 @@ export type $AdsViewsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     rewardTraffic: number
     rewardStars: number
     rewardTickets: number
+    rewardAd: number
     duration: number
+    ip: string | null
+    ua: string | null
     createdAt: Date
     claimedAt: Date | null
     verifyKey: string
@@ -1559,7 +1703,10 @@ export interface AdsViewsFieldRefs {
   readonly rewardTraffic: Prisma.FieldRef<"AdsViews", 'Float'>
   readonly rewardStars: Prisma.FieldRef<"AdsViews", 'Float'>
   readonly rewardTickets: Prisma.FieldRef<"AdsViews", 'Float'>
+  readonly rewardAd: Prisma.FieldRef<"AdsViews", 'Float'>
   readonly duration: Prisma.FieldRef<"AdsViews", 'Int'>
+  readonly ip: Prisma.FieldRef<"AdsViews", 'String'>
+  readonly ua: Prisma.FieldRef<"AdsViews", 'String'>
   readonly createdAt: Prisma.FieldRef<"AdsViews", 'DateTime'>
   readonly claimedAt: Prisma.FieldRef<"AdsViews", 'DateTime'>
   readonly verifyKey: Prisma.FieldRef<"AdsViews", 'String'>

@@ -313,7 +313,6 @@ export type UsersWhereInput = {
   subscriptions?: Prisma.SubscriptionsListRelationFilter
   withdrawals?: Prisma.WithdrawalsListRelationFilter
   adsViews?: Prisma.AdsViewsListRelationFilter
-  rewardLogs?: Prisma.RewardLogListRelationFilter
   adsData?: Prisma.XOR<Prisma.UserAdsDataNullableScalarRelationFilter, Prisma.UserAdsDataWhereInput> | null
 }
 
@@ -349,7 +348,6 @@ export type UsersOrderByWithRelationInput = {
   subscriptions?: Prisma.SubscriptionsOrderByRelationAggregateInput
   withdrawals?: Prisma.WithdrawalsOrderByRelationAggregateInput
   adsViews?: Prisma.AdsViewsOrderByRelationAggregateInput
-  rewardLogs?: Prisma.RewardLogOrderByRelationAggregateInput
   adsData?: Prisma.UserAdsDataOrderByWithRelationInput
 }
 
@@ -388,7 +386,6 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
   subscriptions?: Prisma.SubscriptionsListRelationFilter
   withdrawals?: Prisma.WithdrawalsListRelationFilter
   adsViews?: Prisma.AdsViewsListRelationFilter
-  rewardLogs?: Prisma.RewardLogListRelationFilter
   adsData?: Prisma.XOR<Prisma.UserAdsDataNullableScalarRelationFilter, Prisma.UserAdsDataWhereInput> | null
 }, "id" | "telegramId" | "telegramDataId" | "balanceId" | "adsDataId">
 
@@ -470,7 +467,6 @@ export type UsersCreateInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -501,7 +497,6 @@ export type UsersUncheckedCreateInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersUpdateInput = {
@@ -530,7 +525,6 @@ export type UsersUpdateInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -561,7 +555,6 @@ export type UsersUncheckedUpdateInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateManyInput = {
@@ -834,20 +827,6 @@ export type UsersUpdateOneRequiredWithoutAdsViewsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutAdsViewsInput, Prisma.UsersUpdateWithoutAdsViewsInput>, Prisma.UsersUncheckedUpdateWithoutAdsViewsInput>
 }
 
-export type UsersCreateNestedOneWithoutRewardLogsInput = {
-  create?: Prisma.XOR<Prisma.UsersCreateWithoutRewardLogsInput, Prisma.UsersUncheckedCreateWithoutRewardLogsInput>
-  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutRewardLogsInput
-  connect?: Prisma.UsersWhereUniqueInput
-}
-
-export type UsersUpdateOneRequiredWithoutRewardLogsNestedInput = {
-  create?: Prisma.XOR<Prisma.UsersCreateWithoutRewardLogsInput, Prisma.UsersUncheckedCreateWithoutRewardLogsInput>
-  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutRewardLogsInput
-  upsert?: Prisma.UsersUpsertWithoutRewardLogsInput
-  connect?: Prisma.UsersWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutRewardLogsInput, Prisma.UsersUpdateWithoutRewardLogsInput>, Prisma.UsersUncheckedUpdateWithoutRewardLogsInput>
-}
-
 export type UsersCreateNestedOneWithoutBalanceInput = {
   create?: Prisma.XOR<Prisma.UsersCreateWithoutBalanceInput, Prisma.UsersUncheckedCreateWithoutBalanceInput>
   connectOrCreate?: Prisma.UsersCreateOrConnectWithoutBalanceInput
@@ -1073,7 +1052,6 @@ export type UsersCreateWithoutTelegramDataInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -1103,7 +1081,6 @@ export type UsersUncheckedCreateWithoutTelegramDataInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutTelegramDataInput = {
@@ -1147,7 +1124,6 @@ export type UsersUpdateWithoutTelegramDataInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -1177,7 +1153,6 @@ export type UsersUncheckedUpdateWithoutTelegramDataInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateWithoutReferralsInput = {
@@ -1205,7 +1180,6 @@ export type UsersCreateWithoutReferralsInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -1235,7 +1209,6 @@ export type UsersUncheckedCreateWithoutReferralsInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutReferralsInput = {
@@ -1268,7 +1241,6 @@ export type UsersCreateWithoutInvitersInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -1298,7 +1270,6 @@ export type UsersUncheckedCreateWithoutInvitersInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutInvitersInput = {
@@ -1342,7 +1313,6 @@ export type UsersUpdateWithoutReferralsInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -1372,7 +1342,6 @@ export type UsersUncheckedUpdateWithoutReferralsInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersUpsertWithoutInvitersInput = {
@@ -1411,7 +1380,6 @@ export type UsersUpdateWithoutInvitersInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -1441,7 +1409,6 @@ export type UsersUncheckedUpdateWithoutInvitersInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateWithoutAdsDataInput = {
@@ -1470,7 +1437,6 @@ export type UsersCreateWithoutAdsDataInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
 }
 
 export type UsersUncheckedCreateWithoutAdsDataInput = {
@@ -1499,7 +1465,6 @@ export type UsersUncheckedCreateWithoutAdsDataInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutAdsDataInput = {
@@ -1544,7 +1509,6 @@ export type UsersUpdateWithoutAdsDataInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateWithoutAdsDataInput = {
@@ -1573,7 +1537,6 @@ export type UsersUncheckedUpdateWithoutAdsDataInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateWithoutAdsViewsInput = {
@@ -1601,7 +1564,6 @@ export type UsersCreateWithoutAdsViewsInput = {
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -1631,7 +1593,6 @@ export type UsersUncheckedCreateWithoutAdsViewsInput = {
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutAdsViewsInput = {
@@ -1675,7 +1636,6 @@ export type UsersUpdateWithoutAdsViewsInput = {
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -1705,139 +1665,6 @@ export type UsersUncheckedUpdateWithoutAdsViewsInput = {
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UsersCreateWithoutRewardLogsInput = {
-  id?: string
-  telegramId: string
-  isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
-  isBanned?: boolean
-  isDeleted?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  lastStartedAt?: Date | string | null
-  banExpiredAt?: Date | string | null
-  deletedAt?: Date | string | null
-  tgProgramPartnerExpiredAt?: Date | string | null
-  nextAdsRewardAt?: Date | string | null
-  nextAdsgramTaskAt?: Date | string | null
-  role?: Prisma.RolesCreateNestedOneWithoutUsersInput
-  payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
-  referrals?: Prisma.ReferralsCreateNestedManyWithoutInviterInput
-  inviters?: Prisma.ReferralsCreateNestedManyWithoutReferralInput
-  telegramData?: Prisma.UserTelegramDataCreateNestedOneWithoutUserInput
-  balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
-  language: Prisma.LanguageCreateNestedOneWithoutUsersInput
-  currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
-  withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
-  adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
-}
-
-export type UsersUncheckedCreateWithoutRewardLogsInput = {
-  id?: string
-  telegramId: string
-  isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
-  isBanned?: boolean
-  isDeleted?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  lastStartedAt?: Date | string | null
-  banExpiredAt?: Date | string | null
-  deletedAt?: Date | string | null
-  tgProgramPartnerExpiredAt?: Date | string | null
-  nextAdsRewardAt?: Date | string | null
-  nextAdsgramTaskAt?: Date | string | null
-  roleId?: $Enums.UserRoleEnum
-  telegramDataId?: string | null
-  balanceId?: string | null
-  languageId: string
-  currencyKey?: $Enums.CurrencyEnum
-  adsDataId?: string | null
-  payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
-  referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
-  inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
-  withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
-  adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UsersCreateOrConnectWithoutRewardLogsInput = {
-  where: Prisma.UsersWhereUniqueInput
-  create: Prisma.XOR<Prisma.UsersCreateWithoutRewardLogsInput, Prisma.UsersUncheckedCreateWithoutRewardLogsInput>
-}
-
-export type UsersUpsertWithoutRewardLogsInput = {
-  update: Prisma.XOR<Prisma.UsersUpdateWithoutRewardLogsInput, Prisma.UsersUncheckedUpdateWithoutRewardLogsInput>
-  create: Prisma.XOR<Prisma.UsersCreateWithoutRewardLogsInput, Prisma.UsersUncheckedCreateWithoutRewardLogsInput>
-  where?: Prisma.UsersWhereInput
-}
-
-export type UsersUpdateToOneWithWhereWithoutRewardLogsInput = {
-  where?: Prisma.UsersWhereInput
-  data: Prisma.XOR<Prisma.UsersUpdateWithoutRewardLogsInput, Prisma.UsersUncheckedUpdateWithoutRewardLogsInput>
-}
-
-export type UsersUpdateWithoutRewardLogsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  telegramId?: Prisma.StringFieldUpdateOperationsInput | string
-  isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  banExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
-  payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
-  referrals?: Prisma.ReferralsUpdateManyWithoutInviterNestedInput
-  inviters?: Prisma.ReferralsUpdateManyWithoutReferralNestedInput
-  telegramData?: Prisma.UserTelegramDataUpdateOneWithoutUserNestedInput
-  balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
-  language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
-  currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
-  withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
-  adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
-}
-
-export type UsersUncheckedUpdateWithoutRewardLogsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  telegramId?: Prisma.StringFieldUpdateOperationsInput | string
-  isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  banExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
-  telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  languageId?: Prisma.StringFieldUpdateOperationsInput | string
-  currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
-  adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
-  referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
-  inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
-  withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
-  adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateWithoutBalanceInput = {
@@ -1865,7 +1692,6 @@ export type UsersCreateWithoutBalanceInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -1895,7 +1721,6 @@ export type UsersUncheckedCreateWithoutBalanceInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutBalanceInput = {
@@ -1939,7 +1764,6 @@ export type UsersUpdateWithoutBalanceInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -1969,7 +1793,6 @@ export type UsersUncheckedUpdateWithoutBalanceInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateWithoutSubscriptionsInput = {
@@ -1997,7 +1820,6 @@ export type UsersCreateWithoutSubscriptionsInput = {
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -2027,7 +1849,6 @@ export type UsersUncheckedCreateWithoutSubscriptionsInput = {
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutSubscriptionsInput = {
@@ -2071,7 +1892,6 @@ export type UsersUpdateWithoutSubscriptionsInput = {
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -2101,7 +1921,6 @@ export type UsersUncheckedUpdateWithoutSubscriptionsInput = {
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateWithoutRoleInput = {
@@ -2129,7 +1948,6 @@ export type UsersCreateWithoutRoleInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -2159,7 +1977,6 @@ export type UsersUncheckedCreateWithoutRoleInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutRoleInput = {
@@ -2239,7 +2056,6 @@ export type UsersCreateWithoutLanguageInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -2269,7 +2085,6 @@ export type UsersUncheckedCreateWithoutLanguageInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutLanguageInput = {
@@ -2323,7 +2138,6 @@ export type UsersCreateWithoutCurrencyInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -2353,7 +2167,6 @@ export type UsersUncheckedCreateWithoutCurrencyInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutCurrencyInput = {
@@ -2407,7 +2220,6 @@ export type UsersCreateWithoutWithdrawalsInput = {
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -2437,7 +2249,6 @@ export type UsersUncheckedCreateWithoutWithdrawalsInput = {
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutWithdrawalsInput = {
@@ -2481,7 +2292,6 @@ export type UsersUpdateWithoutWithdrawalsInput = {
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -2511,7 +2321,6 @@ export type UsersUncheckedUpdateWithoutWithdrawalsInput = {
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateWithoutPaymentsInput = {
@@ -2539,7 +2348,6 @@ export type UsersCreateWithoutPaymentsInput = {
   subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
 }
 
@@ -2569,7 +2377,6 @@ export type UsersUncheckedCreateWithoutPaymentsInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
-  rewardLogs?: Prisma.RewardLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UsersCreateOrConnectWithoutPaymentsInput = {
@@ -2613,7 +2420,6 @@ export type UsersUpdateWithoutPaymentsInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -2643,7 +2449,6 @@ export type UsersUncheckedUpdateWithoutPaymentsInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersCreateManyRoleInput = {
@@ -2693,7 +2498,6 @@ export type UsersUpdateWithoutRoleInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -2723,7 +2527,6 @@ export type UsersUncheckedUpdateWithoutRoleInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateManyWithoutRoleInput = {
@@ -2795,7 +2598,6 @@ export type UsersUpdateWithoutLanguageInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -2825,7 +2627,6 @@ export type UsersUncheckedUpdateWithoutLanguageInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateManyWithoutLanguageInput = {
@@ -2897,7 +2698,6 @@ export type UsersUpdateWithoutCurrencyInput = {
   subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
 }
 
@@ -2927,7 +2727,6 @@ export type UsersUncheckedUpdateWithoutCurrencyInput = {
   subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
-  rewardLogs?: Prisma.RewardLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UsersUncheckedUpdateManyWithoutCurrencyInput = {
@@ -2964,7 +2763,6 @@ export type UsersCountOutputType = {
   subscriptions: number
   withdrawals: number
   adsViews: number
-  rewardLogs: number
 }
 
 export type UsersCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2974,7 +2772,6 @@ export type UsersCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   subscriptions?: boolean | UsersCountOutputTypeCountSubscriptionsArgs
   withdrawals?: boolean | UsersCountOutputTypeCountWithdrawalsArgs
   adsViews?: boolean | UsersCountOutputTypeCountAdsViewsArgs
-  rewardLogs?: boolean | UsersCountOutputTypeCountRewardLogsArgs
 }
 
 /**
@@ -3029,13 +2826,6 @@ export type UsersCountOutputTypeCountAdsViewsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.AdsViewsWhereInput
 }
 
-/**
- * UsersCountOutputType without action
- */
-export type UsersCountOutputTypeCountRewardLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RewardLogWhereInput
-}
-
 
 export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3069,7 +2859,6 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   subscriptions?: boolean | Prisma.Users$subscriptionsArgs<ExtArgs>
   withdrawals?: boolean | Prisma.Users$withdrawalsArgs<ExtArgs>
   adsViews?: boolean | Prisma.Users$adsViewsArgs<ExtArgs>
-  rewardLogs?: boolean | Prisma.Users$rewardLogsArgs<ExtArgs>
   adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
   _count?: boolean | Prisma.UsersCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["users"]>
@@ -3168,7 +2957,6 @@ export type UsersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   subscriptions?: boolean | Prisma.Users$subscriptionsArgs<ExtArgs>
   withdrawals?: boolean | Prisma.Users$withdrawalsArgs<ExtArgs>
   adsViews?: boolean | Prisma.Users$adsViewsArgs<ExtArgs>
-  rewardLogs?: boolean | Prisma.Users$rewardLogsArgs<ExtArgs>
   adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
   _count?: boolean | Prisma.UsersCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -3203,7 +2991,6 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     subscriptions: Prisma.$SubscriptionsPayload<ExtArgs>[]
     withdrawals: Prisma.$WithdrawalsPayload<ExtArgs>[]
     adsViews: Prisma.$AdsViewsPayload<ExtArgs>[]
-    rewardLogs: Prisma.$RewardLogPayload<ExtArgs>[]
     adsData: Prisma.$UserAdsDataPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -3632,7 +3419,6 @@ export interface Prisma__UsersClient<T, Null = never, ExtArgs extends runtime.Ty
   subscriptions<T extends Prisma.Users$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   withdrawals<T extends Prisma.Users$withdrawalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$withdrawalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WithdrawalsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adsViews<T extends Prisma.Users$adsViewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$adsViewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdsViewsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  rewardLogs<T extends Prisma.Users$rewardLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$rewardLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adsData<T extends Prisma.Users$adsDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$adsDataArgs<ExtArgs>>): Prisma.Prisma__UserAdsDataClient<runtime.Types.Result.GetResult<Prisma.$UserAdsDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4258,30 +4044,6 @@ export type Users$adsViewsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.AdsViewsScalarFieldEnum | Prisma.AdsViewsScalarFieldEnum[]
-}
-
-/**
- * Users.rewardLogs
- */
-export type Users$rewardLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the RewardLog
-   */
-  select?: Prisma.RewardLogSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the RewardLog
-   */
-  omit?: Prisma.RewardLogOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.RewardLogInclude<ExtArgs> | null
-  where?: Prisma.RewardLogWhereInput
-  orderBy?: Prisma.RewardLogOrderByWithRelationInput | Prisma.RewardLogOrderByWithRelationInput[]
-  cursor?: Prisma.RewardLogWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RewardLogScalarFieldEnum | Prisma.RewardLogScalarFieldEnum[]
 }
 
 /**

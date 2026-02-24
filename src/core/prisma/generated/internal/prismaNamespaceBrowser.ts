@@ -59,7 +59,6 @@ export const ModelName = {
   AdsViews: 'AdsViews',
   AdsBlocks: 'AdsBlocks',
   AdsNetworks: 'AdsNetworks',
-  RewardLog: 'RewardLog',
   UserBalance: 'UserBalance',
   GreenList: 'GreenList',
   Plans: 'Plans',
@@ -221,7 +220,10 @@ export const AdsViewsScalarFieldEnum = {
   rewardTraffic: 'rewardTraffic',
   rewardStars: 'rewardStars',
   rewardTickets: 'rewardTickets',
+  rewardAd: 'rewardAd',
   duration: 'duration',
+  ip: 'ip',
+  ua: 'ua',
   createdAt: 'createdAt',
   claimedAt: 'claimedAt',
   verifyKey: 'verifyKey',
@@ -259,22 +261,6 @@ export const AdsNetworksScalarFieldEnum = {
 } as const
 
 export type AdsNetworksScalarFieldEnum = (typeof AdsNetworksScalarFieldEnum)[keyof typeof AdsNetworksScalarFieldEnum]
-
-
-export const RewardLogScalarFieldEnum = {
-  id: 'id',
-  rewardStars: 'rewardStars',
-  rewardTickets: 'rewardTickets',
-  rewardTraffic: 'rewardTraffic',
-  source: 'source',
-  reference: 'reference',
-  ip: 'ip',
-  ua: 'ua',
-  createdAt: 'createdAt',
-  userId: 'userId'
-} as const
-
-export type RewardLogScalarFieldEnum = (typeof RewardLogScalarFieldEnum)[keyof typeof RewardLogScalarFieldEnum]
 
 
 export const UserBalanceScalarFieldEnum = {
