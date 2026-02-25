@@ -1,74 +1,15 @@
-import {
-  Injectable,
-  Logger,
-  OnModuleDestroy,
-  OnModuleInit,
-} from '@nestjs/common'
-import { queue, QueueObject } from 'async'
-import * as crypto from 'crypto'
-import { InjectBot } from 'nestjs-telegraf'
-import { Telegraf } from 'telegraf'
+import { TELEGRAM_QUEUE } from '@core/bullmq/bullmq.module'
+import { Inject, Injectable } from '@nestjs/common'
+import { Queue } from 'bullmq'
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal'
 
-interface LogTask {
-  level: LogLevel
-  text: string
-}
-
 @Injectable()
-export class LoggerTelegramService implements OnModuleInit, OnModuleDestroy {
-  private readonly logger = new Logger(LoggerTelegramService.name)
-
-  private readonly chatId: number = Number(process.env.TELEGRAM_LOG_CHAT_ID)
-
-  private readonly threadIds: Record<LogLevel, number> = {
-    debug: Number(process.env.TELEGRAM_THREAD_ID_DEBUG),
-    info: Number(process.env.TELEGRAM_THREAD_ID_INFO),
-    warn: Number(process.env.TELEGRAM_THREAD_ID_WARN),
-    error: Number(process.env.TELEGRAM_THREAD_ID_ERROR),
-    fatal: Number(process.env.TELEGRAM_THREAD_ID_ERROR),
-  }
-
-  private queue: QueueObject<LogTask>
-  private recentHashes = new Map<string, number>()
-
-  constructor(@InjectBot() private readonly bot: Telegraf) {
-    this.queue = queue(async (task: LogTask) => {
-      const hash = this.hashText(task.level, task.text)
-      const now = Date.now()
-
-      if (
-        this.recentHashes.has(hash) &&
-        now - this.recentHashes.get(hash)! < 10_000
-      ) {
-        return
-      }
-      this.recentHashes.set(hash, now)
-
-      try {
-        await this.bot.telegram.sendMessage(
-          this.chatId,
-          `*${task.level.toUpperCase()}*: ${this.escapeMarkdown(task.text)}`,
-          {
-            parse_mode: 'MarkdownV2',
-            message_thread_id: this.threadIds[task.level],
-          },
-        )
-      } catch (err) {
-        this.logger.error('Failed to send Telegram log', (err as Error).stack)
-      }
-    }, 1) // concurrency = 1
-  }
-
-  onModuleInit() {
-    this.queue.drain(() => this.logger.debug('Telegram log queue drained'))
-    this.logger.log('LoggerTelegramService initialized')
-  }
-
-  onModuleDestroy() {
-    this.queue.kill()
-  }
+export class LoggerTelegramService {
+  constructor(
+    @Inject(TELEGRAM_QUEUE)
+    private readonly queue: Queue,
+  ) {}
 
   debug(msg: string) {
     this.enqueue('debug', msg)
@@ -87,20 +28,6 @@ export class LoggerTelegramService implements OnModuleInit, OnModuleDestroy {
   }
 
   private enqueue(level: LogLevel, text: string) {
-    if (!this.chatId || !this.threadIds[level]) {
-      this.logger.warn(
-        `Telegram chatId or threadId not configured (level=${level})`,
-      )
-      return
-    }
-    this.queue.push({ level, text })
-  }
-
-  private escapeMarkdown(text: string): string {
-    return text.replace(/([_\-*[\]()~`>#+=|{}.!])/g, '\\$1')
-  }
-
-  private hashText(level: LogLevel, text: string): string {
-    return crypto.createHash('sha1').update(`${level}:${text}`).digest('hex')
+    this.queue.add('send', { level, text })
   }
 }
