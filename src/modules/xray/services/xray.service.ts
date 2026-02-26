@@ -658,7 +658,7 @@ export class XrayService {
         return
       }
 
-      // Формируем список кодов серверов // TODO: ИСРПАВИТЬ ЗДЕСЬ ЛОГИКУ ВЫДАЧИ СЕРВЕРА
+      // Формируем список кодов серверов
       const serverCodes =
         subscription.isAllBaseServers && subscription.isAllPremiumServers
           ? []
@@ -925,6 +925,15 @@ export class XrayService {
       this.logger.info({
         msg: `Preparing final response for subscription ${subscription.id}`,
         service: this.serviceName,
+      })
+
+      await this.prismaService.subscriptions.update({
+        where: {
+          id: subscription.id,
+        },
+        data: {
+          lastUserAgent: agent,
+        },
       })
 
       return {
