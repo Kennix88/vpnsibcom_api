@@ -300,7 +300,7 @@ export class SubscriptionManagerService {
                         ? 0
                         : subscription.nextRenewalStars,
                     usedTraffic: subscription.usedTraffic / 1024 / 1024,
-                    lastUserAgent: subscription.lastUserAgent,
+                    // lastUserAgent: subscription.lastUserAgent,
                     dataLimit: subscription.dataLimit / 1024 / 1024,
                     lifeTimeUsedTraffic:
                       subscription.lifeTimeUsedTraffic / 1024 / 1024,
