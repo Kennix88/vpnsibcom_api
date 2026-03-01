@@ -286,6 +286,11 @@ export class UsersService {
   public async updateTelegramDataUser(
     telegramId: string,
     initData: TelegramInitDataInterface,
+    birth?: {
+      year?: number
+      month: number
+      day: number
+    },
   ) {
     try {
       const user = await this.prismaService.users.findUnique({
@@ -317,6 +322,11 @@ export class UsersService {
           photoUrl: initData.user.photo_url,
           addedToAttachmentMenu: initData.user.added_to_attachment_menu,
           allowsWriteToPm: initData.user.allows_write_to_pm,
+          ...(birth && {
+            birthDay: birth?.day ?? null,
+            birthMonth: birth?.month ?? null,
+            birthYear: birth?.year ?? null,
+          }),
         },
       })
     } catch (e) {
@@ -333,12 +343,20 @@ export class UsersService {
     initData,
     userInBotData,
     isTelegramPartner,
+    birth,
+    country,
   }: {
     telegramId: string
     referralKey?: string
     initData?: TelegramInitDataInterface
     userInBotData?: UserInBotInterface
     isTelegramPartner?: boolean
+    birth?: {
+      year?: number
+      month: number
+      day: number
+    }
+    country?: string
   }) {
     try {
       const user = await this.prismaService.$transaction(async (tx) => {
@@ -370,6 +388,9 @@ export class UsersService {
                   photoUrl: initData.user.photo_url,
                   addedToAttachmentMenu: initData.user.added_to_attachment_menu,
                   allowsWriteToPm: initData.user.allows_write_to_pm,
+                  birthDay: birth?.day ?? null,
+                  birthMonth: birth?.month ?? null,
+                  birthYear: birth?.year ?? null,
                 }
               : userInBotData && !initData
               ? {
@@ -382,6 +403,9 @@ export class UsersService {
                   isPremium: userInBotData.is_premium,
                   isBot: userInBotData.is_bot,
                   addedToAttachmentMenu: userInBotData.added_to_attachment_menu,
+                  birthDay: birth?.day ?? null,
+                  birthMonth: birth?.month ?? null,
+                  birthYear: birth?.year ?? null,
                 }
               : {
                   firstName: 'ANONIM',
@@ -418,6 +442,7 @@ export class UsersService {
             currencyKey: CurrencyEnum.USD,
             lastStartedAt: new Date(),
             isTgProgramPartner: isTelegramPartner,
+            ...(country && { countryRegistration: country.toUpperCase() }),
           },
         })
 
