@@ -83,6 +83,19 @@ If you have any difficulties with payment, subscription or anything else, write 
 
       const startParam = ctx.startPayload
 
+      const chatInfo = await this.bot.telegram.getChat(ctx.from.id)
+
+      const birth = chatInfo &&
+        // @ts-ignore
+        chatInfo.birthdate && {
+          // @ts-ignore
+          year: chatInfo.birthdate.year ?? null,
+          // @ts-ignore
+          month: chatInfo.birthdate.month ?? null,
+          // @ts-ignore
+          day: chatInfo.birthdate.day ?? null,
+        }
+
       this.taddyService.startEvent({
         user: {
           id: Number(ctx.from.id),
@@ -91,6 +104,15 @@ If you have any difficulties with payment, subscription or anything else, write 
           username: ctx.from.username,
           premium: ctx.from.is_premium,
           language: ctx.from.language_code,
+          // @ts-ignore
+          ...(chatInfo &&
+            // @ts-ignore
+            chatInfo.birthdate &&
+            // @ts-ignore
+            chatInfo.birthdate.year && {
+              // @ts-ignore
+              birthDate: `${chatInfo.birthdate.year}-${chatInfo.birthdate.month}-${chatInfo.birthdate.day}`,
+            }),
         },
         origin: TaddyOriginEnum.SERVER,
         start: startParam,
@@ -117,11 +139,15 @@ If you have any difficulties with payment, subscription or anything else, write 
           referralKey: referralKey,
           userInBotData: ctx.from,
           isTelegramPartner,
+          ...(birth && { birth }),
         })
       }
 
-      // if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
-      // }
+      if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
+        this.telegramLogger.info(
+          `Admin ${ctx.from.first_name} ${ctx.from.last_name} (${ctx.from.username}) started the bot`,
+        )
+      }
 
       // await ctx.reply(
       //   'Выбери действие',
