@@ -1,5 +1,7 @@
+import { PrismaService } from '@core/prisma/prisma.service'
 import { TaddyService } from '@modules/ads/taddy.service'
 import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
+import { GeoService } from '@modules/geo/geo.service'
 import { UsersService } from '@modules/users/users.service'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -10,6 +12,8 @@ import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.inte
 import { UserDataInterface } from '@shared/types/user-data.interface'
 import { parse } from '@telegram-apps/init-data-node'
 import { PinoLogger } from 'nestjs-pino'
+import { InjectBot } from 'nestjs-telegraf'
+import { Telegraf } from 'telegraf'
 import { TokenService } from './token.service'
 
 @Injectable()
@@ -22,6 +26,9 @@ export class AuthService {
     private readonly logger: PinoLogger,
     private userService: UsersService,
     private taddyService: TaddyService,
+    private readonly geoService: GeoService,
+    private readonly prisma: PrismaService,
+    @InjectBot() private readonly bot: Telegraf,
   ) {}
 
   public async updateUserActivity(token: string) {
@@ -62,6 +69,9 @@ export class AuthService {
       service: this.serviceName,
     })
 
+    const chatInfo = await this.bot.telegram.getChat(userData.user.id)
+    const country = await this.geoService.getCountry(ip)
+
     this.taddyService.startEvent({
       user: {
         id: Number(userData.user.id),
@@ -71,11 +81,32 @@ export class AuthService {
         premium: userData.user.is_premium,
         language: userData.user.language_code,
         ip,
+        ...(country && { country: country.toUpperCase() }),
         userAgent: ua,
+        // @ts-ignore
+        ...(chatInfo &&
+          // @ts-ignore
+          chatInfo.birthdate &&
+          // @ts-ignore
+          chatInfo.birthdate.year && {
+            // @ts-ignore
+            birthDate: `${chatInfo.birthdate.year}-${chatInfo.birthdate.month}-${chatInfo.birthdate.day}`,
+          }),
       },
       origin: TaddyOriginEnum.WEB,
       start: userData.start_param,
     })
+
+    const birth = chatInfo &&
+      // @ts-ignore
+      chatInfo.birthdate && {
+        // @ts-ignore
+        year: chatInfo.birthdate.year ?? null,
+        // @ts-ignore
+        month: chatInfo.birthdate.month ?? null,
+        // @ts-ignore
+        day: chatInfo.birthdate.day ?? null,
+      }
 
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
 
@@ -89,12 +120,23 @@ export class AuthService {
         ...(refId && {
           referralKey: refId,
         }),
+        ...(birth && { birth }),
+        ...(country && { country }),
+      })
+    }
+
+    // Update user country registration if it's not set
+    if (!user.countryRegistration && country) {
+      await this.prisma.users.update({
+        where: { id: user.id },
+        data: { countryRegistration: country.toUpperCase() },
       })
     }
 
     await this.userService.updateTelegramDataUser(
       userData.user.id.toString(),
       userData,
+      birth,
     )
 
     const payload: JwtPayload = {
