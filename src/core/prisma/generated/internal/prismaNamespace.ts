@@ -2080,6 +2080,9 @@ export const UserTelegramDataScalarFieldEnum = {
   photoUrl: 'photoUrl',
   addedToAttachmentMenu: 'addedToAttachmentMenu',
   allowsWriteToPm: 'allowsWriteToPm',
+  birthDay: 'birthDay',
+  birthMonth: 'birthMonth',
+  birthYear: 'birthYear',
   updatedAt: 'updatedAt'
 } as const
 
@@ -2117,6 +2120,7 @@ export const UsersScalarFieldEnum = {
   tgProgramPartnerExpiredAt: 'tgProgramPartnerExpiredAt',
   nextAdsRewardAt: 'nextAdsRewardAt',
   nextAdsgramTaskAt: 'nextAdsgramTaskAt',
+  countryRegistration: 'countryRegistration',
   roleId: 'roleId',
   telegramDataId: 'telegramDataId',
   balanceId: 'balanceId',
