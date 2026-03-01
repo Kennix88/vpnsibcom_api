@@ -85,6 +85,9 @@ model UserTelegramData {
  photoUrl              String?  @map("photo_url")
  addedToAttachmentMenu Boolean  @default(false) @map("added_to_attachment_menu")
  allowsWriteToPm       Boolean  @default(false) @map("allows_write_to_pm")
+ birthDay              Int?     @map("birth_day")
+ birthMonth            Int?     @map("birth_month")
+ birthYear             Int?     @map("birth_year")
  updatedAt             DateTime @updatedAt @map("updated_at")
 
  user Users?
@@ -132,6 +135,8 @@ model Users {
  tgProgramPartnerExpiredAt DateTime? @map("tg_program_partner_expired_at")
  nextAdsRewardAt           DateTime? @map("next_ads_reward_at")
  nextAdsgramTaskAt         DateTime? @map("next_adsgram_task_at")
+
+ countryRegistration String? @map("country_registration")
 
  role           Roles             @relation(fields: [roleId], references: [key])
  roleId         UserRoleEnum      @default(USER) @map("role_id")
