@@ -79,7 +79,7 @@ export class GeoService implements OnModuleInit {
       const r = this.countryReader.get(ip)
       // guard against missing iso_code
       const iso = r?.country?.iso_code
-      return typeof iso === 'string' ? iso.toLowerCase() : null
+      return typeof iso === 'string' ? iso : null
     } catch (e) {
       this.logger.warn(`getCountry failed for ip=${ip}: ${String(e)}`)
       return null
@@ -95,7 +95,7 @@ export class GeoService implements OnModuleInit {
       if (!r) return null
       const country =
         typeof r?.country?.iso_code === 'string'
-          ? r.country.iso_code.toLowerCase()
+          ? r.country.iso_code
           : undefined
       const city =
         r?.city?.names?.en ??
