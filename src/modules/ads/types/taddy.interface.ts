@@ -9,7 +9,10 @@ export interface TaddyUserInterface {
   gender?: TaddyGenderEnum
   ip?: string
   userAgent?: string
-  // Format: YYYY-MM-DD
+  /**
+   * Format: YYYY-MM-DD;
+   * Example: 1990-05-23
+   */
   birthDate?: `${number}-${number}-${number}`
 }
 
