@@ -4,18 +4,13 @@ import { StartUpdate } from '@integrations/telegram/start.update'
 import { TelegramController } from '@integrations/telegram/telegram.controller'
 import { PaymentsUpdate } from '@integrations/telegram/updates/payments.update'
 import { AdsModule } from '@modules/ads/ads.module'
+import { GeoModule } from '@modules/geo/geo.module'
 import { RatesModule } from '@modules/rates/rates.module'
 import { ReferralsModule } from '@modules/referrals/referrals.module'
 import { UsersModule } from '@modules/users/users.module'
-import {
-  forwardRef,
-  Global,
-  Module,
-  OnApplicationBootstrap,
-} from '@nestjs/common'
+import { forwardRef, Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { InjectBot, TelegrafModule } from 'nestjs-telegraf'
-import { Telegraf } from 'telegraf'
+import { TelegrafModule } from 'nestjs-telegraf'
 
 @Global()
 @Module({
@@ -29,6 +24,7 @@ import { Telegraf } from 'telegraf'
     forwardRef(() => ReferralsModule),
     forwardRef(() => UsersModule),
     forwardRef(() => AdsModule),
+    forwardRef(() => GeoModule),
   ],
   controllers: [TelegramController],
   providers: [
