@@ -73,7 +73,8 @@ export class GeoService implements OnModuleInit {
     this.logger.log('Reloaded Geo readers')
   }
 
-  getCountry(ip: string): string | null {
+  getCountry(ip?: string): string | null {
+    if (!ip) return null
     if (!this.countryReader) return null
     try {
       const r = this.countryReader.get(ip)
@@ -87,8 +88,9 @@ export class GeoService implements OnModuleInit {
   }
 
   getCity(
-    ip: string,
+    ip?: string,
   ): { country?: string; city?: string; lat?: number; lon?: number } | null {
+    if (!ip) return null
     if (!this.cityReader) return null
     try {
       const r = this.cityReader.get(ip)
@@ -118,10 +120,11 @@ export class GeoService implements OnModuleInit {
     }
   }
 
-  getASN(ip: string): {
+  getASN(ip?: string): {
     autonomous_system_number?: number | null
     autonomous_system_organization?: string | null
   } | null {
+    if (!ip) return null
     if (!this.asnReader) return null
     try {
       const r = this.asnReader.get(ip)
