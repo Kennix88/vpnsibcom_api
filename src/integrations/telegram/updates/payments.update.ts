@@ -1,7 +1,7 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
-import { UsersService } from '@modules/users/users.service'
+import { UsersService } from '@modules/users/services/users.service'
 import { ConfigService } from '@nestjs/config'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { SuccessfulPayment } from '@telegraf/types'
