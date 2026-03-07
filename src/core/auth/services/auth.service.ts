@@ -2,7 +2,10 @@ import { PrismaService } from '@core/prisma/prisma.service'
 import { TaddyService } from '@modules/ads/taddy.service'
 import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
 import { GeoService } from '@modules/geo/geo.service'
-import { UsersService } from '@modules/users/users.service'
+import { AcquisitionsService } from '@modules/users/services/acquisitions.service'
+import { SessionsService } from '@modules/users/services/sessions.service'
+import { UsersService } from '@modules/users/services/users.service'
+import { SessionPlaceEnum } from '@modules/users/types/session-place.enum'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
@@ -28,6 +31,8 @@ export class AuthService {
     private taddyService: TaddyService,
     private readonly geoService: GeoService,
     private readonly prisma: PrismaService,
+    private readonly sessionsService: SessionsService,
+    private readonly acquisitionsService: AcquisitionsService,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
 
@@ -70,7 +75,7 @@ export class AuthService {
     })
 
     const chatInfo = await this.bot.telegram.getChat(userData.user.id)
-    const country = await this.geoService.getCountry(ip)
+    const country = this.geoService.getCountry(ip)
 
     this.taddyService.startEvent({
       user: {
@@ -122,6 +127,8 @@ export class AuthService {
         }),
         ...(birth && { birth }),
         ...(country && { country }),
+        ua,
+        ip,
       })
     }
 
@@ -138,6 +145,25 @@ export class AuthService {
       userData,
       birth,
     )
+
+    this.sessionsService.createSession({
+      userId: user.id,
+      place: SessionPlaceEnum.TELEGRAM_MINIAPP,
+      ...(refId && {
+        referralKey: refId,
+      }),
+      ip,
+      ua,
+      startParams: startParam,
+    })
+
+    this.acquisitionsService.updateAcquisition({
+      userId: user.id,
+      startParams: startParam,
+      ...(refId && {
+        referralKey: refId,
+      }),
+    })
 
     const payload: JwtPayload = {
       sub: user.id,
