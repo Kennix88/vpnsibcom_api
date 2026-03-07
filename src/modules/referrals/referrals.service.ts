@@ -1,6 +1,6 @@
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
-import { UsersService } from '@modules/users/users.service'
+import { UsersService } from '@modules/users/services/users.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DefaultEnum } from '@shared/enums/default.enum'
