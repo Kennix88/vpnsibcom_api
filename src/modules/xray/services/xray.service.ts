@@ -5,7 +5,9 @@ import { PaymentTypeEnum } from '@modules/payments/types/payment-type.enum'
 import { PlansServersSelectTypeEnum } from '@modules/plans/types/plans-servers-select-type.enum'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
-import { UsersService } from '@modules/users/users.service'
+import { EventsService } from '@modules/users/services/events.service'
+import { UsersService } from '@modules/users/services/users.service'
+import { EventType } from '@modules/users/types/event-type.enum'
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
@@ -41,9 +43,6 @@ import { getXrayConfigFormat } from '../utils/get-xray-config-fromat.util'
 import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 
-/**
- * Сервис для работы с Xray
- */
 @Injectable()
 export class XrayService {
   getLocalizedPeriodText(arg0: SubscriptionPeriodEnum, iso6391: string): any {
@@ -62,6 +61,7 @@ export class XrayService {
     private readonly paymentsService: PaymentsService,
     private readonly i18n: I18nService,
     @InjectBot() private readonly bot: Telegraf,
+    private readonly eventsService: EventsService,
   ) {}
 
   public async addTraffic(
@@ -1527,6 +1527,11 @@ export class XrayService {
         })
         return false
       }
+
+      this.eventsService.createEvent({
+        userId: user.id,
+        eventType: EventType.ACTIVATION,
+      })
 
       // Обработка реферальной системы
       await this.processReferrals(user)
