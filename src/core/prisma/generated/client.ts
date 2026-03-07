@@ -58,6 +58,21 @@ export type Referrals = Prisma.ReferralsModel
  */
 export type Users = Prisma.UsersModel
 /**
+ * Model Events
+ * 
+ */
+export type Events = Prisma.EventsModel
+/**
+ * Model Acquisition
+ * 
+ */
+export type Acquisition = Prisma.AcquisitionModel
+/**
+ * Model Sessions
+ * 
+ */
+export type Sessions = Prisma.SessionsModel
+/**
  * Model UserAdsData
  * 
  */

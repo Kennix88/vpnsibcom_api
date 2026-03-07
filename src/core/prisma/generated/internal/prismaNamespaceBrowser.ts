@@ -55,6 +55,9 @@ export const ModelName = {
   UserTelegramData: 'UserTelegramData',
   Referrals: 'Referrals',
   Users: 'Users',
+  Events: 'Events',
+  Acquisition: 'Acquisition',
+  Sessions: 'Sessions',
   UserAdsData: 'UserAdsData',
   AdsViews: 'AdsViews',
   AdsBlocks: 'AdsBlocks',
@@ -199,10 +202,71 @@ export const UsersScalarFieldEnum = {
   balanceId: 'balanceId',
   languageId: 'languageId',
   currencyKey: 'currencyKey',
-  adsDataId: 'adsDataId'
+  adsDataId: 'adsDataId',
+  acquisitionId: 'acquisitionId'
 } as const
 
 export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
+
+
+export const EventsScalarFieldEnum = {
+  id: 'id',
+  eventType: 'eventType',
+  amountStars: 'amountStars',
+  source: 'source',
+  referralId: 'referralId',
+  startParams: 'startParams',
+  compaingId: 'compaingId',
+  recordId: 'recordId',
+  otherData: 'otherData',
+  createdAt: 'createdAt',
+  userId: 'userId'
+} as const
+
+export type EventsScalarFieldEnum = (typeof EventsScalarFieldEnum)[keyof typeof EventsScalarFieldEnum]
+
+
+export const AcquisitionScalarFieldEnum = {
+  id: 'id',
+  firstSource: 'firstSource',
+  firstReferralId: 'firstReferralId',
+  firstStartParams: 'firstStartParams',
+  firstCompaingId: 'firstCompaingId',
+  firstRecordId: 'firstRecordId',
+  firstOtherData: 'firstOtherData',
+  firstAt: 'firstAt',
+  lastSource: 'lastSource',
+  lastReferralId: 'lastReferralId',
+  lastStartParams: 'lastStartParams',
+  lastCompaingId: 'lastCompaingId',
+  lastRecordId: 'lastRecordId',
+  lastOtherData: 'lastOtherData',
+  lastAt: 'lastAt'
+} as const
+
+export type AcquisitionScalarFieldEnum = (typeof AcquisitionScalarFieldEnum)[keyof typeof AcquisitionScalarFieldEnum]
+
+
+export const SessionsScalarFieldEnum = {
+  id: 'id',
+  place: 'place',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  browser: 'browser',
+  device: 'device',
+  os: 'os',
+  country: 'country',
+  source: 'source',
+  referralId: 'referralId',
+  startParams: 'startParams',
+  compaingId: 'compaingId',
+  recordId: 'recordId',
+  otherData: 'otherData',
+  startedAt: 'startedAt',
+  userId: 'userId'
+} as const
+
+export type SessionsScalarFieldEnum = (typeof SessionsScalarFieldEnum)[keyof typeof SessionsScalarFieldEnum]
 
 
 export const UserAdsDataScalarFieldEnum = {

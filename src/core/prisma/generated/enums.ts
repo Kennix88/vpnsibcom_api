@@ -16,6 +16,25 @@ export const DefaultEnum = {
 export type DefaultEnum = (typeof DefaultEnum)[keyof typeof DefaultEnum]
 
 
+export const EventTypeEnum = {
+  REGISTRATION: 'REGISTRATION',
+  ACTIVATION: 'ACTIVATION',
+  FIRST_PAYMENT: 'FIRST_PAYMENT',
+  RELOAD_PAYMENT: 'RELOAD_PAYMENT'
+} as const
+
+export type EventTypeEnum = (typeof EventTypeEnum)[keyof typeof EventTypeEnum]
+
+
+export const SessionPlaceEnum = {
+  WEB: 'WEB',
+  BOT: 'BOT',
+  TELEGRAM_MINIAPP: 'TELEGRAM_MINIAPP'
+} as const
+
+export type SessionPlaceEnum = (typeof SessionPlaceEnum)[keyof typeof SessionPlaceEnum]
+
+
 export const AdsViewTypeEnum = {
   REWARD: 'REWARD',
   TASK: 'TASK',
