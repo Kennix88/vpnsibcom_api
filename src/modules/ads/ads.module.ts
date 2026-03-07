@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { AdsController } from './ads.controller'
 import { AdsService } from './ads.service'
+import { AdsgramService } from './services/adsgram.service'
+import { GraspilService } from './services/graspil.service'
 import { TaddyService } from './taddy.service'
 
 @Global()
@@ -21,7 +23,7 @@ import { TaddyService } from './taddy.service'
     forwardRef(() => TelegramModule),
   ],
   controllers: [AdsController],
-  providers: [AdsService, TaddyService],
-  exports: [AdsService, TaddyService],
+  providers: [AdsService, TaddyService, AdsgramService, GraspilService],
+  exports: [AdsService, TaddyService, AdsgramService, GraspilService],
 })
 export class AdsModule {}
