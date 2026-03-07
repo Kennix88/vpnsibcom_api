@@ -5,7 +5,10 @@ import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
 import { TonPaymentsService } from '@modules/payments/services/ton-payments.service'
 import { RatesService } from '@modules/rates/rates.service'
 import { ReferralsService } from '@modules/referrals/referrals.service'
-import { UsersService } from '@modules/users/users.service'
+import { AcquisitionsService } from '@modules/users/services/acquisitions.service'
+import { SessionsService } from '@modules/users/services/sessions.service'
+import { UsersService } from '@modules/users/services/users.service'
+import { SessionPlaceEnum } from '@modules/users/types/session-place.enum'
 import { ConfigService } from '@nestjs/config'
 import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
@@ -32,7 +35,9 @@ export class StartUpdate {
     private readonly ratesService: RatesService,
     private readonly userService: UsersService,
     private readonly tonPaymentsService: TonPaymentsService,
-    private taddyService: TaddyService,
+    private readonly taddyService: TaddyService,
+    private readonly sessionsService: SessionsService,
+    private readonly acquisitionsService: AcquisitionsService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(StartUpdate.name)
@@ -81,6 +86,14 @@ If you have any difficulties with payment, subscription or anything else, write 
     try {
       if (ctx.chat?.type !== 'private' || !ctx.from) return
 
+      const loaderMsgId = await ctx
+        .replyWithSticker(
+          'CAACAgIAAxkBAAEWPfRppTYBRM_NLOTANCMU-jcXRl5IwAACW1wBAAFji0YMrLK2QXamXBs6BA',
+          Markup.removeKeyboard(),
+        )
+        .then((msg) => msg.message_id)
+        .catch(console.error)
+
       const startParam = ctx.startPayload
 
       const chatInfo = await this.bot.telegram.getChat(ctx.from.id)
@@ -118,7 +131,6 @@ If you have any difficulties with payment, subscription or anything else, write 
         start: startParam,
       })
 
-      // можно выделить реф. ID и партнёрский флаг
       const isTelegramPartner = /^_tgr_[\w-]+$/.test(startParam ?? '')
       const referralKey = startParam?.match(/r-([a-zA-Z0-9]+)/)?.[1] ?? null
 
@@ -143,6 +155,23 @@ If you have any difficulties with payment, subscription or anything else, write 
         })
       }
 
+      this.sessionsService.createSession({
+        userId: user.id,
+        place: SessionPlaceEnum.BOT,
+        ...(referralKey && {
+          referralKey,
+        }),
+        startParams: startParam,
+      })
+
+      this.acquisitionsService.updateAcquisition({
+        userId: user.id,
+        startParams: startParam,
+        ...(referralKey && {
+          referralKey,
+        }),
+      })
+
       if (ctx.from.id == this.configService.get<number>('TELEGRAM_ADMIN_ID')) {
         this.telegramLogger.info(
           `Admin ${ctx.from.first_name} ${ctx.from.last_name} (${ctx.from.username}) started the bot`,
@@ -153,11 +182,6 @@ If you have any difficulties with payment, subscription or anything else, write 
       //   'Выбери действие',
       //   Markup.keyboard([['Продолжить']]).resize(),
       // )
-
-      ctx
-        .reply('...', Markup.removeKeyboard())
-        .then((msg) => ctx.deleteMessage(msg.message_id))
-        .catch(console.error)
 
       await ctx.sendPhoto(
         { source: createReadStream('assets/welcome.jpg') },
@@ -183,7 +207,7 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
               [
                 {
                   ...Markup.button.webApp(
-                    'VPN&GAMES',
+                    'Connect to a VPN',
                     this.configService.get<string>('WEBAPP_URL'),
                   ),
                   // @ts-ignore
@@ -216,7 +240,7 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
                     this.i18n.t('telegraf.telegram.button.buyStars', {
                       lang: ctx.from.language_code,
                     }),
-                    'https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
+                    'https://t.me/stars?start=ref-UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
                   ),
                   // @ts-ignore
                   style: 'primary',
@@ -226,6 +250,8 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
           },
         },
       )
+
+      if (loaderMsgId) await ctx.deleteMessage(loaderMsgId).catch(console.error)
 
       return
     } catch (e) {
