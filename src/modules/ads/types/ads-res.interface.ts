@@ -13,13 +13,5 @@ export interface AdsDataInterface {
   network: AdsNetworkEnum
   time: Date
   blockId: string
-  rewards: AdsTaskRewardsInterface
   verifyKey: string
-}
-
-export interface AdsTaskRewardsInterface {
-  traffic: number
-  stars: number
-  tickets: number
-  ad: number
 }
