@@ -1,29 +1,46 @@
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/services/users.service'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
+import { PlatformEnum } from '@shared/enums/platform.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
+import { detectPlatformUtil } from '@shared/utils/detect-platform.util'
 import { addMinutes, isAfter } from 'date-fns'
+import { PinoLogger } from 'nestjs-pino'
 import { AdsNetworkEnum } from './types/ads-network.enum'
 import { AdsPlaceEnum } from './types/ads-place.enum'
 import { AdsResInterface } from './types/ads-res.interface'
 import { AdsTypeEnum } from './types/ads-type.enum'
+import { TaskRewardResInterface } from './types/task-reward-res.interface'
 
 @Injectable()
 export class AdsService {
-  private readonly logger = new Logger(AdsService.name)
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
+    private readonly logger: PinoLogger,
   ) {}
+
+  public async getAdTaskReward(): Promise<TaskRewardResInterface> {
+    try {
+      const reward = await this.prisma.adsRewards.findUnique({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+      this.logger.info(reward)
+      return reward ? { amount: Number(reward.taskView) } : { amount: 0 }
+    } catch (error) {
+      this.logger.error(error)
+    }
+  }
 
   /**
    * Создаёт ad session; возвращает VerifyKey (JWT) и информацию для клиента.
@@ -59,17 +76,20 @@ export class AdsService {
         isNoAds: true,
       }
 
+    const platform = detectPlatformUtil(ua || null)
+
     // 1) получаем доступные блоки
     const blocks = await this.prisma.adsBlocks.findMany({
       where: {
         place: place,
         isActive: true,
         network: {
-          // ...(user.adsData.lastViewedNetwork && {
-          //   NOT: {
-          //     key: user.adsData.lastViewedNetwork,
-          //   },
-          // }),
+          ...(platform !== PlatformEnum.ANDROID &&
+            platform !== PlatformEnum.IOS && {
+              NOT: {
+                key: AdsNetworkEnum.ADSGRAM,
+              },
+            }),
           isActive: true,
         },
       },
@@ -83,7 +103,7 @@ export class AdsService {
     }
 
     const block = blocks[Math.floor(Math.random() * blocks.length)]
-    const limit = block.limit ?? 1
+    const limit = 1
     const duration = block.duration ?? 60 // сек
 
     const sessionId = crypto.randomUUID()
@@ -93,12 +113,6 @@ export class AdsService {
       telegramId,
       blockId: block.id,
       networkKey: block.networkKey,
-      rewards: {
-        traffic: Number(block.rewardTraffic ?? 0),
-        stars: Number(block.rewardStars ?? 0),
-        tickets: Number(block.rewardTickets ?? 0),
-        ad: Number(block.rewardAd ?? 0),
-      },
       limit,
       createdAt: Date.now(),
       duration,
@@ -111,15 +125,21 @@ export class AdsService {
     // store only meta in Redis with expiration
     await this.redisService.setObjectWithExpiry(metaKey, meta, duration)
 
+    const adsRewards = await this.prisma.adsRewards.findUnique({
+      where: {
+        key: DefaultEnum.DEFAULT,
+      },
+    })
+
     // сохраняем запись AdsViews (verifyKey пока UUID -> later replaced by JWT returned to client)
     await this.prisma.adsViews.create({
       data: {
         networkKey: block.networkKey,
         type: type,
-        rewardTraffic: meta.rewards.traffic,
-        rewardStars: meta.rewards.stars,
-        rewardTickets: meta.rewards.tickets,
-        rewardAd: meta.rewards.ad,
+        rewardStars:
+          place == AdsPlaceEnum.REWARD_TASK && type == AdsTypeEnum.REWARD
+            ? Number(adsRewards?.taskView ?? 0)
+            : 0,
         duration,
         verifyKey: sessionId as string, // сохраняем sid; клиент получит JWT, но в БД храним sid для привязки
         userId,
@@ -166,7 +186,7 @@ export class AdsService {
       )
     }
 
-    this.logger.log(
+    this.logger.info(
       `Created ad session ${sessionId} (JWT returned) for user ${userId} block ${block.id}`,
     )
 
@@ -177,7 +197,6 @@ export class AdsService {
         place,
         network: block.networkKey as AdsNetworkEnum,
         time: new Date(),
-        rewards: meta.rewards,
         blockId: block.key,
         verifyKey,
       },
@@ -272,40 +291,28 @@ export class AdsService {
     }
 
     // 5) grant reward in DB transaction (adapt fields to your schema)
-    const rewards = metaObj.rewards ?? {
-      traffic: 0,
-      stars: 0,
-      tickets: 0,
-      ad: 0,
-    }
+    // const rewards = metaObj.rewards ?? {
+    //   traffic: 0,
+    //   stars: 0,
+    //   tickets: 0,
+    //   ad: 0,
+    // }
 
     try {
       await this.prisma.$transaction(async (prisma) => {
-        await this.usersService.addUserBalance(
+        const getAd = await prisma.adsViews.findUnique({
+          where: { verifyKey: sessionId },
+        })
+
+        if (!getAd) return
+
+        const addBalanceResult = await this.usersService.addUserBalance(
           userId,
-          rewards.traffic,
-          TransactionReasonEnum.REWARD,
-          BalanceTypeEnum.TRAFFIC,
-        )
-        await this.usersService.addUserBalance(
-          userId,
-          rewards.stars,
+          getAd.rewardStars,
           TransactionReasonEnum.REWARD,
           BalanceTypeEnum.PAYMENT,
         )
-        await this.usersService.addUserBalance(
-          userId,
-          rewards.tickets,
-          TransactionReasonEnum.REWARD,
-          BalanceTypeEnum.TICKETS,
-        )
-        await this.usersService.addUserBalance(
-          userId,
-          rewards.ad,
-          TransactionReasonEnum.REWARD,
-          BalanceTypeEnum.AD,
-        )
-
+        if (!addBalanceResult.success) return
         const ad = await prisma.adsViews.update({
           where: { verifyKey: sessionId },
           data: {
@@ -380,12 +387,7 @@ export class AdsService {
         )
       }
 
-      this.logger.log(
-        `confirmAd: granted ${JSON.stringify(
-          rewards,
-        )} to user ${userId} for session ${sessionId}`,
-      )
-      return { success: true, granted: true, rewards }
+      return { success: true, granted: true }
     } catch (err) {
       this.logger.error(
         `confirmAd: DB transaction failed for ${sessionId}: ${
