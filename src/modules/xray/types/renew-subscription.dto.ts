@@ -4,8 +4,8 @@ import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { IsBoolean, IsEnum, IsNumber } from 'class-validator'
 
 export class RenewSubscriptionDto {
-  @IsEnum([...Object.values(PaymentMethodEnum), 'BALANCE', 'AD'])
-  method: PaymentMethodEnum | 'BALANCE' | 'AD'
+  @IsEnum([...Object.values(PaymentMethodEnum), 'BALANCE', 'USDT'])
+  method: PaymentMethodEnum | 'BALANCE' | 'USDT'
 
   @IsBoolean()
   isSavePeriod: boolean
