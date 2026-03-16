@@ -58,6 +58,11 @@ export type Sessions = Prisma.SessionsModel
  */
 export type UserAdsData = Prisma.UserAdsDataModel
 /**
+ * Model AdsRewards
+ * 
+ */
+export type AdsRewards = Prisma.AdsRewardsModel
+/**
  * Model AdsViews
  * Модель для просмотров рекламы
  */

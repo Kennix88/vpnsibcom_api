@@ -27,38 +27,30 @@ export type AggregateUserBalance = {
 }
 
 export type UserBalanceAvgAggregateOutputType = {
-  paymentBalance: number | null
-  holdBalance: number | null
-  tickets: number | null
-  traffic: number | null
-  ad: number | null
+  paymentBalance: runtime.Decimal | null
+  holdBalance: runtime.Decimal | null
+  usdt: runtime.Decimal | null
 }
 
 export type UserBalanceSumAggregateOutputType = {
-  paymentBalance: number | null
-  holdBalance: number | null
-  tickets: number | null
-  traffic: number | null
-  ad: number | null
+  paymentBalance: runtime.Decimal | null
+  holdBalance: runtime.Decimal | null
+  usdt: runtime.Decimal | null
 }
 
 export type UserBalanceMinAggregateOutputType = {
   id: string | null
-  paymentBalance: number | null
-  holdBalance: number | null
-  tickets: number | null
-  traffic: number | null
-  ad: number | null
+  paymentBalance: runtime.Decimal | null
+  holdBalance: runtime.Decimal | null
+  usdt: runtime.Decimal | null
   updatedAt: Date | null
 }
 
 export type UserBalanceMaxAggregateOutputType = {
   id: string | null
-  paymentBalance: number | null
-  holdBalance: number | null
-  tickets: number | null
-  traffic: number | null
-  ad: number | null
+  paymentBalance: runtime.Decimal | null
+  holdBalance: runtime.Decimal | null
+  usdt: runtime.Decimal | null
   updatedAt: Date | null
 }
 
@@ -66,9 +58,7 @@ export type UserBalanceCountAggregateOutputType = {
   id: number
   paymentBalance: number
   holdBalance: number
-  tickets: number
-  traffic: number
-  ad: number
+  usdt: number
   updatedAt: number
   _all: number
 }
@@ -77,26 +67,20 @@ export type UserBalanceCountAggregateOutputType = {
 export type UserBalanceAvgAggregateInputType = {
   paymentBalance?: true
   holdBalance?: true
-  tickets?: true
-  traffic?: true
-  ad?: true
+  usdt?: true
 }
 
 export type UserBalanceSumAggregateInputType = {
   paymentBalance?: true
   holdBalance?: true
-  tickets?: true
-  traffic?: true
-  ad?: true
+  usdt?: true
 }
 
 export type UserBalanceMinAggregateInputType = {
   id?: true
   paymentBalance?: true
   holdBalance?: true
-  tickets?: true
-  traffic?: true
-  ad?: true
+  usdt?: true
   updatedAt?: true
 }
 
@@ -104,9 +88,7 @@ export type UserBalanceMaxAggregateInputType = {
   id?: true
   paymentBalance?: true
   holdBalance?: true
-  tickets?: true
-  traffic?: true
-  ad?: true
+  usdt?: true
   updatedAt?: true
 }
 
@@ -114,9 +96,7 @@ export type UserBalanceCountAggregateInputType = {
   id?: true
   paymentBalance?: true
   holdBalance?: true
-  tickets?: true
-  traffic?: true
-  ad?: true
+  usdt?: true
   updatedAt?: true
   _all?: true
 }
@@ -209,11 +189,9 @@ export type UserBalanceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 
 export type UserBalanceGroupByOutputType = {
   id: string
-  paymentBalance: number
-  holdBalance: number
-  tickets: number
-  traffic: number
-  ad: number
+  paymentBalance: runtime.Decimal
+  holdBalance: runtime.Decimal
+  usdt: runtime.Decimal
   updatedAt: Date
   _count: UserBalanceCountAggregateOutputType | null
   _avg: UserBalanceAvgAggregateOutputType | null
@@ -242,11 +220,9 @@ export type UserBalanceWhereInput = {
   OR?: Prisma.UserBalanceWhereInput[]
   NOT?: Prisma.UserBalanceWhereInput | Prisma.UserBalanceWhereInput[]
   id?: Prisma.StringFilter<"UserBalance"> | string
-  paymentBalance?: Prisma.FloatFilter<"UserBalance"> | number
-  holdBalance?: Prisma.FloatFilter<"UserBalance"> | number
-  tickets?: Prisma.FloatFilter<"UserBalance"> | number
-  traffic?: Prisma.FloatFilter<"UserBalance"> | number
-  ad?: Prisma.FloatFilter<"UserBalance"> | number
+  paymentBalance?: Prisma.DecimalFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFilter<"UserBalance"> | Date | string
   user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
   transactions?: Prisma.TransactionsListRelationFilter
@@ -256,9 +232,7 @@ export type UserBalanceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  tickets?: Prisma.SortOrder
-  traffic?: Prisma.SortOrder
-  ad?: Prisma.SortOrder
+  usdt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UsersOrderByWithRelationInput
   transactions?: Prisma.TransactionsOrderByRelationAggregateInput
@@ -269,11 +243,9 @@ export type UserBalanceWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.UserBalanceWhereInput | Prisma.UserBalanceWhereInput[]
   OR?: Prisma.UserBalanceWhereInput[]
   NOT?: Prisma.UserBalanceWhereInput | Prisma.UserBalanceWhereInput[]
-  paymentBalance?: Prisma.FloatFilter<"UserBalance"> | number
-  holdBalance?: Prisma.FloatFilter<"UserBalance"> | number
-  tickets?: Prisma.FloatFilter<"UserBalance"> | number
-  traffic?: Prisma.FloatFilter<"UserBalance"> | number
-  ad?: Prisma.FloatFilter<"UserBalance"> | number
+  paymentBalance?: Prisma.DecimalFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFilter<"UserBalance"> | Date | string
   user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
   transactions?: Prisma.TransactionsListRelationFilter
@@ -283,9 +255,7 @@ export type UserBalanceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  tickets?: Prisma.SortOrder
-  traffic?: Prisma.SortOrder
-  ad?: Prisma.SortOrder
+  usdt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserBalanceCountOrderByAggregateInput
   _avg?: Prisma.UserBalanceAvgOrderByAggregateInput
@@ -299,21 +269,17 @@ export type UserBalanceScalarWhereWithAggregatesInput = {
   OR?: Prisma.UserBalanceScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UserBalanceScalarWhereWithAggregatesInput | Prisma.UserBalanceScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"UserBalance"> | string
-  paymentBalance?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
-  holdBalance?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
-  tickets?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
-  traffic?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
-  ad?: Prisma.FloatWithAggregatesFilter<"UserBalance"> | number
+  paymentBalance?: Prisma.DecimalWithAggregatesFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalWithAggregatesFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalWithAggregatesFilter<"UserBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserBalance"> | Date | string
 }
 
 export type UserBalanceCreateInput = {
   id?: string
-  paymentBalance?: number
-  holdBalance?: number
-  tickets?: number
-  traffic?: number
-  ad?: number
+  paymentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
   user?: Prisma.UsersCreateNestedOneWithoutBalanceInput
   transactions?: Prisma.TransactionsCreateNestedManyWithoutBalanceInput
@@ -321,11 +287,9 @@ export type UserBalanceCreateInput = {
 
 export type UserBalanceUncheckedCreateInput = {
   id?: string
-  paymentBalance?: number
-  holdBalance?: number
-  tickets?: number
-  traffic?: number
-  ad?: number
+  paymentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
   user?: Prisma.UsersUncheckedCreateNestedOneWithoutBalanceInput
   transactions?: Prisma.TransactionsUncheckedCreateNestedManyWithoutBalanceInput
@@ -333,11 +297,9 @@ export type UserBalanceUncheckedCreateInput = {
 
 export type UserBalanceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  tickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  ad?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUpdateOneWithoutBalanceNestedInput
   transactions?: Prisma.TransactionsUpdateManyWithoutBalanceNestedInput
@@ -345,11 +307,9 @@ export type UserBalanceUpdateInput = {
 
 export type UserBalanceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  tickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  ad?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUncheckedUpdateOneWithoutBalanceNestedInput
   transactions?: Prisma.TransactionsUncheckedUpdateManyWithoutBalanceNestedInput
@@ -357,31 +317,25 @@ export type UserBalanceUncheckedUpdateInput = {
 
 export type UserBalanceCreateManyInput = {
   id?: string
-  paymentBalance?: number
-  holdBalance?: number
-  tickets?: number
-  traffic?: number
-  ad?: number
+  paymentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
 }
 
 export type UserBalanceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  tickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  ad?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserBalanceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  tickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  ad?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -394,27 +348,21 @@ export type UserBalanceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  tickets?: Prisma.SortOrder
-  traffic?: Prisma.SortOrder
-  ad?: Prisma.SortOrder
+  usdt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserBalanceAvgOrderByAggregateInput = {
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  tickets?: Prisma.SortOrder
-  traffic?: Prisma.SortOrder
-  ad?: Prisma.SortOrder
+  usdt?: Prisma.SortOrder
 }
 
 export type UserBalanceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  tickets?: Prisma.SortOrder
-  traffic?: Prisma.SortOrder
-  ad?: Prisma.SortOrder
+  usdt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -422,18 +370,14 @@ export type UserBalanceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  tickets?: Prisma.SortOrder
-  traffic?: Prisma.SortOrder
-  ad?: Prisma.SortOrder
+  usdt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserBalanceSumOrderByAggregateInput = {
   paymentBalance?: Prisma.SortOrder
   holdBalance?: Prisma.SortOrder
-  tickets?: Prisma.SortOrder
-  traffic?: Prisma.SortOrder
-  ad?: Prisma.SortOrder
+  usdt?: Prisma.SortOrder
 }
 
 export type UserBalanceCreateNestedOneWithoutUserInput = {
@@ -470,22 +414,18 @@ export type UserBalanceUpdateOneWithoutTransactionsNestedInput = {
 
 export type UserBalanceCreateWithoutUserInput = {
   id?: string
-  paymentBalance?: number
-  holdBalance?: number
-  tickets?: number
-  traffic?: number
-  ad?: number
+  paymentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionsCreateNestedManyWithoutBalanceInput
 }
 
 export type UserBalanceUncheckedCreateWithoutUserInput = {
   id?: string
-  paymentBalance?: number
-  holdBalance?: number
-  tickets?: number
-  traffic?: number
-  ad?: number
+  paymentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionsUncheckedCreateNestedManyWithoutBalanceInput
 }
@@ -508,44 +448,36 @@ export type UserBalanceUpdateToOneWithWhereWithoutUserInput = {
 
 export type UserBalanceUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  tickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  ad?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionsUpdateManyWithoutBalanceNestedInput
 }
 
 export type UserBalanceUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  tickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  ad?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionsUncheckedUpdateManyWithoutBalanceNestedInput
 }
 
 export type UserBalanceCreateWithoutTransactionsInput = {
   id?: string
-  paymentBalance?: number
-  holdBalance?: number
-  tickets?: number
-  traffic?: number
-  ad?: number
+  paymentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
   user?: Prisma.UsersCreateNestedOneWithoutBalanceInput
 }
 
 export type UserBalanceUncheckedCreateWithoutTransactionsInput = {
   id?: string
-  paymentBalance?: number
-  holdBalance?: number
-  tickets?: number
-  traffic?: number
-  ad?: number
+  paymentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
   user?: Prisma.UsersUncheckedCreateNestedOneWithoutBalanceInput
 }
@@ -568,22 +500,18 @@ export type UserBalanceUpdateToOneWithWhereWithoutTransactionsInput = {
 
 export type UserBalanceUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  tickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  ad?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUpdateOneWithoutBalanceNestedInput
 }
 
 export type UserBalanceUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paymentBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  holdBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  tickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  traffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  ad?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  holdBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  usdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUncheckedUpdateOneWithoutBalanceNestedInput
 }
@@ -623,9 +551,7 @@ export type UserBalanceSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   paymentBalance?: boolean
   holdBalance?: boolean
-  tickets?: boolean
-  traffic?: boolean
-  ad?: boolean
+  usdt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserBalance$userArgs<ExtArgs>
   transactions?: boolean | Prisma.UserBalance$transactionsArgs<ExtArgs>
@@ -636,9 +562,7 @@ export type UserBalanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   paymentBalance?: boolean
   holdBalance?: boolean
-  tickets?: boolean
-  traffic?: boolean
-  ad?: boolean
+  usdt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["userBalance"]>
 
@@ -646,9 +570,7 @@ export type UserBalanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   paymentBalance?: boolean
   holdBalance?: boolean
-  tickets?: boolean
-  traffic?: boolean
-  ad?: boolean
+  usdt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["userBalance"]>
 
@@ -656,13 +578,11 @@ export type UserBalanceSelectScalar = {
   id?: boolean
   paymentBalance?: boolean
   holdBalance?: boolean
-  tickets?: boolean
-  traffic?: boolean
-  ad?: boolean
+  usdt?: boolean
   updatedAt?: boolean
 }
 
-export type UserBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "paymentBalance" | "holdBalance" | "tickets" | "traffic" | "ad" | "updatedAt", ExtArgs["result"]["userBalance"]>
+export type UserBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "paymentBalance" | "holdBalance" | "usdt" | "updatedAt", ExtArgs["result"]["userBalance"]>
 export type UserBalanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserBalance$userArgs<ExtArgs>
   transactions?: boolean | Prisma.UserBalance$transactionsArgs<ExtArgs>
@@ -682,11 +602,9 @@ export type $UserBalancePayload<ExtArgs extends runtime.Types.Extensions.Interna
     /**
      * Баланс для оплаты
      */
-    paymentBalance: number
-    holdBalance: number
-    tickets: number
-    traffic: number
-    ad: number
+    paymentBalance: runtime.Decimal
+    holdBalance: runtime.Decimal
+    usdt: runtime.Decimal
     updatedAt: Date
   }, ExtArgs["result"]["userBalance"]>
   composites: {}
@@ -1114,11 +1032,9 @@ export interface Prisma__UserBalanceClient<T, Null = never, ExtArgs extends runt
  */
 export interface UserBalanceFieldRefs {
   readonly id: Prisma.FieldRef<"UserBalance", 'String'>
-  readonly paymentBalance: Prisma.FieldRef<"UserBalance", 'Float'>
-  readonly holdBalance: Prisma.FieldRef<"UserBalance", 'Float'>
-  readonly tickets: Prisma.FieldRef<"UserBalance", 'Float'>
-  readonly traffic: Prisma.FieldRef<"UserBalance", 'Float'>
-  readonly ad: Prisma.FieldRef<"UserBalance", 'Float'>
+  readonly paymentBalance: Prisma.FieldRef<"UserBalance", 'Decimal'>
+  readonly holdBalance: Prisma.FieldRef<"UserBalance", 'Decimal'>
+  readonly usdt: Prisma.FieldRef<"UserBalance", 'Decimal'>
   readonly updatedAt: Prisma.FieldRef<"UserBalance", 'DateTime'>
 }
     

@@ -28,14 +28,12 @@ export type AggregateReferrals = {
 
 export type ReferralsAvgAggregateOutputType = {
   level: number | null
-  totalPaymentsRewarded: number | null
-  totalTrafficRewarded: number | null
+  totalUsdtRewarded: runtime.Decimal | null
 }
 
 export type ReferralsSumAggregateOutputType = {
   level: number | null
-  totalPaymentsRewarded: number | null
-  totalTrafficRewarded: number | null
+  totalUsdtRewarded: runtime.Decimal | null
 }
 
 export type ReferralsMinAggregateOutputType = {
@@ -43,8 +41,7 @@ export type ReferralsMinAggregateOutputType = {
   level: number | null
   inviterId: string | null
   referralId: string | null
-  totalPaymentsRewarded: number | null
-  totalTrafficRewarded: number | null
+  totalUsdtRewarded: runtime.Decimal | null
   isActivated: boolean | null
   isPremium: boolean | null
   createdAt: Date | null
@@ -56,8 +53,7 @@ export type ReferralsMaxAggregateOutputType = {
   level: number | null
   inviterId: string | null
   referralId: string | null
-  totalPaymentsRewarded: number | null
-  totalTrafficRewarded: number | null
+  totalUsdtRewarded: runtime.Decimal | null
   isActivated: boolean | null
   isPremium: boolean | null
   createdAt: Date | null
@@ -69,8 +65,7 @@ export type ReferralsCountAggregateOutputType = {
   level: number
   inviterId: number
   referralId: number
-  totalPaymentsRewarded: number
-  totalTrafficRewarded: number
+  totalUsdtRewarded: number
   isActivated: number
   isPremium: number
   createdAt: number
@@ -81,14 +76,12 @@ export type ReferralsCountAggregateOutputType = {
 
 export type ReferralsAvgAggregateInputType = {
   level?: true
-  totalPaymentsRewarded?: true
-  totalTrafficRewarded?: true
+  totalUsdtRewarded?: true
 }
 
 export type ReferralsSumAggregateInputType = {
   level?: true
-  totalPaymentsRewarded?: true
-  totalTrafficRewarded?: true
+  totalUsdtRewarded?: true
 }
 
 export type ReferralsMinAggregateInputType = {
@@ -96,8 +89,7 @@ export type ReferralsMinAggregateInputType = {
   level?: true
   inviterId?: true
   referralId?: true
-  totalPaymentsRewarded?: true
-  totalTrafficRewarded?: true
+  totalUsdtRewarded?: true
   isActivated?: true
   isPremium?: true
   createdAt?: true
@@ -109,8 +101,7 @@ export type ReferralsMaxAggregateInputType = {
   level?: true
   inviterId?: true
   referralId?: true
-  totalPaymentsRewarded?: true
-  totalTrafficRewarded?: true
+  totalUsdtRewarded?: true
   isActivated?: true
   isPremium?: true
   createdAt?: true
@@ -122,8 +113,7 @@ export type ReferralsCountAggregateInputType = {
   level?: true
   inviterId?: true
   referralId?: true
-  totalPaymentsRewarded?: true
-  totalTrafficRewarded?: true
+  totalUsdtRewarded?: true
   isActivated?: true
   isPremium?: true
   createdAt?: true
@@ -222,8 +212,7 @@ export type ReferralsGroupByOutputType = {
   level: number
   inviterId: string
   referralId: string
-  totalPaymentsRewarded: number
-  totalTrafficRewarded: number
+  totalUsdtRewarded: runtime.Decimal
   isActivated: boolean
   isPremium: boolean
   createdAt: Date
@@ -258,8 +247,7 @@ export type ReferralsWhereInput = {
   level?: Prisma.IntFilter<"Referrals"> | number
   inviterId?: Prisma.StringFilter<"Referrals"> | string
   referralId?: Prisma.StringFilter<"Referrals"> | string
-  totalPaymentsRewarded?: Prisma.FloatFilter<"Referrals"> | number
-  totalTrafficRewarded?: Prisma.FloatFilter<"Referrals"> | number
+  totalUsdtRewarded?: Prisma.DecimalFilter<"Referrals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFilter<"Referrals"> | boolean
   isPremium?: Prisma.BoolFilter<"Referrals"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Referrals"> | Date | string
@@ -273,8 +261,7 @@ export type ReferralsOrderByWithRelationInput = {
   level?: Prisma.SortOrder
   inviterId?: Prisma.SortOrder
   referralId?: Prisma.SortOrder
-  totalPaymentsRewarded?: Prisma.SortOrder
-  totalTrafficRewarded?: Prisma.SortOrder
+  totalUsdtRewarded?: Prisma.SortOrder
   isActivated?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -292,8 +279,7 @@ export type ReferralsWhereUniqueInput = Prisma.AtLeast<{
   level?: Prisma.IntFilter<"Referrals"> | number
   inviterId?: Prisma.StringFilter<"Referrals"> | string
   referralId?: Prisma.StringFilter<"Referrals"> | string
-  totalPaymentsRewarded?: Prisma.FloatFilter<"Referrals"> | number
-  totalTrafficRewarded?: Prisma.FloatFilter<"Referrals"> | number
+  totalUsdtRewarded?: Prisma.DecimalFilter<"Referrals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFilter<"Referrals"> | boolean
   isPremium?: Prisma.BoolFilter<"Referrals"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Referrals"> | Date | string
@@ -307,8 +293,7 @@ export type ReferralsOrderByWithAggregationInput = {
   level?: Prisma.SortOrder
   inviterId?: Prisma.SortOrder
   referralId?: Prisma.SortOrder
-  totalPaymentsRewarded?: Prisma.SortOrder
-  totalTrafficRewarded?: Prisma.SortOrder
+  totalUsdtRewarded?: Prisma.SortOrder
   isActivated?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -328,8 +313,7 @@ export type ReferralsScalarWhereWithAggregatesInput = {
   level?: Prisma.IntWithAggregatesFilter<"Referrals"> | number
   inviterId?: Prisma.StringWithAggregatesFilter<"Referrals"> | string
   referralId?: Prisma.StringWithAggregatesFilter<"Referrals"> | string
-  totalPaymentsRewarded?: Prisma.FloatWithAggregatesFilter<"Referrals"> | number
-  totalTrafficRewarded?: Prisma.FloatWithAggregatesFilter<"Referrals"> | number
+  totalUsdtRewarded?: Prisma.DecimalWithAggregatesFilter<"Referrals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolWithAggregatesFilter<"Referrals"> | boolean
   isPremium?: Prisma.BoolWithAggregatesFilter<"Referrals"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Referrals"> | Date | string
@@ -339,8 +323,7 @@ export type ReferralsScalarWhereWithAggregatesInput = {
 export type ReferralsCreateInput = {
   id?: string
   level?: number
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -354,8 +337,7 @@ export type ReferralsUncheckedCreateInput = {
   level?: number
   inviterId: string
   referralId: string
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -365,8 +347,7 @@ export type ReferralsUncheckedCreateInput = {
 export type ReferralsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.IntFieldUpdateOperationsInput | number
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -380,8 +361,7 @@ export type ReferralsUncheckedUpdateInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   inviterId?: Prisma.StringFieldUpdateOperationsInput | string
   referralId?: Prisma.StringFieldUpdateOperationsInput | string
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -393,8 +373,7 @@ export type ReferralsCreateManyInput = {
   level?: number
   inviterId: string
   referralId: string
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -404,8 +383,7 @@ export type ReferralsCreateManyInput = {
 export type ReferralsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.IntFieldUpdateOperationsInput | number
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -417,8 +395,7 @@ export type ReferralsUncheckedUpdateManyInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   inviterId?: Prisma.StringFieldUpdateOperationsInput | string
   referralId?: Prisma.StringFieldUpdateOperationsInput | string
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -436,8 +413,7 @@ export type ReferralsCountOrderByAggregateInput = {
   level?: Prisma.SortOrder
   inviterId?: Prisma.SortOrder
   referralId?: Prisma.SortOrder
-  totalPaymentsRewarded?: Prisma.SortOrder
-  totalTrafficRewarded?: Prisma.SortOrder
+  totalUsdtRewarded?: Prisma.SortOrder
   isActivated?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -446,8 +422,7 @@ export type ReferralsCountOrderByAggregateInput = {
 
 export type ReferralsAvgOrderByAggregateInput = {
   level?: Prisma.SortOrder
-  totalPaymentsRewarded?: Prisma.SortOrder
-  totalTrafficRewarded?: Prisma.SortOrder
+  totalUsdtRewarded?: Prisma.SortOrder
 }
 
 export type ReferralsMaxOrderByAggregateInput = {
@@ -455,8 +430,7 @@ export type ReferralsMaxOrderByAggregateInput = {
   level?: Prisma.SortOrder
   inviterId?: Prisma.SortOrder
   referralId?: Prisma.SortOrder
-  totalPaymentsRewarded?: Prisma.SortOrder
-  totalTrafficRewarded?: Prisma.SortOrder
+  totalUsdtRewarded?: Prisma.SortOrder
   isActivated?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -468,8 +442,7 @@ export type ReferralsMinOrderByAggregateInput = {
   level?: Prisma.SortOrder
   inviterId?: Prisma.SortOrder
   referralId?: Prisma.SortOrder
-  totalPaymentsRewarded?: Prisma.SortOrder
-  totalTrafficRewarded?: Prisma.SortOrder
+  totalUsdtRewarded?: Prisma.SortOrder
   isActivated?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -478,8 +451,7 @@ export type ReferralsMinOrderByAggregateInput = {
 
 export type ReferralsSumOrderByAggregateInput = {
   level?: Prisma.SortOrder
-  totalPaymentsRewarded?: Prisma.SortOrder
-  totalTrafficRewarded?: Prisma.SortOrder
+  totalUsdtRewarded?: Prisma.SortOrder
 }
 
 export type ReferralsListRelationFilter = {
@@ -490,6 +462,22 @@ export type ReferralsListRelationFilter = {
 
 export type ReferralsOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type DecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type ReferralsCreateNestedManyWithoutInviterInput = {
@@ -579,8 +567,7 @@ export type ReferralsUncheckedUpdateManyWithoutReferralNestedInput = {
 export type ReferralsCreateWithoutInviterInput = {
   id?: string
   level?: number
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -592,8 +579,7 @@ export type ReferralsUncheckedCreateWithoutInviterInput = {
   id?: string
   level?: number
   referralId: string
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -613,8 +599,7 @@ export type ReferralsCreateManyInviterInputEnvelope = {
 export type ReferralsCreateWithoutReferralInput = {
   id?: string
   level?: number
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -626,8 +611,7 @@ export type ReferralsUncheckedCreateWithoutReferralInput = {
   id?: string
   level?: number
   inviterId: string
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -668,8 +652,7 @@ export type ReferralsScalarWhereInput = {
   level?: Prisma.IntFilter<"Referrals"> | number
   inviterId?: Prisma.StringFilter<"Referrals"> | string
   referralId?: Prisma.StringFilter<"Referrals"> | string
-  totalPaymentsRewarded?: Prisma.FloatFilter<"Referrals"> | number
-  totalTrafficRewarded?: Prisma.FloatFilter<"Referrals"> | number
+  totalUsdtRewarded?: Prisma.DecimalFilter<"Referrals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFilter<"Referrals"> | boolean
   isPremium?: Prisma.BoolFilter<"Referrals"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Referrals"> | Date | string
@@ -696,8 +679,7 @@ export type ReferralsCreateManyInviterInput = {
   id?: string
   level?: number
   referralId: string
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -708,8 +690,7 @@ export type ReferralsCreateManyReferralInput = {
   id?: string
   level?: number
   inviterId: string
-  totalPaymentsRewarded?: number
-  totalTrafficRewarded?: number
+  totalUsdtRewarded?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: Date | string
@@ -719,8 +700,7 @@ export type ReferralsCreateManyReferralInput = {
 export type ReferralsUpdateWithoutInviterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.IntFieldUpdateOperationsInput | number
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -732,8 +712,7 @@ export type ReferralsUncheckedUpdateWithoutInviterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.IntFieldUpdateOperationsInput | number
   referralId?: Prisma.StringFieldUpdateOperationsInput | string
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -744,8 +723,7 @@ export type ReferralsUncheckedUpdateManyWithoutInviterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.IntFieldUpdateOperationsInput | number
   referralId?: Prisma.StringFieldUpdateOperationsInput | string
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -755,8 +733,7 @@ export type ReferralsUncheckedUpdateManyWithoutInviterInput = {
 export type ReferralsUpdateWithoutReferralInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.IntFieldUpdateOperationsInput | number
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -768,8 +745,7 @@ export type ReferralsUncheckedUpdateWithoutReferralInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.IntFieldUpdateOperationsInput | number
   inviterId?: Prisma.StringFieldUpdateOperationsInput | string
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -780,8 +756,7 @@ export type ReferralsUncheckedUpdateManyWithoutReferralInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.IntFieldUpdateOperationsInput | number
   inviterId?: Prisma.StringFieldUpdateOperationsInput | string
-  totalPaymentsRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
-  totalTrafficRewarded?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalUsdtRewarded?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActivated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -795,8 +770,7 @@ export type ReferralsSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   level?: boolean
   inviterId?: boolean
   referralId?: boolean
-  totalPaymentsRewarded?: boolean
-  totalTrafficRewarded?: boolean
+  totalUsdtRewarded?: boolean
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: boolean
@@ -810,8 +784,7 @@ export type ReferralsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   level?: boolean
   inviterId?: boolean
   referralId?: boolean
-  totalPaymentsRewarded?: boolean
-  totalTrafficRewarded?: boolean
+  totalUsdtRewarded?: boolean
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: boolean
@@ -825,8 +798,7 @@ export type ReferralsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   level?: boolean
   inviterId?: boolean
   referralId?: boolean
-  totalPaymentsRewarded?: boolean
-  totalTrafficRewarded?: boolean
+  totalUsdtRewarded?: boolean
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: boolean
@@ -840,15 +812,14 @@ export type ReferralsSelectScalar = {
   level?: boolean
   inviterId?: boolean
   referralId?: boolean
-  totalPaymentsRewarded?: boolean
-  totalTrafficRewarded?: boolean
+  totalUsdtRewarded?: boolean
   isActivated?: boolean
   isPremium?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ReferralsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "level" | "inviterId" | "referralId" | "totalPaymentsRewarded" | "totalTrafficRewarded" | "isActivated" | "isPremium" | "createdAt" | "updatedAt", ExtArgs["result"]["referrals"]>
+export type ReferralsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "level" | "inviterId" | "referralId" | "totalUsdtRewarded" | "isActivated" | "isPremium" | "createdAt" | "updatedAt", ExtArgs["result"]["referrals"]>
 export type ReferralsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   inviter?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   referral?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -873,8 +844,7 @@ export type $ReferralsPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     level: number
     inviterId: string
     referralId: string
-    totalPaymentsRewarded: number
-    totalTrafficRewarded: number
+    totalUsdtRewarded: runtime.Decimal
     isActivated: boolean
     isPremium: boolean
     createdAt: Date
@@ -1308,8 +1278,7 @@ export interface ReferralsFieldRefs {
   readonly level: Prisma.FieldRef<"Referrals", 'Int'>
   readonly inviterId: Prisma.FieldRef<"Referrals", 'String'>
   readonly referralId: Prisma.FieldRef<"Referrals", 'String'>
-  readonly totalPaymentsRewarded: Prisma.FieldRef<"Referrals", 'Float'>
-  readonly totalTrafficRewarded: Prisma.FieldRef<"Referrals", 'Float'>
+  readonly totalUsdtRewarded: Prisma.FieldRef<"Referrals", 'Decimal'>
   readonly isActivated: Prisma.FieldRef<"Referrals", 'Boolean'>
   readonly isPremium: Prisma.FieldRef<"Referrals", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Referrals", 'DateTime'>

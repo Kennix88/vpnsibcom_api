@@ -27,22 +27,22 @@ export type AggregateWithdrawals = {
 }
 
 export type WithdrawalsAvgAggregateOutputType = {
-  amountStars: number | null
-  amountTON: number | null
+  amountStars: runtime.Decimal | null
+  amountUsdt: runtime.Decimal | null
   commission: number | null
 }
 
 export type WithdrawalsSumAggregateOutputType = {
-  amountStars: number | null
-  amountTON: number | null
+  amountStars: runtime.Decimal | null
+  amountUsdt: runtime.Decimal | null
   commission: number | null
 }
 
 export type WithdrawalsMinAggregateOutputType = {
   id: string | null
   status: $Enums.WithdrawalStatusEnum | null
-  amountStars: number | null
-  amountTON: number | null
+  amountStars: runtime.Decimal | null
+  amountUsdt: runtime.Decimal | null
   commission: number | null
   address: string | null
   createdAt: Date | null
@@ -54,8 +54,8 @@ export type WithdrawalsMinAggregateOutputType = {
 export type WithdrawalsMaxAggregateOutputType = {
   id: string | null
   status: $Enums.WithdrawalStatusEnum | null
-  amountStars: number | null
-  amountTON: number | null
+  amountStars: runtime.Decimal | null
+  amountUsdt: runtime.Decimal | null
   commission: number | null
   address: string | null
   createdAt: Date | null
@@ -68,7 +68,7 @@ export type WithdrawalsCountAggregateOutputType = {
   id: number
   status: number
   amountStars: number
-  amountTON: number
+  amountUsdt: number
   commission: number
   address: number
   createdAt: number
@@ -81,13 +81,13 @@ export type WithdrawalsCountAggregateOutputType = {
 
 export type WithdrawalsAvgAggregateInputType = {
   amountStars?: true
-  amountTON?: true
+  amountUsdt?: true
   commission?: true
 }
 
 export type WithdrawalsSumAggregateInputType = {
   amountStars?: true
-  amountTON?: true
+  amountUsdt?: true
   commission?: true
 }
 
@@ -95,7 +95,7 @@ export type WithdrawalsMinAggregateInputType = {
   id?: true
   status?: true
   amountStars?: true
-  amountTON?: true
+  amountUsdt?: true
   commission?: true
   address?: true
   createdAt?: true
@@ -108,7 +108,7 @@ export type WithdrawalsMaxAggregateInputType = {
   id?: true
   status?: true
   amountStars?: true
-  amountTON?: true
+  amountUsdt?: true
   commission?: true
   address?: true
   createdAt?: true
@@ -121,7 +121,7 @@ export type WithdrawalsCountAggregateInputType = {
   id?: true
   status?: true
   amountStars?: true
-  amountTON?: true
+  amountUsdt?: true
   commission?: true
   address?: true
   createdAt?: true
@@ -220,8 +220,8 @@ export type WithdrawalsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type WithdrawalsGroupByOutputType = {
   id: string
   status: $Enums.WithdrawalStatusEnum
-  amountStars: number
-  amountTON: number
+  amountStars: runtime.Decimal
+  amountUsdt: runtime.Decimal
   commission: number
   address: string
   createdAt: Date
@@ -256,8 +256,8 @@ export type WithdrawalsWhereInput = {
   NOT?: Prisma.WithdrawalsWhereInput | Prisma.WithdrawalsWhereInput[]
   id?: Prisma.StringFilter<"Withdrawals"> | string
   status?: Prisma.EnumWithdrawalStatusEnumFilter<"Withdrawals"> | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFilter<"Withdrawals"> | number
-  amountTON?: Prisma.FloatFilter<"Withdrawals"> | number
+  amountStars?: Prisma.DecimalFilter<"Withdrawals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFilter<"Withdrawals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFilter<"Withdrawals"> | number
   address?: Prisma.StringFilter<"Withdrawals"> | string
   createdAt?: Prisma.DateTimeFilter<"Withdrawals"> | Date | string
@@ -272,7 +272,7 @@ export type WithdrawalsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
-  amountTON?: Prisma.SortOrder
+  amountUsdt?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -290,8 +290,8 @@ export type WithdrawalsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.WithdrawalsWhereInput[]
   NOT?: Prisma.WithdrawalsWhereInput | Prisma.WithdrawalsWhereInput[]
   status?: Prisma.EnumWithdrawalStatusEnumFilter<"Withdrawals"> | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFilter<"Withdrawals"> | number
-  amountTON?: Prisma.FloatFilter<"Withdrawals"> | number
+  amountStars?: Prisma.DecimalFilter<"Withdrawals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFilter<"Withdrawals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFilter<"Withdrawals"> | number
   address?: Prisma.StringFilter<"Withdrawals"> | string
   createdAt?: Prisma.DateTimeFilter<"Withdrawals"> | Date | string
@@ -305,7 +305,7 @@ export type WithdrawalsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
-  amountTON?: Prisma.SortOrder
+  amountUsdt?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -325,8 +325,8 @@ export type WithdrawalsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WithdrawalsScalarWhereWithAggregatesInput | Prisma.WithdrawalsScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Withdrawals"> | string
   status?: Prisma.EnumWithdrawalStatusEnumWithAggregatesFilter<"Withdrawals"> | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatWithAggregatesFilter<"Withdrawals"> | number
-  amountTON?: Prisma.FloatWithAggregatesFilter<"Withdrawals"> | number
+  amountStars?: Prisma.DecimalWithAggregatesFilter<"Withdrawals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalWithAggregatesFilter<"Withdrawals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatWithAggregatesFilter<"Withdrawals"> | number
   address?: Prisma.StringWithAggregatesFilter<"Withdrawals"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Withdrawals"> | Date | string
@@ -338,8 +338,8 @@ export type WithdrawalsScalarWhereWithAggregatesInput = {
 export type WithdrawalsCreateInput = {
   id?: string
   status?: $Enums.WithdrawalStatusEnum
-  amountStars?: number
-  amountTON?: number
+  amountStars?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: number
   address: string
   createdAt?: Date | string
@@ -351,8 +351,8 @@ export type WithdrawalsCreateInput = {
 export type WithdrawalsUncheckedCreateInput = {
   id?: string
   status?: $Enums.WithdrawalStatusEnum
-  amountStars?: number
-  amountTON?: number
+  amountStars?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: number
   address: string
   createdAt?: Date | string
@@ -364,8 +364,8 @@ export type WithdrawalsUncheckedCreateInput = {
 export type WithdrawalsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -377,8 +377,8 @@ export type WithdrawalsUpdateInput = {
 export type WithdrawalsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -390,8 +390,8 @@ export type WithdrawalsUncheckedUpdateInput = {
 export type WithdrawalsCreateManyInput = {
   id?: string
   status?: $Enums.WithdrawalStatusEnum
-  amountStars?: number
-  amountTON?: number
+  amountStars?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: number
   address: string
   createdAt?: Date | string
@@ -403,8 +403,8 @@ export type WithdrawalsCreateManyInput = {
 export type WithdrawalsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -414,8 +414,8 @@ export type WithdrawalsUpdateManyMutationInput = {
 export type WithdrawalsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -443,7 +443,7 @@ export type WithdrawalsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
-  amountTON?: Prisma.SortOrder
+  amountUsdt?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -454,7 +454,7 @@ export type WithdrawalsCountOrderByAggregateInput = {
 
 export type WithdrawalsAvgOrderByAggregateInput = {
   amountStars?: Prisma.SortOrder
-  amountTON?: Prisma.SortOrder
+  amountUsdt?: Prisma.SortOrder
   commission?: Prisma.SortOrder
 }
 
@@ -462,7 +462,7 @@ export type WithdrawalsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
-  amountTON?: Prisma.SortOrder
+  amountUsdt?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -475,7 +475,7 @@ export type WithdrawalsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
   amountStars?: Prisma.SortOrder
-  amountTON?: Prisma.SortOrder
+  amountUsdt?: Prisma.SortOrder
   commission?: Prisma.SortOrder
   address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -486,7 +486,7 @@ export type WithdrawalsMinOrderByAggregateInput = {
 
 export type WithdrawalsSumOrderByAggregateInput = {
   amountStars?: Prisma.SortOrder
-  amountTON?: Prisma.SortOrder
+  amountUsdt?: Prisma.SortOrder
   commission?: Prisma.SortOrder
 }
 
@@ -571,8 +571,8 @@ export type EnumWithdrawalStatusEnumFieldUpdateOperationsInput = {
 export type WithdrawalsCreateWithoutUserInput = {
   id?: string
   status?: $Enums.WithdrawalStatusEnum
-  amountStars?: number
-  amountTON?: number
+  amountStars?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: number
   address: string
   createdAt?: Date | string
@@ -583,8 +583,8 @@ export type WithdrawalsCreateWithoutUserInput = {
 export type WithdrawalsUncheckedCreateWithoutUserInput = {
   id?: string
   status?: $Enums.WithdrawalStatusEnum
-  amountStars?: number
-  amountTON?: number
+  amountStars?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: number
   address: string
   createdAt?: Date | string
@@ -624,8 +624,8 @@ export type WithdrawalsScalarWhereInput = {
   NOT?: Prisma.WithdrawalsScalarWhereInput | Prisma.WithdrawalsScalarWhereInput[]
   id?: Prisma.StringFilter<"Withdrawals"> | string
   status?: Prisma.EnumWithdrawalStatusEnumFilter<"Withdrawals"> | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFilter<"Withdrawals"> | number
-  amountTON?: Prisma.FloatFilter<"Withdrawals"> | number
+  amountStars?: Prisma.DecimalFilter<"Withdrawals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFilter<"Withdrawals"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFilter<"Withdrawals"> | number
   address?: Prisma.StringFilter<"Withdrawals"> | string
   createdAt?: Prisma.DateTimeFilter<"Withdrawals"> | Date | string
@@ -637,8 +637,8 @@ export type WithdrawalsScalarWhereInput = {
 export type WithdrawalsCreateWithoutTransacrionInput = {
   id?: string
   status?: $Enums.WithdrawalStatusEnum
-  amountStars?: number
-  amountTON?: number
+  amountStars?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: number
   address: string
   createdAt?: Date | string
@@ -649,8 +649,8 @@ export type WithdrawalsCreateWithoutTransacrionInput = {
 export type WithdrawalsUncheckedCreateWithoutTransacrionInput = {
   id?: string
   status?: $Enums.WithdrawalStatusEnum
-  amountStars?: number
-  amountTON?: number
+  amountStars?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: number
   address: string
   createdAt?: Date | string
@@ -677,8 +677,8 @@ export type WithdrawalsUpdateToOneWithWhereWithoutTransacrionInput = {
 export type WithdrawalsUpdateWithoutTransacrionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -689,8 +689,8 @@ export type WithdrawalsUpdateWithoutTransacrionInput = {
 export type WithdrawalsUncheckedUpdateWithoutTransacrionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -701,8 +701,8 @@ export type WithdrawalsUncheckedUpdateWithoutTransacrionInput = {
 export type WithdrawalsCreateManyUserInput = {
   id?: string
   status?: $Enums.WithdrawalStatusEnum
-  amountStars?: number
-  amountTON?: number
+  amountStars?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: number
   address: string
   createdAt?: Date | string
@@ -713,8 +713,8 @@ export type WithdrawalsCreateManyUserInput = {
 export type WithdrawalsUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -725,8 +725,8 @@ export type WithdrawalsUpdateWithoutUserInput = {
 export type WithdrawalsUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -737,8 +737,8 @@ export type WithdrawalsUncheckedUpdateWithoutUserInput = {
 export type WithdrawalsUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWithdrawalStatusEnumFieldUpdateOperationsInput | $Enums.WithdrawalStatusEnum
-  amountStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  amountTON?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountStars?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountUsdt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -752,7 +752,7 @@ export type WithdrawalsSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   status?: boolean
   amountStars?: boolean
-  amountTON?: boolean
+  amountUsdt?: boolean
   commission?: boolean
   address?: boolean
   createdAt?: boolean
@@ -767,7 +767,7 @@ export type WithdrawalsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   status?: boolean
   amountStars?: boolean
-  amountTON?: boolean
+  amountUsdt?: boolean
   commission?: boolean
   address?: boolean
   createdAt?: boolean
@@ -782,7 +782,7 @@ export type WithdrawalsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   status?: boolean
   amountStars?: boolean
-  amountTON?: boolean
+  amountUsdt?: boolean
   commission?: boolean
   address?: boolean
   createdAt?: boolean
@@ -797,7 +797,7 @@ export type WithdrawalsSelectScalar = {
   id?: boolean
   status?: boolean
   amountStars?: boolean
-  amountTON?: boolean
+  amountUsdt?: boolean
   commission?: boolean
   address?: boolean
   createdAt?: boolean
@@ -806,7 +806,7 @@ export type WithdrawalsSelectScalar = {
   transactionId?: boolean
 }
 
-export type WithdrawalsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "amountStars" | "amountTON" | "commission" | "address" | "createdAt" | "updatedAt" | "userId" | "transactionId", ExtArgs["result"]["withdrawals"]>
+export type WithdrawalsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "amountStars" | "amountUsdt" | "commission" | "address" | "createdAt" | "updatedAt" | "userId" | "transactionId", ExtArgs["result"]["withdrawals"]>
 export type WithdrawalsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   transacrion?: boolean | Prisma.TransactionsDefaultArgs<ExtArgs>
@@ -829,8 +829,8 @@ export type $WithdrawalsPayload<ExtArgs extends runtime.Types.Extensions.Interna
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     status: $Enums.WithdrawalStatusEnum
-    amountStars: number
-    amountTON: number
+    amountStars: runtime.Decimal
+    amountUsdt: runtime.Decimal
     commission: number
     address: string
     createdAt: Date
@@ -1264,8 +1264,8 @@ export interface Prisma__WithdrawalsClient<T, Null = never, ExtArgs extends runt
 export interface WithdrawalsFieldRefs {
   readonly id: Prisma.FieldRef<"Withdrawals", 'String'>
   readonly status: Prisma.FieldRef<"Withdrawals", 'WithdrawalStatusEnum'>
-  readonly amountStars: Prisma.FieldRef<"Withdrawals", 'Float'>
-  readonly amountTON: Prisma.FieldRef<"Withdrawals", 'Float'>
+  readonly amountStars: Prisma.FieldRef<"Withdrawals", 'Decimal'>
+  readonly amountUsdt: Prisma.FieldRef<"Withdrawals", 'Decimal'>
   readonly commission: Prisma.FieldRef<"Withdrawals", 'Float'>
   readonly address: Prisma.FieldRef<"Withdrawals", 'String'>
   readonly createdAt: Prisma.FieldRef<"Withdrawals", 'DateTime'>

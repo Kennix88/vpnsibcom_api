@@ -48,7 +48,8 @@ export const AdsBlockPlaceEnum = {
   TASK: 'TASK',
   REWARD_TASK: 'REWARD_TASK',
   BANNER: 'BANNER',
-  FULLSCREEN: 'FULLSCREEN'
+  FULLSCREEN: 'FULLSCREEN',
+  MESSAGE: 'MESSAGE'
 } as const
 
 export type AdsBlockPlaceEnum = (typeof AdsBlockPlaceEnum)[keyof typeof AdsBlockPlaceEnum]
@@ -248,7 +249,8 @@ export const BalanceTypeEnum = {
   HOLD: 'HOLD',
   TRAFFIC: 'TRAFFIC',
   NOT_BALANCE: 'NOT_BALANCE',
-  AD: 'AD'
+  AD: 'AD',
+  USDT: 'USDT'
 } as const
 
 export type BalanceTypeEnum = (typeof BalanceTypeEnum)[keyof typeof BalanceTypeEnum]

@@ -59,6 +59,7 @@ export const ModelName = {
   Acquisition: 'Acquisition',
   Sessions: 'Sessions',
   UserAdsData: 'UserAdsData',
+  AdsRewards: 'AdsRewards',
   AdsViews: 'AdsViews',
   AdsBlocks: 'AdsBlocks',
   AdsNetworks: 'AdsNetworks',
@@ -96,7 +97,6 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const SettingsScalarFieldEnum = {
   key: 'key',
   tgStarsToUSD: 'tgStarsToUSD',
-  adPriceStars: 'adPriceStars',
   telegramPremiumRatio: 'telegramPremiumRatio',
   devicesPriceStars: 'devicesPriceStars',
   serversPriceStars: 'serversPriceStars',
@@ -114,15 +114,10 @@ export const SettingsScalarFieldEnum = {
   twoYearRatioPayment: 'twoYearRatioPayment',
   threeYearRatioPayment: 'threeYearRatioPayment',
   indefinitelyRatio: 'indefinitelyRatio',
-  minWithdrawalTon: 'minWithdrawalTon',
+  minWithdrawalUsdt: 'minWithdrawalUsdt',
   referralOneLevelPercent: 'referralOneLevelPercent',
   referralTwoLevelPercent: 'referralTwoLevelPercent',
   referralThreeLevelPercent: 'referralThreeLevelPercent',
-  referralInviteRewardGb: 'referralInviteRewardGb',
-  referralInvitePremiumRewardGb: 'referralInvitePremiumRewardGb',
-  trialGb: 'trialGb',
-  trialGbForReferrals: 'trialGbForReferrals',
-  trialGbForPremiumReferrals: 'trialGbForPremiumReferrals',
   isActiveTgPartnerProgram: 'isActiveTgPartnerProgram',
   commissionRatioTgPartnerProgram: 'commissionRatioTgPartnerProgram',
   mouthesCountTgPartnerProgram: 'mouthesCountTgPartnerProgram',
@@ -170,8 +165,7 @@ export const ReferralsScalarFieldEnum = {
   level: 'level',
   inviterId: 'inviterId',
   referralId: 'referralId',
-  totalPaymentsRewarded: 'totalPaymentsRewarded',
-  totalTrafficRewarded: 'totalTrafficRewarded',
+  totalUsdtRewarded: 'totalUsdtRewarded',
   isActivated: 'isActivated',
   isPremium: 'isPremium',
   createdAt: 'createdAt',
@@ -281,14 +275,20 @@ export const UserAdsDataScalarFieldEnum = {
 export type UserAdsDataScalarFieldEnum = (typeof UserAdsDataScalarFieldEnum)[keyof typeof UserAdsDataScalarFieldEnum]
 
 
+export const AdsRewardsScalarFieldEnum = {
+  key: 'key',
+  taskView: 'taskView',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdsRewardsScalarFieldEnum = (typeof AdsRewardsScalarFieldEnum)[keyof typeof AdsRewardsScalarFieldEnum]
+
+
 export const AdsViewsScalarFieldEnum = {
   id: 'id',
   networkKey: 'networkKey',
   type: 'type',
-  rewardTraffic: 'rewardTraffic',
   rewardStars: 'rewardStars',
-  rewardTickets: 'rewardTickets',
-  rewardAd: 'rewardAd',
   duration: 'duration',
   ip: 'ip',
   ua: 'ua',
@@ -308,10 +308,6 @@ export const AdsBlocksScalarFieldEnum = {
   name: 'name',
   place: 'place',
   isActive: 'isActive',
-  rewardTraffic: 'rewardTraffic',
-  rewardStars: 'rewardStars',
-  rewardTickets: 'rewardTickets',
-  rewardAd: 'rewardAd',
   duration: 'duration',
   limit: 'limit',
   createdAt: 'createdAt',
@@ -335,9 +331,7 @@ export const UserBalanceScalarFieldEnum = {
   id: 'id',
   paymentBalance: 'paymentBalance',
   holdBalance: 'holdBalance',
-  tickets: 'tickets',
-  traffic: 'traffic',
-  ad: 'ad',
+  usdt: 'usdt',
   updatedAt: 'updatedAt'
 } as const
 
@@ -488,7 +482,7 @@ export const WithdrawalsScalarFieldEnum = {
   id: 'id',
   status: 'status',
   amountStars: 'amountStars',
-  amountTON: 'amountTON',
+  amountUsdt: 'amountUsdt',
   commission: 'commission',
   address: 'address',
   createdAt: 'createdAt',
