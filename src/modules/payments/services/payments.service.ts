@@ -658,27 +658,17 @@ export class PaymentsService {
       return
     }
 
-    let plusTrafficRewarded = 0
-
-    if (!referrer.isActivated) {
-      plusTrafficRewarded =
-        referrer.level > 1
-          ? 0
-          : payment.user.telegramData.isPremium
-          ? settings.referralInvitePremiumRewardGb * 1024
-          : settings.referralInviteRewardGb * 1024
-
-      await tx.referrals.update({
-        where: {
-          id: referrer.id,
+    await tx.referrals.update({
+      where: {
+        id: referrer.id,
+      },
+      data: {
+        isActivated: true,
+        totalUsdtRewarded: {
+          increment: referralCommission * settings.tgStarsToUSD,
         },
-        data: {
-          totalTrafficRewarded:
-            referrer.totalTrafficRewarded + plusTrafficRewarded,
-          isActivated: true,
-        },
-      })
-    }
+      },
+    })
 
     // Обновляем баланс реферера
     await tx.userBalance.update({
@@ -686,11 +676,7 @@ export class PaymentsService {
         id: referrer.inviter.balanceId,
       },
       data: {
-        paymentBalance:
-          referrer.inviter.balance.paymentBalance + referralCommission,
-        ...(plusTrafficRewarded > 0 && {
-          traffic: referrer.inviter.balance.traffic + plusTrafficRewarded,
-        }),
+        usdt: { increment: referralCommission * settings.tgStarsToUSD },
         ...(payment.methodKey == PaymentMethodEnum.STARS && {
           holdBalance:
             referrer.inviter.balance.holdBalance + referralCommission,
@@ -708,11 +694,11 @@ export class PaymentsService {
     // Создаем транзакцию для реферальной комиссии
 
     const transactions = [
-      referralCommission > 0 && {
-        amount: referralCommission,
+      referralCommission * settings.tgStarsToUSD > 0 && {
+        amount: referralCommission * settings.tgStarsToUSD,
         type: TransactionTypeEnum.PLUS,
         reason: TransactionReasonEnum.REFERRAL,
-        balanceType: BalanceTypeEnum.PAYMENT,
+        balanceType: BalanceTypeEnum.USDT,
         balanceId: referrer.inviter.balanceId,
       },
       payment.methodKey == PaymentMethodEnum.STARS &&
@@ -724,13 +710,6 @@ export class PaymentsService {
           balanceId: referrer.inviter.balanceId,
           holdExpiredAt: addDays(new Date(), 21),
         },
-      plusTrafficRewarded > 0 && {
-        amount: plusTrafficRewarded,
-        type: TransactionTypeEnum.PLUS,
-        reason: TransactionReasonEnum.REFERRAL,
-        balanceType: BalanceTypeEnum.TRAFFIC,
-        balanceId: referrer.inviter.balanceId,
-      },
     ].filter(Boolean)
 
     const referralTransactions = await tx.transactions.createMany({
