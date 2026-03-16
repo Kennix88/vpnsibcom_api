@@ -17,7 +17,7 @@ enum DefaultEnum {
 model Settings {
  key                         DefaultEnum @id @default(DEFAULT)
  tgStarsToUSD                Float       @default(0.013) @map("tg_stars_to_usd")
- adPriceStars                Float       @default(0.125) @map("ad_price_stars")
+
  telegramPremiumRatio        Float       @default(1.5) @map("telegram_premium_ratio")
  devicesPriceStars           Float       @default(50) @map("devices_price_stars")
  serversPriceStars           Float       @default(20) @map("servers_price_stars")
@@ -37,18 +37,12 @@ model Settings {
  threeYearRatioPayment       Float       @default(0.64) @map("three_year_ratio_payment")
  indefinitelyRatio           Float       @default(120) @map("indefinitely_ratio")
 
- minWithdrawalTon Float @default(50) @map("min_withdrawal_ton")
+ minWithdrawalUsdt Float @default(10) @map("min_withdrawal_usdt")
 
  // Настройки реферальной программы
  referralOneLevelPercent       Float @default(0.1) @map("referral_one_level_percent")
  referralTwoLevelPercent       Float @default(0.05) @map("referral_two_level_percent")
  referralThreeLevelPercent     Float @default(0.01) @map("referral_three_level_percent")
- referralInviteRewardGb        Int   @default(20) @map("referral_invite_reward_gb")
- referralInvitePremiumRewardGb Int   @default(30) @map("referral_invite_premium_reward_gb")
-
- trialGb                    Int @default(10) @map("trial_gb")
- trialGbForReferrals        Int @default(20) @map("trial_gb_for_referrals")
- trialGbForPremiumReferrals Int @default(30) @map("trial_gb_for_premium_referrals")
 
  isActiveTgPartnerProgram        Boolean @default(true) @map("is_active_tg_partner_program")
  commissionRatioTgPartnerProgram Float   @default(0.30) @map("commission_ratio_tg_partner_program")
@@ -104,8 +98,7 @@ model Referrals {
  referral   Users  @relation("referral", fields: [referralId], references: [id])
  referralId String @map("referral_id")
 
- totalPaymentsRewarded Float   @default(0)
- totalTrafficRewarded  Float   @default(0)
+ totalUsdtRewarded Decimal @default(0) @db.Decimal(18, 6)
  isActivated           Boolean @default(false)
  isPremium             Boolean @default(false)
 
@@ -260,16 +253,21 @@ model UserAdsData {
  @@map("user_ads_data")
 }
 
+model AdsRewards {
+ key        DefaultEnum          @id @default(DEFAULT)
+ taskView Decimal @default(0.125) @map("task_view") @db.Decimal(18, 6)
+ updatedAt DateTime @updatedAt @map("updated_at")
+
+ @@map("ads_rewards")
+}
+
 /// Модель для просмотров рекламы
 model AdsViews {
  id            String          @id @default(uuid())
  network       AdsNetworks     @relation(fields: [networkKey], references: [key])
  networkKey    AdsNetworkEnum  @default(ADSGRAM) @map("network_key")
  type          AdsViewTypeEnum @default(REWARD)
- rewardTraffic Float           @default(0) @map("reward_traffic")
  rewardStars   Float           @default(0) @map("reward_stars")
- rewardTickets Float           @default(0) @map("reward_tickets")
- rewardAd      Float           @default(0) @map("reward_ad")
  duration      Int             @default(0) @map("duration")
  ip            String?
  ua            String?
@@ -303,10 +301,6 @@ model AdsBlocks {
  name          String
  place         AdsBlockPlaceEnum
  isActive      Boolean           @default(true) @map("is_active")
- rewardTraffic Float             @default(0) @map("reward_traffic")
- rewardStars   Float             @default(0) @map("reward_stars")
- rewardTickets Float             @default(0) @map("reward_tickets")
- rewardAd      Float             @default(0) @map("reward_ad")
  duration      Int               @default(0) @map("duration")
  limit         Int               @default(0) @map("limit")
 
@@ -327,6 +321,7 @@ enum AdsBlockPlaceEnum {
  REWARD_TASK
  BANNER
  FULLSCREEN
+ MESSAGE
 }
 
 /// Модель для рекламных сетей
@@ -356,11 +351,9 @@ enum AdsNetworkEnum {
 model UserBalance {
  id             String @id @default(uuid())
  /// Баланс для оплаты
- paymentBalance Float  @default(0) @map("payment_balance")
- holdBalance    Float  @default(0) @map("hold_balance")
- tickets        Float  @default(0)
- traffic        Float  @default(0)
- ad             Float  @default(0)
+ paymentBalance Decimal  @db.Decimal(18, 6) @default(0) @map("payment_balance")
+ holdBalance    Decimal  @db.Decimal(18, 6) @default(0) @map("hold_balance")
+ usdt        Decimal   @default(0) @db.Decimal(18, 6)
 
  updatedAt    DateTime       @updatedAt @map("updated_at")
  user         Users?
@@ -720,6 +713,7 @@ enum BalanceTypeEnum {
  TRAFFIC
  NOT_BALANCE
  AD
+ USDT
 }
 
 /// Перечисление причин транзакций
@@ -740,8 +734,8 @@ enum TransactionReasonEnum {
 model Withdrawals {
  id          String               @id @default(uuid())
  status      WithdrawalStatusEnum @default(CONSIDERATION)
- amountStars Float                @default(0) @map("amount_stars")
- amountTON   Float                @default(0) @map("amount_ton")
+ amountStars Decimal                @default(0) @map("amount_stars") @db.Decimal(16, 8)
+ amountUsdt  Decimal              @default(0) @map("amount_usdt") @db.Decimal(16, 8)
  commission  Float                @default(1)
  address     String
 
