@@ -21,8 +21,8 @@ export class PurchaseSubscriptionDto {
   @IsEnum(PlansEnum)
   planKey: PlansEnum
 
-  @IsEnum([...Object.values(PaymentMethodEnum), 'BALANCE', 'TRAFFIC', 'AD'])
-  method: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC' | 'AD'
+  @IsEnum([...Object.values(PaymentMethodEnum), 'BALANCE', 'USDT'])
+  method: PaymentMethodEnum | 'BALANCE' | 'USDT'
 
   @IsString()
   name: string
