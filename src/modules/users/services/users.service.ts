@@ -177,16 +177,30 @@ export class UsersService {
               'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome.jpg',
             thumbnail_url:
               'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome.jpg',
-            caption: 'Free, fast and Secure VPN!',
+            caption: 'Free, fast and Secure VPN&MTProxy!',
             reply_markup: {
               inline_keyboard: [
                 [
-                  Markup.button.url(
-                    'Connect to a VPN',
-                    `${this.configService.get('TMA_URL')}?startapp=r-${
-                      user.telegramId
-                    }`,
-                  ),
+                  {
+                    ...Markup.button.url(
+                      'Connect to a VPN',
+                      `${this.configService.get('TMA_URL')}?startapp=r-${
+                        user.telegramId
+                      }`,
+                    ),
+                    // @ts-ignore
+                    style: 'success',
+                  },
+                ],
+                [
+                  {
+                    ...Markup.button.url(
+                      '🎁 Add Free Telegram MTProxy',
+                      'tg://proxy?server=mtp.fasti.fun&port=8443&secret=76291e5f4627757a22173cec26b1c892',
+                    ),
+                    // @ts-ignore
+                    style: 'danger',
+                  },
                 ],
               ],
             },
@@ -206,12 +220,7 @@ export class UsersService {
         telegramId: user.telegramId,
         isTgProgramPartner: user.isTgProgramPartner,
         isFreePlanAvailable: user.isFreePlanAvailable,
-        trialGb:
-          user.inviters.length <= 0
-            ? settings.trialGb
-            : user.telegramData.isPremium
-            ? settings.trialGbForPremiumReferrals
-            : settings.trialGbForReferrals,
+        trialGb: user.inviters.length <= 0 ? 3 : 0,
         isBanned: user.isBanned,
         isDeleted: user.isDeleted,
         banExpiredAt: user.banExpiredAt,
@@ -231,11 +240,9 @@ export class UsersService {
         currencyCode: user.currency.key as CurrencyEnum,
         referralsCount: user.referrals.length,
         balance: {
-          payment: user.balance.paymentBalance,
-          hold: user.balance.holdBalance,
-          tickets: user.balance.tickets,
-          ad: user.balance.ad,
-          traffic: user.balance.traffic,
+          payment: Number(user.balance.paymentBalance),
+          hold: Number(user.balance.holdBalance),
+          usdt: Number(user.balance.usdt),
         },
         inviteUrl: `${this.configService.get('TMA_URL')}?startapp=r-${
           user.telegramId
@@ -634,7 +641,10 @@ ${ip && `<b>IP:</b> <code>${ip}</code>`}
     userId: string,
     amount: number,
     reason: TransactionReasonEnum,
-    balanceType: BalanceTypeEnum = BalanceTypeEnum.PAYMENT,
+    balanceType:
+      | BalanceTypeEnum.PAYMENT
+      | BalanceTypeEnum.HOLD
+      | BalanceTypeEnum.USDT,
   ): Promise<{
     success: boolean
   }> {
@@ -665,15 +675,12 @@ ${ip && `<b>IP:</b> <code>${ip}</code>`}
 
       // Check if user has enough balance based on balance type
       if (
-        (balanceType === BalanceTypeEnum.TRAFFIC &&
-          user.balance.traffic < amount) ||
-        (balanceType === BalanceTypeEnum.TICKETS &&
-          user.balance.tickets < amount) ||
+        (balanceType === BalanceTypeEnum.USDT &&
+          Number(user.balance.usdt) < amount) ||
         (balanceType === BalanceTypeEnum.PAYMENT &&
-          user.balance.paymentBalance < amount) ||
+          Number(user.balance.paymentBalance) < amount) ||
         (balanceType === BalanceTypeEnum.HOLD &&
-          user.balance.holdBalance < amount) ||
-        (balanceType === BalanceTypeEnum.AD && user.balance.ad < amount)
+          Number(user.balance.holdBalance) < amount)
       )
         return { success: false }
 
@@ -682,16 +689,10 @@ ${ip && `<b>IP:</b> <code>${ip}</code>`}
         await tx.userBalance.update({
           where: { id: user.balance.id },
           data: {
-            ...(balanceType == BalanceTypeEnum.TICKETS
-              ? { tickets: { decrement: amount } }
+            ...(balanceType == BalanceTypeEnum.USDT
+              ? { usdt: { decrement: amount } }
               : balanceType == BalanceTypeEnum.PAYMENT
               ? { paymentBalance: { decrement: amount } }
-              : {}),
-            ...(balanceType == BalanceTypeEnum.TRAFFIC
-              ? { traffic: { decrement: amount } }
-              : {}),
-            ...(balanceType == BalanceTypeEnum.AD
-              ? { ad: { decrement: amount } }
               : {}),
           },
         })
@@ -731,7 +732,10 @@ ${ip && `<b>IP:</b> <code>${ip}</code>`}
     userId: string,
     amount: number,
     reason: TransactionReasonEnum,
-    balanceType: BalanceTypeEnum = BalanceTypeEnum.PAYMENT,
+    balanceType:
+      | BalanceTypeEnum.PAYMENT
+      | BalanceTypeEnum.HOLD
+      | BalanceTypeEnum.USDT,
   ): Promise<{
     success: boolean
   }> {
@@ -765,16 +769,10 @@ ${ip && `<b>IP:</b> <code>${ip}</code>`}
         await tx.userBalance.update({
           where: { id: user.balance.id },
           data: {
-            ...(balanceType == BalanceTypeEnum.TICKETS
-              ? { tickets: { increment: amount } }
+            ...(balanceType == BalanceTypeEnum.USDT
+              ? { usdt: { increment: amount } }
               : balanceType == BalanceTypeEnum.PAYMENT
               ? { paymentBalance: { increment: amount } }
-              : {}),
-            ...(balanceType == BalanceTypeEnum.TRAFFIC
-              ? { traffic: { increment: amount } }
-              : {}),
-            ...(balanceType == BalanceTypeEnum.AD
-              ? { ad: { increment: amount } }
               : {}),
           },
         })
