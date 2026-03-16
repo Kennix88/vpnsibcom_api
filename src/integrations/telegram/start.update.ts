@@ -199,7 +199,15 @@ ${this.i18n.t('telegraf.telegram.welcome.message2', {
 
 ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
   lang: ctx.from.language_code,
-})}`,
+})}
+
+<blockquote><b>Способы поддержать наш бесплатный MTProxy/Ways to support our wireless MTProxy:</b></blockquote>
+1️⃣Crypto TON / USDT-TON / USDC-TON etc.
+<code>UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ</code>
+
+2️⃣  <a href="https://t.me/tribute/app?startapp=dH2S">Donation to Tribute (tap) (All cards / СБП / Telegram Wallet)</a>
+
+3️⃣Пополнить баланс в нашем VPN боте на любую сумму/Top up your balance in our VPN bot for any amount`,
           parse_mode: 'HTML',
           reply_markup: {
             remove_keyboard: true,
@@ -207,11 +215,21 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
               [
                 {
                   ...Markup.button.webApp(
-                    'Connect to a VPN',
+                    '🛡️ Connect to a VPN',
                     this.configService.get<string>('WEBAPP_URL'),
                   ),
                   // @ts-ignore
                   style: 'success',
+                },
+              ],
+              [
+                {
+                  ...Markup.button.url(
+                    '🎁 Add Free Telegram MTProxy',
+                    'tg://proxy?server=mtp.fasti.fun&port=8443&secret=76291e5f4627757a22173cec26b1c892',
+                  ),
+                  // @ts-ignore
+                  style: 'danger',
                 },
               ],
               [
@@ -244,6 +262,16 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
                   ),
                   // @ts-ignore
                   style: 'primary',
+                },
+              ],
+              [
+                {
+                  ...Markup.button.url(
+                    '💸 Donation to Tribute',
+                    'https://t.me/tribute/app?startapp=dH2S',
+                  ),
+                  // @ts-ignore
+                  style: 'danger',
                 },
               ],
             ],
