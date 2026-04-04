@@ -18,7 +18,7 @@ export class GeoUpdaterService implements OnModuleInit {
 
   private readonly dir = join(process.cwd(), 'data/geo')
   private readonly lockKey = 'geo-updater-lock'
-  private readonly lockTtl = 10 * 60 * 1000 // 10 minutes
+  private readonly lockTtlSeconds = 10 * 60
 
   private readonly files = [
     { name: 'GeoLite2-Country.mmdb', url: 'GeoLite2-Country.mmdb' },
@@ -34,7 +34,13 @@ export class GeoUpdaterService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.updateAll()
+    // Geo refresh must not block the HTTP server startup.
+    void this.updateAll().catch((error) => {
+      this.logger.error(
+        'Initial geo update failed: ' +
+          (error?.stack ?? error?.message ?? String(error)),
+      )
+    })
   }
 
   @Cron(process.env.GEO_UPDATE_CRON || '0 3 * * 1')
@@ -48,7 +54,7 @@ export class GeoUpdaterService implements OnModuleInit {
     const got = await this.redisService.setWithExpiryNx(
       this.lockKey,
       '1',
-      this.lockTtl,
+      this.lockTtlSeconds,
     )
 
     if (!got) {

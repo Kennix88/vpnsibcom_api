@@ -42,6 +42,10 @@ ENV NODE_ENV=production
 ENV PORT=4000
 ENV NPM_CONFIG_LOGLEVEL=warn
 
+# runtime writable dirs for non-root app services
+RUN mkdir -p /app/data/geo /app/logs /app/src/core/i18n \
+	&& chown -R node:node /app
+
 # копируем артефакты сборки, node_modules и entrypoint
 COPY --from=builder --chown=node:node /app/dist ./dist
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
