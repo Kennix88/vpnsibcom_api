@@ -132,6 +132,12 @@ export const SettingsScalarFieldEnum = {
   bonusPayment10000: 'bonusPayment10000',
   bonusPayment20000: 'bonusPayment20000',
   bonusPayment50000: 'bonusPayment50000',
+  nextAdsHours: 'nextAdsHours',
+  proxyPartnerLink: 'proxyPartnerLink',
+  partnerBotLink: 'partnerBotLink',
+  partnerMiniAppLink: 'partnerMiniAppLink',
+  partnerSiteLink: 'partnerSiteLink',
+  importUsersUrl: 'importUsersUrl',
   defaultAnnounce: 'defaultAnnounce'
 } as const
 

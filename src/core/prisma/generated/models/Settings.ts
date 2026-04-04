@@ -62,6 +62,7 @@ export type SettingsAvgAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  nextAdsHours: number | null
 }
 
 export type SettingsSumAggregateOutputType = {
@@ -100,6 +101,7 @@ export type SettingsSumAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  nextAdsHours: number | null
 }
 
 export type SettingsMinAggregateOutputType = {
@@ -140,6 +142,12 @@ export type SettingsMinAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  nextAdsHours: number | null
+  proxyPartnerLink: string | null
+  partnerBotLink: string | null
+  partnerMiniAppLink: string | null
+  partnerSiteLink: string | null
+  importUsersUrl: string | null
   defaultAnnounce: string | null
 }
 
@@ -181,6 +189,12 @@ export type SettingsMaxAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  nextAdsHours: number | null
+  proxyPartnerLink: string | null
+  partnerBotLink: string | null
+  partnerMiniAppLink: string | null
+  partnerSiteLink: string | null
+  importUsersUrl: string | null
   defaultAnnounce: string | null
 }
 
@@ -222,6 +236,12 @@ export type SettingsCountAggregateOutputType = {
   bonusPayment10000: number
   bonusPayment20000: number
   bonusPayment50000: number
+  nextAdsHours: number
+  proxyPartnerLink: number
+  partnerBotLink: number
+  partnerMiniAppLink: number
+  partnerSiteLink: number
+  importUsersUrl: number
   defaultAnnounce: number
   _all: number
 }
@@ -263,6 +283,7 @@ export type SettingsAvgAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
 }
 
 export type SettingsSumAggregateInputType = {
@@ -301,6 +322,7 @@ export type SettingsSumAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
 }
 
 export type SettingsMinAggregateInputType = {
@@ -341,6 +363,12 @@ export type SettingsMinAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
+  proxyPartnerLink?: true
+  partnerBotLink?: true
+  partnerMiniAppLink?: true
+  partnerSiteLink?: true
+  importUsersUrl?: true
   defaultAnnounce?: true
 }
 
@@ -382,6 +410,12 @@ export type SettingsMaxAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
+  proxyPartnerLink?: true
+  partnerBotLink?: true
+  partnerMiniAppLink?: true
+  partnerSiteLink?: true
+  importUsersUrl?: true
   defaultAnnounce?: true
 }
 
@@ -423,6 +457,12 @@ export type SettingsCountAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
+  proxyPartnerLink?: true
+  partnerBotLink?: true
+  partnerMiniAppLink?: true
+  partnerSiteLink?: true
+  importUsersUrl?: true
   defaultAnnounce?: true
   _all?: true
 }
@@ -551,6 +591,12 @@ export type SettingsGroupByOutputType = {
   bonusPayment10000: number
   bonusPayment20000: number
   bonusPayment50000: number
+  nextAdsHours: number
+  proxyPartnerLink: string | null
+  partnerBotLink: string | null
+  partnerMiniAppLink: string | null
+  partnerSiteLink: string | null
+  importUsersUrl: string | null
   defaultAnnounce: string | null
   _count: SettingsCountAggregateOutputType | null
   _avg: SettingsAvgAggregateOutputType | null
@@ -615,6 +661,12 @@ export type SettingsWhereInput = {
   bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
+  nextAdsHours?: Prisma.IntFilter<"Settings"> | number
+  proxyPartnerLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerBotLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerMiniAppLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerSiteLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  importUsersUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
   defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
 }
 
@@ -656,6 +708,12 @@ export type SettingsOrderByWithRelationInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
@@ -700,6 +758,12 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
+  nextAdsHours?: Prisma.IntFilter<"Settings"> | number
+  proxyPartnerLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerBotLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerMiniAppLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerSiteLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  importUsersUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
   defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
 }, "key">
 
@@ -741,6 +805,12 @@ export type SettingsOrderByWithAggregationInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
   _avg?: Prisma.SettingsAvgOrderByAggregateInput
@@ -790,6 +860,12 @@ export type SettingsScalarWhereWithAggregatesInput = {
   bonusPayment10000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  nextAdsHours?: Prisma.IntWithAggregatesFilter<"Settings"> | number
+  proxyPartnerLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  partnerBotLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  partnerMiniAppLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  partnerSiteLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  importUsersUrl?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   defaultAnnounce?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
 }
 
@@ -831,6 +907,12 @@ export type SettingsCreateInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  nextAdsHours?: number
+  proxyPartnerLink?: string | null
+  partnerBotLink?: string | null
+  partnerMiniAppLink?: string | null
+  partnerSiteLink?: string | null
+  importUsersUrl?: string | null
   defaultAnnounce?: string | null
 }
 
@@ -872,6 +954,12 @@ export type SettingsUncheckedCreateInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  nextAdsHours?: number
+  proxyPartnerLink?: string | null
+  partnerBotLink?: string | null
+  partnerMiniAppLink?: string | null
+  partnerSiteLink?: string | null
+  importUsersUrl?: string | null
   defaultAnnounce?: string | null
 }
 
@@ -913,6 +1001,12 @@ export type SettingsUpdateInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -954,6 +1048,12 @@ export type SettingsUncheckedUpdateInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -995,6 +1095,12 @@ export type SettingsCreateManyInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  nextAdsHours?: number
+  proxyPartnerLink?: string | null
+  partnerBotLink?: string | null
+  partnerMiniAppLink?: string | null
+  partnerSiteLink?: string | null
+  importUsersUrl?: string | null
   defaultAnnounce?: string | null
 }
 
@@ -1036,6 +1142,12 @@ export type SettingsUpdateManyMutationInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1077,6 +1189,12 @@ export type SettingsUncheckedUpdateManyInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1118,6 +1236,12 @@ export type SettingsCountOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
 }
 
@@ -1157,6 +1281,7 @@ export type SettingsAvgOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
 }
 
 export type SettingsMaxOrderByAggregateInput = {
@@ -1197,6 +1322,12 @@ export type SettingsMaxOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
 }
 
@@ -1238,6 +1369,12 @@ export type SettingsMinOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
 }
 
@@ -1277,6 +1414,7 @@ export type SettingsSumOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
 }
 
 export type EnumDefaultEnumFieldUpdateOperationsInput = {
@@ -1297,6 +1435,14 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
   increment?: number
   decrement?: number
   multiply?: number
@@ -1347,6 +1493,12 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  nextAdsHours?: boolean
+  proxyPartnerLink?: boolean
+  partnerBotLink?: boolean
+  partnerMiniAppLink?: boolean
+  partnerSiteLink?: boolean
+  importUsersUrl?: boolean
   defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
@@ -1388,6 +1540,12 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  nextAdsHours?: boolean
+  proxyPartnerLink?: boolean
+  partnerBotLink?: boolean
+  partnerMiniAppLink?: boolean
+  partnerSiteLink?: boolean
+  importUsersUrl?: boolean
   defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
@@ -1429,6 +1587,12 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  nextAdsHours?: boolean
+  proxyPartnerLink?: boolean
+  partnerBotLink?: boolean
+  partnerMiniAppLink?: boolean
+  partnerSiteLink?: boolean
+  importUsersUrl?: boolean
   defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
@@ -1470,10 +1634,16 @@ export type SettingsSelectScalar = {
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  nextAdsHours?: boolean
+  proxyPartnerLink?: boolean
+  partnerBotLink?: boolean
+  partnerMiniAppLink?: boolean
+  partnerSiteLink?: boolean
+  importUsersUrl?: boolean
   defaultAnnounce?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "defaultAnnounce", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "nextAdsHours" | "proxyPartnerLink" | "partnerBotLink" | "partnerMiniAppLink" | "partnerSiteLink" | "importUsersUrl" | "defaultAnnounce", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -1516,6 +1686,12 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     bonusPayment10000: number
     bonusPayment20000: number
     bonusPayment50000: number
+    nextAdsHours: number
+    proxyPartnerLink: string | null
+    partnerBotLink: string | null
+    partnerMiniAppLink: string | null
+    partnerSiteLink: string | null
+    importUsersUrl: string | null
     defaultAnnounce: string | null
   }, ExtArgs["result"]["settings"]>
   composites: {}
@@ -1977,6 +2153,12 @@ export interface SettingsFieldRefs {
   readonly bonusPayment10000: Prisma.FieldRef<"Settings", 'Float'>
   readonly bonusPayment20000: Prisma.FieldRef<"Settings", 'Float'>
   readonly bonusPayment50000: Prisma.FieldRef<"Settings", 'Float'>
+  readonly nextAdsHours: Prisma.FieldRef<"Settings", 'Int'>
+  readonly proxyPartnerLink: Prisma.FieldRef<"Settings", 'String'>
+  readonly partnerBotLink: Prisma.FieldRef<"Settings", 'String'>
+  readonly partnerMiniAppLink: Prisma.FieldRef<"Settings", 'String'>
+  readonly partnerSiteLink: Prisma.FieldRef<"Settings", 'String'>
+  readonly importUsersUrl: Prisma.FieldRef<"Settings", 'String'>
   readonly defaultAnnounce: Prisma.FieldRef<"Settings", 'String'>
 }
     

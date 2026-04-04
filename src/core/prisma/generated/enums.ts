@@ -38,7 +38,9 @@ export type SessionPlaceEnum = (typeof SessionPlaceEnum)[keyof typeof SessionPla
 export const AdsViewTypeEnum = {
   REWARD: 'REWARD',
   TASK: 'TASK',
-  VIEW: 'VIEW'
+  VIEW: 'VIEW',
+  MESSAGE: 'MESSAGE',
+  FEED: 'FEED'
 } as const
 
 export type AdsViewTypeEnum = (typeof AdsViewTypeEnum)[keyof typeof AdsViewTypeEnum]
@@ -49,7 +51,8 @@ export const AdsBlockPlaceEnum = {
   REWARD_TASK: 'REWARD_TASK',
   BANNER: 'BANNER',
   FULLSCREEN: 'FULLSCREEN',
-  MESSAGE: 'MESSAGE'
+  MESSAGE: 'MESSAGE',
+  FEED: 'FEED'
 } as const
 
 export type AdsBlockPlaceEnum = (typeof AdsBlockPlaceEnum)[keyof typeof AdsBlockPlaceEnum]
