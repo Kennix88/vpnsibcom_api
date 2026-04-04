@@ -192,16 +192,19 @@ export class UsersService {
                     style: 'success',
                   },
                 ],
-                [
-                  {
-                    ...Markup.button.url(
-                      '🎁 Add Free Telegram MTProxy',
-                      'tg://proxy?server=mtp.fasti.fun&port=8443&secret=76291e5f4627757a22173cec26b1c892',
-                    ),
-                    // @ts-ignore
-                    style: 'danger',
-                  },
-                ],
+                ...(settings &&
+                  settings.proxyPartnerLink && [
+                    [
+                      {
+                        ...Markup.button.url(
+                          '🎁 Free Telegram MTProxy',
+                          settings.proxyPartnerLink,
+                        ),
+                        // @ts-ignore
+                        style: 'danger',
+                      },
+                    ],
+                  ]),
               ],
             },
           },
