@@ -1,5 +1,8 @@
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
+import { DefaultEnum } from '@core/prisma/generated/enums'
+import { PrismaService } from '@core/prisma/prisma.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
+import { RichAdsService } from '@modules/ads/richads.service'
 import { TaddyService } from '@modules/ads/taddy.service'
 import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
 import { TonPaymentsService } from '@modules/payments/services/ton-payments.service'
@@ -38,6 +41,8 @@ export class StartUpdate {
     private readonly taddyService: TaddyService,
     private readonly sessionsService: SessionsService,
     private readonly acquisitionsService: AcquisitionsService,
+    private readonly richAdsService: RichAdsService,
+    private readonly prisma: PrismaService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(StartUpdate.name)
@@ -69,7 +74,7 @@ If you have any difficulties with payment, subscription or anything else, write 
             ],
             [
               Markup.button.url(
-                'Private support',
+                'Collaboration | Advertising',
                 this.configService.get<string>('CHANNEL_URL') + '?direct',
               ),
             ],
@@ -176,12 +181,53 @@ If you have any difficulties with payment, subscription or anything else, write 
         this.telegramLogger.info(
           `Admin ${ctx.from.first_name} ${ctx.from.last_name} (${ctx.from.username}) started the bot`,
         )
+
+        // const ad = await this.taddyService.getAd({
+        //   user: {
+        //     id: Number(5524142496),
+        //   },
+        //   origin: TaddyOriginEnum.SERVER,
+        //   format: TaddyAdFromatEnum.BOT_AD,
+        // })
+        // if (ad && ad.result) {
+        //   if (ad.result.image) {
+        //     await ctx.replyWithPhoto(ad.result.image, {
+        //       caption: `<b>${ad.result.title}</b>\n\n${ad.result.text ?? ''}`,
+        //       parse_mode: 'HTML',
+        //       reply_markup: {
+        //         inline_keyboard: ad.result.button
+        //           ? [[{ text: ad.result.button, url: ad.result.link }]]
+        //           : [],
+        //       },
+        //     })
+        //   } else {
+        //     await ctx.replyWithHTML(
+        //       `<b>${ad.result.title}</b>\n\n${ad.result.text ?? ''}`,
+        //       {
+        //         parse_mode: 'HTML',
+        //         reply_markup: {
+        //           inline_keyboard: ad.result.button
+        //             ? [[{ text: ad.result.button, url: ad.result.link }]]
+        //             : [],
+        //         },
+        //       },
+        //     )
+        //   }
+
+        // await this.taddyService.adsImpressions({ id: [ad.result.id] })
+        // }
       }
 
       // await ctx.reply(
       //   'Выбери действие',
       //   Markup.keyboard([['Продолжить']]).resize(),
       // )
+
+      const settings = await this.prisma.settings.findFirst({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
 
       await ctx.sendPhoto(
         { source: createReadStream('assets/welcome.jpg') },
@@ -201,13 +247,12 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
   lang: ctx.from.language_code,
 })}
 
-<blockquote><b>Способы поддержать наш бесплатный MTProxy/Ways to support our wireless MTProxy:</b></blockquote>
-1️⃣Crypto TON / USDT-TON / USDC-TON etc.
-<code>UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ</code>
-
-2️⃣  <a href="https://t.me/tribute/app?startapp=dH2S">Donation to Tribute (tap) (All cards / СБП / Telegram Wallet)</a>
-
-3️⃣Пополнить баланс в нашем VPN боте на любую сумму/Top up your balance in our VPN bot for any amount`,
+${
+  settings &&
+  settings.partnerBotLink &&
+  `Sponsored by <a href="${settings.partnerBotLink}">@TonPlay</a>`
+}
+`,
           parse_mode: 'HTML',
           reply_markup: {
             remove_keyboard: true,
@@ -222,16 +267,32 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
                   style: 'success',
                 },
               ],
-              [
-                {
-                  ...Markup.button.url(
-                    '🎁 Add Free Telegram MTProxy',
-                    'tg://proxy?server=mtp.fasti.fun&port=8443&secret=76291e5f4627757a22173cec26b1c892',
-                  ),
-                  // @ts-ignore
-                  style: 'danger',
-                },
-              ],
+              ...(settings &&
+                settings.partnerMiniAppLink && [
+                  [
+                    {
+                      ...Markup.button.url(
+                        '🎮 TonPlay',
+                        settings.partnerMiniAppLink,
+                      ),
+                      // @ts-ignore
+                      style: 'primary',
+                    },
+                  ],
+                ]),
+              ...(settings &&
+                settings.proxyPartnerLink && [
+                  [
+                    {
+                      ...Markup.button.url(
+                        '🎁 Free Telegram MTProxy',
+                        settings.proxyPartnerLink,
+                      ),
+                      // @ts-ignore
+                      style: 'danger',
+                    },
+                  ],
+                ]),
               [
                 Markup.button.url(
                   this.i18n.t('telegraf.telegram.button.channel', {
@@ -248,7 +309,7 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
               ],
               [
                 Markup.button.url(
-                  'Private support',
+                  'Collaboration | Advertising',
                   this.configService.get<string>('CHANNEL_URL') + '?direct',
                 ),
               ],
@@ -262,16 +323,6 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
                   ),
                   // @ts-ignore
                   style: 'primary',
-                },
-              ],
-              [
-                {
-                  ...Markup.button.url(
-                    '💸 Donation to Tribute',
-                    'https://t.me/tribute/app?startapp=dH2S',
-                  ),
-                  // @ts-ignore
-                  style: 'danger',
                 },
               ],
             ],
