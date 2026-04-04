@@ -11,7 +11,9 @@ import { UsersModule } from '@modules/users/users.module'
 import { forwardRef, Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TelegrafModule } from 'nestjs-telegraf'
+import { AdsSenderService } from './services/ads-sender.service'
 import { CheckUsersService } from './services/check-users.service'
+import { ImportUsersService } from './services/import-users.service'
 
 @Global()
 @Module({
@@ -34,6 +36,8 @@ import { CheckUsersService } from './services/check-users.service'
     PaymentsUpdate,
     LoggerTelegramService,
     CheckUsersService,
+    AdsSenderService,
+    ImportUsersService,
   ],
   exports: [LoggerTelegramService],
 })
