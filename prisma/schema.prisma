@@ -61,6 +61,14 @@ model Settings {
  bonusPayment20000 Float @default(0.20) @map("bonus_payment_20000")
  bonusPayment50000 Float @default(0.25) @map("bonus_payment_50000")
 
+ nextAdsHours        Int      @default(12) @map("next_ads_hours")
+ proxyPartnerLink    String?  @map("proxy_partner_link") @default("https://t.me/tonplay_proxybot?start=hUWchdxNIh6oeO")
+ partnerBotLink      String?  @map("partner_bot_link") @default("https://t.me/tonplay?start=hUWcg19SE6EZ5e")
+ partnerMiniAppLink  String?  @map("partner_mini_app_link") @default("https://t.me/tonplay/dapp?startapp=hUWcg19SE6EZ5e")
+ partnerSiteLink     String?  @map("partner_site_link") @default("https://tonplay.fo/hUWcg1950zMXOm")
+
+ importUsersUrl      String?  @map("import_users_url") @default("https://kennix88.github.io/vpnsib-tonconnect-manifest/users.txt")
+
  defaultAnnounce String? @default("(🇳🇱⏪🇷🇺) - Double Tunnel, 🆓 - Free Server, ⭐️ - Premium Server") @map("default_announce")
 
  @@map("settings")
@@ -293,6 +301,8 @@ enum AdsViewTypeEnum {
  REWARD
  TASK
  VIEW
+ MESSAGE
+ FEED
 }
 
 model AdsBlocks {
@@ -322,6 +332,7 @@ enum AdsBlockPlaceEnum {
  BANNER
  FULLSCREEN
  MESSAGE
+ FEED
 }
 
 /// Модель для рекламных сетей
