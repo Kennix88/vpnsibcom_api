@@ -310,6 +310,11 @@ export class SubscriptionManagerService {
                     marzbanData: subscription.marzbanData,
                     ...(isRemovalAt ? { removalAt } : {}),
                     ...(announce === undefined ? {} : { announce }),
+                    ...((subscription.plan.key == PlansEnum.TRAFFIC ||
+                      subscription.plan.key == PlansEnum.TRIAL) &&
+                      subscription.usedTraffic >= subscription.dataLimit && {
+                        isActive: false,
+                      }),
                   },
                 })
               }),
