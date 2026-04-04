@@ -4,4 +4,5 @@ export enum AdsPlaceEnum {
   BANNER = 'BANNER',
   FULLSCREEN = 'FULLSCREEN',
   MESSAGE = 'MESSAGE',
+  FEED = 'FEED',
 }
