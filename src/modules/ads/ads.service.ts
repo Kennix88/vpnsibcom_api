@@ -1,29 +1,57 @@
+import { PlansEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
-import { UsersService } from '@modules/users/users.service'
-import { Injectable, Logger } from '@nestjs/common'
+import { UsersService } from '@modules/users/services/users.service'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
+import { PlatformEnum } from '@shared/enums/platform.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
+import { detectPlatformUtil } from '@shared/utils/detect-platform.util'
 import { addMinutes, isAfter } from 'date-fns'
+import { PinoLogger } from 'nestjs-pino'
+import { RichAdsService } from './richads.service'
+import { TaddyService } from './taddy.service'
 import { AdsNetworkEnum } from './types/ads-network.enum'
 import { AdsPlaceEnum } from './types/ads-place.enum'
 import { AdsResInterface } from './types/ads-res.interface'
 import { AdsTypeEnum } from './types/ads-type.enum'
+import { RichAdsGetAdResponseInterface } from './types/richads.interface'
+import {
+  TaddyAdFormatEnum,
+  TaddyGetAdResponseInterface,
+  TaddyOriginEnum,
+} from './types/taddy.interface'
+import { TaskRewardResInterface } from './types/task-reward-res.interface'
 
 @Injectable()
 export class AdsService {
-  private readonly logger = new Logger(AdsService.name)
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
+    private readonly logger: PinoLogger,
+    private readonly taddy: TaddyService,
+    private readonly richAdsService: RichAdsService,
   ) {}
+
+  public async getAdTaskReward(): Promise<TaskRewardResInterface> {
+    try {
+      const reward = await this.prisma.adsRewards.findUnique({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+      this.logger.info(reward)
+      return reward ? { amount: Number(reward.taskView) } : { amount: 0 }
+    } catch (error) {
+      this.logger.error(error)
+    }
+  }
 
   /**
    * Создаёт ad session; возвращает VerifyKey (JWT) и информацию для клиента.
@@ -44,8 +72,27 @@ export class AdsService {
       },
       include: {
         adsData: true,
+        telegramData: true,
+        subscriptions: {
+          where: {
+            isActive: true,
+            NOT: {
+              planKey: PlansEnum.TRIAL,
+            },
+          },
+        },
       },
     })
+
+    if (
+      (!user || user.subscriptions.length > 0) &&
+      (place == AdsPlaceEnum.MESSAGE ||
+        place == AdsPlaceEnum.FULLSCREEN ||
+        place == AdsPlaceEnum.BANNER)
+    )
+      return {
+        isNoAds: true,
+      }
 
     if (
       type == AdsTypeEnum.VIEW &&
@@ -59,17 +106,20 @@ export class AdsService {
         isNoAds: true,
       }
 
+    const platform = detectPlatformUtil(ua || null)
+
     // 1) получаем доступные блоки
     const blocks = await this.prisma.adsBlocks.findMany({
       where: {
         place: place,
         isActive: true,
         network: {
-          // ...(user.adsData.lastViewedNetwork && {
-          //   NOT: {
-          //     key: user.adsData.lastViewedNetwork,
-          //   },
-          // }),
+          ...(platform !== PlatformEnum.ANDROID &&
+            platform !== PlatformEnum.IOS && {
+              NOT: {
+                key: AdsNetworkEnum.ADSGRAM,
+              },
+            }),
           isActive: true,
         },
       },
@@ -82,28 +132,105 @@ export class AdsService {
       }
     }
 
-    const block = blocks[Math.floor(Math.random() * blocks.length)]
-    const limit = block.limit ?? 1
-    const duration = block.duration ?? 60 // сек
+    let meta = {}
+    let block: (typeof blocks)[0]
+    const limit = 1
+    const duration = 3600
+    let isGoNextAd = false
+    let ad: RichAdsGetAdResponseInterface | TaddyGetAdResponseInterface
 
     const sessionId = crypto.randomUUID()
-    const meta = {
-      sessionId,
-      userId,
-      telegramId,
-      blockId: block.id,
-      networkKey: block.networkKey,
-      rewards: {
-        traffic: Number(block.rewardTraffic ?? 0),
-        stars: Number(block.rewardStars ?? 0),
-        tickets: Number(block.rewardTickets ?? 0),
-        ad: Number(block.rewardAd ?? 0),
-      },
-      limit,
-      createdAt: Date.now(),
-      duration,
-      createdIp: ip ?? null,
-      createdUa: ua ?? null,
+
+    if (
+      blocks.findIndex((block) => block.networkKey === AdsNetworkEnum.TADDY) !==
+        -1 &&
+      place == AdsPlaceEnum.MESSAGE
+    ) {
+      const blocksFiltered = blocks.filter(
+        (block) => block.networkKey === AdsNetworkEnum.TADDY,
+      )
+      block = blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
+
+      ad = await this.taddy.getAd({
+        user: {
+          id: Number(userId),
+        },
+        origin: TaddyOriginEnum.SERVER,
+        format:
+          place == AdsPlaceEnum.MESSAGE
+            ? TaddyAdFormatEnum.BOT_AD
+            : place == AdsPlaceEnum.REWARD_TASK
+            ? TaddyAdFormatEnum.APP_TASK
+            : TaddyAdFormatEnum.APP_INTERSTITIAL,
+      })
+
+      if (ad) {
+        meta = {
+          sessionId,
+          userId,
+          telegramId,
+          blockId: block.id,
+          networkKey: block.networkKey,
+          limit,
+          createdAt: Date.now(),
+          duration,
+          createdIp: ip ?? null,
+          createdUa: ua ?? null,
+        }
+      } else {
+        isGoNextAd = true
+      }
+    }
+
+    if (
+      blocks.findIndex(
+        (block) => block.networkKey === AdsNetworkEnum.RICHADS,
+      ) !== -1 &&
+      place == AdsPlaceEnum.MESSAGE
+    ) {
+      const blocksFiltered = blocks.filter(
+        (block) => block.networkKey === AdsNetworkEnum.RICHADS,
+      )
+      block = blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
+
+      ad = await this.richAdsService.getAd({
+        language_code: user.telegramData.languageCode,
+        telegram_id: user.telegramId,
+        widget_id: block.key,
+      })
+
+      if (ad) {
+        meta = {
+          sessionId,
+          userId,
+          telegramId,
+          blockId: block.id,
+          networkKey: block.networkKey,
+          limit,
+          createdAt: Date.now(),
+          duration,
+          createdIp: ip ?? null,
+          createdUa: ua ?? null,
+        }
+      } else {
+        isGoNextAd = true
+      }
+    }
+
+    if (place !== AdsPlaceEnum.MESSAGE || isGoNextAd) {
+      block = blocks[Math.floor(Math.random() * blocks.length)]
+      meta = {
+        sessionId,
+        userId,
+        telegramId,
+        blockId: block.id,
+        networkKey: block.networkKey,
+        limit,
+        createdAt: Date.now(),
+        duration,
+        createdIp: ip ?? null,
+        createdUa: ua ?? null,
+      }
     }
 
     const metaKey = `ad:session:meta:${sessionId}`
@@ -111,35 +238,32 @@ export class AdsService {
     // store only meta in Redis with expiration
     await this.redisService.setObjectWithExpiry(metaKey, meta, duration)
 
+    const adsRewards = await this.prisma.adsRewards.findUnique({
+      where: {
+        key: DefaultEnum.DEFAULT,
+      },
+    })
+
     // сохраняем запись AdsViews (verifyKey пока UUID -> later replaced by JWT returned to client)
     await this.prisma.adsViews.create({
       data: {
         networkKey: block.networkKey,
         type: type,
-        rewardTraffic: meta.rewards.traffic,
-        rewardStars: meta.rewards.stars,
-        rewardTickets: meta.rewards.tickets,
+        rewardStars:
+          place == AdsPlaceEnum.REWARD_TASK && type == AdsTypeEnum.REWARD
+            ? Number(adsRewards?.taskView ?? 0)
+            : 0,
         duration,
         verifyKey: sessionId as string, // сохраняем sid; клиент получит JWT, но в БД храним sid для привязки
         userId,
+        ip: ip ?? null,
+        ua: ua ?? null,
         blockId: block.id,
-        ...(type === AdsTypeEnum.VIEW && {
-          claimedAt: new Date(),
-        }),
+        // ...(type === AdsTypeEnum.VIEW && {
+        //   claimedAt: new Date(),
+        // }),
       },
     })
-
-    if (type == AdsTypeEnum.VIEW) {
-      await this.prisma.userAdsData.update({
-        where: {
-          id: user.adsDataId,
-        },
-        data: {
-          lastFullscreenViewedAt: new Date(),
-          lastViewedNetwork: block.networkKey,
-        },
-      })
-    }
 
     // sign JWT verifyKey with ADS_SESSION_SECRET
     const secret = this.configService.get<string>('ADS_SESSION_SECRET')
@@ -163,7 +287,7 @@ export class AdsService {
       )
     }
 
-    this.logger.log(
+    this.logger.info(
       `Created ad session ${sessionId} (JWT returned) for user ${userId} block ${block.id}`,
     )
 
@@ -174,10 +298,15 @@ export class AdsService {
         place,
         network: block.networkKey as AdsNetworkEnum,
         time: new Date(),
-        rewards: meta.rewards,
         blockId: block.key,
         verifyKey,
       },
+      ...(ad &&
+        (block.networkKey === AdsNetworkEnum.RICHADS
+          ? { richAds: { ...(ad as RichAdsGetAdResponseInterface) } }
+          : block.networkKey === AdsNetworkEnum.TADDY
+          ? { taddy: { ...(ad as TaddyGetAdResponseInterface) } }
+          : {})),
     }
   }
 
@@ -269,40 +398,28 @@ export class AdsService {
     }
 
     // 5) grant reward in DB transaction (adapt fields to your schema)
-    const rewards = metaObj.rewards ?? {
-      traffic: 0,
-      stars: 0,
-      tickets: 0,
-      ad: 0,
-    }
+    // const rewards = metaObj.rewards ?? {
+    //   traffic: 0,
+    //   stars: 0,
+    //   tickets: 0,
+    //   ad: 0,
+    // }
 
     try {
       await this.prisma.$transaction(async (prisma) => {
-        await this.usersService.addUserBalance(
+        const getAd = await prisma.adsViews.findUnique({
+          where: { verifyKey: sessionId },
+        })
+
+        if (!getAd) return
+
+        const addBalanceResult = await this.usersService.addUserBalance(
           userId,
-          rewards.traffic,
-          TransactionReasonEnum.REWARD,
-          BalanceTypeEnum.TRAFFIC,
-        )
-        await this.usersService.addUserBalance(
-          userId,
-          rewards.stars,
+          getAd.rewardStars,
           TransactionReasonEnum.REWARD,
           BalanceTypeEnum.PAYMENT,
         )
-        await this.usersService.addUserBalance(
-          userId,
-          rewards.tickets,
-          TransactionReasonEnum.REWARD,
-          BalanceTypeEnum.TICKETS,
-        )
-        await this.usersService.addUserBalance(
-          userId,
-          rewards.ad,
-          TransactionReasonEnum.REWARD,
-          BalanceTypeEnum.AD,
-        )
-
+        if (!addBalanceResult.success) return
         const ad = await prisma.adsViews.update({
           where: { verifyKey: sessionId },
           data: {
@@ -357,21 +474,17 @@ export class AdsService {
             id: ad.user.adsDataId,
           },
           data: {
-            lastViewedNetwork: ad.networkKey,
-          },
-        })
-
-        // create rewardLog with actual amounts
-        await prisma.rewardLog.create({
-          data: {
-            userId,
-            rewardTraffic: rewards.traffic ?? 0,
-            rewardStars: rewards.stars ?? 0,
-            rewardTickets: rewards.tickets ?? 0,
-            source: metaObj.networkKey,
-            reference: sessionId,
-            ip,
-            ua,
+            ...((ad.type == AdsTypeEnum.VIEW ||
+              ad.type == AdsTypeEnum.REWARD) && {
+              lastViewedNetwork: ad.networkKey,
+            }),
+            ...(ad.type == AdsTypeEnum.VIEW && {
+              lastFullscreenViewedAt: new Date(),
+            }),
+            ...(ad.type == AdsTypeEnum.MESSAGE && {
+              lastMessageAt: new Date(),
+              lastMessageNetwork: ad.networkKey,
+            }),
           },
         })
       })
@@ -391,12 +504,7 @@ export class AdsService {
         )
       }
 
-      this.logger.log(
-        `confirmAd: granted ${JSON.stringify(
-          rewards,
-        )} to user ${userId} for session ${sessionId}`,
-      )
-      return { success: true, granted: true, rewards }
+      return { success: true, granted: true }
     } catch (err) {
       this.logger.error(
         `confirmAd: DB transaction failed for ${sessionId}: ${

@@ -27,16 +27,12 @@ export type AggregateAdsViews = {
 }
 
 export type AdsViewsAvgAggregateOutputType = {
-  rewardTraffic: number | null
   rewardStars: number | null
-  rewardTickets: number | null
   duration: number | null
 }
 
 export type AdsViewsSumAggregateOutputType = {
-  rewardTraffic: number | null
   rewardStars: number | null
-  rewardTickets: number | null
   duration: number | null
 }
 
@@ -44,10 +40,10 @@ export type AdsViewsMinAggregateOutputType = {
   id: string | null
   networkKey: $Enums.AdsNetworkEnum | null
   type: $Enums.AdsViewTypeEnum | null
-  rewardTraffic: number | null
   rewardStars: number | null
-  rewardTickets: number | null
   duration: number | null
+  ip: string | null
+  ua: string | null
   createdAt: Date | null
   claimedAt: Date | null
   verifyKey: string | null
@@ -59,10 +55,10 @@ export type AdsViewsMaxAggregateOutputType = {
   id: string | null
   networkKey: $Enums.AdsNetworkEnum | null
   type: $Enums.AdsViewTypeEnum | null
-  rewardTraffic: number | null
   rewardStars: number | null
-  rewardTickets: number | null
   duration: number | null
+  ip: string | null
+  ua: string | null
   createdAt: Date | null
   claimedAt: Date | null
   verifyKey: string | null
@@ -74,10 +70,10 @@ export type AdsViewsCountAggregateOutputType = {
   id: number
   networkKey: number
   type: number
-  rewardTraffic: number
   rewardStars: number
-  rewardTickets: number
   duration: number
+  ip: number
+  ua: number
   createdAt: number
   claimedAt: number
   verifyKey: number
@@ -88,16 +84,12 @@ export type AdsViewsCountAggregateOutputType = {
 
 
 export type AdsViewsAvgAggregateInputType = {
-  rewardTraffic?: true
   rewardStars?: true
-  rewardTickets?: true
   duration?: true
 }
 
 export type AdsViewsSumAggregateInputType = {
-  rewardTraffic?: true
   rewardStars?: true
-  rewardTickets?: true
   duration?: true
 }
 
@@ -105,10 +97,10 @@ export type AdsViewsMinAggregateInputType = {
   id?: true
   networkKey?: true
   type?: true
-  rewardTraffic?: true
   rewardStars?: true
-  rewardTickets?: true
   duration?: true
+  ip?: true
+  ua?: true
   createdAt?: true
   claimedAt?: true
   verifyKey?: true
@@ -120,10 +112,10 @@ export type AdsViewsMaxAggregateInputType = {
   id?: true
   networkKey?: true
   type?: true
-  rewardTraffic?: true
   rewardStars?: true
-  rewardTickets?: true
   duration?: true
+  ip?: true
+  ua?: true
   createdAt?: true
   claimedAt?: true
   verifyKey?: true
@@ -135,10 +127,10 @@ export type AdsViewsCountAggregateInputType = {
   id?: true
   networkKey?: true
   type?: true
-  rewardTraffic?: true
   rewardStars?: true
-  rewardTickets?: true
   duration?: true
+  ip?: true
+  ua?: true
   createdAt?: true
   claimedAt?: true
   verifyKey?: true
@@ -237,10 +229,10 @@ export type AdsViewsGroupByOutputType = {
   id: string
   networkKey: $Enums.AdsNetworkEnum
   type: $Enums.AdsViewTypeEnum
-  rewardTraffic: number
   rewardStars: number
-  rewardTickets: number
   duration: number
+  ip: string | null
+  ua: string | null
   createdAt: Date
   claimedAt: Date | null
   verifyKey: string
@@ -275,10 +267,10 @@ export type AdsViewsWhereInput = {
   id?: Prisma.StringFilter<"AdsViews"> | string
   networkKey?: Prisma.EnumAdsNetworkEnumFilter<"AdsViews"> | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFilter<"AdsViews"> | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFilter<"AdsViews"> | number
   rewardStars?: Prisma.FloatFilter<"AdsViews"> | number
-  rewardTickets?: Prisma.FloatFilter<"AdsViews"> | number
   duration?: Prisma.IntFilter<"AdsViews"> | number
+  ip?: Prisma.StringNullableFilter<"AdsViews"> | string | null
+  ua?: Prisma.StringNullableFilter<"AdsViews"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"AdsViews"> | Date | string | null
   verifyKey?: Prisma.StringFilter<"AdsViews"> | string
@@ -293,10 +285,10 @@ export type AdsViewsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   networkKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrderInput | Prisma.SortOrder
+  ua?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -315,10 +307,10 @@ export type AdsViewsWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AdsViewsWhereInput | Prisma.AdsViewsWhereInput[]
   networkKey?: Prisma.EnumAdsNetworkEnumFilter<"AdsViews"> | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFilter<"AdsViews"> | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFilter<"AdsViews"> | number
   rewardStars?: Prisma.FloatFilter<"AdsViews"> | number
-  rewardTickets?: Prisma.FloatFilter<"AdsViews"> | number
   duration?: Prisma.IntFilter<"AdsViews"> | number
+  ip?: Prisma.StringNullableFilter<"AdsViews"> | string | null
+  ua?: Prisma.StringNullableFilter<"AdsViews"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"AdsViews"> | Date | string | null
   userId?: Prisma.StringFilter<"AdsViews"> | string
@@ -332,10 +324,10 @@ export type AdsViewsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   networkKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrderInput | Prisma.SortOrder
+  ua?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -355,10 +347,10 @@ export type AdsViewsScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"AdsViews"> | string
   networkKey?: Prisma.EnumAdsNetworkEnumWithAggregatesFilter<"AdsViews"> | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumWithAggregatesFilter<"AdsViews"> | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatWithAggregatesFilter<"AdsViews"> | number
   rewardStars?: Prisma.FloatWithAggregatesFilter<"AdsViews"> | number
-  rewardTickets?: Prisma.FloatWithAggregatesFilter<"AdsViews"> | number
   duration?: Prisma.IntWithAggregatesFilter<"AdsViews"> | number
+  ip?: Prisma.StringNullableWithAggregatesFilter<"AdsViews"> | string | null
+  ua?: Prisma.StringNullableWithAggregatesFilter<"AdsViews"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdsViews"> | Date | string | null
   verifyKey?: Prisma.StringWithAggregatesFilter<"AdsViews"> | string
@@ -369,10 +361,10 @@ export type AdsViewsScalarWhereWithAggregatesInput = {
 export type AdsViewsCreateInput = {
   id?: string
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -385,10 +377,10 @@ export type AdsViewsUncheckedCreateInput = {
   id?: string
   networkKey?: $Enums.AdsNetworkEnum
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -399,10 +391,10 @@ export type AdsViewsUncheckedCreateInput = {
 export type AdsViewsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -415,10 +407,10 @@ export type AdsViewsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   networkKey?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -430,10 +422,10 @@ export type AdsViewsCreateManyInput = {
   id?: string
   networkKey?: $Enums.AdsNetworkEnum
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -444,10 +436,10 @@ export type AdsViewsCreateManyInput = {
 export type AdsViewsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -457,10 +449,10 @@ export type AdsViewsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   networkKey?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -482,10 +474,10 @@ export type AdsViewsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   networkKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrder
+  ua?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -494,9 +486,7 @@ export type AdsViewsCountOrderByAggregateInput = {
 }
 
 export type AdsViewsAvgOrderByAggregateInput = {
-  rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
   duration?: Prisma.SortOrder
 }
 
@@ -504,10 +494,10 @@ export type AdsViewsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   networkKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrder
+  ua?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -519,10 +509,10 @@ export type AdsViewsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   networkKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  ip?: Prisma.SortOrder
+  ua?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   claimedAt?: Prisma.SortOrder
   verifyKey?: Prisma.SortOrder
@@ -531,9 +521,7 @@ export type AdsViewsMinOrderByAggregateInput = {
 }
 
 export type AdsViewsSumOrderByAggregateInput = {
-  rewardTraffic?: Prisma.SortOrder
   rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
   duration?: Prisma.SortOrder
 }
 
@@ -674,10 +662,10 @@ export type AdsViewsUncheckedUpdateManyWithoutNetworkNestedInput = {
 export type AdsViewsCreateWithoutUserInput = {
   id?: string
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -689,10 +677,10 @@ export type AdsViewsUncheckedCreateWithoutUserInput = {
   id?: string
   networkKey?: $Enums.AdsNetworkEnum
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -732,10 +720,10 @@ export type AdsViewsScalarWhereInput = {
   id?: Prisma.StringFilter<"AdsViews"> | string
   networkKey?: Prisma.EnumAdsNetworkEnumFilter<"AdsViews"> | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFilter<"AdsViews"> | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFilter<"AdsViews"> | number
   rewardStars?: Prisma.FloatFilter<"AdsViews"> | number
-  rewardTickets?: Prisma.FloatFilter<"AdsViews"> | number
   duration?: Prisma.IntFilter<"AdsViews"> | number
+  ip?: Prisma.StringNullableFilter<"AdsViews"> | string | null
+  ua?: Prisma.StringNullableFilter<"AdsViews"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdsViews"> | Date | string
   claimedAt?: Prisma.DateTimeNullableFilter<"AdsViews"> | Date | string | null
   verifyKey?: Prisma.StringFilter<"AdsViews"> | string
@@ -746,10 +734,10 @@ export type AdsViewsScalarWhereInput = {
 export type AdsViewsCreateWithoutBlockInput = {
   id?: string
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -761,10 +749,10 @@ export type AdsViewsUncheckedCreateWithoutBlockInput = {
   id?: string
   networkKey?: $Enums.AdsNetworkEnum
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -800,10 +788,10 @@ export type AdsViewsUpdateManyWithWhereWithoutBlockInput = {
 export type AdsViewsCreateWithoutNetworkInput = {
   id?: string
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -814,10 +802,10 @@ export type AdsViewsCreateWithoutNetworkInput = {
 export type AdsViewsUncheckedCreateWithoutNetworkInput = {
   id?: string
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -855,10 +843,10 @@ export type AdsViewsCreateManyUserInput = {
   id?: string
   networkKey?: $Enums.AdsNetworkEnum
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -868,10 +856,10 @@ export type AdsViewsCreateManyUserInput = {
 export type AdsViewsUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -883,10 +871,10 @@ export type AdsViewsUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   networkKey?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -897,10 +885,10 @@ export type AdsViewsUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   networkKey?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -911,10 +899,10 @@ export type AdsViewsCreateManyBlockInput = {
   id?: string
   networkKey?: $Enums.AdsNetworkEnum
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -924,10 +912,10 @@ export type AdsViewsCreateManyBlockInput = {
 export type AdsViewsUpdateWithoutBlockInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -939,10 +927,10 @@ export type AdsViewsUncheckedUpdateWithoutBlockInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   networkKey?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -953,10 +941,10 @@ export type AdsViewsUncheckedUpdateManyWithoutBlockInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   networkKey?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -966,10 +954,10 @@ export type AdsViewsUncheckedUpdateManyWithoutBlockInput = {
 export type AdsViewsCreateManyNetworkInput = {
   id?: string
   type?: $Enums.AdsViewTypeEnum
-  rewardTraffic?: number
   rewardStars?: number
-  rewardTickets?: number
   duration?: number
+  ip?: string | null
+  ua?: string | null
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
@@ -980,10 +968,10 @@ export type AdsViewsCreateManyNetworkInput = {
 export type AdsViewsUpdateWithoutNetworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -994,10 +982,10 @@ export type AdsViewsUpdateWithoutNetworkInput = {
 export type AdsViewsUncheckedUpdateWithoutNetworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1008,10 +996,10 @@ export type AdsViewsUncheckedUpdateWithoutNetworkInput = {
 export type AdsViewsUncheckedUpdateManyWithoutNetworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAdsViewTypeEnumFieldUpdateOperationsInput | $Enums.AdsViewTypeEnum
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
   rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ua?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1025,10 +1013,10 @@ export type AdsViewsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   networkKey?: boolean
   type?: boolean
-  rewardTraffic?: boolean
   rewardStars?: boolean
-  rewardTickets?: boolean
   duration?: boolean
+  ip?: boolean
+  ua?: boolean
   createdAt?: boolean
   claimedAt?: boolean
   verifyKey?: boolean
@@ -1043,10 +1031,10 @@ export type AdsViewsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   networkKey?: boolean
   type?: boolean
-  rewardTraffic?: boolean
   rewardStars?: boolean
-  rewardTickets?: boolean
   duration?: boolean
+  ip?: boolean
+  ua?: boolean
   createdAt?: boolean
   claimedAt?: boolean
   verifyKey?: boolean
@@ -1061,10 +1049,10 @@ export type AdsViewsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   networkKey?: boolean
   type?: boolean
-  rewardTraffic?: boolean
   rewardStars?: boolean
-  rewardTickets?: boolean
   duration?: boolean
+  ip?: boolean
+  ua?: boolean
   createdAt?: boolean
   claimedAt?: boolean
   verifyKey?: boolean
@@ -1079,10 +1067,10 @@ export type AdsViewsSelectScalar = {
   id?: boolean
   networkKey?: boolean
   type?: boolean
-  rewardTraffic?: boolean
   rewardStars?: boolean
-  rewardTickets?: boolean
   duration?: boolean
+  ip?: boolean
+  ua?: boolean
   createdAt?: boolean
   claimedAt?: boolean
   verifyKey?: boolean
@@ -1090,7 +1078,7 @@ export type AdsViewsSelectScalar = {
   blockId?: boolean
 }
 
-export type AdsViewsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "networkKey" | "type" | "rewardTraffic" | "rewardStars" | "rewardTickets" | "duration" | "createdAt" | "claimedAt" | "verifyKey" | "userId" | "blockId", ExtArgs["result"]["adsViews"]>
+export type AdsViewsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "networkKey" | "type" | "rewardStars" | "duration" | "ip" | "ua" | "createdAt" | "claimedAt" | "verifyKey" | "userId" | "blockId", ExtArgs["result"]["adsViews"]>
 export type AdsViewsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -1118,10 +1106,10 @@ export type $AdsViewsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     networkKey: $Enums.AdsNetworkEnum
     type: $Enums.AdsViewTypeEnum
-    rewardTraffic: number
     rewardStars: number
-    rewardTickets: number
     duration: number
+    ip: string | null
+    ua: string | null
     createdAt: Date
     claimedAt: Date | null
     verifyKey: string
@@ -1556,10 +1544,10 @@ export interface AdsViewsFieldRefs {
   readonly id: Prisma.FieldRef<"AdsViews", 'String'>
   readonly networkKey: Prisma.FieldRef<"AdsViews", 'AdsNetworkEnum'>
   readonly type: Prisma.FieldRef<"AdsViews", 'AdsViewTypeEnum'>
-  readonly rewardTraffic: Prisma.FieldRef<"AdsViews", 'Float'>
   readonly rewardStars: Prisma.FieldRef<"AdsViews", 'Float'>
-  readonly rewardTickets: Prisma.FieldRef<"AdsViews", 'Float'>
   readonly duration: Prisma.FieldRef<"AdsViews", 'Int'>
+  readonly ip: Prisma.FieldRef<"AdsViews", 'String'>
+  readonly ua: Prisma.FieldRef<"AdsViews", 'String'>
   readonly createdAt: Prisma.FieldRef<"AdsViews", 'DateTime'>
   readonly claimedAt: Prisma.FieldRef<"AdsViews", 'DateTime'>
   readonly verifyKey: Prisma.FieldRef<"AdsViews", 'String'>

@@ -3,7 +3,7 @@ import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
-import { UsersService } from '@modules/users/users.service'
+import { UsersService } from '@modules/users/services/users.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
@@ -134,13 +134,13 @@ export class SubscriptionManagerService {
                         ?.flatMap((server) => {
                           if (server.greenList.isPremium) premiumServers++
                           else baseServers++
-                          return server.greenList.code
+                          return server.greenList.green
                         })
                         .filter(Boolean)
 
                 const filteredLinks = marzbanUser.links.filter((link) => {
                   if (!serverCodes.length) return true
-                  return serverCodes.some((code) => link.includes(`@${code}`))
+                  return serverCodes.some((code) => link.includes(`${code}`))
                 })
 
                 // Для INDEFINITELY не рассчитываем стоимость продления
@@ -278,6 +278,19 @@ export class SubscriptionManagerService {
                     })
                 }
 
+                const defaultAnnounce = settings.defaultAnnounce
+
+                const announce =
+                  announceMessages.length > 0
+                    ? `${announceMessages.join(' ')}${
+                        defaultAnnounce ? `\n${defaultAnnounce}` : ''
+                      }`
+                    : defaultAnnounce
+                    ? defaultAnnounce
+                    : isNotAnnounce
+                    ? null
+                    : undefined
+
                 return this.prismaService.subscriptions.update({
                   where: { id: subscription.id },
                   data: {
@@ -287,7 +300,7 @@ export class SubscriptionManagerService {
                         ? 0
                         : subscription.nextRenewalStars,
                     usedTraffic: subscription.usedTraffic / 1024 / 1024,
-                    lastUserAgent: subscription.lastUserAgent,
+                    // lastUserAgent: subscription.lastUserAgent,
                     dataLimit: subscription.dataLimit / 1024 / 1024,
                     lifeTimeUsedTraffic:
                       subscription.lifeTimeUsedTraffic / 1024 / 1024,
@@ -296,11 +309,12 @@ export class SubscriptionManagerService {
                       : null, // Adding 'Z' to indicate UTC timezone
                     marzbanData: subscription.marzbanData,
                     ...(isRemovalAt ? { removalAt } : {}),
-                    ...(announceMessages.length > 0
-                      ? { announce: announceMessages.join(' ') }
-                      : isNotAnnounce
-                      ? { announce: null }
-                      : {}),
+                    ...(announce === undefined ? {} : { announce }),
+                    ...((subscription.plan.key == PlansEnum.TRAFFIC ||
+                      subscription.plan.key == PlansEnum.TRIAL) &&
+                      subscription.usedTraffic >= subscription.dataLimit && {
+                        isActive: false,
+                      }),
                   },
                 })
               }),

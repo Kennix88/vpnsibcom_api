@@ -71,6 +71,11 @@ services:
       - TADDY_PUB_KEY=${TADDY_PUB_KEY}
       - TADDY_API_URL=${TADDY_API_URL}
       - TADDY_SECRET_KEY=${TADDY_SECRET_KEY}
+      - ADSGRAM_TOKEN=${ADSGRAM_TOKEN}
+      - GRASPIL_TOKEN=${GRASPIL_TOKEN}
+      - GRASPIL_PRIXY_URL=${GRASPIL_PRIXY_URL}
+      - RICHADS_API_URL=${RICHADS_API_URL}
+      - RICHADS_PUB_KEY=${RICHADS_PUB_KEY}
     volumes:
       - api_logs:/app/logs
     networks:

@@ -55,11 +55,14 @@ export const ModelName = {
   UserTelegramData: 'UserTelegramData',
   Referrals: 'Referrals',
   Users: 'Users',
+  Events: 'Events',
+  Acquisition: 'Acquisition',
+  Sessions: 'Sessions',
   UserAdsData: 'UserAdsData',
+  AdsRewards: 'AdsRewards',
   AdsViews: 'AdsViews',
   AdsBlocks: 'AdsBlocks',
   AdsNetworks: 'AdsNetworks',
-  RewardLog: 'RewardLog',
   UserBalance: 'UserBalance',
   GreenList: 'GreenList',
   Plans: 'Plans',
@@ -94,7 +97,6 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const SettingsScalarFieldEnum = {
   key: 'key',
   tgStarsToUSD: 'tgStarsToUSD',
-  adPriceStars: 'adPriceStars',
   telegramPremiumRatio: 'telegramPremiumRatio',
   devicesPriceStars: 'devicesPriceStars',
   serversPriceStars: 'serversPriceStars',
@@ -112,15 +114,10 @@ export const SettingsScalarFieldEnum = {
   twoYearRatioPayment: 'twoYearRatioPayment',
   threeYearRatioPayment: 'threeYearRatioPayment',
   indefinitelyRatio: 'indefinitelyRatio',
-  minWithdrawalTon: 'minWithdrawalTon',
+  minWithdrawalUsdt: 'minWithdrawalUsdt',
   referralOneLevelPercent: 'referralOneLevelPercent',
   referralTwoLevelPercent: 'referralTwoLevelPercent',
   referralThreeLevelPercent: 'referralThreeLevelPercent',
-  referralInviteRewardGb: 'referralInviteRewardGb',
-  referralInvitePremiumRewardGb: 'referralInvitePremiumRewardGb',
-  trialGb: 'trialGb',
-  trialGbForReferrals: 'trialGbForReferrals',
-  trialGbForPremiumReferrals: 'trialGbForPremiumReferrals',
   isActiveTgPartnerProgram: 'isActiveTgPartnerProgram',
   commissionRatioTgPartnerProgram: 'commissionRatioTgPartnerProgram',
   mouthesCountTgPartnerProgram: 'mouthesCountTgPartnerProgram',
@@ -134,7 +131,14 @@ export const SettingsScalarFieldEnum = {
   bonusPayment5000: 'bonusPayment5000',
   bonusPayment10000: 'bonusPayment10000',
   bonusPayment20000: 'bonusPayment20000',
-  bonusPayment50000: 'bonusPayment50000'
+  bonusPayment50000: 'bonusPayment50000',
+  nextAdsHours: 'nextAdsHours',
+  proxyPartnerLink: 'proxyPartnerLink',
+  partnerBotLink: 'partnerBotLink',
+  partnerMiniAppLink: 'partnerMiniAppLink',
+  partnerSiteLink: 'partnerSiteLink',
+  importUsersUrl: 'importUsersUrl',
+  defaultAnnounce: 'defaultAnnounce'
 } as const
 
 export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -153,6 +157,9 @@ export const UserTelegramDataScalarFieldEnum = {
   photoUrl: 'photoUrl',
   addedToAttachmentMenu: 'addedToAttachmentMenu',
   allowsWriteToPm: 'allowsWriteToPm',
+  birthDay: 'birthDay',
+  birthMonth: 'birthMonth',
+  birthYear: 'birthYear',
   updatedAt: 'updatedAt'
 } as const
 
@@ -164,8 +171,7 @@ export const ReferralsScalarFieldEnum = {
   level: 'level',
   inviterId: 'inviterId',
   referralId: 'referralId',
-  totalPaymentsRewarded: 'totalPaymentsRewarded',
-  totalTrafficRewarded: 'totalTrafficRewarded',
+  totalUsdtRewarded: 'totalUsdtRewarded',
   isActivated: 'isActivated',
   isPremium: 'isPremium',
   createdAt: 'createdAt',
@@ -190,15 +196,77 @@ export const UsersScalarFieldEnum = {
   tgProgramPartnerExpiredAt: 'tgProgramPartnerExpiredAt',
   nextAdsRewardAt: 'nextAdsRewardAt',
   nextAdsgramTaskAt: 'nextAdsgramTaskAt',
+  countryRegistration: 'countryRegistration',
   roleId: 'roleId',
   telegramDataId: 'telegramDataId',
   balanceId: 'balanceId',
   languageId: 'languageId',
   currencyKey: 'currencyKey',
-  adsDataId: 'adsDataId'
+  adsDataId: 'adsDataId',
+  acquisitionId: 'acquisitionId'
 } as const
 
 export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
+
+
+export const EventsScalarFieldEnum = {
+  id: 'id',
+  eventType: 'eventType',
+  amountStars: 'amountStars',
+  source: 'source',
+  referralId: 'referralId',
+  startParams: 'startParams',
+  compaingId: 'compaingId',
+  recordId: 'recordId',
+  otherData: 'otherData',
+  createdAt: 'createdAt',
+  userId: 'userId'
+} as const
+
+export type EventsScalarFieldEnum = (typeof EventsScalarFieldEnum)[keyof typeof EventsScalarFieldEnum]
+
+
+export const AcquisitionScalarFieldEnum = {
+  id: 'id',
+  firstSource: 'firstSource',
+  firstReferralId: 'firstReferralId',
+  firstStartParams: 'firstStartParams',
+  firstCompaingId: 'firstCompaingId',
+  firstRecordId: 'firstRecordId',
+  firstOtherData: 'firstOtherData',
+  firstAt: 'firstAt',
+  lastSource: 'lastSource',
+  lastReferralId: 'lastReferralId',
+  lastStartParams: 'lastStartParams',
+  lastCompaingId: 'lastCompaingId',
+  lastRecordId: 'lastRecordId',
+  lastOtherData: 'lastOtherData',
+  lastAt: 'lastAt'
+} as const
+
+export type AcquisitionScalarFieldEnum = (typeof AcquisitionScalarFieldEnum)[keyof typeof AcquisitionScalarFieldEnum]
+
+
+export const SessionsScalarFieldEnum = {
+  id: 'id',
+  place: 'place',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  browser: 'browser',
+  device: 'device',
+  os: 'os',
+  country: 'country',
+  source: 'source',
+  referralId: 'referralId',
+  startParams: 'startParams',
+  compaingId: 'compaingId',
+  recordId: 'recordId',
+  otherData: 'otherData',
+  startedAt: 'startedAt',
+  userId: 'userId'
+} as const
+
+export type SessionsScalarFieldEnum = (typeof SessionsScalarFieldEnum)[keyof typeof SessionsScalarFieldEnum]
 
 
 export const UserAdsDataScalarFieldEnum = {
@@ -213,14 +281,23 @@ export const UserAdsDataScalarFieldEnum = {
 export type UserAdsDataScalarFieldEnum = (typeof UserAdsDataScalarFieldEnum)[keyof typeof UserAdsDataScalarFieldEnum]
 
 
+export const AdsRewardsScalarFieldEnum = {
+  key: 'key',
+  taskView: 'taskView',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdsRewardsScalarFieldEnum = (typeof AdsRewardsScalarFieldEnum)[keyof typeof AdsRewardsScalarFieldEnum]
+
+
 export const AdsViewsScalarFieldEnum = {
   id: 'id',
   networkKey: 'networkKey',
   type: 'type',
-  rewardTraffic: 'rewardTraffic',
   rewardStars: 'rewardStars',
-  rewardTickets: 'rewardTickets',
   duration: 'duration',
+  ip: 'ip',
+  ua: 'ua',
   createdAt: 'createdAt',
   claimedAt: 'claimedAt',
   verifyKey: 'verifyKey',
@@ -237,10 +314,6 @@ export const AdsBlocksScalarFieldEnum = {
   name: 'name',
   place: 'place',
   isActive: 'isActive',
-  rewardTraffic: 'rewardTraffic',
-  rewardStars: 'rewardStars',
-  rewardTickets: 'rewardTickets',
-  rewardAd: 'rewardAd',
   duration: 'duration',
   limit: 'limit',
   createdAt: 'createdAt',
@@ -260,29 +333,11 @@ export const AdsNetworksScalarFieldEnum = {
 export type AdsNetworksScalarFieldEnum = (typeof AdsNetworksScalarFieldEnum)[keyof typeof AdsNetworksScalarFieldEnum]
 
 
-export const RewardLogScalarFieldEnum = {
-  id: 'id',
-  rewardStars: 'rewardStars',
-  rewardTickets: 'rewardTickets',
-  rewardTraffic: 'rewardTraffic',
-  source: 'source',
-  reference: 'reference',
-  ip: 'ip',
-  ua: 'ua',
-  createdAt: 'createdAt',
-  userId: 'userId'
-} as const
-
-export type RewardLogScalarFieldEnum = (typeof RewardLogScalarFieldEnum)[keyof typeof RewardLogScalarFieldEnum]
-
-
 export const UserBalanceScalarFieldEnum = {
   id: 'id',
   paymentBalance: 'paymentBalance',
   holdBalance: 'holdBalance',
-  tickets: 'tickets',
-  traffic: 'traffic',
-  ad: 'ad',
+  usdt: 'usdt',
   updatedAt: 'updatedAt'
 } as const
 
@@ -433,7 +488,7 @@ export const WithdrawalsScalarFieldEnum = {
   id: 'id',
   status: 'status',
   amountStars: 'amountStars',
-  amountTON: 'amountTON',
+  amountUsdt: 'amountUsdt',
   commission: 'commission',
   address: 'address',
   createdAt: 'createdAt',
@@ -506,20 +561,20 @@ export const NullableJsonNullValueInput = {
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 export const JsonNullValueFilter = {

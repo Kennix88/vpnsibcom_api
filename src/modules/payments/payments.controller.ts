@@ -3,7 +3,7 @@ import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { AuthService } from '@core/auth/services/auth.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
-import { UsersService } from '@modules/users/users.service'
+import { UsersService } from '@modules/users/services/users.service'
 import {
   Body,
   Controller,

@@ -38,10 +38,30 @@ export type Referrals = Prisma.ReferralsModel
  */
 export type Users = Prisma.UsersModel
 /**
+ * Model Events
+ * 
+ */
+export type Events = Prisma.EventsModel
+/**
+ * Model Acquisition
+ * 
+ */
+export type Acquisition = Prisma.AcquisitionModel
+/**
+ * Model Sessions
+ * 
+ */
+export type Sessions = Prisma.SessionsModel
+/**
  * Model UserAdsData
  * 
  */
 export type UserAdsData = Prisma.UserAdsDataModel
+/**
+ * Model AdsRewards
+ * 
+ */
+export type AdsRewards = Prisma.AdsRewardsModel
 /**
  * Model AdsViews
  * Модель для просмотров рекламы
@@ -57,11 +77,6 @@ export type AdsBlocks = Prisma.AdsBlocksModel
  * Модель для рекламных сетей
  */
 export type AdsNetworks = Prisma.AdsNetworksModel
-/**
- * Model RewardLog
- * 
- */
-export type RewardLog = Prisma.RewardLogModel
 /**
  * Model UserBalance
  * Модель баланса пользователя

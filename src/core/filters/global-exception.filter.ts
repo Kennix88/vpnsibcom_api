@@ -45,29 +45,47 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
         })
       }
-    } catch (jwtError) {
-      this.logger.warn(
-        `JWT verification failed: ${
-          jwtError instanceof Error ? jwtError.message : String(jwtError)
-        }`,
-      )
+    } catch {
+      // ignore JWT verification errors
     }
 
     const { status, message, errorName, errorDetails } =
       this.parseException(exception)
-    const sanitizedRequest = this.sanitizeFastifyRequest(request)
 
-    await this.logErrorToTelegram({
-      status,
-      message,
-      errorName,
-      exception,
-      request: sanitizedRequest,
-      payload,
-    })
+    // --- handle 404s separately: no telegram, minimal log ---
+    if (status === 404) {
+      this.logger.log(
+        `404: ${request.method} ${request.url} (ip: ${getClientIp(request)})`,
+      )
+      reply.status(404).send({
+        statusCode: 404,
+        message: 'Not Found',
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        requestId: request.id,
+      })
+      return
+    }
 
-    this.logErrorToConsole(exception, sanitizedRequest)
+    // Telegram only for >=500
+    if (status >= 500) {
+      const sanitizedRequest = this.sanitizeFastifyRequest(request)
+      await this.logErrorToTelegram({
+        status,
+        message,
+        errorName,
+        exception,
+        request: sanitizedRequest,
+        payload,
+      })
+      this.logErrorToConsole(exception, sanitizedRequest)
+    } else {
+      this.logger.warn(
+        `Client error ${status}: ${request.method} ${request.url} - ${message}`,
+      )
+    }
 
+    // Response
     this.sendFastifyResponse(reply, {
       status,
       message,

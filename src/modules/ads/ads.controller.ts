@@ -1,6 +1,6 @@
 import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
-import { UsersService } from '@modules/users/users.service'
+import { UsersService } from '@modules/users/services/users.service'
 import { getClientIp } from '@modules/xray/utils/get-client-ip.util'
 import {
   Body,
@@ -29,9 +29,15 @@ export class AdsController {
     private readonly usersService: UsersService,
   ) {}
 
+  @Get('task-reward')
+  @HttpCode(HttpStatus.OK)
+  async getAdTaskReward() {
+    return await this.adsService.getAdTaskReward()
+  }
+
   @Get(':place/:type')
   @HttpCode(HttpStatus.OK)
-  async getAdsTask(
+  async getAds(
     @CurrentUser() userJWT: JwtPayload,
     @Param('place') place: AdsPlaceEnum,
     @Param('type') type: AdsTypeEnum,

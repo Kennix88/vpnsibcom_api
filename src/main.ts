@@ -81,7 +81,127 @@ async function configureFastify(
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['set-cookie'],
   })
+
   const fastify = app.getHttpAdapter().getInstance()
+
+  // ========================
+  // Favicon route
+  fastify.route({
+    method: 'GET',
+    url: '/favicon.ico',
+    handler: async (_req, reply) => {
+      reply.code(204).header('Cache-Control', 'public, max-age=86400').send()
+    },
+  })
+
+  // ========================
+  // Suspicious URL scanner + lightweight autoban
+  const SUSPICIOUS_PATH_RE = new RegExp(
+    [
+      // явные php-файлы в конце пути: .php .phtml .php3 .php4 .php5 .pht
+      '\\.(?:php|phtml|php3|php4|php5|pht)$',
+
+      // распространённые админ/уязвимые скрипты
+      '(?:\\b(?:wp-login|wp-admin|xmlrpc)\\.php\\b)',
+      '(?:\\b(?:phpmyadmin|pma|adminer|sqlmanager|sql-admin)\\b)',
+
+      // конфиг/уязвимости/резервные файлы
+      '(?:\\.env(?:\\b|\\.|$))',
+      '(?:\\.git(?:/|$))',
+      '(?:composer\\.(?:json|lock))',
+      '(?:\\.htaccess|\\.htpasswd)',
+
+      // стандартные установщики/setup/install
+      '(?:\\b(?:install|setup|upgrade|upgrade\\.php|install\\.php)\\b)',
+
+      // vendor/phpunit и подобные тестовые утилиты
+      '(?:vendor\\/phpunit|phpunit\\/)',
+      '(?:\\/vendor\\/)',
+
+      // попытки прочитать системные файлы в path / payload
+      '(?:\\/etc\\/passwd)',
+      '(?:\\/proc\\/self\\/environ)',
+      '(?:\\.bash_history)',
+
+      // попытки directory traversal или двойных точек
+      '(?:\\.\\./|%2e%2e%2f)',
+
+      // common webshell / eval / base64 payload indicators (в URL/Query)
+      '(?:\\beval\\s*\\(|base64_decode\\()',
+
+      // резервные/бэкап-файлы
+      '(?:\\.bak$|\\.backup$|~$)',
+    ].join('|'),
+    'i',
+  )
+
+  const BOT_UA_RE = new RegExp(
+    [
+      // generic
+      '\\b(?:bot|spider|crawler|crawler2|scanner|probe|monitor)\\b',
+
+      // curl/wget/http clients
+      '\\b(?:curl|wget|fetch|httpclient|libwww-perl|python-requests|ruby|mechanize)\\b',
+
+      // common http libs / mobile clients that иногда используются by scanners
+      '\\b(?:okhttp|okhttp3|apache-httpclient|java\\/|golang|go-http-client)\\b',
+
+      // SEO / big crawlers (если не хочешь блокировать известных ботов, можешь убрать)
+      '\\b(?:googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp)\\b',
+
+      // security / spider tools & scanners
+      '\\b(?:nikto|sqlmap|acunetix|nessus|nikto|masscan|zgrab|nmap|burp|zap)\\b',
+
+      // common developer tools
+      '\\b(?:postmanruntime|postman|insomnia|httpie)\\b',
+    ].join('|'),
+    'i',
+  )
+
+  fastify.addHook('onRequest', async (request, reply) => {
+    try {
+      const rawUrl = (request.raw.url || '').toString()
+      const ua = (request.headers['user-agent'] || '').toString()
+
+      // 1) quick allow list: авторизованные клиенты, внутренние IP, healthchecks
+      if (request.headers.authorization || request.headers['x-api-key']) return
+      if (/^\/health\b/i.test(rawUrl)) return
+      const forwardIp = (request.headers['x-forwarded-for'] as string)?.split(
+        ',',
+      )?.[0]
+      if (
+        ['127.0.0.1', '::1'].includes(forwardIp) ||
+        /^10\.|^172\.(1[6-9]|2\d|3[0-1])|^192\.168\./.test(forwardIp || '')
+      ) {
+        return
+      }
+
+      // 2) path check
+      if (SUSPICIOUS_PATH_RE.test(rawUrl)) {
+        // increment & possible blacklisting logic (redis)
+        // respond 403 minimal
+        return reply
+          .code(403)
+          .header('Content-Type', 'text/plain')
+          .send('forbidden')
+      }
+
+      // 3) UA check (less strict) — count and possibly ban after threshold
+      if (BOT_UA_RE.test(ua)) {
+        // increment counter for ip and ban if threshold exceeded
+        // but do not immediately alert telegram
+        return reply
+          .code(403)
+          .header('Content-Type', 'text/plain')
+          .send('forbidden')
+      }
+    } catch (err) {
+      // не ломаем основной flow при ошибках
+      console.warn('scanner hook error', err)
+    }
+  })
+
+  // ========================
   fastify.decorate(
     'authenticate',
     async (req: FastifyRequest, res: FastifyReply) => {
@@ -103,7 +223,6 @@ async function bootstrap() {
       trustProxy: isProd,
       logger: false,
       genReqId,
-      // https: httpsOptions, // подключаем HTTPS
     }),
     { bufferLogs: isProd, rawBody: true },
   )
@@ -111,7 +230,6 @@ async function bootstrap() {
   const config = app.get(ConfigService)
   const redis = app.get(RedisService)
 
-  // Resolve scoped logger properly
   const pinoLogger = await app.resolve(PinoLogger)
   app.useLogger({
     log: (message: any) => pinoLogger.info(message),
@@ -121,9 +239,7 @@ async function bootstrap() {
     verbose: (message: any) => pinoLogger.trace(message),
   })
 
-  // Global interceptors
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
-
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -135,7 +251,7 @@ async function bootstrap() {
   await configureFastify(app, isProd, config, redis)
 
   if (parseBoolean(process.env.SEED_MOD || '')) {
-    await PrismaSeed().catch((e) => {
+    await PrismaSeed().catch(() => {
       throw new BadRequestException('Error seeding database', 'Prisma-Seed')
     })
     process.exit(0)

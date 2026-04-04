@@ -16,10 +16,31 @@ export const DefaultEnum = {
 export type DefaultEnum = (typeof DefaultEnum)[keyof typeof DefaultEnum]
 
 
+export const EventTypeEnum = {
+  REGISTRATION: 'REGISTRATION',
+  ACTIVATION: 'ACTIVATION',
+  FIRST_PAYMENT: 'FIRST_PAYMENT',
+  RELOAD_PAYMENT: 'RELOAD_PAYMENT'
+} as const
+
+export type EventTypeEnum = (typeof EventTypeEnum)[keyof typeof EventTypeEnum]
+
+
+export const SessionPlaceEnum = {
+  WEB: 'WEB',
+  BOT: 'BOT',
+  TELEGRAM_MINIAPP: 'TELEGRAM_MINIAPP'
+} as const
+
+export type SessionPlaceEnum = (typeof SessionPlaceEnum)[keyof typeof SessionPlaceEnum]
+
+
 export const AdsViewTypeEnum = {
   REWARD: 'REWARD',
   TASK: 'TASK',
-  VIEW: 'VIEW'
+  VIEW: 'VIEW',
+  MESSAGE: 'MESSAGE',
+  FEED: 'FEED'
 } as const
 
 export type AdsViewTypeEnum = (typeof AdsViewTypeEnum)[keyof typeof AdsViewTypeEnum]
@@ -29,7 +50,9 @@ export const AdsBlockPlaceEnum = {
   TASK: 'TASK',
   REWARD_TASK: 'REWARD_TASK',
   BANNER: 'BANNER',
-  FULLSCREEN: 'FULLSCREEN'
+  FULLSCREEN: 'FULLSCREEN',
+  MESSAGE: 'MESSAGE',
+  FEED: 'FEED'
 } as const
 
 export type AdsBlockPlaceEnum = (typeof AdsBlockPlaceEnum)[keyof typeof AdsBlockPlaceEnum]
@@ -229,7 +252,8 @@ export const BalanceTypeEnum = {
   HOLD: 'HOLD',
   TRAFFIC: 'TRAFFIC',
   NOT_BALANCE: 'NOT_BALANCE',
-  AD: 'AD'
+  AD: 'AD',
+  USDT: 'USDT'
 } as const
 
 export type BalanceTypeEnum = (typeof BalanceTypeEnum)[keyof typeof BalanceTypeEnum]

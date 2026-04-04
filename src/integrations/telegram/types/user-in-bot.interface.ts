@@ -12,7 +12,7 @@ export interface UserInBotInterface {
   /** IETF language tag of the user's language */
   language_code?: string
   /** True, if this user is a Telegram Premium user */
-  is_premium?: true
+  is_premium?: boolean
   /** True, if this user added the bot to the attachment menu */
-  added_to_attachment_menu?: true
+  added_to_attachment_menu?: boolean
 }

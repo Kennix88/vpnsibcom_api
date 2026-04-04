@@ -7,7 +7,6 @@ import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
  */
 interface SubscriptionCostSettings {
   tgStarsToUSD: number
-  adPriceStars: number
   devicesPriceStars: number
   serversPriceStars: number
   premiumServersPriceStars: number

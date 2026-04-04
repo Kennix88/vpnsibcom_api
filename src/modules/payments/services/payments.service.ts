@@ -1,13 +1,15 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
 import { RatesService } from '@modules/rates/rates.service'
-import { UsersService } from '@modules/users/users.service'
+import { UsersService } from '@modules/users/services/users.service'
 import { MarzbanService } from '@modules/xray/services/marzban.service'
 import { XrayService } from '@modules/xray/services/xray.service'
 
 import { Prisma } from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
+import { EventsService } from '@modules/users/services/events.service'
+import { EventType } from '@modules/users/types/event-type.enum'
 import { roundUp } from '@modules/xray/utils/calculate-subscription-cost.util'
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -50,6 +52,8 @@ export class PaymentsService {
     private readonly xrayService: XrayService,
     private readonly i18n: I18nService<I18nTranslations>,
     @InjectBot() private readonly bot: Telegraf,
+
+    private readonly eventsService: EventsService,
   ) {}
 
   public async createInvoice(
@@ -527,6 +531,7 @@ export class PaymentsService {
             updatedPayment.user.telegramData?.isPremium ? '✅' : '🚫'
           }</code>
 <b>Сумма Stars:</b> <code>${updatedPayment.amountStars} ⭐</code>
+<b>Сумма бонуса Stars:</b> <code>${updatedPayment.bonusStars} ⭐</code>
 <b>Сумма в валюте:</b> <code>${updatedPayment.amount}</code> <code>${
             updatedPayment.currencyKey
           }</code>
@@ -540,6 +545,7 @@ export class PaymentsService {
 <b>Потеря на партнерку:</b> <code>${
             updatedPayment.amountStarsFeeTgPartner
           } ⭐</code>
+<b>Тип платежа:</b> <code>${updatedPayment.type}</code>
 <b>Подписка:</b> <code>${updatedPayment.subscriptionId}</code>
 `,
           {
@@ -564,6 +570,23 @@ export class PaymentsService {
         e,
       })
     }
+
+    const payments = await tx.payments.findMany({
+      where: {
+        userId: updatedPayment.userId,
+        status: PaymentStatusEnum.COMPLETED,
+      },
+    })
+
+    this.eventsService.createEvent({
+      userId: updatedPayment.userId,
+      eventType:
+        payments.length == 1
+          ? EventType.FIRST_PAYMENT
+          : EventType.RELOAD_PAYMENT,
+      amountStars: updatedPayment.amountStars,
+      isSendGraspil: updatedPayment.currencyKey !== CurrencyEnum.XTR,
+    })
 
     this.logger.info({
       msg: `Payment status updated`,
@@ -635,27 +658,17 @@ export class PaymentsService {
       return
     }
 
-    let plusTrafficRewarded = 0
-
-    if (!referrer.isActivated) {
-      plusTrafficRewarded =
-        referrer.level > 1
-          ? 0
-          : payment.user.telegramData.isPremium
-          ? settings.referralInvitePremiumRewardGb * 1024
-          : settings.referralInviteRewardGb * 1024
-
-      await tx.referrals.update({
-        where: {
-          id: referrer.id,
+    await tx.referrals.update({
+      where: {
+        id: referrer.id,
+      },
+      data: {
+        isActivated: true,
+        totalUsdtRewarded: {
+          increment: referralCommission * settings.tgStarsToUSD,
         },
-        data: {
-          totalTrafficRewarded:
-            referrer.totalTrafficRewarded + plusTrafficRewarded,
-          isActivated: true,
-        },
-      })
-    }
+      },
+    })
 
     // Обновляем баланс реферера
     await tx.userBalance.update({
@@ -663,11 +676,7 @@ export class PaymentsService {
         id: referrer.inviter.balanceId,
       },
       data: {
-        paymentBalance:
-          referrer.inviter.balance.paymentBalance + referralCommission,
-        ...(plusTrafficRewarded > 0 && {
-          traffic: referrer.inviter.balance.traffic + plusTrafficRewarded,
-        }),
+        usdt: { increment: referralCommission * settings.tgStarsToUSD },
         ...(payment.methodKey == PaymentMethodEnum.STARS && {
           holdBalance:
             referrer.inviter.balance.holdBalance + referralCommission,
@@ -685,11 +694,11 @@ export class PaymentsService {
     // Создаем транзакцию для реферальной комиссии
 
     const transactions = [
-      referralCommission > 0 && {
-        amount: referralCommission,
+      referralCommission * settings.tgStarsToUSD > 0 && {
+        amount: referralCommission * settings.tgStarsToUSD,
         type: TransactionTypeEnum.PLUS,
         reason: TransactionReasonEnum.REFERRAL,
-        balanceType: BalanceTypeEnum.PAYMENT,
+        balanceType: BalanceTypeEnum.USDT,
         balanceId: referrer.inviter.balanceId,
       },
       payment.methodKey == PaymentMethodEnum.STARS &&
@@ -701,13 +710,6 @@ export class PaymentsService {
           balanceId: referrer.inviter.balanceId,
           holdExpiredAt: addDays(new Date(), 21),
         },
-      plusTrafficRewarded > 0 && {
-        amount: plusTrafficRewarded,
-        type: TransactionTypeEnum.PLUS,
-        reason: TransactionReasonEnum.REFERRAL,
-        balanceType: BalanceTypeEnum.TRAFFIC,
-        balanceId: referrer.inviter.balanceId,
-      },
     ].filter(Boolean)
 
     const referralTransactions = await tx.transactions.createMany({

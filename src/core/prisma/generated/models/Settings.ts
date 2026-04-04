@@ -28,7 +28,6 @@ export type AggregateSettings = {
 
 export type SettingsAvgAggregateOutputType = {
   tgStarsToUSD: number | null
-  adPriceStars: number | null
   telegramPremiumRatio: number | null
   devicesPriceStars: number | null
   serversPriceStars: number | null
@@ -46,15 +45,10 @@ export type SettingsAvgAggregateOutputType = {
   twoYearRatioPayment: number | null
   threeYearRatioPayment: number | null
   indefinitelyRatio: number | null
-  minWithdrawalTon: number | null
+  minWithdrawalUsdt: number | null
   referralOneLevelPercent: number | null
   referralTwoLevelPercent: number | null
   referralThreeLevelPercent: number | null
-  referralInviteRewardGb: number | null
-  referralInvitePremiumRewardGb: number | null
-  trialGb: number | null
-  trialGbForReferrals: number | null
-  trialGbForPremiumReferrals: number | null
   commissionRatioTgPartnerProgram: number | null
   mouthesCountTgPartnerProgram: number | null
   telegramPartnerProgramRatio: number | null
@@ -68,11 +62,11 @@ export type SettingsAvgAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  nextAdsHours: number | null
 }
 
 export type SettingsSumAggregateOutputType = {
   tgStarsToUSD: number | null
-  adPriceStars: number | null
   telegramPremiumRatio: number | null
   devicesPriceStars: number | null
   serversPriceStars: number | null
@@ -90,15 +84,10 @@ export type SettingsSumAggregateOutputType = {
   twoYearRatioPayment: number | null
   threeYearRatioPayment: number | null
   indefinitelyRatio: number | null
-  minWithdrawalTon: number | null
+  minWithdrawalUsdt: number | null
   referralOneLevelPercent: number | null
   referralTwoLevelPercent: number | null
   referralThreeLevelPercent: number | null
-  referralInviteRewardGb: number | null
-  referralInvitePremiumRewardGb: number | null
-  trialGb: number | null
-  trialGbForReferrals: number | null
-  trialGbForPremiumReferrals: number | null
   commissionRatioTgPartnerProgram: number | null
   mouthesCountTgPartnerProgram: number | null
   telegramPartnerProgramRatio: number | null
@@ -112,12 +101,12 @@ export type SettingsSumAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  nextAdsHours: number | null
 }
 
 export type SettingsMinAggregateOutputType = {
   key: $Enums.DefaultEnum | null
   tgStarsToUSD: number | null
-  adPriceStars: number | null
   telegramPremiumRatio: number | null
   devicesPriceStars: number | null
   serversPriceStars: number | null
@@ -135,15 +124,10 @@ export type SettingsMinAggregateOutputType = {
   twoYearRatioPayment: number | null
   threeYearRatioPayment: number | null
   indefinitelyRatio: number | null
-  minWithdrawalTon: number | null
+  minWithdrawalUsdt: number | null
   referralOneLevelPercent: number | null
   referralTwoLevelPercent: number | null
   referralThreeLevelPercent: number | null
-  referralInviteRewardGb: number | null
-  referralInvitePremiumRewardGb: number | null
-  trialGb: number | null
-  trialGbForReferrals: number | null
-  trialGbForPremiumReferrals: number | null
   isActiveTgPartnerProgram: boolean | null
   commissionRatioTgPartnerProgram: number | null
   mouthesCountTgPartnerProgram: number | null
@@ -158,12 +142,18 @@ export type SettingsMinAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  nextAdsHours: number | null
+  proxyPartnerLink: string | null
+  partnerBotLink: string | null
+  partnerMiniAppLink: string | null
+  partnerSiteLink: string | null
+  importUsersUrl: string | null
+  defaultAnnounce: string | null
 }
 
 export type SettingsMaxAggregateOutputType = {
   key: $Enums.DefaultEnum | null
   tgStarsToUSD: number | null
-  adPriceStars: number | null
   telegramPremiumRatio: number | null
   devicesPriceStars: number | null
   serversPriceStars: number | null
@@ -181,15 +171,10 @@ export type SettingsMaxAggregateOutputType = {
   twoYearRatioPayment: number | null
   threeYearRatioPayment: number | null
   indefinitelyRatio: number | null
-  minWithdrawalTon: number | null
+  minWithdrawalUsdt: number | null
   referralOneLevelPercent: number | null
   referralTwoLevelPercent: number | null
   referralThreeLevelPercent: number | null
-  referralInviteRewardGb: number | null
-  referralInvitePremiumRewardGb: number | null
-  trialGb: number | null
-  trialGbForReferrals: number | null
-  trialGbForPremiumReferrals: number | null
   isActiveTgPartnerProgram: boolean | null
   commissionRatioTgPartnerProgram: number | null
   mouthesCountTgPartnerProgram: number | null
@@ -204,12 +189,18 @@ export type SettingsMaxAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  nextAdsHours: number | null
+  proxyPartnerLink: string | null
+  partnerBotLink: string | null
+  partnerMiniAppLink: string | null
+  partnerSiteLink: string | null
+  importUsersUrl: string | null
+  defaultAnnounce: string | null
 }
 
 export type SettingsCountAggregateOutputType = {
   key: number
   tgStarsToUSD: number
-  adPriceStars: number
   telegramPremiumRatio: number
   devicesPriceStars: number
   serversPriceStars: number
@@ -227,15 +218,10 @@ export type SettingsCountAggregateOutputType = {
   twoYearRatioPayment: number
   threeYearRatioPayment: number
   indefinitelyRatio: number
-  minWithdrawalTon: number
+  minWithdrawalUsdt: number
   referralOneLevelPercent: number
   referralTwoLevelPercent: number
   referralThreeLevelPercent: number
-  referralInviteRewardGb: number
-  referralInvitePremiumRewardGb: number
-  trialGb: number
-  trialGbForReferrals: number
-  trialGbForPremiumReferrals: number
   isActiveTgPartnerProgram: number
   commissionRatioTgPartnerProgram: number
   mouthesCountTgPartnerProgram: number
@@ -250,13 +236,19 @@ export type SettingsCountAggregateOutputType = {
   bonusPayment10000: number
   bonusPayment20000: number
   bonusPayment50000: number
+  nextAdsHours: number
+  proxyPartnerLink: number
+  partnerBotLink: number
+  partnerMiniAppLink: number
+  partnerSiteLink: number
+  importUsersUrl: number
+  defaultAnnounce: number
   _all: number
 }
 
 
 export type SettingsAvgAggregateInputType = {
   tgStarsToUSD?: true
-  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -274,15 +266,10 @@ export type SettingsAvgAggregateInputType = {
   twoYearRatioPayment?: true
   threeYearRatioPayment?: true
   indefinitelyRatio?: true
-  minWithdrawalTon?: true
+  minWithdrawalUsdt?: true
   referralOneLevelPercent?: true
   referralTwoLevelPercent?: true
   referralThreeLevelPercent?: true
-  referralInviteRewardGb?: true
-  referralInvitePremiumRewardGb?: true
-  trialGb?: true
-  trialGbForReferrals?: true
-  trialGbForPremiumReferrals?: true
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
   telegramPartnerProgramRatio?: true
@@ -296,11 +283,11 @@ export type SettingsAvgAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
 }
 
 export type SettingsSumAggregateInputType = {
   tgStarsToUSD?: true
-  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -318,15 +305,10 @@ export type SettingsSumAggregateInputType = {
   twoYearRatioPayment?: true
   threeYearRatioPayment?: true
   indefinitelyRatio?: true
-  minWithdrawalTon?: true
+  minWithdrawalUsdt?: true
   referralOneLevelPercent?: true
   referralTwoLevelPercent?: true
   referralThreeLevelPercent?: true
-  referralInviteRewardGb?: true
-  referralInvitePremiumRewardGb?: true
-  trialGb?: true
-  trialGbForReferrals?: true
-  trialGbForPremiumReferrals?: true
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
   telegramPartnerProgramRatio?: true
@@ -340,12 +322,12 @@ export type SettingsSumAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
 }
 
 export type SettingsMinAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
-  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -363,15 +345,10 @@ export type SettingsMinAggregateInputType = {
   twoYearRatioPayment?: true
   threeYearRatioPayment?: true
   indefinitelyRatio?: true
-  minWithdrawalTon?: true
+  minWithdrawalUsdt?: true
   referralOneLevelPercent?: true
   referralTwoLevelPercent?: true
   referralThreeLevelPercent?: true
-  referralInviteRewardGb?: true
-  referralInvitePremiumRewardGb?: true
-  trialGb?: true
-  trialGbForReferrals?: true
-  trialGbForPremiumReferrals?: true
   isActiveTgPartnerProgram?: true
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
@@ -386,12 +363,18 @@ export type SettingsMinAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
+  proxyPartnerLink?: true
+  partnerBotLink?: true
+  partnerMiniAppLink?: true
+  partnerSiteLink?: true
+  importUsersUrl?: true
+  defaultAnnounce?: true
 }
 
 export type SettingsMaxAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
-  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -409,15 +392,10 @@ export type SettingsMaxAggregateInputType = {
   twoYearRatioPayment?: true
   threeYearRatioPayment?: true
   indefinitelyRatio?: true
-  minWithdrawalTon?: true
+  minWithdrawalUsdt?: true
   referralOneLevelPercent?: true
   referralTwoLevelPercent?: true
   referralThreeLevelPercent?: true
-  referralInviteRewardGb?: true
-  referralInvitePremiumRewardGb?: true
-  trialGb?: true
-  trialGbForReferrals?: true
-  trialGbForPremiumReferrals?: true
   isActiveTgPartnerProgram?: true
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
@@ -432,12 +410,18 @@ export type SettingsMaxAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
+  proxyPartnerLink?: true
+  partnerBotLink?: true
+  partnerMiniAppLink?: true
+  partnerSiteLink?: true
+  importUsersUrl?: true
+  defaultAnnounce?: true
 }
 
 export type SettingsCountAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
-  adPriceStars?: true
   telegramPremiumRatio?: true
   devicesPriceStars?: true
   serversPriceStars?: true
@@ -455,15 +439,10 @@ export type SettingsCountAggregateInputType = {
   twoYearRatioPayment?: true
   threeYearRatioPayment?: true
   indefinitelyRatio?: true
-  minWithdrawalTon?: true
+  minWithdrawalUsdt?: true
   referralOneLevelPercent?: true
   referralTwoLevelPercent?: true
   referralThreeLevelPercent?: true
-  referralInviteRewardGb?: true
-  referralInvitePremiumRewardGb?: true
-  trialGb?: true
-  trialGbForReferrals?: true
-  trialGbForPremiumReferrals?: true
   isActiveTgPartnerProgram?: true
   commissionRatioTgPartnerProgram?: true
   mouthesCountTgPartnerProgram?: true
@@ -478,6 +457,13 @@ export type SettingsCountAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  nextAdsHours?: true
+  proxyPartnerLink?: true
+  partnerBotLink?: true
+  partnerMiniAppLink?: true
+  partnerSiteLink?: true
+  importUsersUrl?: true
+  defaultAnnounce?: true
   _all?: true
 }
 
@@ -570,7 +556,6 @@ export type SettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type SettingsGroupByOutputType = {
   key: $Enums.DefaultEnum
   tgStarsToUSD: number
-  adPriceStars: number
   telegramPremiumRatio: number
   devicesPriceStars: number
   serversPriceStars: number
@@ -588,15 +573,10 @@ export type SettingsGroupByOutputType = {
   twoYearRatioPayment: number
   threeYearRatioPayment: number
   indefinitelyRatio: number
-  minWithdrawalTon: number
+  minWithdrawalUsdt: number
   referralOneLevelPercent: number
   referralTwoLevelPercent: number
   referralThreeLevelPercent: number
-  referralInviteRewardGb: number
-  referralInvitePremiumRewardGb: number
-  trialGb: number
-  trialGbForReferrals: number
-  trialGbForPremiumReferrals: number
   isActiveTgPartnerProgram: boolean
   commissionRatioTgPartnerProgram: number
   mouthesCountTgPartnerProgram: number | null
@@ -611,6 +591,13 @@ export type SettingsGroupByOutputType = {
   bonusPayment10000: number
   bonusPayment20000: number
   bonusPayment50000: number
+  nextAdsHours: number
+  proxyPartnerLink: string | null
+  partnerBotLink: string | null
+  partnerMiniAppLink: string | null
+  partnerSiteLink: string | null
+  importUsersUrl: string | null
+  defaultAnnounce: string | null
   _count: SettingsCountAggregateOutputType | null
   _avg: SettingsAvgAggregateOutputType | null
   _sum: SettingsSumAggregateOutputType | null
@@ -639,7 +626,6 @@ export type SettingsWhereInput = {
   NOT?: Prisma.SettingsWhereInput | Prisma.SettingsWhereInput[]
   key?: Prisma.EnumDefaultEnumFilter<"Settings"> | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFilter<"Settings"> | number
-  adPriceStars?: Prisma.FloatFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatFilter<"Settings"> | number
   devicesPriceStars?: Prisma.FloatFilter<"Settings"> | number
   serversPriceStars?: Prisma.FloatFilter<"Settings"> | number
@@ -657,15 +643,10 @@ export type SettingsWhereInput = {
   twoYearRatioPayment?: Prisma.FloatFilter<"Settings"> | number
   threeYearRatioPayment?: Prisma.FloatFilter<"Settings"> | number
   indefinitelyRatio?: Prisma.FloatFilter<"Settings"> | number
-  minWithdrawalTon?: Prisma.FloatFilter<"Settings"> | number
+  minWithdrawalUsdt?: Prisma.FloatFilter<"Settings"> | number
   referralOneLevelPercent?: Prisma.FloatFilter<"Settings"> | number
   referralTwoLevelPercent?: Prisma.FloatFilter<"Settings"> | number
   referralThreeLevelPercent?: Prisma.FloatFilter<"Settings"> | number
-  referralInviteRewardGb?: Prisma.IntFilter<"Settings"> | number
-  referralInvitePremiumRewardGb?: Prisma.IntFilter<"Settings"> | number
-  trialGb?: Prisma.IntFilter<"Settings"> | number
-  trialGbForReferrals?: Prisma.IntFilter<"Settings"> | number
-  trialGbForPremiumReferrals?: Prisma.IntFilter<"Settings"> | number
   isActiveTgPartnerProgram?: Prisma.BoolFilter<"Settings"> | boolean
   commissionRatioTgPartnerProgram?: Prisma.FloatFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableFilter<"Settings"> | number | null
@@ -680,12 +661,18 @@ export type SettingsWhereInput = {
   bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
+  nextAdsHours?: Prisma.IntFilter<"Settings"> | number
+  proxyPartnerLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerBotLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerMiniAppLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerSiteLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  importUsersUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
+  defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
 }
 
 export type SettingsOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
-  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -703,15 +690,10 @@ export type SettingsOrderByWithRelationInput = {
   twoYearRatioPayment?: Prisma.SortOrder
   threeYearRatioPayment?: Prisma.SortOrder
   indefinitelyRatio?: Prisma.SortOrder
-  minWithdrawalTon?: Prisma.SortOrder
+  minWithdrawalUsdt?: Prisma.SortOrder
   referralOneLevelPercent?: Prisma.SortOrder
   referralTwoLevelPercent?: Prisma.SortOrder
   referralThreeLevelPercent?: Prisma.SortOrder
-  referralInviteRewardGb?: Prisma.SortOrder
-  referralInvitePremiumRewardGb?: Prisma.SortOrder
-  trialGb?: Prisma.SortOrder
-  trialGbForReferrals?: Prisma.SortOrder
-  trialGbForPremiumReferrals?: Prisma.SortOrder
   isActiveTgPartnerProgram?: Prisma.SortOrder
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -726,6 +708,13 @@ export type SettingsOrderByWithRelationInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type SettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -734,7 +723,6 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SettingsWhereInput[]
   NOT?: Prisma.SettingsWhereInput | Prisma.SettingsWhereInput[]
   tgStarsToUSD?: Prisma.FloatFilter<"Settings"> | number
-  adPriceStars?: Prisma.FloatFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatFilter<"Settings"> | number
   devicesPriceStars?: Prisma.FloatFilter<"Settings"> | number
   serversPriceStars?: Prisma.FloatFilter<"Settings"> | number
@@ -752,15 +740,10 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   twoYearRatioPayment?: Prisma.FloatFilter<"Settings"> | number
   threeYearRatioPayment?: Prisma.FloatFilter<"Settings"> | number
   indefinitelyRatio?: Prisma.FloatFilter<"Settings"> | number
-  minWithdrawalTon?: Prisma.FloatFilter<"Settings"> | number
+  minWithdrawalUsdt?: Prisma.FloatFilter<"Settings"> | number
   referralOneLevelPercent?: Prisma.FloatFilter<"Settings"> | number
   referralTwoLevelPercent?: Prisma.FloatFilter<"Settings"> | number
   referralThreeLevelPercent?: Prisma.FloatFilter<"Settings"> | number
-  referralInviteRewardGb?: Prisma.IntFilter<"Settings"> | number
-  referralInvitePremiumRewardGb?: Prisma.IntFilter<"Settings"> | number
-  trialGb?: Prisma.IntFilter<"Settings"> | number
-  trialGbForReferrals?: Prisma.IntFilter<"Settings"> | number
-  trialGbForPremiumReferrals?: Prisma.IntFilter<"Settings"> | number
   isActiveTgPartnerProgram?: Prisma.BoolFilter<"Settings"> | boolean
   commissionRatioTgPartnerProgram?: Prisma.FloatFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableFilter<"Settings"> | number | null
@@ -775,12 +758,18 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
+  nextAdsHours?: Prisma.IntFilter<"Settings"> | number
+  proxyPartnerLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerBotLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerMiniAppLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  partnerSiteLink?: Prisma.StringNullableFilter<"Settings"> | string | null
+  importUsersUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
+  defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
 }, "key">
 
 export type SettingsOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
-  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -798,15 +787,10 @@ export type SettingsOrderByWithAggregationInput = {
   twoYearRatioPayment?: Prisma.SortOrder
   threeYearRatioPayment?: Prisma.SortOrder
   indefinitelyRatio?: Prisma.SortOrder
-  minWithdrawalTon?: Prisma.SortOrder
+  minWithdrawalUsdt?: Prisma.SortOrder
   referralOneLevelPercent?: Prisma.SortOrder
   referralTwoLevelPercent?: Prisma.SortOrder
   referralThreeLevelPercent?: Prisma.SortOrder
-  referralInviteRewardGb?: Prisma.SortOrder
-  referralInvitePremiumRewardGb?: Prisma.SortOrder
-  trialGb?: Prisma.SortOrder
-  trialGbForReferrals?: Prisma.SortOrder
-  trialGbForPremiumReferrals?: Prisma.SortOrder
   isActiveTgPartnerProgram?: Prisma.SortOrder
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -821,6 +805,13 @@ export type SettingsOrderByWithAggregationInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
   _avg?: Prisma.SettingsAvgOrderByAggregateInput
   _max?: Prisma.SettingsMaxOrderByAggregateInput
@@ -834,7 +825,6 @@ export type SettingsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SettingsScalarWhereWithAggregatesInput | Prisma.SettingsScalarWhereWithAggregatesInput[]
   key?: Prisma.EnumDefaultEnumWithAggregatesFilter<"Settings"> | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  adPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   devicesPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   serversPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
@@ -852,15 +842,10 @@ export type SettingsScalarWhereWithAggregatesInput = {
   twoYearRatioPayment?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   threeYearRatioPayment?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   indefinitelyRatio?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  minWithdrawalTon?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  minWithdrawalUsdt?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   referralOneLevelPercent?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   referralTwoLevelPercent?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   referralThreeLevelPercent?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  referralInviteRewardGb?: Prisma.IntWithAggregatesFilter<"Settings"> | number
-  referralInvitePremiumRewardGb?: Prisma.IntWithAggregatesFilter<"Settings"> | number
-  trialGb?: Prisma.IntWithAggregatesFilter<"Settings"> | number
-  trialGbForReferrals?: Prisma.IntWithAggregatesFilter<"Settings"> | number
-  trialGbForPremiumReferrals?: Prisma.IntWithAggregatesFilter<"Settings"> | number
   isActiveTgPartnerProgram?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
   commissionRatioTgPartnerProgram?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   mouthesCountTgPartnerProgram?: Prisma.IntNullableWithAggregatesFilter<"Settings"> | number | null
@@ -875,12 +860,18 @@ export type SettingsScalarWhereWithAggregatesInput = {
   bonusPayment10000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  nextAdsHours?: Prisma.IntWithAggregatesFilter<"Settings"> | number
+  proxyPartnerLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  partnerBotLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  partnerMiniAppLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  partnerSiteLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  importUsersUrl?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
+  defaultAnnounce?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
 }
 
 export type SettingsCreateInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
-  adPriceStars?: number
   telegramPremiumRatio?: number
   devicesPriceStars?: number
   serversPriceStars?: number
@@ -898,15 +889,10 @@ export type SettingsCreateInput = {
   twoYearRatioPayment?: number
   threeYearRatioPayment?: number
   indefinitelyRatio?: number
-  minWithdrawalTon?: number
+  minWithdrawalUsdt?: number
   referralOneLevelPercent?: number
   referralTwoLevelPercent?: number
   referralThreeLevelPercent?: number
-  referralInviteRewardGb?: number
-  referralInvitePremiumRewardGb?: number
-  trialGb?: number
-  trialGbForReferrals?: number
-  trialGbForPremiumReferrals?: number
   isActiveTgPartnerProgram?: boolean
   commissionRatioTgPartnerProgram?: number
   mouthesCountTgPartnerProgram?: number | null
@@ -921,12 +907,18 @@ export type SettingsCreateInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  nextAdsHours?: number
+  proxyPartnerLink?: string | null
+  partnerBotLink?: string | null
+  partnerMiniAppLink?: string | null
+  partnerSiteLink?: string | null
+  importUsersUrl?: string | null
+  defaultAnnounce?: string | null
 }
 
 export type SettingsUncheckedCreateInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
-  adPriceStars?: number
   telegramPremiumRatio?: number
   devicesPriceStars?: number
   serversPriceStars?: number
@@ -944,15 +936,10 @@ export type SettingsUncheckedCreateInput = {
   twoYearRatioPayment?: number
   threeYearRatioPayment?: number
   indefinitelyRatio?: number
-  minWithdrawalTon?: number
+  minWithdrawalUsdt?: number
   referralOneLevelPercent?: number
   referralTwoLevelPercent?: number
   referralThreeLevelPercent?: number
-  referralInviteRewardGb?: number
-  referralInvitePremiumRewardGb?: number
-  trialGb?: number
-  trialGbForReferrals?: number
-  trialGbForPremiumReferrals?: number
   isActiveTgPartnerProgram?: boolean
   commissionRatioTgPartnerProgram?: number
   mouthesCountTgPartnerProgram?: number | null
@@ -967,12 +954,18 @@ export type SettingsUncheckedCreateInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  nextAdsHours?: number
+  proxyPartnerLink?: string | null
+  partnerBotLink?: string | null
+  partnerMiniAppLink?: string | null
+  partnerSiteLink?: string | null
+  importUsersUrl?: string | null
+  defaultAnnounce?: string | null
 }
 
 export type SettingsUpdateInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
-  adPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
   devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -990,15 +983,10 @@ export type SettingsUpdateInput = {
   twoYearRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   threeYearRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   indefinitelyRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  minWithdrawalTon?: Prisma.FloatFieldUpdateOperationsInput | number
+  minWithdrawalUsdt?: Prisma.FloatFieldUpdateOperationsInput | number
   referralOneLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   referralTwoLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   referralThreeLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
-  referralInviteRewardGb?: Prisma.IntFieldUpdateOperationsInput | number
-  referralInvitePremiumRewardGb?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGb?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGbForReferrals?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGbForPremiumReferrals?: Prisma.IntFieldUpdateOperationsInput | number
   isActiveTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1013,12 +1001,18 @@ export type SettingsUpdateInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsUncheckedUpdateInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
-  adPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
   devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1036,15 +1030,10 @@ export type SettingsUncheckedUpdateInput = {
   twoYearRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   threeYearRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   indefinitelyRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  minWithdrawalTon?: Prisma.FloatFieldUpdateOperationsInput | number
+  minWithdrawalUsdt?: Prisma.FloatFieldUpdateOperationsInput | number
   referralOneLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   referralTwoLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   referralThreeLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
-  referralInviteRewardGb?: Prisma.IntFieldUpdateOperationsInput | number
-  referralInvitePremiumRewardGb?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGb?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGbForReferrals?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGbForPremiumReferrals?: Prisma.IntFieldUpdateOperationsInput | number
   isActiveTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1059,12 +1048,18 @@ export type SettingsUncheckedUpdateInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsCreateManyInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
-  adPriceStars?: number
   telegramPremiumRatio?: number
   devicesPriceStars?: number
   serversPriceStars?: number
@@ -1082,15 +1077,10 @@ export type SettingsCreateManyInput = {
   twoYearRatioPayment?: number
   threeYearRatioPayment?: number
   indefinitelyRatio?: number
-  minWithdrawalTon?: number
+  minWithdrawalUsdt?: number
   referralOneLevelPercent?: number
   referralTwoLevelPercent?: number
   referralThreeLevelPercent?: number
-  referralInviteRewardGb?: number
-  referralInvitePremiumRewardGb?: number
-  trialGb?: number
-  trialGbForReferrals?: number
-  trialGbForPremiumReferrals?: number
   isActiveTgPartnerProgram?: boolean
   commissionRatioTgPartnerProgram?: number
   mouthesCountTgPartnerProgram?: number | null
@@ -1105,12 +1095,18 @@ export type SettingsCreateManyInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  nextAdsHours?: number
+  proxyPartnerLink?: string | null
+  partnerBotLink?: string | null
+  partnerMiniAppLink?: string | null
+  partnerSiteLink?: string | null
+  importUsersUrl?: string | null
+  defaultAnnounce?: string | null
 }
 
 export type SettingsUpdateManyMutationInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
-  adPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
   devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1128,15 +1124,10 @@ export type SettingsUpdateManyMutationInput = {
   twoYearRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   threeYearRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   indefinitelyRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  minWithdrawalTon?: Prisma.FloatFieldUpdateOperationsInput | number
+  minWithdrawalUsdt?: Prisma.FloatFieldUpdateOperationsInput | number
   referralOneLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   referralTwoLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   referralThreeLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
-  referralInviteRewardGb?: Prisma.IntFieldUpdateOperationsInput | number
-  referralInvitePremiumRewardGb?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGb?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGbForReferrals?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGbForPremiumReferrals?: Prisma.IntFieldUpdateOperationsInput | number
   isActiveTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1151,12 +1142,18 @@ export type SettingsUpdateManyMutationInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsUncheckedUpdateManyInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
-  adPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
   devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1174,15 +1171,10 @@ export type SettingsUncheckedUpdateManyInput = {
   twoYearRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   threeYearRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   indefinitelyRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  minWithdrawalTon?: Prisma.FloatFieldUpdateOperationsInput | number
+  minWithdrawalUsdt?: Prisma.FloatFieldUpdateOperationsInput | number
   referralOneLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   referralTwoLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   referralThreeLevelPercent?: Prisma.FloatFieldUpdateOperationsInput | number
-  referralInviteRewardGb?: Prisma.IntFieldUpdateOperationsInput | number
-  referralInvitePremiumRewardGb?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGb?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGbForReferrals?: Prisma.IntFieldUpdateOperationsInput | number
-  trialGbForPremiumReferrals?: Prisma.IntFieldUpdateOperationsInput | number
   isActiveTgPartnerProgram?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commissionRatioTgPartnerProgram?: Prisma.FloatFieldUpdateOperationsInput | number
   mouthesCountTgPartnerProgram?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1197,12 +1189,18 @@ export type SettingsUncheckedUpdateManyInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
-  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1220,15 +1218,10 @@ export type SettingsCountOrderByAggregateInput = {
   twoYearRatioPayment?: Prisma.SortOrder
   threeYearRatioPayment?: Prisma.SortOrder
   indefinitelyRatio?: Prisma.SortOrder
-  minWithdrawalTon?: Prisma.SortOrder
+  minWithdrawalUsdt?: Prisma.SortOrder
   referralOneLevelPercent?: Prisma.SortOrder
   referralTwoLevelPercent?: Prisma.SortOrder
   referralThreeLevelPercent?: Prisma.SortOrder
-  referralInviteRewardGb?: Prisma.SortOrder
-  referralInvitePremiumRewardGb?: Prisma.SortOrder
-  trialGb?: Prisma.SortOrder
-  trialGbForReferrals?: Prisma.SortOrder
-  trialGbForPremiumReferrals?: Prisma.SortOrder
   isActiveTgPartnerProgram?: Prisma.SortOrder
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
@@ -1243,11 +1236,17 @@ export type SettingsCountOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrder
 }
 
 export type SettingsAvgOrderByAggregateInput = {
   tgStarsToUSD?: Prisma.SortOrder
-  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1265,15 +1264,10 @@ export type SettingsAvgOrderByAggregateInput = {
   twoYearRatioPayment?: Prisma.SortOrder
   threeYearRatioPayment?: Prisma.SortOrder
   indefinitelyRatio?: Prisma.SortOrder
-  minWithdrawalTon?: Prisma.SortOrder
+  minWithdrawalUsdt?: Prisma.SortOrder
   referralOneLevelPercent?: Prisma.SortOrder
   referralTwoLevelPercent?: Prisma.SortOrder
   referralThreeLevelPercent?: Prisma.SortOrder
-  referralInviteRewardGb?: Prisma.SortOrder
-  referralInvitePremiumRewardGb?: Prisma.SortOrder
-  trialGb?: Prisma.SortOrder
-  trialGbForReferrals?: Prisma.SortOrder
-  trialGbForPremiumReferrals?: Prisma.SortOrder
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
@@ -1287,12 +1281,12 @@ export type SettingsAvgOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
 }
 
 export type SettingsMaxOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
-  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1310,15 +1304,10 @@ export type SettingsMaxOrderByAggregateInput = {
   twoYearRatioPayment?: Prisma.SortOrder
   threeYearRatioPayment?: Prisma.SortOrder
   indefinitelyRatio?: Prisma.SortOrder
-  minWithdrawalTon?: Prisma.SortOrder
+  minWithdrawalUsdt?: Prisma.SortOrder
   referralOneLevelPercent?: Prisma.SortOrder
   referralTwoLevelPercent?: Prisma.SortOrder
   referralThreeLevelPercent?: Prisma.SortOrder
-  referralInviteRewardGb?: Prisma.SortOrder
-  referralInvitePremiumRewardGb?: Prisma.SortOrder
-  trialGb?: Prisma.SortOrder
-  trialGbForReferrals?: Prisma.SortOrder
-  trialGbForPremiumReferrals?: Prisma.SortOrder
   isActiveTgPartnerProgram?: Prisma.SortOrder
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
@@ -1333,12 +1322,18 @@ export type SettingsMaxOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrder
 }
 
 export type SettingsMinOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
-  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1356,15 +1351,10 @@ export type SettingsMinOrderByAggregateInput = {
   twoYearRatioPayment?: Prisma.SortOrder
   threeYearRatioPayment?: Prisma.SortOrder
   indefinitelyRatio?: Prisma.SortOrder
-  minWithdrawalTon?: Prisma.SortOrder
+  minWithdrawalUsdt?: Prisma.SortOrder
   referralOneLevelPercent?: Prisma.SortOrder
   referralTwoLevelPercent?: Prisma.SortOrder
   referralThreeLevelPercent?: Prisma.SortOrder
-  referralInviteRewardGb?: Prisma.SortOrder
-  referralInvitePremiumRewardGb?: Prisma.SortOrder
-  trialGb?: Prisma.SortOrder
-  trialGbForReferrals?: Prisma.SortOrder
-  trialGbForPremiumReferrals?: Prisma.SortOrder
   isActiveTgPartnerProgram?: Prisma.SortOrder
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
@@ -1379,11 +1369,17 @@ export type SettingsMinOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
+  proxyPartnerLink?: Prisma.SortOrder
+  partnerBotLink?: Prisma.SortOrder
+  partnerMiniAppLink?: Prisma.SortOrder
+  partnerSiteLink?: Prisma.SortOrder
+  importUsersUrl?: Prisma.SortOrder
+  defaultAnnounce?: Prisma.SortOrder
 }
 
 export type SettingsSumOrderByAggregateInput = {
   tgStarsToUSD?: Prisma.SortOrder
-  adPriceStars?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
   devicesPriceStars?: Prisma.SortOrder
   serversPriceStars?: Prisma.SortOrder
@@ -1401,15 +1397,10 @@ export type SettingsSumOrderByAggregateInput = {
   twoYearRatioPayment?: Prisma.SortOrder
   threeYearRatioPayment?: Prisma.SortOrder
   indefinitelyRatio?: Prisma.SortOrder
-  minWithdrawalTon?: Prisma.SortOrder
+  minWithdrawalUsdt?: Prisma.SortOrder
   referralOneLevelPercent?: Prisma.SortOrder
   referralTwoLevelPercent?: Prisma.SortOrder
   referralThreeLevelPercent?: Prisma.SortOrder
-  referralInviteRewardGb?: Prisma.SortOrder
-  referralInvitePremiumRewardGb?: Prisma.SortOrder
-  trialGb?: Prisma.SortOrder
-  trialGbForReferrals?: Prisma.SortOrder
-  trialGbForPremiumReferrals?: Prisma.SortOrder
   commissionRatioTgPartnerProgram?: Prisma.SortOrder
   mouthesCountTgPartnerProgram?: Prisma.SortOrder
   telegramPartnerProgramRatio?: Prisma.SortOrder
@@ -1423,6 +1414,7 @@ export type SettingsSumOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  nextAdsHours?: Prisma.SortOrder
 }
 
 export type EnumDefaultEnumFieldUpdateOperationsInput = {
@@ -1430,14 +1422,6 @@ export type EnumDefaultEnumFieldUpdateOperationsInput = {
 }
 
 export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
-export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
   decrement?: number
@@ -1457,12 +1441,23 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 
 
 export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   tgStarsToUSD?: boolean
-  adPriceStars?: boolean
   telegramPremiumRatio?: boolean
   devicesPriceStars?: boolean
   serversPriceStars?: boolean
@@ -1480,15 +1475,10 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   twoYearRatioPayment?: boolean
   threeYearRatioPayment?: boolean
   indefinitelyRatio?: boolean
-  minWithdrawalTon?: boolean
+  minWithdrawalUsdt?: boolean
   referralOneLevelPercent?: boolean
   referralTwoLevelPercent?: boolean
   referralThreeLevelPercent?: boolean
-  referralInviteRewardGb?: boolean
-  referralInvitePremiumRewardGb?: boolean
-  trialGb?: boolean
-  trialGbForReferrals?: boolean
-  trialGbForPremiumReferrals?: boolean
   isActiveTgPartnerProgram?: boolean
   commissionRatioTgPartnerProgram?: boolean
   mouthesCountTgPartnerProgram?: boolean
@@ -1503,12 +1493,18 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  nextAdsHours?: boolean
+  proxyPartnerLink?: boolean
+  partnerBotLink?: boolean
+  partnerMiniAppLink?: boolean
+  partnerSiteLink?: boolean
+  importUsersUrl?: boolean
+  defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   tgStarsToUSD?: boolean
-  adPriceStars?: boolean
   telegramPremiumRatio?: boolean
   devicesPriceStars?: boolean
   serversPriceStars?: boolean
@@ -1526,15 +1522,10 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   twoYearRatioPayment?: boolean
   threeYearRatioPayment?: boolean
   indefinitelyRatio?: boolean
-  minWithdrawalTon?: boolean
+  minWithdrawalUsdt?: boolean
   referralOneLevelPercent?: boolean
   referralTwoLevelPercent?: boolean
   referralThreeLevelPercent?: boolean
-  referralInviteRewardGb?: boolean
-  referralInvitePremiumRewardGb?: boolean
-  trialGb?: boolean
-  trialGbForReferrals?: boolean
-  trialGbForPremiumReferrals?: boolean
   isActiveTgPartnerProgram?: boolean
   commissionRatioTgPartnerProgram?: boolean
   mouthesCountTgPartnerProgram?: boolean
@@ -1549,12 +1540,18 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  nextAdsHours?: boolean
+  proxyPartnerLink?: boolean
+  partnerBotLink?: boolean
+  partnerMiniAppLink?: boolean
+  partnerSiteLink?: boolean
+  importUsersUrl?: boolean
+  defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   tgStarsToUSD?: boolean
-  adPriceStars?: boolean
   telegramPremiumRatio?: boolean
   devicesPriceStars?: boolean
   serversPriceStars?: boolean
@@ -1572,15 +1569,10 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   twoYearRatioPayment?: boolean
   threeYearRatioPayment?: boolean
   indefinitelyRatio?: boolean
-  minWithdrawalTon?: boolean
+  minWithdrawalUsdt?: boolean
   referralOneLevelPercent?: boolean
   referralTwoLevelPercent?: boolean
   referralThreeLevelPercent?: boolean
-  referralInviteRewardGb?: boolean
-  referralInvitePremiumRewardGb?: boolean
-  trialGb?: boolean
-  trialGbForReferrals?: boolean
-  trialGbForPremiumReferrals?: boolean
   isActiveTgPartnerProgram?: boolean
   commissionRatioTgPartnerProgram?: boolean
   mouthesCountTgPartnerProgram?: boolean
@@ -1595,12 +1587,18 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  nextAdsHours?: boolean
+  proxyPartnerLink?: boolean
+  partnerBotLink?: boolean
+  partnerMiniAppLink?: boolean
+  partnerSiteLink?: boolean
+  importUsersUrl?: boolean
+  defaultAnnounce?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectScalar = {
   key?: boolean
   tgStarsToUSD?: boolean
-  adPriceStars?: boolean
   telegramPremiumRatio?: boolean
   devicesPriceStars?: boolean
   serversPriceStars?: boolean
@@ -1618,15 +1616,10 @@ export type SettingsSelectScalar = {
   twoYearRatioPayment?: boolean
   threeYearRatioPayment?: boolean
   indefinitelyRatio?: boolean
-  minWithdrawalTon?: boolean
+  minWithdrawalUsdt?: boolean
   referralOneLevelPercent?: boolean
   referralTwoLevelPercent?: boolean
   referralThreeLevelPercent?: boolean
-  referralInviteRewardGb?: boolean
-  referralInvitePremiumRewardGb?: boolean
-  trialGb?: boolean
-  trialGbForReferrals?: boolean
-  trialGbForPremiumReferrals?: boolean
   isActiveTgPartnerProgram?: boolean
   commissionRatioTgPartnerProgram?: boolean
   mouthesCountTgPartnerProgram?: boolean
@@ -1641,9 +1634,16 @@ export type SettingsSelectScalar = {
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  nextAdsHours?: boolean
+  proxyPartnerLink?: boolean
+  partnerBotLink?: boolean
+  partnerMiniAppLink?: boolean
+  partnerSiteLink?: boolean
+  importUsersUrl?: boolean
+  defaultAnnounce?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "adPriceStars" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalTon" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "referralInviteRewardGb" | "referralInvitePremiumRewardGb" | "trialGb" | "trialGbForReferrals" | "trialGbForPremiumReferrals" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "nextAdsHours" | "proxyPartnerLink" | "partnerBotLink" | "partnerMiniAppLink" | "partnerSiteLink" | "importUsersUrl" | "defaultAnnounce", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -1651,7 +1651,6 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     key: $Enums.DefaultEnum
     tgStarsToUSD: number
-    adPriceStars: number
     telegramPremiumRatio: number
     devicesPriceStars: number
     serversPriceStars: number
@@ -1669,15 +1668,10 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     twoYearRatioPayment: number
     threeYearRatioPayment: number
     indefinitelyRatio: number
-    minWithdrawalTon: number
+    minWithdrawalUsdt: number
     referralOneLevelPercent: number
     referralTwoLevelPercent: number
     referralThreeLevelPercent: number
-    referralInviteRewardGb: number
-    referralInvitePremiumRewardGb: number
-    trialGb: number
-    trialGbForReferrals: number
-    trialGbForPremiumReferrals: number
     isActiveTgPartnerProgram: boolean
     commissionRatioTgPartnerProgram: number
     mouthesCountTgPartnerProgram: number | null
@@ -1692,6 +1686,13 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     bonusPayment10000: number
     bonusPayment20000: number
     bonusPayment50000: number
+    nextAdsHours: number
+    proxyPartnerLink: string | null
+    partnerBotLink: string | null
+    partnerMiniAppLink: string | null
+    partnerSiteLink: string | null
+    importUsersUrl: string | null
+    defaultAnnounce: string | null
   }, ExtArgs["result"]["settings"]>
   composites: {}
 }
@@ -2117,7 +2118,6 @@ export interface Prisma__SettingsClient<T, Null = never, ExtArgs extends runtime
 export interface SettingsFieldRefs {
   readonly key: Prisma.FieldRef<"Settings", 'DefaultEnum'>
   readonly tgStarsToUSD: Prisma.FieldRef<"Settings", 'Float'>
-  readonly adPriceStars: Prisma.FieldRef<"Settings", 'Float'>
   readonly telegramPremiumRatio: Prisma.FieldRef<"Settings", 'Float'>
   readonly devicesPriceStars: Prisma.FieldRef<"Settings", 'Float'>
   readonly serversPriceStars: Prisma.FieldRef<"Settings", 'Float'>
@@ -2135,15 +2135,10 @@ export interface SettingsFieldRefs {
   readonly twoYearRatioPayment: Prisma.FieldRef<"Settings", 'Float'>
   readonly threeYearRatioPayment: Prisma.FieldRef<"Settings", 'Float'>
   readonly indefinitelyRatio: Prisma.FieldRef<"Settings", 'Float'>
-  readonly minWithdrawalTon: Prisma.FieldRef<"Settings", 'Float'>
+  readonly minWithdrawalUsdt: Prisma.FieldRef<"Settings", 'Float'>
   readonly referralOneLevelPercent: Prisma.FieldRef<"Settings", 'Float'>
   readonly referralTwoLevelPercent: Prisma.FieldRef<"Settings", 'Float'>
   readonly referralThreeLevelPercent: Prisma.FieldRef<"Settings", 'Float'>
-  readonly referralInviteRewardGb: Prisma.FieldRef<"Settings", 'Int'>
-  readonly referralInvitePremiumRewardGb: Prisma.FieldRef<"Settings", 'Int'>
-  readonly trialGb: Prisma.FieldRef<"Settings", 'Int'>
-  readonly trialGbForReferrals: Prisma.FieldRef<"Settings", 'Int'>
-  readonly trialGbForPremiumReferrals: Prisma.FieldRef<"Settings", 'Int'>
   readonly isActiveTgPartnerProgram: Prisma.FieldRef<"Settings", 'Boolean'>
   readonly commissionRatioTgPartnerProgram: Prisma.FieldRef<"Settings", 'Float'>
   readonly mouthesCountTgPartnerProgram: Prisma.FieldRef<"Settings", 'Int'>
@@ -2158,6 +2153,13 @@ export interface SettingsFieldRefs {
   readonly bonusPayment10000: Prisma.FieldRef<"Settings", 'Float'>
   readonly bonusPayment20000: Prisma.FieldRef<"Settings", 'Float'>
   readonly bonusPayment50000: Prisma.FieldRef<"Settings", 'Float'>
+  readonly nextAdsHours: Prisma.FieldRef<"Settings", 'Int'>
+  readonly proxyPartnerLink: Prisma.FieldRef<"Settings", 'String'>
+  readonly partnerBotLink: Prisma.FieldRef<"Settings", 'String'>
+  readonly partnerMiniAppLink: Prisma.FieldRef<"Settings", 'String'>
+  readonly partnerSiteLink: Prisma.FieldRef<"Settings", 'String'>
+  readonly importUsersUrl: Prisma.FieldRef<"Settings", 'String'>
+  readonly defaultAnnounce: Prisma.FieldRef<"Settings", 'String'>
 }
     
 

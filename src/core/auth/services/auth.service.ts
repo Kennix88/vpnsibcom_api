@@ -1,6 +1,10 @@
+import { PrismaService } from '@core/prisma/prisma.service'
 import { TaddyService } from '@modules/ads/taddy.service'
-import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
-import { UsersService } from '@modules/users/users.service'
+import { GeoService } from '@modules/geo/geo.service'
+import { AcquisitionsService } from '@modules/users/services/acquisitions.service'
+import { SessionsService } from '@modules/users/services/sessions.service'
+import { UsersService } from '@modules/users/services/users.service'
+import { SessionPlaceEnum } from '@modules/users/types/session-place.enum'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
@@ -10,6 +14,8 @@ import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.inte
 import { UserDataInterface } from '@shared/types/user-data.interface'
 import { parse } from '@telegram-apps/init-data-node'
 import { PinoLogger } from 'nestjs-pino'
+import { InjectBot } from 'nestjs-telegraf'
+import { Telegraf } from 'telegraf'
 import { TokenService } from './token.service'
 
 @Injectable()
@@ -22,6 +28,11 @@ export class AuthService {
     private readonly logger: PinoLogger,
     private userService: UsersService,
     private taddyService: TaddyService,
+    private readonly geoService: GeoService,
+    private readonly prisma: PrismaService,
+    private readonly sessionsService: SessionsService,
+    private readonly acquisitionsService: AcquisitionsService,
+    @InjectBot() private readonly bot: Telegraf,
   ) {}
 
   public async updateUserActivity(token: string) {
@@ -62,20 +73,44 @@ export class AuthService {
       service: this.serviceName,
     })
 
-    this.taddyService.startEvent({
-      user: {
-        id: Number(userData.user.id),
-        firstName: userData.user.first_name,
-        lastName: userData.user.last_name,
-        username: userData.user.username,
-        premium: userData.user.is_premium,
-        language: userData.user.language_code,
-        ip,
-        userAgent: ua,
-      },
-      origin: TaddyOriginEnum.WEB,
-      start: userData.start_param,
-    })
+    const chatInfo = await this.bot.telegram.getChat(userData.user.id)
+    const country = this.geoService.getCountry(ip)
+
+    // this.taddyService.startEvent({
+    //   user: {
+    //     id: Number(userData.user.id),
+    //     firstName: userData.user.first_name,
+    //     lastName: userData.user.last_name,
+    //     username: userData.user.username,
+    //     premium: userData.user.is_premium,
+    //     language: userData.user.language_code,
+    //     ip,
+    //     ...(country && { country: country.toUpperCase() }),
+    //     userAgent: ua,
+    //     // @ts-ignore
+    //     ...(chatInfo &&
+    //       // @ts-ignore
+    //       chatInfo.birthdate &&
+    //       // @ts-ignore
+    //       chatInfo.birthdate.year && {
+    //         // @ts-ignore
+    //         birthDate: `${chatInfo.birthdate.year}-${chatInfo.birthdate.month}-${chatInfo.birthdate.day}`,
+    //       }),
+    //   },
+    //   origin: TaddyOriginEnum.WEB,
+    //   start: userData.start_param,
+    // })
+
+    const birth = chatInfo &&
+      // @ts-ignore
+      chatInfo.birthdate && {
+        // @ts-ignore
+        year: chatInfo.birthdate.year ?? null,
+        // @ts-ignore
+        month: chatInfo.birthdate.month ?? null,
+        // @ts-ignore
+        day: chatInfo.birthdate.day ?? null,
+      }
 
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
 
@@ -89,13 +124,45 @@ export class AuthService {
         ...(refId && {
           referralKey: refId,
         }),
+        ...(birth && { birth }),
+        ...(country && { country }),
+        ua,
+        ip,
+      })
+    }
+
+    // Update user country registration if it's not set
+    if (!user.countryRegistration && country) {
+      await this.prisma.users.update({
+        where: { id: user.id },
+        data: { countryRegistration: country.toUpperCase() },
       })
     }
 
     await this.userService.updateTelegramDataUser(
       userData.user.id.toString(),
       userData,
+      birth,
     )
+
+    this.sessionsService.createSession({
+      userId: user.id,
+      place: SessionPlaceEnum.TELEGRAM_MINIAPP,
+      ...(refId && {
+        referralKey: refId,
+      }),
+      ip,
+      ua,
+      startParams: startParam,
+    })
+
+    this.acquisitionsService.updateAcquisition({
+      userId: user.id,
+      startParams: startParam,
+      ...(refId && {
+        referralKey: refId,
+      }),
+    })
 
     const payload: JwtPayload = {
       sub: user.id,

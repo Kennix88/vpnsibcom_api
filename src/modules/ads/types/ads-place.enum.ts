@@ -3,4 +3,6 @@ export enum AdsPlaceEnum {
   REWARD_TASK = 'REWARD_TASK',
   BANNER = 'BANNER',
   FULLSCREEN = 'FULLSCREEN',
+  MESSAGE = 'MESSAGE',
+  FEED = 'FEED',
 }

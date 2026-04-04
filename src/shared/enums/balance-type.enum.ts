@@ -7,4 +7,5 @@ export enum BalanceTypeEnum {
   TICKETS = 'TICKETS',
   NOT_BALANCE = 'NOT_BALANCE',
   AD = 'AD',
+  USDT = 'USDT',
 }

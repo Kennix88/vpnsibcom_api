@@ -5,7 +5,9 @@ import { PaymentTypeEnum } from '@modules/payments/types/payment-type.enum'
 import { PlansServersSelectTypeEnum } from '@modules/plans/types/plans-servers-select-type.enum'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { PlansInterface } from '@modules/plans/types/plans.interface'
-import { UsersService } from '@modules/users/users.service'
+import { EventsService } from '@modules/users/services/events.service'
+import { UsersService } from '@modules/users/services/users.service'
+import { EventType } from '@modules/users/types/event-type.enum'
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
@@ -14,7 +16,6 @@ import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
-import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
 import { genToken } from '@shared/utils/gen-token.util'
 import { addHours } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
@@ -31,19 +32,14 @@ import {
 } from '../types/subscription-data.interface'
 import { XrayInboundTypeEnum } from '../types/xray-inbound-type.enum'
 import {
-  calculateMbPay,
   calculateSubscriptionCost,
   calculateTrafficPrice,
-  starsToAD,
 } from '../utils/calculate-subscription-cost.util'
 import { filterConfig } from '../utils/filter-config.util'
 import { getXrayConfigFormat } from '../utils/get-xray-config-fromat.util'
 import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
 
-/**
- * Сервис для работы с Xray
- */
 @Injectable()
 export class XrayService {
   getLocalizedPeriodText(arg0: SubscriptionPeriodEnum, iso6391: string): any {
@@ -62,12 +58,13 @@ export class XrayService {
     private readonly paymentsService: PaymentsService,
     private readonly i18n: I18nService,
     @InjectBot() private readonly bot: Telegraf,
+    private readonly eventsService: EventsService,
   ) {}
 
   public async addTraffic(
     subscriptionId: string,
     traffic: number,
-    method: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC' | 'AD',
+    method: PaymentMethodEnum | 'BALANCE' | 'USDT',
     userId: string,
   ) {
     try {
@@ -103,22 +100,17 @@ export class XrayService {
         },
       })
 
-      if (method === 'TRAFFIC' || method === 'BALANCE' || method === 'AD') {
+      if (method === 'BALANCE' || method === 'USDT') {
         const updateBalance = await this.userService.deductUserBalance(
           userId,
-          method === 'TRAFFIC'
-            ? traffic * 1024
-            : method === 'AD'
-            ? starsToAD(
-                calculateTrafficPrice(
-                  traffic,
-                  sub.isPremium,
-                  sub.user.isTgProgramPartner,
-                  sub.user.role.discount,
-                  settings,
-                ),
-                settings.adPriceStars,
-              )
+          method === 'USDT'
+            ? calculateTrafficPrice(
+                traffic,
+                sub.isPremium,
+                sub.user.isTgProgramPartner,
+                sub.user.role.discount,
+                settings,
+              ) * settings.tgStarsToUSD
             : calculateTrafficPrice(
                 traffic,
                 sub.isPremium,
@@ -127,11 +119,7 @@ export class XrayService {
                 settings,
               ),
           TransactionReasonEnum.SUBSCRIPTIONS,
-          method === 'TRAFFIC'
-            ? BalanceTypeEnum.TRAFFIC
-            : method === 'AD'
-            ? BalanceTypeEnum.AD
-            : BalanceTypeEnum.PAYMENT,
+          method === 'USDT' ? BalanceTypeEnum.USDT : BalanceTypeEnum.PAYMENT,
         )
 
         if (!updateBalance.success) {
@@ -546,7 +534,7 @@ export class XrayService {
         isAllBaseServers: true,
         isAllPremiumServers: true,
         isUnlimitTraffic: false,
-        trafficLimitGb: user.trialGb || 10,
+        trafficLimitGb: user.trialGb || 3,
         servers: [],
         isAutoRenewal: false,
       })
@@ -663,7 +651,7 @@ export class XrayService {
         subscription.isAllBaseServers && subscription.isAllPremiumServers
           ? []
           : subscription.servers
-              ?.flatMap((server) => server.greenList.code)
+              ?.flatMap((server) => server.greenList.green)
               .filter(Boolean)
 
       // Логируем информацию о серверах
@@ -673,7 +661,7 @@ export class XrayService {
       })
 
       this.logger.info({
-        msg: `Server codes: ${
+        msg: `Servers: ${
           serverCodes?.length ? serverCodes.join(', ') : 'all servers'
         }`,
         service: this.serviceName,
@@ -925,6 +913,15 @@ export class XrayService {
       this.logger.info({
         msg: `Preparing final response for subscription ${subscription.id}`,
         service: this.serviceName,
+      })
+
+      await this.prismaService.subscriptions.update({
+        where: {
+          id: subscription.id,
+        },
+        data: {
+          lastUserAgent: agent,
+        },
       })
 
       return {
@@ -1223,7 +1220,6 @@ export class XrayService {
 
       return {
         tgStarsToUSD: settings.tgStarsToUSD,
-        adPriceStars: settings.adPriceStars,
         telegramPremiumRatio: settings.telegramPremiumRatio,
         devicesPriceStars: settings.devicesPriceStars,
         serversPriceStars: settings.serversPriceStars,
@@ -1519,6 +1515,11 @@ export class XrayService {
         return false
       }
 
+      this.eventsService.createEvent({
+        userId: user.id,
+        eventType: EventType.ACTIVATION,
+      })
+
       // Обработка реферальной системы
       await this.processReferrals(user)
 
@@ -1643,15 +1644,6 @@ export class XrayService {
 
       for (const inviter of user.inviters) {
         if (!inviter.isActivated) {
-          let plusTrafficRewarded = 0
-
-          plusTrafficRewarded =
-            inviter.level > 1
-              ? 0
-              : user.telegramData?.isPremium
-              ? settings.referralInvitePremiumRewardGb * 1024
-              : settings.referralInviteRewardGb * 1024
-
           try {
             await this.prismaService.$transaction(async (tx) => {
               // Обновляем статус реферала
@@ -1660,8 +1652,6 @@ export class XrayService {
                   id: inviter.id,
                 },
                 data: {
-                  totalTrafficRewarded:
-                    inviter.totalTrafficRewarded + plusTrafficRewarded,
                   isActivated: true,
                 },
               })
@@ -1679,40 +1669,6 @@ export class XrayService {
                   `Отсутствуют данные о балансе для инвайтера с ID: ${inviter.inviter.id}`,
                 )
               }
-
-              if (plusTrafficRewarded > 0) {
-                // Обновляем баланс реферера
-                await tx.userBalance.update({
-                  where: {
-                    id: inviter.inviter.balanceId,
-                  },
-                  data: {
-                    traffic:
-                      inviter.inviter.balance.traffic + plusTrafficRewarded,
-                  },
-                })
-
-                // Создаем транзакцию для реферальной комиссии
-                const transactions = [
-                  {
-                    amount: plusTrafficRewarded,
-                    type: TransactionTypeEnum.PLUS,
-                    reason: TransactionReasonEnum.REFERRAL,
-                    balanceType: BalanceTypeEnum.TRAFFIC,
-                    balanceId: inviter.inviter.balanceId,
-                  },
-                ]
-
-                await tx.transactions.createMany({
-                  data: transactions,
-                })
-              }
-            })
-
-            this.logger.info({
-              msg: `Успешно обновлен реферальный баланс для инвайтера с ID: ${inviter.inviter?.id}`,
-              reward: plusTrafficRewarded,
-              service: this.serviceName,
             })
           } catch (error) {
             this.logger.error({
@@ -1798,7 +1754,7 @@ export class XrayService {
     trafficReset: TrafficResetEnum
     servers?: string[]
     isAutoRenewal?: boolean
-    method?: PaymentMethodEnum | 'BALANCE' | 'TRAFFIC' | 'AD'
+    method?: PaymentMethodEnum | 'BALANCE' | 'USDT'
   }) {
     try {
       this.logger.info({
@@ -1872,22 +1828,14 @@ export class XrayService {
         trafficLimitGb,
       })
 
-      if (method == 'BALANCE' || method == 'TRAFFIC' || method == 'AD') {
+      if (method == 'BALANCE' || method == 'USDT') {
         // Создание подписки и списание средств в транзакции
         // Используем метод deductUserBalance из UsersService для списания средств
         const deductResult = await this.userService.deductUserBalance(
           user.id,
-          method === 'AD'
-            ? starsToAD(cost, settings.adPriceStars)
-            : method == 'TRAFFIC'
-            ? calculateMbPay(cost, settings.trafficGbPriceStars)
-            : cost,
+          method === 'USDT' ? cost * settings.tgStarsToUSD : cost,
           TransactionReasonEnum.SUBSCRIPTIONS,
-          method == 'TRAFFIC'
-            ? BalanceTypeEnum.TRAFFIC
-            : method == 'AD'
-            ? BalanceTypeEnum.AD
-            : BalanceTypeEnum.PAYMENT,
+          method == 'USDT' ? BalanceTypeEnum.USDT : BalanceTypeEnum.PAYMENT,
         )
 
         if (!deductResult.success) {
@@ -2070,7 +2018,7 @@ export class XrayService {
   public async renewSubscription(
     telegramId: string,
     subscriptionId: string,
-    method: PaymentMethodEnum | 'BALANCE' | 'AD',
+    method: PaymentMethodEnum | 'BALANCE' | 'USDT',
     isSavePeriod: boolean,
     period: SubscriptionPeriodEnum,
     periodMultiplier: number,
@@ -2131,12 +2079,12 @@ export class XrayService {
         settings,
       })
 
-      if (method === 'BALANCE' || method === 'AD') {
+      if (method === 'BALANCE' || method === 'USDT') {
         const updateBalance = await this.userService.deductUserBalance(
           user.id,
-          method === 'AD' ? starsToAD(cost, settings.adPriceStars) : cost,
+          method === 'USDT' ? cost * settings.tgStarsToUSD : cost,
           TransactionReasonEnum.SUBSCRIPTIONS,
-          method === 'AD' ? BalanceTypeEnum.AD : BalanceTypeEnum.PAYMENT,
+          method === 'USDT' ? BalanceTypeEnum.USDT : BalanceTypeEnum.PAYMENT,
         )
 
         if (!updateBalance.success) {

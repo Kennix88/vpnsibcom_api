@@ -27,19 +27,11 @@ export type AggregateAdsBlocks = {
 }
 
 export type AdsBlocksAvgAggregateOutputType = {
-  rewardTraffic: number | null
-  rewardStars: number | null
-  rewardTickets: number | null
-  rewardAd: number | null
   duration: number | null
   limit: number | null
 }
 
 export type AdsBlocksSumAggregateOutputType = {
-  rewardTraffic: number | null
-  rewardStars: number | null
-  rewardTickets: number | null
-  rewardAd: number | null
   duration: number | null
   limit: number | null
 }
@@ -50,10 +42,6 @@ export type AdsBlocksMinAggregateOutputType = {
   name: string | null
   place: $Enums.AdsBlockPlaceEnum | null
   isActive: boolean | null
-  rewardTraffic: number | null
-  rewardStars: number | null
-  rewardTickets: number | null
-  rewardAd: number | null
   duration: number | null
   limit: number | null
   createdAt: Date | null
@@ -67,10 +55,6 @@ export type AdsBlocksMaxAggregateOutputType = {
   name: string | null
   place: $Enums.AdsBlockPlaceEnum | null
   isActive: boolean | null
-  rewardTraffic: number | null
-  rewardStars: number | null
-  rewardTickets: number | null
-  rewardAd: number | null
   duration: number | null
   limit: number | null
   createdAt: Date | null
@@ -84,10 +68,6 @@ export type AdsBlocksCountAggregateOutputType = {
   name: number
   place: number
   isActive: number
-  rewardTraffic: number
-  rewardStars: number
-  rewardTickets: number
-  rewardAd: number
   duration: number
   limit: number
   createdAt: number
@@ -98,19 +78,11 @@ export type AdsBlocksCountAggregateOutputType = {
 
 
 export type AdsBlocksAvgAggregateInputType = {
-  rewardTraffic?: true
-  rewardStars?: true
-  rewardTickets?: true
-  rewardAd?: true
   duration?: true
   limit?: true
 }
 
 export type AdsBlocksSumAggregateInputType = {
-  rewardTraffic?: true
-  rewardStars?: true
-  rewardTickets?: true
-  rewardAd?: true
   duration?: true
   limit?: true
 }
@@ -121,10 +93,6 @@ export type AdsBlocksMinAggregateInputType = {
   name?: true
   place?: true
   isActive?: true
-  rewardTraffic?: true
-  rewardStars?: true
-  rewardTickets?: true
-  rewardAd?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -138,10 +106,6 @@ export type AdsBlocksMaxAggregateInputType = {
   name?: true
   place?: true
   isActive?: true
-  rewardTraffic?: true
-  rewardStars?: true
-  rewardTickets?: true
-  rewardAd?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -155,10 +119,6 @@ export type AdsBlocksCountAggregateInputType = {
   name?: true
   place?: true
   isActive?: true
-  rewardTraffic?: true
-  rewardStars?: true
-  rewardTickets?: true
-  rewardAd?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -259,10 +219,6 @@ export type AdsBlocksGroupByOutputType = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive: boolean
-  rewardTraffic: number
-  rewardStars: number
-  rewardTickets: number
-  rewardAd: number
   duration: number
   limit: number
   createdAt: Date
@@ -299,10 +255,6 @@ export type AdsBlocksWhereInput = {
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
-  rewardTraffic?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardStars?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardTickets?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardAd?: Prisma.FloatFilter<"AdsBlocks"> | number
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -318,10 +270,6 @@ export type AdsBlocksOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
-  rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
-  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -341,10 +289,6 @@ export type AdsBlocksWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
-  rewardTraffic?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardStars?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardTickets?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardAd?: Prisma.FloatFilter<"AdsBlocks"> | number
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -360,10 +304,6 @@ export type AdsBlocksOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
-  rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
-  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -385,10 +325,6 @@ export type AdsBlocksScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumWithAggregatesFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolWithAggregatesFilter<"AdsBlocks"> | boolean
-  rewardTraffic?: Prisma.FloatWithAggregatesFilter<"AdsBlocks"> | number
-  rewardStars?: Prisma.FloatWithAggregatesFilter<"AdsBlocks"> | number
-  rewardTickets?: Prisma.FloatWithAggregatesFilter<"AdsBlocks"> | number
-  rewardAd?: Prisma.FloatWithAggregatesFilter<"AdsBlocks"> | number
   duration?: Prisma.IntWithAggregatesFilter<"AdsBlocks"> | number
   limit?: Prisma.IntWithAggregatesFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AdsBlocks"> | Date | string
@@ -402,10 +338,6 @@ export type AdsBlocksCreateInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
-  rewardTraffic?: number
-  rewardStars?: number
-  rewardTickets?: number
-  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -420,10 +352,6 @@ export type AdsBlocksUncheckedCreateInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
-  rewardTraffic?: number
-  rewardStars?: number
-  rewardTickets?: number
-  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -438,10 +366,6 @@ export type AdsBlocksUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -456,10 +380,6 @@ export type AdsBlocksUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -474,10 +394,6 @@ export type AdsBlocksCreateManyInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
-  rewardTraffic?: number
-  rewardStars?: number
-  rewardTickets?: number
-  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -491,10 +407,6 @@ export type AdsBlocksUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -507,10 +419,6 @@ export type AdsBlocksUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -534,10 +442,6 @@ export type AdsBlocksCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
-  rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
-  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -546,10 +450,6 @@ export type AdsBlocksCountOrderByAggregateInput = {
 }
 
 export type AdsBlocksAvgOrderByAggregateInput = {
-  rewardTraffic?: Prisma.SortOrder
-  rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
-  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
 }
@@ -560,10 +460,6 @@ export type AdsBlocksMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
-  rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
-  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -577,10 +473,6 @@ export type AdsBlocksMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  rewardTraffic?: Prisma.SortOrder
-  rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
-  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -589,10 +481,6 @@ export type AdsBlocksMinOrderByAggregateInput = {
 }
 
 export type AdsBlocksSumOrderByAggregateInput = {
-  rewardTraffic?: Prisma.SortOrder
-  rewardStars?: Prisma.SortOrder
-  rewardTickets?: Prisma.SortOrder
-  rewardAd?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
 }
@@ -673,10 +561,6 @@ export type AdsBlocksCreateWithoutViewsInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
-  rewardTraffic?: number
-  rewardStars?: number
-  rewardTickets?: number
-  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -690,10 +574,6 @@ export type AdsBlocksUncheckedCreateWithoutViewsInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
-  rewardTraffic?: number
-  rewardStars?: number
-  rewardTickets?: number
-  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -723,10 +603,6 @@ export type AdsBlocksUpdateWithoutViewsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -740,10 +616,6 @@ export type AdsBlocksUncheckedUpdateWithoutViewsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -757,10 +629,6 @@ export type AdsBlocksCreateWithoutNetworkInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
-  rewardTraffic?: number
-  rewardStars?: number
-  rewardTickets?: number
-  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -774,10 +642,6 @@ export type AdsBlocksUncheckedCreateWithoutNetworkInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
-  rewardTraffic?: number
-  rewardStars?: number
-  rewardTickets?: number
-  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -820,10 +684,6 @@ export type AdsBlocksScalarWhereInput = {
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
-  rewardTraffic?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardStars?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardTickets?: Prisma.FloatFilter<"AdsBlocks"> | number
-  rewardAd?: Prisma.FloatFilter<"AdsBlocks"> | number
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -837,10 +697,6 @@ export type AdsBlocksCreateManyNetworkInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
-  rewardTraffic?: number
-  rewardStars?: number
-  rewardTickets?: number
-  rewardAd?: number
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -853,10 +709,6 @@ export type AdsBlocksUpdateWithoutNetworkInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -870,10 +722,6 @@ export type AdsBlocksUncheckedUpdateWithoutNetworkInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -887,10 +735,6 @@ export type AdsBlocksUncheckedUpdateManyWithoutNetworkInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rewardTraffic?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardTickets?: Prisma.FloatFieldUpdateOperationsInput | number
-  rewardAd?: Prisma.FloatFieldUpdateOperationsInput | number
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -934,10 +778,6 @@ export type AdsBlocksSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   name?: boolean
   place?: boolean
   isActive?: boolean
-  rewardTraffic?: boolean
-  rewardStars?: boolean
-  rewardTickets?: boolean
-  rewardAd?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -954,10 +794,6 @@ export type AdsBlocksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   place?: boolean
   isActive?: boolean
-  rewardTraffic?: boolean
-  rewardStars?: boolean
-  rewardTickets?: boolean
-  rewardAd?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -972,10 +808,6 @@ export type AdsBlocksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   place?: boolean
   isActive?: boolean
-  rewardTraffic?: boolean
-  rewardStars?: boolean
-  rewardTickets?: boolean
-  rewardAd?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -990,10 +822,6 @@ export type AdsBlocksSelectScalar = {
   name?: boolean
   place?: boolean
   isActive?: boolean
-  rewardTraffic?: boolean
-  rewardStars?: boolean
-  rewardTickets?: boolean
-  rewardAd?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -1001,7 +829,7 @@ export type AdsBlocksSelectScalar = {
   networkKey?: boolean
 }
 
-export type AdsBlocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "place" | "isActive" | "rewardTraffic" | "rewardStars" | "rewardTickets" | "rewardAd" | "duration" | "limit" | "createdAt" | "updatedAt" | "networkKey", ExtArgs["result"]["adsBlocks"]>
+export type AdsBlocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "place" | "isActive" | "duration" | "limit" | "createdAt" | "updatedAt" | "networkKey", ExtArgs["result"]["adsBlocks"]>
 export type AdsBlocksInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   views?: boolean | Prisma.AdsBlocks$viewsArgs<ExtArgs>
@@ -1026,10 +854,6 @@ export type $AdsBlocksPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     name: string
     place: $Enums.AdsBlockPlaceEnum
     isActive: boolean
-    rewardTraffic: number
-    rewardStars: number
-    rewardTickets: number
-    rewardAd: number
     duration: number
     limit: number
     createdAt: Date
@@ -1465,10 +1289,6 @@ export interface AdsBlocksFieldRefs {
   readonly name: Prisma.FieldRef<"AdsBlocks", 'String'>
   readonly place: Prisma.FieldRef<"AdsBlocks", 'AdsBlockPlaceEnum'>
   readonly isActive: Prisma.FieldRef<"AdsBlocks", 'Boolean'>
-  readonly rewardTraffic: Prisma.FieldRef<"AdsBlocks", 'Float'>
-  readonly rewardStars: Prisma.FieldRef<"AdsBlocks", 'Float'>
-  readonly rewardTickets: Prisma.FieldRef<"AdsBlocks", 'Float'>
-  readonly rewardAd: Prisma.FieldRef<"AdsBlocks", 'Float'>
   readonly duration: Prisma.FieldRef<"AdsBlocks", 'Int'>
   readonly limit: Prisma.FieldRef<"AdsBlocks", 'Int'>
   readonly createdAt: Prisma.FieldRef<"AdsBlocks", 'DateTime'>

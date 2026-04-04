@@ -34,8 +34,11 @@ import { UsersModule } from '@modules/users/users.module'
 import { XrayModule } from '@modules/xray/xray.module'
 
 import { AdsModule } from '@modules/ads/ads.module'
+import { GeoModule } from '@modules/geo/geo.module'
 import { PreventDuplicateInterceptor } from './auth/guards/prevent-duplicate.interceptor'
+import { BullmqModule } from './bullmq/bullmq.module'
 import { CoreController } from './core.controller'
+import { TelegramLogWorker } from './logger/telegram-log.worker'
 
 @Module({
   imports: [
@@ -108,9 +111,12 @@ import { CoreController } from './core.controller'
     PlansModule,
     RatesModule,
     AdsModule,
+    BullmqModule,
+    GeoModule,
   ],
   controllers: [CoreController],
   providers: [
+    TelegramLogWorker,
     LogRotationService,
     {
       provide: APP_FILTER,
