@@ -1,3 +1,4 @@
+import { PlansEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/services/users.service'
@@ -11,10 +12,18 @@ import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { detectPlatformUtil } from '@shared/utils/detect-platform.util'
 import { addMinutes, isAfter } from 'date-fns'
 import { PinoLogger } from 'nestjs-pino'
+import { RichAdsService } from './richads.service'
+import { TaddyService } from './taddy.service'
 import { AdsNetworkEnum } from './types/ads-network.enum'
 import { AdsPlaceEnum } from './types/ads-place.enum'
 import { AdsResInterface } from './types/ads-res.interface'
 import { AdsTypeEnum } from './types/ads-type.enum'
+import { RichAdsGetAdResponseInterface } from './types/richads.interface'
+import {
+  TaddyAdFormatEnum,
+  TaddyGetAdResponseInterface,
+  TaddyOriginEnum,
+} from './types/taddy.interface'
 import { TaskRewardResInterface } from './types/task-reward-res.interface'
 
 @Injectable()
@@ -26,6 +35,8 @@ export class AdsService {
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
     private readonly logger: PinoLogger,
+    private readonly taddy: TaddyService,
+    private readonly richAdsService: RichAdsService,
   ) {}
 
   public async getAdTaskReward(): Promise<TaskRewardResInterface> {
@@ -61,8 +72,27 @@ export class AdsService {
       },
       include: {
         adsData: true,
+        telegramData: true,
+        subscriptions: {
+          where: {
+            isActive: true,
+            NOT: {
+              planKey: PlansEnum.TRIAL,
+            },
+          },
+        },
       },
     })
+
+    if (
+      (!user || user.subscriptions.length > 0) &&
+      (place == AdsPlaceEnum.MESSAGE ||
+        place == AdsPlaceEnum.FULLSCREEN ||
+        place == AdsPlaceEnum.BANNER)
+    )
+      return {
+        isNoAds: true,
+      }
 
     if (
       type == AdsTypeEnum.VIEW &&
@@ -102,22 +132,105 @@ export class AdsService {
       }
     }
 
-    const block = blocks[Math.floor(Math.random() * blocks.length)]
+    let meta = {}
+    let block: (typeof blocks)[0]
     const limit = 1
-    const duration = block.duration ?? 60 // сек
+    const duration = 3600
+    let isGoNextAd = false
+    let ad: RichAdsGetAdResponseInterface | TaddyGetAdResponseInterface
 
     const sessionId = crypto.randomUUID()
-    const meta = {
-      sessionId,
-      userId,
-      telegramId,
-      blockId: block.id,
-      networkKey: block.networkKey,
-      limit,
-      createdAt: Date.now(),
-      duration,
-      createdIp: ip ?? null,
-      createdUa: ua ?? null,
+
+    if (
+      blocks.findIndex((block) => block.networkKey === AdsNetworkEnum.TADDY) !==
+        -1 &&
+      place == AdsPlaceEnum.MESSAGE
+    ) {
+      const blocksFiltered = blocks.filter(
+        (block) => block.networkKey === AdsNetworkEnum.TADDY,
+      )
+      block = blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
+
+      ad = await this.taddy.getAd({
+        user: {
+          id: Number(userId),
+        },
+        origin: TaddyOriginEnum.SERVER,
+        format:
+          place == AdsPlaceEnum.MESSAGE
+            ? TaddyAdFormatEnum.BOT_AD
+            : place == AdsPlaceEnum.REWARD_TASK
+            ? TaddyAdFormatEnum.APP_TASK
+            : TaddyAdFormatEnum.APP_INTERSTITIAL,
+      })
+
+      if (ad) {
+        meta = {
+          sessionId,
+          userId,
+          telegramId,
+          blockId: block.id,
+          networkKey: block.networkKey,
+          limit,
+          createdAt: Date.now(),
+          duration,
+          createdIp: ip ?? null,
+          createdUa: ua ?? null,
+        }
+      } else {
+        isGoNextAd = true
+      }
+    }
+
+    if (
+      blocks.findIndex(
+        (block) => block.networkKey === AdsNetworkEnum.RICHADS,
+      ) !== -1 &&
+      place == AdsPlaceEnum.MESSAGE
+    ) {
+      const blocksFiltered = blocks.filter(
+        (block) => block.networkKey === AdsNetworkEnum.RICHADS,
+      )
+      block = blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
+
+      ad = await this.richAdsService.getAd({
+        language_code: user.telegramData.languageCode,
+        telegram_id: user.telegramId,
+        widget_id: block.key,
+      })
+
+      if (ad) {
+        meta = {
+          sessionId,
+          userId,
+          telegramId,
+          blockId: block.id,
+          networkKey: block.networkKey,
+          limit,
+          createdAt: Date.now(),
+          duration,
+          createdIp: ip ?? null,
+          createdUa: ua ?? null,
+        }
+      } else {
+        isGoNextAd = true
+      }
+    }
+
+    if (place !== AdsPlaceEnum.MESSAGE || isGoNextAd) {
+      block = blocks[Math.floor(Math.random() * blocks.length)]
+      meta = {
+        sessionId,
+        userId,
+        telegramId,
+        blockId: block.id,
+        networkKey: block.networkKey,
+        limit,
+        createdAt: Date.now(),
+        duration,
+        createdIp: ip ?? null,
+        createdUa: ua ?? null,
+      }
     }
 
     const metaKey = `ad:session:meta:${sessionId}`
@@ -146,23 +259,11 @@ export class AdsService {
         ip: ip ?? null,
         ua: ua ?? null,
         blockId: block.id,
-        ...(type === AdsTypeEnum.VIEW && {
-          claimedAt: new Date(),
-        }),
+        // ...(type === AdsTypeEnum.VIEW && {
+        //   claimedAt: new Date(),
+        // }),
       },
     })
-
-    if (type == AdsTypeEnum.VIEW) {
-      await this.prisma.userAdsData.update({
-        where: {
-          id: user.adsDataId,
-        },
-        data: {
-          lastFullscreenViewedAt: new Date(),
-          lastViewedNetwork: block.networkKey,
-        },
-      })
-    }
 
     // sign JWT verifyKey with ADS_SESSION_SECRET
     const secret = this.configService.get<string>('ADS_SESSION_SECRET')
@@ -200,6 +301,12 @@ export class AdsService {
         blockId: block.key,
         verifyKey,
       },
+      ...(ad &&
+        (block.networkKey === AdsNetworkEnum.RICHADS
+          ? { richAds: { ...(ad as RichAdsGetAdResponseInterface) } }
+          : block.networkKey === AdsNetworkEnum.TADDY
+          ? { taddy: { ...(ad as TaddyGetAdResponseInterface) } }
+          : {})),
     }
   }
 
@@ -367,7 +474,17 @@ export class AdsService {
             id: ad.user.adsDataId,
           },
           data: {
-            lastViewedNetwork: ad.networkKey,
+            ...((ad.type == AdsTypeEnum.VIEW ||
+              ad.type == AdsTypeEnum.REWARD) && {
+              lastViewedNetwork: ad.networkKey,
+            }),
+            ...(ad.type == AdsTypeEnum.VIEW && {
+              lastFullscreenViewedAt: new Date(),
+            }),
+            ...(ad.type == AdsTypeEnum.MESSAGE && {
+              lastMessageAt: new Date(),
+              lastMessageNetwork: ad.networkKey,
+            }),
           },
         })
       })
