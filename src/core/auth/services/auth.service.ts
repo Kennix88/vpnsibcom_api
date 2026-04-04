@@ -1,6 +1,5 @@
 import { PrismaService } from '@core/prisma/prisma.service'
 import { TaddyService } from '@modules/ads/taddy.service'
-import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
 import { GeoService } from '@modules/geo/geo.service'
 import { AcquisitionsService } from '@modules/users/services/acquisitions.service'
 import { SessionsService } from '@modules/users/services/sessions.service'
@@ -77,30 +76,30 @@ export class AuthService {
     const chatInfo = await this.bot.telegram.getChat(userData.user.id)
     const country = this.geoService.getCountry(ip)
 
-    this.taddyService.startEvent({
-      user: {
-        id: Number(userData.user.id),
-        firstName: userData.user.first_name,
-        lastName: userData.user.last_name,
-        username: userData.user.username,
-        premium: userData.user.is_premium,
-        language: userData.user.language_code,
-        ip,
-        ...(country && { country: country.toUpperCase() }),
-        userAgent: ua,
-        // @ts-ignore
-        ...(chatInfo &&
-          // @ts-ignore
-          chatInfo.birthdate &&
-          // @ts-ignore
-          chatInfo.birthdate.year && {
-            // @ts-ignore
-            birthDate: `${chatInfo.birthdate.year}-${chatInfo.birthdate.month}-${chatInfo.birthdate.day}`,
-          }),
-      },
-      origin: TaddyOriginEnum.WEB,
-      start: userData.start_param,
-    })
+    // this.taddyService.startEvent({
+    //   user: {
+    //     id: Number(userData.user.id),
+    //     firstName: userData.user.first_name,
+    //     lastName: userData.user.last_name,
+    //     username: userData.user.username,
+    //     premium: userData.user.is_premium,
+    //     language: userData.user.language_code,
+    //     ip,
+    //     ...(country && { country: country.toUpperCase() }),
+    //     userAgent: ua,
+    //     // @ts-ignore
+    //     ...(chatInfo &&
+    //       // @ts-ignore
+    //       chatInfo.birthdate &&
+    //       // @ts-ignore
+    //       chatInfo.birthdate.year && {
+    //         // @ts-ignore
+    //         birthDate: `${chatInfo.birthdate.year}-${chatInfo.birthdate.month}-${chatInfo.birthdate.day}`,
+    //       }),
+    //   },
+    //   origin: TaddyOriginEnum.WEB,
+    //   start: userData.start_param,
+    // })
 
     const birth = chatInfo &&
       // @ts-ignore
