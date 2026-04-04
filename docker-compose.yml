@@ -177,6 +177,11 @@ services:
       - token-backend
     ports:
       - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '$REDIS_PASSWORD', 'ping']
+      interval: 30s
+      timeout: 10s
+      retries: 5
     tty: true
     stdin_open: true
 
