@@ -1,5 +1,4 @@
 import { PrismaService } from '@core/prisma/prisma.service'
-import { RedisService } from '@core/redis/redis.service'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { InjectBot } from 'nestjs-telegraf'
@@ -9,14 +8,17 @@ import { ChatFromGetChat } from 'telegraf/typings/core/types/typegram'
 @Injectable()
 export class CheckUsersService implements OnModuleInit {
   private readonly logger = new Logger(CheckUsersService.name)
-  private readonly getChatRateKeyPrefix = 'tg:check-users:get-chat'
-  private readonly getChatRateLimitPerSecond = 10
-  private readonly getChatRateRetryDelayMs = 120
+  private readonly baseGetChatRateLimitPerSecond = 20
+  private readonly minGetChatRateLimitPerSecond = 5
+  private readonly getChatRecoverySuccessThreshold = 200
+  private readonly getChatRetryDelayBufferMs = 500
+  private currentGetChatRateLimitPerSecond =
+    this.baseGetChatRateLimitPerSecond
+  private consecutiveGetChatSuccessCount = 0
   private localNextGetChatAt = 0
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly redisService: RedisService,
     @InjectBot() private readonly bot: Telegraf,
   ) {}
 
@@ -29,38 +31,115 @@ export class CheckUsersService implements OnModuleInit {
   }
 
   private async waitForGetChatSlot(): Promise<void> {
-    while (true) {
-      const secondBucket = Math.floor(Date.now() / 1000)
-      const key = `${this.getChatRateKeyPrefix}:${secondBucket}`
+    const now = Date.now()
+    const waitMs = Math.max(0, this.localNextGetChatAt - now)
+    this.localNextGetChatAt =
+      Math.max(this.localNextGetChatAt, now) + this.getCurrentGetChatStepMs()
 
-      try {
-        const current = await this.redisService.incr(key)
-        if (current === 1) {
-          await this.redisService.expire(key, 2)
-        }
+    if (waitMs > 0) {
+      await this.sleep(waitMs)
+    }
+  }
 
-        if (current <= this.getChatRateLimitPerSecond) return
-      } catch (error) {
-        this.logger.warn(
-          `Redis rate-limit error: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        )
+  private getCurrentGetChatStepMs(): number {
+    return Math.ceil(1000 / this.currentGetChatRateLimitPerSecond)
+  }
 
-        const stepMs = Math.ceil(1000 / this.getChatRateLimitPerSecond)
-        const now = Date.now()
-        const waitMs = Math.max(0, this.localNextGetChatAt - now)
-        this.localNextGetChatAt =
-          Math.max(this.localNextGetChatAt, now) + stepMs
+  private getTelegramErrorMeta(error: unknown): {
+    errorCode?: number
+    description?: string
+    retryAfterSeconds?: number
+  } {
+    if (!error || typeof error !== 'object') {
+      return {}
+    }
 
-        if (waitMs > 0) {
-          await this.sleep(waitMs)
-        }
+    const response = 'response' in error ? error.response : undefined
+    if (!response || typeof response !== 'object') {
+      return {}
+    }
 
-        return
-      }
+    const errorCode =
+      'error_code' in response && typeof response.error_code === 'number'
+        ? response.error_code
+        : undefined
+    const description =
+      'description' in response && typeof response.description === 'string'
+        ? response.description
+        : undefined
+    const retryAfterSeconds =
+      'parameters' in response &&
+      response.parameters &&
+      typeof response.parameters === 'object' &&
+      'retry_after' in response.parameters &&
+      typeof response.parameters.retry_after === 'number'
+        ? response.parameters.retry_after
+        : undefined
 
-      await this.sleep(this.getChatRateRetryDelayMs)
+    return { errorCode, description, retryAfterSeconds }
+  }
+
+  private isDefinitelyNotLive(error: unknown): boolean {
+    const { errorCode, description } = this.getTelegramErrorMeta(error)
+    const normalizedDescription = description?.toLowerCase() ?? ''
+
+    return (
+      errorCode === 403 ||
+      normalizedDescription.includes('bot was blocked by the user') ||
+      normalizedDescription.includes('user is deactivated') ||
+      normalizedDescription.includes('chat not found')
+    )
+  }
+
+  private isRateLimited(error: unknown): boolean {
+    const { errorCode, description } = this.getTelegramErrorMeta(error)
+    const normalizedDescription = description?.toLowerCase() ?? ''
+
+    return errorCode === 429 || normalizedDescription.includes('too many requests')
+  }
+
+  private async handleRateLimit(error: unknown): Promise<void> {
+    const previousRate = this.currentGetChatRateLimitPerSecond
+    const { retryAfterSeconds, description } = this.getTelegramErrorMeta(error)
+    const waitMs =
+      Math.max(1, retryAfterSeconds ?? 1) * 1000 + this.getChatRetryDelayBufferMs
+
+    this.currentGetChatRateLimitPerSecond = Math.max(
+      this.minGetChatRateLimitPerSecond,
+      Math.floor(this.currentGetChatRateLimitPerSecond * 0.7),
+    )
+    this.consecutiveGetChatSuccessCount = 0
+    this.localNextGetChatAt = Date.now() + waitMs
+
+    this.logger.warn(
+      `getChat rate limited. PreviousRate=${previousRate}/s, newRate=${this.currentGetChatRateLimitPerSecond}/s, waitMs=${waitMs}, retryAfterSeconds=${
+        retryAfterSeconds ?? 'unknown'
+      }, error=${description ?? 'Too Many Requests'}`,
+    )
+
+    await this.sleep(waitMs)
+  }
+
+  private handleGetChatSuccess(): void {
+    if (
+      this.currentGetChatRateLimitPerSecond >=
+      this.baseGetChatRateLimitPerSecond
+    ) {
+      this.consecutiveGetChatSuccessCount = 0
+      return
+    }
+
+    this.consecutiveGetChatSuccessCount += 1
+    if (
+      this.consecutiveGetChatSuccessCount >=
+      this.getChatRecoverySuccessThreshold
+    ) {
+      this.currentGetChatRateLimitPerSecond += 1
+      this.consecutiveGetChatSuccessCount = 0
+
+      this.logger.log(
+        `getChat rate recovered to ${this.currentGetChatRateLimitPerSecond}/s`,
+      )
     }
   }
 
@@ -76,15 +155,32 @@ export class CheckUsersService implements OnModuleInit {
           let chatInfo: ChatFromGetChat | undefined
           try {
             chatInfo = await this.bot.telegram.getChat(user.telegramId)
+            this.handleGetChatSuccess()
           } catch (error) {
-            chatInfo = undefined
-          }
+            if (this.isRateLimited(error)) {
+              await this.handleRateLimit(error)
+              continue
+            }
 
-          if (!chatInfo) {
-            await this.prisma.userTelegramData.update({
-              where: { id: user.telegramDataId },
-              data: { isLive: false },
-            })
+            this.consecutiveGetChatSuccessCount = 0
+
+            const { errorCode, description } = this.getTelegramErrorMeta(error)
+            const errorMessage =
+              description ??
+              (error instanceof Error ? error.message : String(error))
+
+            if (this.isDefinitelyNotLive(error)) {
+              await this.prisma.userTelegramData.update({
+                where: { id: user.telegramDataId },
+                data: { isLive: false },
+              })
+            } else {
+              this.logger.warn(
+                `getChat failed without definitive liveness signal: userId=${user.id}, telegramId=${user.telegramId}, errorCode=${
+                  errorCode ?? 'unknown'
+                }, error=${errorMessage}`,
+              )
+            }
             continue
           }
 
@@ -102,7 +198,6 @@ export class CheckUsersService implements OnModuleInit {
           await this.prisma.userTelegramData.update({
             where: { id: user.telegramDataId },
             data: {
-              isLive: true,
               birthDay: birth?.day ?? null,
               birthMonth: birth?.month ?? null,
               birthYear: birth?.year ?? null,
