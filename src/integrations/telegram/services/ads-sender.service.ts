@@ -1,8 +1,4 @@
-import {
-  AdsNetworkEnum,
-  DefaultEnum,
-  PlansEnum,
-} from '@core/prisma/generated/enums'
+import { AdsNetworkEnum, DefaultEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { AdsService } from '@modules/ads/ads.service'
 import { AdsPlaceEnum } from '@modules/ads/types/ads-place.enum'
@@ -25,6 +21,8 @@ export class AdsSenderService implements OnModuleInit {
     this.baseSendMessageRateLimitPerSecond
   private consecutiveSendMessageSuccessCount = 0
   private localNextSendMessageAt = 0
+  private sendAdInProgress = false
+  private readonly batchSize = 500
 
   constructor(
     @InjectBot() private readonly bot: Telegraf,
@@ -153,95 +151,124 @@ export class AdsSenderService implements OnModuleInit {
   @Cron('0 * * * *')
   public async sendAd() {
     if (process.env.NODE_ENV === 'development') return
+    if (this.sendAdInProgress) {
+      this.logger.warn({
+        msg: 'Send ad skipped: previous run still in progress',
+      })
+      return
+    }
+    this.sendAdInProgress = true
     try {
       const settings = await this.prisma.settings.findFirst({
         where: {
           key: DefaultEnum.DEFAULT,
         },
       })
+      const now = new Date()
+      const failedCooldownAt = addHours(now, -3)
       const nextAdsHours = settings?.nextAdsHours ?? 12
-      const nextAdsAt = addHours(new Date(), -nextAdsHours)
-      const users = await this.prisma.users.findMany({
-        where: {
-          telegramData: {
-            is: {
-              isLive: true,
-            },
-          },
-          adsData: {
-            is: {
-              OR: [
-                {
-                  lastMessageAt: {
-                    lt: nextAdsAt,
-                  },
-                },
-                {
-                  lastMessageAt: null,
-                },
-              ],
-            },
-          },
-        },
-        include: {
-          telegramData: true,
-          adsData: true,
-          subscriptions: {
-            where: {
-              isActive: true,
-              NOT: {
-                planKey: PlansEnum.TRIAL,
-              },
-            },
-          },
-        },
+      const nextAdsAt = addHours(now, -nextAdsHours)
+      let lastId: string | undefined
+      let processed = 0
+
+      this.logger.info({
+        msg: 'Send ads started',
+        batchSize: this.batchSize,
       })
 
-      for (const user of users) {
-        const ad = await this.adsService.createAdSession({
-          userId: user.id,
-          telegramId: user.telegramId,
-          place: AdsPlaceEnum.MESSAGE,
-          type: AdsTypeEnum.MESSAGE,
-        })
-        this.logger.info({
-          msg: `Send ad to user ${user.id}`,
-          ad,
-        })
-        if (!ad || ad.isNoAds) continue
-        if (ad.richAds) {
-          await this.waitForSendMessageSlot()
-
-          await this.bot.telegram
-            .sendPhoto(user.telegramId, ad.richAds.image, {
-              caption: `<b>${ad.richAds.title}</b>\n\n${
-                ad.richAds.message ?? ''
-              }\n\n${
-                ad.richAds.brand ? `Ad by ${ad.richAds.brand}` : ''
-              }\n\n#AD #Sponsor\n<code>With an active subscription, no ads are shown! / При активной подписке, реклама не показывается!</code>`,
-              parse_mode: 'HTML',
-              reply_markup: {
-                inline_keyboard: ad.richAds.button
-                  ? [
-                      [
-                        {
-                          text: ad.richAds.button,
-                          url: ad.richAds.link,
-                          // @ts-ignore
-                          style: 'success',
-                        },
-                      ],
-                    ]
-                  : [],
+      while (true) {
+        const users = await this.prisma.users.findMany({
+          where: {
+            telegramData: {
+              is: {
+                isLive: true,
               },
-            })
-            .then((res) => {
+            },
+            adsData: {
+              is: {
+                OR: [
+                  {
+                    lastMessageAt: {
+                      lt: nextAdsAt,
+                    },
+                  },
+                  {
+                    lastMessageAt: null,
+                  },
+                ],
+              },
+            },
+            ...(lastId && {
+              id: {
+                gt: lastId,
+              },
+            }),
+          },
+          orderBy: {
+            id: 'asc',
+          },
+          take: this.batchSize,
+          select: {
+            id: true,
+            telegramId: true,
+            telegramDataId: true,
+            adsDataId: true,
+          },
+        })
+
+        if (users.length === 0) break
+
+        for (const user of users) {
+          const ad = await this.adsService.createAdSession({
+            userId: user.id,
+            telegramId: user.telegramId,
+            place: AdsPlaceEnum.MESSAGE,
+            type: AdsTypeEnum.MESSAGE,
+          })
+          this.logger.info({
+            msg: `Send ad to user ${user.id}`,
+            ad,
+          })
+          if (!ad || ad.isNoAds) continue
+          if (ad.richAds) {
+            await this.waitForSendMessageSlot()
+
+            let sendSucceeded = false
+            try {
+              const res = await this.bot.telegram.sendPhoto(
+                user.telegramId,
+                ad.richAds.image,
+                {
+                  caption: `<b>${ad.richAds.title}</b>\n\n${
+                    ad.richAds.message ?? ''
+                  }\n\n${
+                    ad.richAds.brand ? `Ad by ${ad.richAds.brand}` : ''
+                  }\n\n#AD #Sponsor\n<code>With an active subscription, no ads are shown! / При активной подписке, реклама не показывается!</code>`,
+                  parse_mode: 'HTML',
+                  reply_markup: {
+                    inline_keyboard: ad.richAds.button
+                      ? [
+                          [
+                            {
+                              text: ad.richAds.button,
+                              url: ad.richAds.link,
+                              // @ts-ignore
+                              style: 'success',
+                            },
+                          ],
+                        ]
+                      : [],
+                  },
+                },
+              )
+
+              sendSucceeded = true
               this.handleSendSuccess()
               this.logger.info({
                 msg: `Send ad`,
                 res,
               })
-              this.adsService.confirmAd({
+              await this.adsService.confirmAd({
                 userId: user.id,
                 verifyKey: ad.ad.verifyKey,
               })
@@ -251,38 +278,63 @@ export class AdsSenderService implements OnModuleInit {
                   e,
                 })
               })
-            })
-            .catch((e) => {
+            } catch (e) {
               if (this.isRateLimited(e)) {
-                return this.handleRateLimit(e)
+                await this.handleRateLimit(e)
+              } else {
+                this.consecutiveSendMessageSuccessCount = 0
+                this.logger.error({
+                  msg: `Error send ad`,
+                  e,
+                })
+                await this.prisma.userTelegramData.update({
+                  where: { id: user.telegramDataId },
+                  data: { isLive: false },
+                })
               }
-
-              this.consecutiveSendMessageSuccessCount = 0
-              this.logger.error({
-                msg: `Error send ad`,
-                e,
+            } finally {
+              await this.prisma.userAdsData.update({
+                where: {
+                  id: user.adsDataId,
+                },
+                data: {
+                  lastMessageAt: sendSucceeded ? now : failedCooldownAt,
+                  lastMessageNetwork: AdsNetworkEnum.RICHADS,
+                },
               })
-              this.prisma.userTelegramData.update({
-                where: { id: user.telegramDataId },
-                data: { isLive: false },
-              })
+            }
+          } else if (ad.taddy) {
+            this.logger.info({
+              msg: 'Skip Taddy message ad (not supported yet)',
+              userId: user.id,
             })
-          this.prisma.userAdsData.update({
-            where: {
-              id: user.adsDataId,
-            },
-            data: {
-              lastMessageAt: new Date(),
-              lastMessageNetwork: AdsNetworkEnum.RICHADS,
-            },
-          })
+            await this.prisma.userAdsData.update({
+              where: {
+                id: user.adsDataId,
+              },
+              data: {
+                lastMessageAt: failedCooldownAt,
+                lastMessageNetwork: AdsNetworkEnum.TADDY,
+              },
+            })
+          }
         }
+
+        processed += users.length
+        lastId = users[users.length - 1].id
+        this.logger.info({
+          msg: 'Send ads batch processed',
+          batchSize: users.length,
+          total: processed,
+        })
       }
     } catch (e) {
       this.logger.error({
         msg: `Error send ad`,
         e,
       })
+    } finally {
+      this.sendAdInProgress = false
     }
   }
 }
