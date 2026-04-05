@@ -15,10 +15,12 @@ export class ImportUsersService implements OnModuleInit {
   private readonly minGetChatRateLimitPerSecond = 5
   private readonly getChatRecoverySuccessThreshold = 200
   private readonly getChatRetryDelayBufferMs = 500
-  private currentGetChatRateLimitPerSecond =
-    this.baseGetChatRateLimitPerSecond
+  private currentGetChatRateLimitPerSecond = this.baseGetChatRateLimitPerSecond
   private consecutiveGetChatSuccessCount = 0
   private localNextGetChatAt = 0
+  private importInProgress = false
+  private readonly importLockKey = 'telegram:import-users'
+  private readonly batchSize = 200
 
   constructor(
     @InjectBot() private readonly bot: Telegraf,
@@ -88,14 +90,17 @@ export class ImportUsersService implements OnModuleInit {
     const { errorCode, description } = this.getTelegramErrorMeta(error)
     const normalizedDescription = description?.toLowerCase() ?? ''
 
-    return errorCode === 429 || normalizedDescription.includes('too many requests')
+    return (
+      errorCode === 429 || normalizedDescription.includes('too many requests')
+    )
   }
 
   private async handleRateLimit(error: unknown): Promise<void> {
     const previousRate = this.currentGetChatRateLimitPerSecond
     const { retryAfterSeconds, description } = this.getTelegramErrorMeta(error)
     const waitMs =
-      Math.max(1, retryAfterSeconds ?? 1) * 1000 + this.getChatRetryDelayBufferMs
+      Math.max(1, retryAfterSeconds ?? 1) * 1000 +
+      this.getChatRetryDelayBufferMs
 
     this.currentGetChatRateLimitPerSecond = Math.max(
       this.minGetChatRateLimitPerSecond,
@@ -140,6 +145,19 @@ export class ImportUsersService implements OnModuleInit {
     }
   }
 
+  private async tryAcquireLock(): Promise<boolean> {
+    const result = (await this.prisma.$queryRaw<
+      { locked: boolean }[]
+    >`SELECT pg_try_advisory_lock(hashtext(${this.importLockKey})) as locked`) as {
+      locked: boolean
+    }[]
+    return result?.[0]?.locked === true
+  }
+
+  private async releaseLock(): Promise<void> {
+    await this.prisma.$queryRaw`SELECT pg_advisory_unlock(hashtext(${this.importLockKey}))`
+  }
+
   private validateImportUsersFile(
     fileContent: string,
     contentType?: string,
@@ -177,8 +195,22 @@ export class ImportUsersService implements OnModuleInit {
     return [...new Set(lines)]
   }
 
-  @Cron('0 0 0 * * *')
+  @Cron('0 0 * * * *')
   public async importUsers() {
+    if (this.importInProgress) {
+      this.logger.warn({
+        msg: 'Import users skipped: previous run still in progress',
+      })
+      return
+    }
+    const lockAcquired = await this.tryAcquireLock()
+    if (!lockAcquired) {
+      this.logger.warn({
+        msg: 'Import users skipped: lock is held by another instance',
+      })
+      return
+    }
+    this.importInProgress = true
     try {
       const settings = await this.prisma.settings.findFirst({
         where: {
@@ -201,68 +233,82 @@ export class ImportUsersService implements OnModuleInit {
         total: users.length,
       })
 
-      for (const user of users) {
-        try {
-          const getUser = await this.usersService.getResUserByTgId(user)
-          if (getUser) continue
+      for (let index = 0; index < users.length; index += this.batchSize) {
+        const batch = users.slice(index, index + this.batchSize)
+        const existing = await this.prisma.users.findMany({
+          where: {
+            telegramId: {
+              in: batch,
+            },
+          },
+          select: {
+            telegramId: true,
+          },
+        })
+        const existingSet = new Set(existing.map((item) => item.telegramId))
 
-          await this.waitForGetChatSlot()
+        for (const user of batch) {
+          if (existingSet.has(user)) continue
 
-          let chatInfo: ChatFromGetChat | undefined
           try {
-            chatInfo = await this.bot.telegram.getChat(user)
-            this.handleGetChatSuccess()
-          } catch (error) {
-            if (this.isRateLimited(error)) {
-              await this.handleRateLimit(error)
+            await this.waitForGetChatSlot()
+
+            let chatInfo: ChatFromGetChat | undefined
+            try {
+              chatInfo = await this.bot.telegram.getChat(user)
+              this.handleGetChatSuccess()
+            } catch (error) {
+              if (this.isRateLimited(error)) {
+                await this.handleRateLimit(error)
+                continue
+              }
+
+              this.consecutiveGetChatSuccessCount = 0
+              this.logger.warn({
+                msg: `Telegram user info unavailable during import`,
+                telegramId: user,
+                error,
+              })
               continue
             }
 
-            this.consecutiveGetChatSuccessCount = 0
-            this.logger.warn({
-              msg: `Telegram user info unavailable during import`,
+            const birth = chatInfo &&
+              // @ts-ignore
+              chatInfo.birthdate && {
+                // @ts-ignore
+                year: chatInfo.birthdate.year ?? null,
+                // @ts-ignore
+                month: chatInfo.birthdate.month ?? null,
+                // @ts-ignore
+                day: chatInfo.birthdate.day ?? null,
+              }
+
+            await this.usersService.createUser({
+              telegramId: user.toString(),
+              userInBotData: {
+                id: Number(user),
+                is_bot: false,
+                // @ts-ignore
+                ...(chatInfo.username && { username: chatInfo.username }),
+                // @ts-ignore
+                lastName: chatInfo.last_name ? chatInfo.last_name : 'Anonimus',
+                // @ts-ignore
+                firstName: chatInfo.first_name ? chatInfo.first_name : 'Anonim',
+              },
+              ...(birth && { birth }),
+            })
+
+            this.logger.info({
+              msg: 'Import user finished',
+              telegramId: user,
+            })
+          } catch (error) {
+            this.logger.error({
+              msg: 'Error import user',
               telegramId: user,
               error,
             })
-            continue
           }
-
-          const birth = chatInfo &&
-            // @ts-ignore
-            chatInfo.birthdate && {
-              // @ts-ignore
-              year: chatInfo.birthdate.year ?? null,
-              // @ts-ignore
-              month: chatInfo.birthdate.month ?? null,
-              // @ts-ignore
-              day: chatInfo.birthdate.day ?? null,
-            }
-
-          await this.usersService.createUser({
-            telegramId: user.toString(),
-            userInBotData: {
-              id: Number(user),
-              is_bot: false,
-              // @ts-ignore
-              ...(chatInfo.username && { username: chatInfo.username }),
-              // @ts-ignore
-              lastName: chatInfo.last_name ? chatInfo.last_name : 'Anonimus',
-              // @ts-ignore
-              firstName: chatInfo.first_name ? chatInfo.first_name : 'Anonim',
-            },
-            ...(birth && { birth }),
-          })
-
-          this.logger.info({
-            msg: 'Import user finished',
-            telegramId: user,
-          })
-        } catch (error) {
-          this.logger.error({
-            msg: 'Error import user',
-            telegramId: user,
-            error,
-          })
         }
       }
 
@@ -275,6 +321,16 @@ export class ImportUsersService implements OnModuleInit {
         msg: `Error import users`,
         e,
       })
+    } finally {
+      this.importInProgress = false
+      try {
+        await this.releaseLock()
+      } catch (error) {
+        this.logger.warn({
+          msg: 'Import users failed to release lock',
+          error,
+        })
+      }
     }
   }
 }
