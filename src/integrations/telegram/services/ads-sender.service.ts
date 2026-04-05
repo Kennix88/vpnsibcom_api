@@ -1,6 +1,9 @@
-import { DefaultEnum, PlansEnum } from '@core/prisma/generated/enums'
+import {
+  AdsNetworkEnum,
+  DefaultEnum,
+  PlansEnum,
+} from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
-import { RedisService } from '@core/redis/redis.service'
 import { AdsService } from '@modules/ads/ads.service'
 import { AdsPlaceEnum } from '@modules/ads/types/ads-place.enum'
 import { AdsTypeEnum } from '@modules/ads/types/ads-type.enum'
@@ -14,16 +17,19 @@ import { Telegraf } from 'telegraf'
 
 @Injectable()
 export class AdsSenderService implements OnModuleInit {
-  private readonly sendMessageRateKeyPrefix = 'tg:ads-sender:send-message'
-  private readonly sendMessageRateLimitPerSecond = 10
-  private readonly sendMessageRateRetryDelayMs = 120
+  private readonly baseSendMessageRateLimitPerSecond = 20
+  private readonly minSendMessageRateLimitPerSecond = 5
+  private readonly sendMessageRecoverySuccessThreshold = 100
+  private readonly sendMessageRetryDelayBufferMs = 500
+  private currentSendMessageRateLimitPerSecond =
+    this.baseSendMessageRateLimitPerSecond
+  private consecutiveSendMessageSuccessCount = 0
   private localNextSendMessageAt = 0
 
   constructor(
     @InjectBot() private readonly bot: Telegraf,
     private readonly logger: PinoLogger,
     private readonly prisma: PrismaService,
-    private readonly redisService: RedisService,
     private readonly adsService: AdsService,
   ) {}
 
@@ -36,42 +42,117 @@ export class AdsSenderService implements OnModuleInit {
   }
 
   private async waitForSendMessageSlot(): Promise<void> {
-    while (true) {
-      const secondBucket = Math.floor(Date.now() / 1000)
-      const key = `${this.sendMessageRateKeyPrefix}:${secondBucket}`
+    const now = Date.now()
+    const waitMs = Math.max(0, this.localNextSendMessageAt - now)
+    this.localNextSendMessageAt =
+      Math.max(this.localNextSendMessageAt, now) +
+      this.getCurrentSendMessageStepMs()
 
-      try {
-        const current = await this.redisService.incr(key)
-        if (current === 1) {
-          await this.redisService.expire(key, 2)
-        }
+    if (waitMs > 0) {
+      await this.sleep(waitMs)
+    }
+  }
 
-        if (current <= this.sendMessageRateLimitPerSecond) return
-      } catch (error) {
-        this.logger.warn({
-          msg: 'Redis rate-limit error',
-          error,
-        })
+  private getCurrentSendMessageStepMs(): number {
+    return Math.ceil(1000 / this.currentSendMessageRateLimitPerSecond)
+  }
 
-        const stepMs = Math.ceil(1000 / this.sendMessageRateLimitPerSecond)
-        const now = Date.now()
-        const waitMs = Math.max(0, this.localNextSendMessageAt - now)
-        this.localNextSendMessageAt =
-          Math.max(this.localNextSendMessageAt, now) + stepMs
+  private getTelegramErrorMeta(error: unknown): {
+    errorCode?: number
+    description?: string
+    retryAfterSeconds?: number
+  } {
+    if (!error || typeof error !== 'object') {
+      return {}
+    }
 
-        if (waitMs > 0) {
-          await this.sleep(waitMs)
-        }
+    const response = 'response' in error ? error.response : undefined
+    if (!response || typeof response !== 'object') {
+      return {}
+    }
 
-        return
-      }
+    const errorCode =
+      'error_code' in response && typeof response.error_code === 'number'
+        ? response.error_code
+        : undefined
+    const description =
+      'description' in response && typeof response.description === 'string'
+        ? response.description
+        : undefined
+    const retryAfterSeconds =
+      'parameters' in response &&
+      response.parameters &&
+      typeof response.parameters === 'object' &&
+      'retry_after' in response.parameters &&
+      typeof response.parameters.retry_after === 'number'
+        ? response.parameters.retry_after
+        : undefined
 
-      await this.sleep(this.sendMessageRateRetryDelayMs)
+    return { errorCode, description, retryAfterSeconds }
+  }
+
+  private isRateLimited(error: unknown): boolean {
+    const { errorCode, description } = this.getTelegramErrorMeta(error)
+    const normalizedDescription = description?.toLowerCase() ?? ''
+
+    return (
+      errorCode === 429 || normalizedDescription.includes('too many requests')
+    )
+  }
+
+  private async handleRateLimit(error: unknown): Promise<void> {
+    const previousRate = this.currentSendMessageRateLimitPerSecond
+    const { retryAfterSeconds, description } = this.getTelegramErrorMeta(error)
+    const waitMs =
+      Math.max(1, retryAfterSeconds ?? 1) * 1000 +
+      this.sendMessageRetryDelayBufferMs
+
+    this.currentSendMessageRateLimitPerSecond = Math.max(
+      this.minSendMessageRateLimitPerSecond,
+      Math.floor(this.currentSendMessageRateLimitPerSecond * 0.7),
+    )
+    this.consecutiveSendMessageSuccessCount = 0
+    this.localNextSendMessageAt = Date.now() + waitMs
+
+    this.logger.warn({
+      msg: 'Telegram send rate limited',
+      previousRatePerSecond: previousRate,
+      newRatePerSecond: this.currentSendMessageRateLimitPerSecond,
+      waitMs,
+      retryAfterSeconds,
+      description,
+    })
+
+    await this.sleep(waitMs)
+  }
+
+  private handleSendSuccess(): void {
+    if (
+      this.currentSendMessageRateLimitPerSecond >=
+      this.baseSendMessageRateLimitPerSecond
+    ) {
+      this.consecutiveSendMessageSuccessCount = 0
+      return
+    }
+
+    this.consecutiveSendMessageSuccessCount += 1
+    if (
+      this.consecutiveSendMessageSuccessCount >=
+      this.sendMessageRecoverySuccessThreshold
+    ) {
+      this.currentSendMessageRateLimitPerSecond += 1
+      this.consecutiveSendMessageSuccessCount = 0
+
+      this.logger.info({
+        msg: 'Telegram send rate recovered',
+        ratePerSecond: this.currentSendMessageRateLimitPerSecond,
+      })
     }
   }
 
   @Cron('0 * * * *')
   public async sendAd() {
+    if (process.env.NODE_ENV === 'development') return
     try {
       const settings = await this.prisma.settings.findFirst({
         where: {
@@ -135,7 +216,9 @@ export class AdsSenderService implements OnModuleInit {
             .sendPhoto(user.telegramId, ad.richAds.image, {
               caption: `<b>${ad.richAds.title}</b>\n\n${
                 ad.richAds.message ?? ''
-              }\n\n${ad.richAds.brand ? `Ad by ${ad.richAds.brand}` : ''}`,
+              }\n\n${
+                ad.richAds.brand ? `Ad by ${ad.richAds.brand}` : ''
+              }\n\n#AD #Sponsor\n<code>With an active subscription, no ads are shown! / При активной подписке, реклама не показывается!</code>`,
               parse_mode: 'HTML',
               reply_markup: {
                 inline_keyboard: ad.richAds.button
@@ -153,6 +236,7 @@ export class AdsSenderService implements OnModuleInit {
               },
             })
             .then((res) => {
+              this.handleSendSuccess()
               this.logger.info({
                 msg: `Send ad`,
                 res,
@@ -169,6 +253,11 @@ export class AdsSenderService implements OnModuleInit {
               })
             })
             .catch((e) => {
+              if (this.isRateLimited(e)) {
+                return this.handleRateLimit(e)
+              }
+
+              this.consecutiveSendMessageSuccessCount = 0
               this.logger.error({
                 msg: `Error send ad`,
                 e,
@@ -178,6 +267,15 @@ export class AdsSenderService implements OnModuleInit {
                 data: { isLive: false },
               })
             })
+          this.prisma.userAdsData.update({
+            where: {
+              id: user.adsDataId,
+            },
+            data: {
+              lastMessageAt: new Date(),
+              lastMessageNetwork: AdsNetworkEnum.RICHADS,
+            },
+          })
         }
       }
     } catch (e) {
