@@ -3,6 +3,7 @@ import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/services/users.service'
 import { Injectable } from '@nestjs/common'
+import { Cron } from '@nestjs/schedule'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
@@ -28,6 +29,8 @@ import { TaskRewardResInterface } from './types/task-reward-res.interface'
 
 @Injectable()
 export class AdsService {
+  private static readonly SESSION_TTL_SECONDS = 60 * 60 * 3
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
@@ -84,8 +87,14 @@ export class AdsService {
       },
     })
 
+    if (!user) {
+      return {
+        isNoAds: true,
+      }
+    }
+
     if (
-      (!user || user.subscriptions.length > 0) &&
+      user.subscriptions.length > 0 &&
       (place == AdsPlaceEnum.MESSAGE ||
         place == AdsPlaceEnum.FULLSCREEN ||
         place == AdsPlaceEnum.BANNER)
@@ -96,7 +105,7 @@ export class AdsService {
 
     if (
       type == AdsTypeEnum.VIEW &&
-      user.adsData.lastFullscreenViewedAt &&
+      user?.adsData?.lastFullscreenViewedAt &&
       !isAfter(
         new Date(),
         addMinutes(new Date(user.adsData.lastFullscreenViewedAt), 3),
@@ -133,91 +142,77 @@ export class AdsService {
     }
 
     let meta = {}
-    let block: (typeof blocks)[0]
+    let block: (typeof blocks)[0] | undefined
     const limit = 1
-    const duration = 3600
-    let isGoNextAd = false
+    const duration = AdsService.SESSION_TTL_SECONDS
     let ad: RichAdsGetAdResponseInterface | TaddyGetAdResponseInterface
 
     const sessionId = crypto.randomUUID()
 
-    if (
-      blocks.findIndex((block) => block.networkKey === AdsNetworkEnum.TADDY) !==
-        -1 &&
-      place == AdsPlaceEnum.MESSAGE
-    ) {
-      const blocksFiltered = blocks.filter(
-        (block) => block.networkKey === AdsNetworkEnum.TADDY,
-      )
-      block = blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
+    if (place == AdsPlaceEnum.MESSAGE) {
+      const availableMessageNetworks = new Set<AdsNetworkEnum>()
+      if (blocks.some((b) => b.networkKey === AdsNetworkEnum.TADDY))
+        availableMessageNetworks.add(AdsNetworkEnum.TADDY)
+      if (blocks.some((b) => b.networkKey === AdsNetworkEnum.RICHADS))
+        availableMessageNetworks.add(AdsNetworkEnum.RICHADS)
 
-      ad = await this.taddy.getAd({
-        user: {
-          id: Number(userId),
-        },
-        origin: TaddyOriginEnum.SERVER,
-        format:
-          place == AdsPlaceEnum.MESSAGE
-            ? TaddyAdFormatEnum.BOT_AD
-            : place == AdsPlaceEnum.REWARD_TASK
-            ? TaddyAdFormatEnum.APP_TASK
-            : TaddyAdFormatEnum.APP_INTERSTITIAL,
-      })
-
-      if (ad) {
-        meta = {
-          sessionId,
-          userId,
-          telegramId,
-          blockId: block.id,
-          networkKey: block.networkKey,
-          limit,
-          createdAt: Date.now(),
-          duration,
-          createdIp: ip ?? null,
-          createdUa: ua ?? null,
-        }
-      } else {
-        isGoNextAd = true
+      if (availableMessageNetworks.size === 0) {
+        return { isNoAds: true }
       }
-    }
 
-    if (
-      blocks.findIndex(
-        (block) => block.networkKey === AdsNetworkEnum.RICHADS,
-      ) !== -1 &&
-      place == AdsPlaceEnum.MESSAGE
-    ) {
-      const blocksFiltered = blocks.filter(
-        (block) => block.networkKey === AdsNetworkEnum.RICHADS,
-      )
-      block = blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
+      const selectedNetwork =
+        Array.from(availableMessageNetworks)[
+          Math.floor(Math.random() * availableMessageNetworks.size)
+        ]
 
-      ad = await this.richAdsService.getAd({
-        language_code: user.telegramData.languageCode,
-        telegram_id: user.telegramId,
-        widget_id: block.key,
-      })
+      if (selectedNetwork === AdsNetworkEnum.TADDY) {
+        const blocksFiltered = blocks.filter(
+          (b) => b.networkKey === AdsNetworkEnum.TADDY,
+        )
+        block =
+          blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
 
-      if (ad) {
-        meta = {
-          sessionId,
-          userId,
-          telegramId,
-          blockId: block.id,
-          networkKey: block.networkKey,
-          limit,
-          createdAt: Date.now(),
-          duration,
-          createdIp: ip ?? null,
-          createdUa: ua ?? null,
+        ad = await this.taddy.getAd({
+          user: {
+            id: Number(userId),
+          },
+          origin: TaddyOriginEnum.SERVER,
+          format: TaddyAdFormatEnum.BOT_AD,
+        })
+      } else if (selectedNetwork === AdsNetworkEnum.RICHADS) {
+        if (!user?.telegramData || !user.telegramId) {
+          return { isNoAds: true }
         }
-      } else {
-        isGoNextAd = true
-      }
-    }
+        const blocksFiltered = blocks.filter(
+          (b) => b.networkKey === AdsNetworkEnum.RICHADS,
+        )
+        block =
+          blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
 
-    if (place !== AdsPlaceEnum.MESSAGE || isGoNextAd) {
+        ad = await this.richAdsService.getAd({
+          language_code: user.telegramData.languageCode,
+          telegram_id: user.telegramId,
+          widget_id: block.key,
+        })
+      }
+
+      if (!ad || !block) {
+        return { isNoAds: true }
+      }
+
+      meta = {
+        sessionId,
+        userId,
+        telegramId,
+        blockId: block.id,
+        networkKey: block.networkKey,
+        limit,
+        createdAt: Date.now(),
+        duration,
+        createdIp: ip ?? null,
+        createdUa: ua ?? null,
+      }
+    } else {
       block = blocks[Math.floor(Math.random() * blocks.length)]
       meta = {
         sessionId,
@@ -358,11 +353,11 @@ export class AdsService {
       await this.redisService.lpush(attemptsKey, JSON.stringify(attempt))
       // держим только последние N записей — напр. 100
       await this.redisService.ltrim(attemptsKey, 0, 99)
-      // TTL немного длиннее duration, например duration*4
+      // TTL равен времени жизни сессии (чтобы не висели хвосты)
       if (metaObj?.duration) {
         await this.redisService.expire(
           attemptsKey,
-          Math.max(60, metaObj.duration * 4),
+          Math.max(60, metaObj.duration),
         )
       }
     } catch (e) {
@@ -522,6 +517,59 @@ export class AdsService {
         )
       }
       return { success: false, reason: 'DB_ERROR' }
+    }
+  }
+
+  @Cron('0 */10 * * * *')
+  public async cleanupExpiredAdSessions(): Promise<void> {
+    const cutoff = new Date(
+      Date.now() - AdsService.SESSION_TTL_SECONDS * 1000,
+    )
+    const batchSize = 500
+
+    while (true) {
+      const expired = await this.prisma.adsViews.findMany({
+        where: {
+          claimedAt: null,
+          createdAt: {
+            lt: cutoff,
+          },
+        },
+        select: {
+          verifyKey: true,
+        },
+        take: batchSize,
+      })
+
+      if (expired.length === 0) break
+
+      const verifyKeys = expired.map((item) => item.verifyKey)
+
+      await this.prisma.adsViews.deleteMany({
+        where: {
+          verifyKey: {
+            in: verifyKeys,
+          },
+        },
+      })
+
+      try {
+        const redisKeys: string[] = []
+        for (const sid of verifyKeys) {
+          redisKeys.push(`ad:session:meta:${sid}`)
+          redisKeys.push(`ad:attempts:${sid}`)
+          redisKeys.push(`ad:session:used:${sid}`)
+        }
+        if (redisKeys.length > 0) {
+          await this.redisService.del(...redisKeys)
+        }
+      } catch (e) {
+        this.logger.warn(
+          `cleanupExpiredAdSessions: failed to purge redis keys: ${
+            e instanceof Error ? e.message : String(e)
+          }`,
+        )
+      }
     }
   }
 
