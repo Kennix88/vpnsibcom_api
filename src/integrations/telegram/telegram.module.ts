@@ -2,6 +2,7 @@ import { telegrafConfig } from '@core/configs/telegraf.config'
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { StartUpdate } from '@integrations/telegram/start.update'
 import { TelegramController } from '@integrations/telegram/telegram.controller'
+import { ChatMemberUpdate } from '@integrations/telegram/updates/chat-member.update'
 import { PaymentsUpdate } from '@integrations/telegram/updates/payments.update'
 import { AdsModule } from '@modules/ads/ads.module'
 import { GeoModule } from '@modules/geo/geo.module'
@@ -32,6 +33,7 @@ import { ImportUsersService } from './services/import-users.service'
   controllers: [TelegramController],
   providers: [
     StartUpdate,
+    ChatMemberUpdate,
     LoggerTelegramService,
     PaymentsUpdate,
     LoggerTelegramService,
