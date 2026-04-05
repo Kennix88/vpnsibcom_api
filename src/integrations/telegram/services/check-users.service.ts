@@ -12,10 +12,12 @@ export class CheckUsersService implements OnModuleInit {
   private readonly minGetChatRateLimitPerSecond = 5
   private readonly getChatRecoverySuccessThreshold = 200
   private readonly getChatRetryDelayBufferMs = 500
-  private currentGetChatRateLimitPerSecond =
-    this.baseGetChatRateLimitPerSecond
+  private currentGetChatRateLimitPerSecond = this.baseGetChatRateLimitPerSecond
   private consecutiveGetChatSuccessCount = 0
   private localNextGetChatAt = 0
+  private checkInProgress = false
+  private readonly checkLockKey = 'telegram:check-users'
+  private readonly batchSize = 500
 
   constructor(
     private readonly prisma: PrismaService,
@@ -95,14 +97,17 @@ export class CheckUsersService implements OnModuleInit {
     const { errorCode, description } = this.getTelegramErrorMeta(error)
     const normalizedDescription = description?.toLowerCase() ?? ''
 
-    return errorCode === 429 || normalizedDescription.includes('too many requests')
+    return (
+      errorCode === 429 || normalizedDescription.includes('too many requests')
+    )
   }
 
   private async handleRateLimit(error: unknown): Promise<void> {
     const previousRate = this.currentGetChatRateLimitPerSecond
     const { retryAfterSeconds, description } = this.getTelegramErrorMeta(error)
     const waitMs =
-      Math.max(1, retryAfterSeconds ?? 1) * 1000 + this.getChatRetryDelayBufferMs
+      Math.max(1, retryAfterSeconds ?? 1) * 1000 +
+      this.getChatRetryDelayBufferMs
 
     this.currentGetChatRateLimitPerSecond = Math.max(
       this.minGetChatRateLimitPerSecond,
@@ -112,7 +117,9 @@ export class CheckUsersService implements OnModuleInit {
     this.localNextGetChatAt = Date.now() + waitMs
 
     this.logger.warn(
-      `getChat rate limited. PreviousRate=${previousRate}/s, newRate=${this.currentGetChatRateLimitPerSecond}/s, waitMs=${waitMs}, retryAfterSeconds=${
+      `getChat rate limited. PreviousRate=${previousRate}/s, newRate=${
+        this.currentGetChatRateLimitPerSecond
+      }/s, waitMs=${waitMs}, retryAfterSeconds=${
         retryAfterSeconds ?? 'unknown'
       }, error=${description ?? 'Too Many Requests'}`,
     )
@@ -143,84 +150,157 @@ export class CheckUsersService implements OnModuleInit {
     }
   }
 
-  @Cron('0 0 */6 * * *')
-  private async check() {
-    try {
-      const users = await this.prisma.users.findMany()
-      this.logger.log(`Check users started. Total: ${users.length}`)
-      for (const user of users) {
-        try {
-          await this.waitForGetChatSlot()
+  private async tryAcquireLock(): Promise<boolean> {
+    const result = (await this.prisma.$queryRaw<
+      { locked: boolean }[]
+    >`SELECT pg_try_advisory_lock(hashtext(${this.checkLockKey})) as locked`) as {
+      locked: boolean
+    }[]
+    return result?.[0]?.locked === true
+  }
 
-          let chatInfo: ChatFromGetChat | undefined
+  private async releaseLock(): Promise<void> {
+    await this.prisma.$queryRaw`SELECT pg_advisory_unlock(hashtext(${this.checkLockKey}))`
+  }
+
+  @Cron('0 * * * * *')
+  private async check() {
+    if (this.checkInProgress) {
+      this.logger.warn('Check users skipped: previous run still in progress')
+      return
+    }
+    const lockAcquired = await this.tryAcquireLock()
+    if (!lockAcquired) {
+      this.logger.warn('Check users skipped: lock is held by another instance')
+      return
+    }
+    this.checkInProgress = true
+    try {
+      let lastId: string | undefined
+      let processed = 0
+
+      this.logger.log(`Check users started. BatchSize: ${this.batchSize}`)
+
+      while (true) {
+        const users = await this.prisma.users.findMany({
+          where: {
+            telegramDataId: {
+              not: null,
+            },
+            ...(lastId && {
+              id: {
+                gt: lastId,
+              },
+            }),
+          },
+          orderBy: {
+            id: 'asc',
+          },
+          take: this.batchSize,
+          select: {
+            id: true,
+            telegramId: true,
+            telegramDataId: true,
+          },
+        })
+
+        if (users.length === 0) break
+
+        for (const user of users) {
           try {
-            chatInfo = await this.bot.telegram.getChat(user.telegramId)
-            this.handleGetChatSuccess()
-          } catch (error) {
-            if (this.isRateLimited(error)) {
-              await this.handleRateLimit(error)
+            await this.waitForGetChatSlot()
+
+            let chatInfo: ChatFromGetChat | undefined
+            try {
+              chatInfo = await this.bot.telegram.getChat(user.telegramId)
+              this.handleGetChatSuccess()
+            } catch (error) {
+              if (this.isRateLimited(error)) {
+                await this.handleRateLimit(error)
+                continue
+              }
+
+              this.consecutiveGetChatSuccessCount = 0
+
+              const { errorCode, description } =
+                this.getTelegramErrorMeta(error)
+              const errorMessage =
+                description ??
+                (error instanceof Error ? error.message : String(error))
+
+              if (this.isDefinitelyNotLive(error)) {
+                await this.prisma.userTelegramData.update({
+                  where: { id: user.telegramDataId },
+                  data: { isLive: false },
+                })
+              } else {
+                this.logger.warn(
+                  `getChat failed without definitive liveness signal: userId=${
+                    user.id
+                  }, telegramId=${user.telegramId}, errorCode=${
+                    errorCode ?? 'unknown'
+                  }, error=${errorMessage}`,
+                )
+              }
               continue
             }
 
-            this.consecutiveGetChatSuccessCount = 0
+            const birth = chatInfo &&
+              // @ts-ignore
+              chatInfo.birthdate && {
+                // @ts-ignore
+                year: chatInfo.birthdate.year ?? null,
+                // @ts-ignore
+                month: chatInfo.birthdate.month ?? null,
+                // @ts-ignore
+                day: chatInfo.birthdate.day ?? null,
+              }
 
-            const { errorCode, description } = this.getTelegramErrorMeta(error)
-            const errorMessage =
-              description ??
-              (error instanceof Error ? error.message : String(error))
-
-            if (this.isDefinitelyNotLive(error)) {
-              await this.prisma.userTelegramData.update({
-                where: { id: user.telegramDataId },
-                data: { isLive: false },
-              })
-            } else {
-              this.logger.warn(
-                `getChat failed without definitive liveness signal: userId=${user.id}, telegramId=${user.telegramId}, errorCode=${
-                  errorCode ?? 'unknown'
-                }, error=${errorMessage}`,
-              )
-            }
-            continue
+            await this.prisma.userTelegramData.update({
+              where: { id: user.telegramDataId },
+              data: {
+                isLive: true,
+                birthDay: birth?.day ?? null,
+                birthMonth: birth?.month ?? null,
+                birthYear: birth?.year ?? null,
+                // @ts-ignore
+                ...(chatInfo.username && { username: chatInfo.username }),
+                // @ts-ignore
+                ...(chatInfo.last_name && { lastName: chatInfo.last_name }),
+                // @ts-ignore
+                ...(chatInfo.first_name && { firstName: chatInfo.first_name }),
+              },
+            })
+          } catch (error) {
+            this.logger.error(
+              `Check user failed: userId=${user.id}, telegramId=${
+                user.telegramId
+              }, error=${error instanceof Error ? error.message : String(error)}`,
+            )
           }
-
-          const birth = chatInfo &&
-            // @ts-ignore
-            chatInfo.birthdate && {
-              // @ts-ignore
-              year: chatInfo.birthdate.year ?? null,
-              // @ts-ignore
-              month: chatInfo.birthdate.month ?? null,
-              // @ts-ignore
-              day: chatInfo.birthdate.day ?? null,
-            }
-
-          await this.prisma.userTelegramData.update({
-            where: { id: user.telegramDataId },
-            data: {
-              birthDay: birth?.day ?? null,
-              birthMonth: birth?.month ?? null,
-              birthYear: birth?.year ?? null,
-              // @ts-ignore
-              ...(chatInfo.username && { username: chatInfo.username }),
-              // @ts-ignore
-              ...(chatInfo.last_name && { lastName: chatInfo.last_name }),
-              // @ts-ignore
-              ...(chatInfo.first_name && { firstName: chatInfo.first_name }),
-            },
-          })
-        } catch (error) {
-          this.logger.error(
-            `Check user failed: userId=${user.id}, telegramId=${
-              user.telegramId
-            }, error=${error instanceof Error ? error.message : String(error)}`,
-          )
         }
+
+        processed += users.length
+        lastId = users[users.length - 1].id
+        this.logger.log(
+          `Check users batch processed: ${users.length}, total: ${processed}`,
+        )
       }
 
-      this.logger.log(`Check users finished. Processed: ${users.length}`)
+      this.logger.log(`Check users finished. Processed: ${processed}`)
     } catch (error) {
       this.logger.error(error)
+    } finally {
+      this.checkInProgress = false
+      try {
+        await this.releaseLock()
+      } catch (error) {
+        this.logger.warn(
+          `Check users failed to release lock: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        )
+      }
     }
   }
 }
