@@ -389,6 +389,8 @@ export class UsersService {
         const isRTL = !initData
           ? false
           : isRtl([initData?.user.first_name, initData?.user.last_name])
+        const requestedLanguageCode =
+          initData?.user?.language_code ?? userInBotData?.language_code ?? 'en'
 
         const defaultTelegramData: Prisma.UserTelegramDataCreateInput = {
           firstName: 'ANONIM',
@@ -409,10 +411,10 @@ export class UsersService {
           telegramDataPayload = {
             isLive: true,
             isRtl: isRTL,
-            firstName: initData.user.first_name,
+            firstName: initData.user.first_name ?? 'ANONIM',
             lastName: initData.user.last_name,
             username: initData.user.username,
-            languageCode: initData.user.language_code,
+            languageCode: requestedLanguageCode,
             isPremium: initData.user.is_premium,
             isBot: initData.user.is_bot,
             photoUrl: initData.user.photo_url,
@@ -424,10 +426,10 @@ export class UsersService {
           telegramDataPayload = {
             isLive: true,
             isRtl: isRTL,
-            firstName: userInBotData.first_name,
+            firstName: userInBotData.first_name ?? 'ANONIM',
             lastName: userInBotData.last_name,
             username: userInBotData.username,
-            languageCode: userInBotData.language_code,
+            languageCode: requestedLanguageCode,
             isPremium: userInBotData.is_premium,
             isBot: userInBotData.is_bot,
             addedToAttachmentMenu: userInBotData.added_to_attachment_menu,
@@ -441,12 +443,12 @@ export class UsersService {
 
         const language = await tx.language.findUnique({
           where: {
-            iso6391:
-              initData.user.language_code ||
-              userInBotData.language_code ||
-              'en',
+            iso6391: requestedLanguageCode,
           },
         })
+        if (!language) {
+          throw new Error(`Language not found: ${requestedLanguageCode}`)
+        }
 
         const adsData = await tx.userAdsData.create({
           data: {
