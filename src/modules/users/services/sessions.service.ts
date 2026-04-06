@@ -65,8 +65,8 @@ export class SessionsService {
           ...(startParams && {
             startParam: startParams,
           }),
-          ...(parseStartParams.params.comaping && {
-            comapingId: parseStartParams.params.comaping,
+          ...(parseStartParams.params.compaing && {
+            compaingId: parseStartParams.params.compaing,
           }),
           ...(parseStartParams.params.record && {
             recordId: parseStartParams.params.record,
