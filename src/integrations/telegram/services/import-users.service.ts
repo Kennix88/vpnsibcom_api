@@ -155,7 +155,8 @@ export class ImportUsersService implements OnModuleInit {
   }
 
   private async releaseLock(): Promise<void> {
-    await this.prisma.$queryRaw`SELECT pg_advisory_unlock(hashtext(${this.importLockKey}))`
+    await this.prisma
+      .$queryRaw`SELECT pg_advisory_unlock(hashtext(${this.importLockKey}))`
   }
 
   private validateImportUsersFile(
@@ -291,9 +292,12 @@ export class ImportUsersService implements OnModuleInit {
                 // @ts-ignore
                 ...(chatInfo.username && { username: chatInfo.username }),
                 // @ts-ignore
-                lastName: chatInfo.last_name ? chatInfo.last_name : 'Anonimus',
+                last_name: chatInfo.last_name ? chatInfo.last_name : 'Anonimus',
                 // @ts-ignore
-                firstName: chatInfo.first_name ? chatInfo.first_name : 'Anonim',
+                first_name: chatInfo.first_name
+                  ? // @ts-ignore
+                    chatInfo.first_name
+                  : 'Anonim',
               },
               ...(birth && { birth }),
             })
