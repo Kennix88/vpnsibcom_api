@@ -22,9 +22,9 @@ export class RichAdsService {
 
   public async getAd(
     data: Omit<RichAdsGetAdRequestInterface, 'publisher_id'>,
-  ): Promise<RichAdsGetAdResponseInterface> {
+  ): Promise<RichAdsGetAdResponseInterface | null> {
     if (data.production === undefined) {
-      data.production = process.env.NODE_ENV === 'production'
+      data.production = process.env.NODE_ENV === 'development' ? false : true
     }
     const url = `${this.baseUrl}/telegram-mb`
     const result = await axios
@@ -35,15 +35,23 @@ export class RichAdsService {
       .then((res) => res.data)
       .catch((e) => {
         this.logger.error({
-          msg: `Error get ad`,
+          msg: 'Error get ad',
+          status: e?.response?.status,
+          data: e?.response?.data,
           e,
         })
-        return null
+        return []
       })
+
+    const ad = result[0]
+
     this.logger.info({
-      msg: `Get ad`,
-      result,
+      msg: 'Get ad',
+      hasAd: Boolean(ad),
+      resultLength: result.length,
+      ad,
     })
-    return result[0]
+
+    return (ad ?? null) as RichAdsGetAdResponseInterface
   }
 }
