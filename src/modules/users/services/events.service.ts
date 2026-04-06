@@ -53,8 +53,8 @@ export class EventsService {
 
       if (!user) return
 
-      const startParams = user.acquisition.firstStartParams || ''
-      const referralKey = user.acquisition.lastReferralId || ''
+      const startParams = user.acquisition?.firstStartParams || ''
+      const referralKey = user.acquisition?.lastReferralId || ''
 
       const parseStartParams = parseStartParamUtil(startParams ?? '')
 
@@ -72,8 +72,8 @@ export class EventsService {
           ...(startParams && {
             startParam: startParams,
           }),
-          ...(parseStartParams.params.comaping && {
-            comapingId: parseStartParams.params.comaping,
+          ...(parseStartParams.params.compaing && {
+            compaingId: parseStartParams.params.compaing,
           }),
           ...(parseStartParams.params.record && {
             recordId: parseStartParams.params.record,
