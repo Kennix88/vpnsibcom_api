@@ -49,8 +49,8 @@ export class AcquisitionsService {
           ...(startParams && {
             lastStartParam: startParams,
           }),
-          ...(parseStartParams.params.comaping && {
-            lastComapingId: parseStartParams.params.comaping,
+          ...(parseStartParams.params.compaing && {
+            lastСompaingId: parseStartParams.params.compaing,
           }),
           ...(parseStartParams.params.record && {
             lastRecordId: parseStartParams.params.record,
