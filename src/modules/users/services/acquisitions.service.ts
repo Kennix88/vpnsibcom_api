@@ -44,10 +44,10 @@ export class AcquisitionsService {
             lastSource: parseStartParams.params.source,
           }),
           ...(referralKey && {
-            lastReferralKey: referralKey,
+            lastReferralId: referralKey,
           }),
           ...(startParams && {
-            lastStartParam: startParams,
+            lastStartParams: startParams,
           }),
           ...(parseStartParams.params.compaing && {
             lastСompaingId: parseStartParams.params.compaing,
@@ -55,13 +55,13 @@ export class AcquisitionsService {
           ...(parseStartParams.params.record && {
             lastRecordId: parseStartParams.params.record,
           }),
-          ...(parseStartParams.params ||
-            (parseStartParams.none && {
-              lastOtherData: JSON.stringify({
-                ...parseStartParams.params,
-                ...parseStartParams.none,
-              }),
-            })),
+          ...((Object.keys(parseStartParams.params).length > 0 ||
+            parseStartParams.none.length > 0) && {
+            lastOtherData: JSON.stringify({
+              ...parseStartParams.params,
+              ...parseStartParams.none,
+            }),
+          }),
         },
       })
     } catch (error) {
