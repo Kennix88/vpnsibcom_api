@@ -471,8 +471,8 @@ export class UsersService {
               lastReferralKey: referralKey,
             }),
             ...(startParam && {
-              firstStartParam: startParam,
-              lastStartParam: startParam,
+              firstStartParams: startParam,
+              lastStartParams: startParam,
             }),
             ...(parseStartParams.params.comaping && {
               firstComapingId: parseStartParams.params.comaping,
@@ -482,17 +482,17 @@ export class UsersService {
               firstRecordId: parseStartParams.params.record,
               lastRecordId: parseStartParams.params.record,
             }),
-            ...(parseStartParams.params ||
-              (parseStartParams.none && {
-                firstOtherData: JSON.stringify({
-                  ...parseStartParams.params,
-                  ...parseStartParams.none,
-                }),
-                lastOtherData: JSON.stringify({
-                  ...parseStartParams.params,
-                  ...parseStartParams.none,
-                }),
-              })),
+            ...((Object.keys(parseStartParams.params).length > 0 ||
+              parseStartParams.none.length > 0) && {
+              firstOtherData: JSON.stringify({
+                ...parseStartParams.params,
+                ...parseStartParams.none,
+              }),
+              lastOtherData: JSON.stringify({
+                ...parseStartParams.params,
+                ...parseStartParams.none,
+              }),
+            }),
           },
         })
 
@@ -581,17 +581,17 @@ export class UsersService {
                 createUser.isTgProgramPartner ? '✅' : '❌'
               }</code>
 <b>По рефералке:</b> <code>${referrals.length !== 0 ? '✅' : '❌'}</code>
-${referralKey && `<b>RefferalKey:</b> <code>${referralKey}</code>`}
-${startParam && `<b>StartParams:</b> <code>${startParam}</code>`}
+${referralKey ? `<b>ReferralKey:</b> <code>${referralKey}</code>` : ''}
+${startParam ? `<b>StartParams:</b> <code>${startParam}</code>` : ''}
 <b>💐 Дата рождения:</b> <code>${birth.day}-${birth.month}-${birth.year}</code>
-${country && `<b>Страна:</b> <code>${country}</code>`}
+${country ? `<b>Страна:</b> <code>${country}</code>` : ''}
 <b>Премиум:</b> <code>${tdata.isPremium ? '⭐' : '❌'}</code>
 <b>Имя:</b> <code>${tdata.firstName}</code>
-${tdata.lastName && `<b>Фамилия:</b> <code>${tdata.lastName}</code>`}
-${tdata.username && `<b>Username:</b> @${tdata.username}`}
+${tdata.lastName ? `<b>Фамилия:</b> <code>${tdata.lastName}</code>` : ''}
+${tdata.username ? `<b>Username:</b> @${tdata.username}` : ''}
 <b>Язык:</b> <code>${tdata.languageCode}</code>
-${ua && `<b>User-Agent:</b> <code>${ua}</code>`}
-${ip && `<b>IP:</b> <code>${ip}</code>`}
+${ua ? `<b>User-Agent:</b> <code>${ua}</code>` : ''}
+${ip ? `<b>IP:</b> <code>${ip}</code>` : ''}
 `,
               {
                 parse_mode: 'HTML',
