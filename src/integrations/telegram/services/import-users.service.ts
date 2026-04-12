@@ -30,8 +30,17 @@ export class ImportUsersService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.importUsers()
+    try {
+      this.importUsers()
+    } catch (error) {
+      this.logger.error({
+        msg: 'Error in ImportUsersService onModuleInit',
+        error,
+      })
+    }
   }
+
+  private readonly maxExecutionTimeMs = 30 * 60 * 1000 // 30 минут
 
   private async sleep(ms: number): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, ms))
@@ -196,8 +205,19 @@ export class ImportUsersService implements OnModuleInit {
     return [...new Set(lines)]
   }
 
+  public async secureShuffle(arr) {
+    const copy = [...arr]
+    for (let i = copy.length - 1; i > 0; i--) {
+      const rand = crypto.getRandomValues(new Uint32Array(1))[0]
+      const j = rand % (i + 1)
+      ;[copy[i], copy[j]] = [copy[j], copy[i]]
+    }
+    return copy
+  }
+
   @Cron('0 0 * * * *')
   public async importUsers() {
+    if (process.env.NODE_ENV === 'development') return
     if (this.importInProgress) {
       this.logger.warn({
         msg: 'Import users skipped: previous run still in progress',
@@ -234,7 +254,20 @@ export class ImportUsersService implements OnModuleInit {
         total: users.length,
       })
 
+      let importedCount = 0
+      const startTime = Date.now()
+
       for (let index = 0; index < users.length; index += this.batchSize) {
+        if (Date.now() - startTime > this.maxExecutionTimeMs) {
+          this.logger.warn({
+            msg: 'Import users timeout',
+            processed: index,
+            total: users.length,
+            maxExecutionTimeMs: this.maxExecutionTimeMs,
+          })
+          break
+        }
+
         const batch = users.slice(index, index + this.batchSize)
         const existing = await this.prisma.users.findMany({
           where: {
@@ -248,7 +281,9 @@ export class ImportUsersService implements OnModuleInit {
         })
         const existingSet = new Set(existing.map((item) => item.telegramId))
 
-        for (const user of batch) {
+        const shuffledBatch = await this.secureShuffle(batch)
+
+        for (const user of shuffledBatch) {
           if (existingSet.has(user)) continue
 
           try {
@@ -302,15 +337,12 @@ export class ImportUsersService implements OnModuleInit {
               ...(birth && { birth }),
             })
 
-            this.logger.info({
-              msg: 'Import user finished',
-              telegramId: user,
-            })
+            importedCount++
           } catch (error) {
-            this.logger.error({
-              msg: 'Error import user',
+            this.logger.warn({
+              msg: 'Error importing user',
               telegramId: user,
-              error,
+              error: error instanceof Error ? error.message : String(error),
             })
           }
         }
@@ -319,6 +351,7 @@ export class ImportUsersService implements OnModuleInit {
       this.logger.info({
         msg: 'Import users finished',
         total: users.length,
+        imported: importedCount,
       })
     } catch (e) {
       this.logger.error({
