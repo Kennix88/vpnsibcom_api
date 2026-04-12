@@ -63,6 +63,7 @@ export type SettingsAvgAggregateOutputType = {
   bonusPayment20000: number | null
   bonusPayment50000: number | null
   nextAdsHours: number | null
+  nextFakeAdsHours: number | null
 }
 
 export type SettingsSumAggregateOutputType = {
@@ -102,6 +103,7 @@ export type SettingsSumAggregateOutputType = {
   bonusPayment20000: number | null
   bonusPayment50000: number | null
   nextAdsHours: number | null
+  nextFakeAdsHours: number | null
 }
 
 export type SettingsMinAggregateOutputType = {
@@ -142,7 +144,11 @@ export type SettingsMinAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  isActiveSendAdsMessages: boolean | null
   nextAdsHours: number | null
+  isActiveFakeAds: boolean | null
+  nextFakeAdsHours: number | null
+  lastFakeAdsSend: Date | null
   proxyPartnerLink: string | null
   partnerBotLink: string | null
   partnerMiniAppLink: string | null
@@ -189,7 +195,11 @@ export type SettingsMaxAggregateOutputType = {
   bonusPayment10000: number | null
   bonusPayment20000: number | null
   bonusPayment50000: number | null
+  isActiveSendAdsMessages: boolean | null
   nextAdsHours: number | null
+  isActiveFakeAds: boolean | null
+  nextFakeAdsHours: number | null
+  lastFakeAdsSend: Date | null
   proxyPartnerLink: string | null
   partnerBotLink: string | null
   partnerMiniAppLink: string | null
@@ -236,7 +246,11 @@ export type SettingsCountAggregateOutputType = {
   bonusPayment10000: number
   bonusPayment20000: number
   bonusPayment50000: number
+  isActiveSendAdsMessages: number
   nextAdsHours: number
+  isActiveFakeAds: number
+  nextFakeAdsHours: number
+  lastFakeAdsSend: number
   proxyPartnerLink: number
   partnerBotLink: number
   partnerMiniAppLink: number
@@ -284,6 +298,7 @@ export type SettingsAvgAggregateInputType = {
   bonusPayment20000?: true
   bonusPayment50000?: true
   nextAdsHours?: true
+  nextFakeAdsHours?: true
 }
 
 export type SettingsSumAggregateInputType = {
@@ -323,6 +338,7 @@ export type SettingsSumAggregateInputType = {
   bonusPayment20000?: true
   bonusPayment50000?: true
   nextAdsHours?: true
+  nextFakeAdsHours?: true
 }
 
 export type SettingsMinAggregateInputType = {
@@ -363,7 +379,11 @@ export type SettingsMinAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  isActiveSendAdsMessages?: true
   nextAdsHours?: true
+  isActiveFakeAds?: true
+  nextFakeAdsHours?: true
+  lastFakeAdsSend?: true
   proxyPartnerLink?: true
   partnerBotLink?: true
   partnerMiniAppLink?: true
@@ -410,7 +430,11 @@ export type SettingsMaxAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  isActiveSendAdsMessages?: true
   nextAdsHours?: true
+  isActiveFakeAds?: true
+  nextFakeAdsHours?: true
+  lastFakeAdsSend?: true
   proxyPartnerLink?: true
   partnerBotLink?: true
   partnerMiniAppLink?: true
@@ -457,7 +481,11 @@ export type SettingsCountAggregateInputType = {
   bonusPayment10000?: true
   bonusPayment20000?: true
   bonusPayment50000?: true
+  isActiveSendAdsMessages?: true
   nextAdsHours?: true
+  isActiveFakeAds?: true
+  nextFakeAdsHours?: true
+  lastFakeAdsSend?: true
   proxyPartnerLink?: true
   partnerBotLink?: true
   partnerMiniAppLink?: true
@@ -591,7 +619,11 @@ export type SettingsGroupByOutputType = {
   bonusPayment10000: number
   bonusPayment20000: number
   bonusPayment50000: number
+  isActiveSendAdsMessages: boolean
   nextAdsHours: number
+  isActiveFakeAds: boolean
+  nextFakeAdsHours: number
+  lastFakeAdsSend: Date
   proxyPartnerLink: string | null
   partnerBotLink: string | null
   partnerMiniAppLink: string | null
@@ -661,7 +693,11 @@ export type SettingsWhereInput = {
   bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
+  isActiveSendAdsMessages?: Prisma.BoolFilter<"Settings"> | boolean
   nextAdsHours?: Prisma.IntFilter<"Settings"> | number
+  isActiveFakeAds?: Prisma.BoolFilter<"Settings"> | boolean
+  nextFakeAdsHours?: Prisma.IntFilter<"Settings"> | number
+  lastFakeAdsSend?: Prisma.DateTimeFilter<"Settings"> | Date | string
   proxyPartnerLink?: Prisma.StringNullableFilter<"Settings"> | string | null
   partnerBotLink?: Prisma.StringNullableFilter<"Settings"> | string | null
   partnerMiniAppLink?: Prisma.StringNullableFilter<"Settings"> | string | null
@@ -708,7 +744,11 @@ export type SettingsOrderByWithRelationInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
+  isActiveFakeAds?: Prisma.SortOrder
+  nextFakeAdsHours?: Prisma.SortOrder
+  lastFakeAdsSend?: Prisma.SortOrder
   proxyPartnerLink?: Prisma.SortOrderInput | Prisma.SortOrder
   partnerBotLink?: Prisma.SortOrderInput | Prisma.SortOrder
   partnerMiniAppLink?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -758,7 +798,11 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   bonusPayment10000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
+  isActiveSendAdsMessages?: Prisma.BoolFilter<"Settings"> | boolean
   nextAdsHours?: Prisma.IntFilter<"Settings"> | number
+  isActiveFakeAds?: Prisma.BoolFilter<"Settings"> | boolean
+  nextFakeAdsHours?: Prisma.IntFilter<"Settings"> | number
+  lastFakeAdsSend?: Prisma.DateTimeFilter<"Settings"> | Date | string
   proxyPartnerLink?: Prisma.StringNullableFilter<"Settings"> | string | null
   partnerBotLink?: Prisma.StringNullableFilter<"Settings"> | string | null
   partnerMiniAppLink?: Prisma.StringNullableFilter<"Settings"> | string | null
@@ -805,7 +849,11 @@ export type SettingsOrderByWithAggregationInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
+  isActiveFakeAds?: Prisma.SortOrder
+  nextFakeAdsHours?: Prisma.SortOrder
+  lastFakeAdsSend?: Prisma.SortOrder
   proxyPartnerLink?: Prisma.SortOrderInput | Prisma.SortOrder
   partnerBotLink?: Prisma.SortOrderInput | Prisma.SortOrder
   partnerMiniAppLink?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -860,7 +908,11 @@ export type SettingsScalarWhereWithAggregatesInput = {
   bonusPayment10000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   bonusPayment20000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   bonusPayment50000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  isActiveSendAdsMessages?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
   nextAdsHours?: Prisma.IntWithAggregatesFilter<"Settings"> | number
+  isActiveFakeAds?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
+  nextFakeAdsHours?: Prisma.IntWithAggregatesFilter<"Settings"> | number
+  lastFakeAdsSend?: Prisma.DateTimeWithAggregatesFilter<"Settings"> | Date | string
   proxyPartnerLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   partnerBotLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   partnerMiniAppLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
@@ -907,7 +959,11 @@ export type SettingsCreateInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  isActiveSendAdsMessages?: boolean
   nextAdsHours?: number
+  isActiveFakeAds?: boolean
+  nextFakeAdsHours?: number
+  lastFakeAdsSend?: Date | string
   proxyPartnerLink?: string | null
   partnerBotLink?: string | null
   partnerMiniAppLink?: string | null
@@ -954,7 +1010,11 @@ export type SettingsUncheckedCreateInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  isActiveSendAdsMessages?: boolean
   nextAdsHours?: number
+  isActiveFakeAds?: boolean
+  nextFakeAdsHours?: number
+  lastFakeAdsSend?: Date | string
   proxyPartnerLink?: string | null
   partnerBotLink?: string | null
   partnerMiniAppLink?: string | null
@@ -1001,7 +1061,11 @@ export type SettingsUpdateInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  isActiveSendAdsMessages?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  isActiveFakeAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  nextFakeAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  lastFakeAdsSend?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1048,7 +1112,11 @@ export type SettingsUncheckedUpdateInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  isActiveSendAdsMessages?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  isActiveFakeAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  nextFakeAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  lastFakeAdsSend?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1095,7 +1163,11 @@ export type SettingsCreateManyInput = {
   bonusPayment10000?: number
   bonusPayment20000?: number
   bonusPayment50000?: number
+  isActiveSendAdsMessages?: boolean
   nextAdsHours?: number
+  isActiveFakeAds?: boolean
+  nextFakeAdsHours?: number
+  lastFakeAdsSend?: Date | string
   proxyPartnerLink?: string | null
   partnerBotLink?: string | null
   partnerMiniAppLink?: string | null
@@ -1142,7 +1214,11 @@ export type SettingsUpdateManyMutationInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  isActiveSendAdsMessages?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  isActiveFakeAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  nextFakeAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  lastFakeAdsSend?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1189,7 +1265,11 @@ export type SettingsUncheckedUpdateManyInput = {
   bonusPayment10000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment20000?: Prisma.FloatFieldUpdateOperationsInput | number
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
+  isActiveSendAdsMessages?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  isActiveFakeAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  nextFakeAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
+  lastFakeAdsSend?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1236,7 +1316,11 @@ export type SettingsCountOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
+  isActiveFakeAds?: Prisma.SortOrder
+  nextFakeAdsHours?: Prisma.SortOrder
+  lastFakeAdsSend?: Prisma.SortOrder
   proxyPartnerLink?: Prisma.SortOrder
   partnerBotLink?: Prisma.SortOrder
   partnerMiniAppLink?: Prisma.SortOrder
@@ -1282,6 +1366,7 @@ export type SettingsAvgOrderByAggregateInput = {
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
+  nextFakeAdsHours?: Prisma.SortOrder
 }
 
 export type SettingsMaxOrderByAggregateInput = {
@@ -1322,7 +1407,11 @@ export type SettingsMaxOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
+  isActiveFakeAds?: Prisma.SortOrder
+  nextFakeAdsHours?: Prisma.SortOrder
+  lastFakeAdsSend?: Prisma.SortOrder
   proxyPartnerLink?: Prisma.SortOrder
   partnerBotLink?: Prisma.SortOrder
   partnerMiniAppLink?: Prisma.SortOrder
@@ -1369,7 +1458,11 @@ export type SettingsMinOrderByAggregateInput = {
   bonusPayment10000?: Prisma.SortOrder
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
+  isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
+  isActiveFakeAds?: Prisma.SortOrder
+  nextFakeAdsHours?: Prisma.SortOrder
+  lastFakeAdsSend?: Prisma.SortOrder
   proxyPartnerLink?: Prisma.SortOrder
   partnerBotLink?: Prisma.SortOrder
   partnerMiniAppLink?: Prisma.SortOrder
@@ -1415,6 +1508,7 @@ export type SettingsSumOrderByAggregateInput = {
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
+  nextFakeAdsHours?: Prisma.SortOrder
 }
 
 export type EnumDefaultEnumFieldUpdateOperationsInput = {
@@ -1447,6 +1541,10 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
 }
 
 export type NullableStringFieldUpdateOperationsInput = {
@@ -1493,7 +1591,11 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  isActiveSendAdsMessages?: boolean
   nextAdsHours?: boolean
+  isActiveFakeAds?: boolean
+  nextFakeAdsHours?: boolean
+  lastFakeAdsSend?: boolean
   proxyPartnerLink?: boolean
   partnerBotLink?: boolean
   partnerMiniAppLink?: boolean
@@ -1540,7 +1642,11 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  isActiveSendAdsMessages?: boolean
   nextAdsHours?: boolean
+  isActiveFakeAds?: boolean
+  nextFakeAdsHours?: boolean
+  lastFakeAdsSend?: boolean
   proxyPartnerLink?: boolean
   partnerBotLink?: boolean
   partnerMiniAppLink?: boolean
@@ -1587,7 +1693,11 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  isActiveSendAdsMessages?: boolean
   nextAdsHours?: boolean
+  isActiveFakeAds?: boolean
+  nextFakeAdsHours?: boolean
+  lastFakeAdsSend?: boolean
   proxyPartnerLink?: boolean
   partnerBotLink?: boolean
   partnerMiniAppLink?: boolean
@@ -1634,7 +1744,11 @@ export type SettingsSelectScalar = {
   bonusPayment10000?: boolean
   bonusPayment20000?: boolean
   bonusPayment50000?: boolean
+  isActiveSendAdsMessages?: boolean
   nextAdsHours?: boolean
+  isActiveFakeAds?: boolean
+  nextFakeAdsHours?: boolean
+  lastFakeAdsSend?: boolean
   proxyPartnerLink?: boolean
   partnerBotLink?: boolean
   partnerMiniAppLink?: boolean
@@ -1643,7 +1757,7 @@ export type SettingsSelectScalar = {
   defaultAnnounce?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "nextAdsHours" | "proxyPartnerLink" | "partnerBotLink" | "partnerMiniAppLink" | "partnerSiteLink" | "importUsersUrl" | "defaultAnnounce", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "isActiveSendAdsMessages" | "nextAdsHours" | "isActiveFakeAds" | "nextFakeAdsHours" | "lastFakeAdsSend" | "proxyPartnerLink" | "partnerBotLink" | "partnerMiniAppLink" | "partnerSiteLink" | "importUsersUrl" | "defaultAnnounce", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -1686,7 +1800,11 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     bonusPayment10000: number
     bonusPayment20000: number
     bonusPayment50000: number
+    isActiveSendAdsMessages: boolean
     nextAdsHours: number
+    isActiveFakeAds: boolean
+    nextFakeAdsHours: number
+    lastFakeAdsSend: Date
     proxyPartnerLink: string | null
     partnerBotLink: string | null
     partnerMiniAppLink: string | null
@@ -2153,7 +2271,11 @@ export interface SettingsFieldRefs {
   readonly bonusPayment10000: Prisma.FieldRef<"Settings", 'Float'>
   readonly bonusPayment20000: Prisma.FieldRef<"Settings", 'Float'>
   readonly bonusPayment50000: Prisma.FieldRef<"Settings", 'Float'>
+  readonly isActiveSendAdsMessages: Prisma.FieldRef<"Settings", 'Boolean'>
   readonly nextAdsHours: Prisma.FieldRef<"Settings", 'Int'>
+  readonly isActiveFakeAds: Prisma.FieldRef<"Settings", 'Boolean'>
+  readonly nextFakeAdsHours: Prisma.FieldRef<"Settings", 'Int'>
+  readonly lastFakeAdsSend: Prisma.FieldRef<"Settings", 'DateTime'>
   readonly proxyPartnerLink: Prisma.FieldRef<"Settings", 'String'>
   readonly partnerBotLink: Prisma.FieldRef<"Settings", 'String'>
   readonly partnerMiniAppLink: Prisma.FieldRef<"Settings", 'String'>

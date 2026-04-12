@@ -2355,7 +2355,11 @@ export const SettingsScalarFieldEnum = {
   bonusPayment10000: 'bonusPayment10000',
   bonusPayment20000: 'bonusPayment20000',
   bonusPayment50000: 'bonusPayment50000',
+  isActiveSendAdsMessages: 'isActiveSendAdsMessages',
   nextAdsHours: 'nextAdsHours',
+  isActiveFakeAds: 'isActiveFakeAds',
+  nextFakeAdsHours: 'nextFakeAdsHours',
+  lastFakeAdsSend: 'lastFakeAdsSend',
   proxyPartnerLink: 'proxyPartnerLink',
   partnerBotLink: 'partnerBotLink',
   partnerMiniAppLink: 'partnerMiniAppLink',
@@ -2865,20 +2869,6 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'String'
- */
-export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
-    
-
-
-/**
- * Reference to a field of type 'String[]'
- */
-export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
-
-
-/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -2889,6 +2879,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'String'
+ */
+export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+    
+
+
+/**
+ * Reference to a field of type 'String[]'
+ */
+export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
     
 
 
