@@ -3,6 +3,7 @@ import { DefaultEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
 import { RichAdsService } from '@modules/ads/richads.service'
+import { YandexAdsService } from '@modules/ads/services/yandex-ads.service'
 import { TaddyService } from '@modules/ads/taddy.service'
 import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
 import { TonPaymentsService } from '@modules/payments/services/ton-payments.service'
@@ -43,6 +44,7 @@ export class StartUpdate {
     private readonly acquisitionsService: AcquisitionsService,
     private readonly richAdsService: RichAdsService,
     private readonly prisma: PrismaService,
+    private readonly yandex: YandexAdsService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(StartUpdate.name)
@@ -99,7 +101,18 @@ If you have any difficulties with payment, subscription or anything else, write 
         .then((msg) => msg.message_id)
         .catch(console.error)
 
-      const startParam = ctx.startPayload
+      let startParam = ctx.startPayload
+
+      // Fallback: если startPayload не установлен (из-за @On('message')),
+      // извлекаем параметр из текста сообщения
+      // @ts-ignore
+      const messageText = ctx.message?.text
+      if (!startParam && messageText) {
+        const match = messageText.match(/^\/start\s+(.+)$/i)
+        if (match) {
+          startParam = match[1]
+        }
+      }
 
       const chatInfo = await this.bot.telegram.getChat(ctx.from.id)
 
@@ -182,6 +195,44 @@ If you have any difficulties with payment, subscription or anything else, write 
           `Admin ${ctx.from.first_name} ${ctx.from.last_name} (${ctx.from.username}) started the bot`,
         )
 
+        this.richAdsService.fakeAdsSend()
+
+        // const res = await this.yandex.fetchAds({
+        //   user: {
+        //     telegramId: '645259468',
+        //     firstName: 'Test',
+        //     lastName: 'User',
+        //     languageCode: 'en',
+        //     premium: true,
+        //     version: '8.0',
+        //     platform: 'telegram-web',
+        //     sourceId: 'direct',
+        //     userAgent:
+        //       'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
+        //   },
+        // })
+
+        // this.logger.info(
+        //   { msg: 'Yandex ads widget', widget: res.widget },
+        //   'Yandex ads widget',
+        // )
+        // this.logger.info(
+        //   { msg: 'Yandex ads list', adsCount: res.ads.length, ads: res.ads },
+        //   'Yandex ads list',
+        // )
+
+        // const impressionResult = await this.yandex.simulateImpression({
+        //   fetchResult: res,
+        // })
+        // this.logger.info(
+        //   {
+        //     msg: 'Yandex ads impression simulated',
+        //     count: impressionResult.length,
+        //     results: impressionResult,
+        //   },
+        //   'Yandex ads impression simulated',
+        // )
+
         // const ad = await this.taddyService.getAd({
         //   user: {
         //     id: Number(5524142496),
@@ -260,8 +311,9 @@ ${
               [
                 {
                   ...Markup.button.webApp(
-                    '🛡️ Connect to a VPN',
-                    this.configService.get<string>('WEBAPP_URL'),
+                    '🛡️ Connect to a vpn',
+                    this.configService.get<string>('WEBAPP_URL') +
+                      '?gs_source=start_msg',
                   ),
                   // @ts-ignore
                   style: 'success',
