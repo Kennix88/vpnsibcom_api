@@ -957,7 +957,13 @@ export class XrayService {
           lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic * 1024 * 1024,
           trafficReset: subscription.trafficReset as TrafficResetEnum,
           announce: subscription.announce,
-          links: subscription.links as string[],
+          links: (subscription.links as string[]).sort((a, b) => {
+            const aHasSkip = a.includes('⏪')
+            const bHasSkip = b.includes('⏪')
+            if (aHasSkip && !bHasSkip) return -1
+            if (!aHasSkip && bHasSkip) return 1
+            return 0
+          }),
           servers:
             subscription.isAllBaseServers && subscription.isAllPremiumServers
               ? allServersMapped
@@ -1161,7 +1167,13 @@ export class XrayService {
           lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic * 1024 * 1024,
           trafficReset: subscription.trafficReset as TrafficResetEnum,
           announce: subscription.announce,
-          links: subscription.links as string[],
+          links: (subscription.links as string[]).sort((a, b) => {
+            const aHasSkip = a.includes('⏪')
+            const bHasSkip = b.includes('⏪')
+            if (aHasSkip && !bHasSkip) return -1
+            if (!aHasSkip && bHasSkip) return 1
+            return 0
+          }),
           servers:
             subscription.isAllBaseServers && subscription.isAllPremiumServers
               ? allServersMapped
