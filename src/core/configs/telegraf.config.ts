@@ -10,11 +10,11 @@ export function telegrafConfig(
 
   return {
     token: configService.getOrThrow<string>('TELEGRAM_BOT_TOKEN'),
-    // options: {
-    //   telegram: {
-    //     apiRoot: configService.getOrThrow<string>('GRASPIL_PRIXY_URL'),
-    //   },
-    // },
+    options: {
+      telegram: {
+        apiRoot: configService.getOrThrow<string>('GRASPIL_PRIXY_URL'),
+      },
+    },
     // launchOptions: {
     //   // dropPendingUpdates: true,
     //   // allowedUpdates: ['message', 'callback_query'],
