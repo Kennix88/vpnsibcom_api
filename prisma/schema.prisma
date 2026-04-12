@@ -61,7 +61,11 @@ model Settings {
  bonusPayment20000 Float @default(0.20) @map("bonus_payment_20000")
  bonusPayment50000 Float @default(0.25) @map("bonus_payment_50000")
 
+ isActiveSendAdsMessages Boolean @default(false) @map("is_active_send_ads_messages")
  nextAdsHours        Int      @default(12) @map("next_ads_hours")
+ isActiveFakeAds    Boolean  @default(false) @map("is_active_fake_ads")
+ nextFakeAdsHours   Int      @default(6) @map("next_fake_ads_hours")
+ lastFakeAdsSend    DateTime @default(now()) @map("last_fake_ads_send")
  proxyPartnerLink    String?  @map("proxy_partner_link") @default("https://t.me/tonplay_proxybot?start=hUWchdxNIh6oeO")
  partnerBotLink      String?  @map("partner_bot_link") @default("https://t.me/tonplay?start=hUWcg19SE6EZ5e")
  partnerMiniAppLink  String?  @map("partner_mini_app_link") @default("https://t.me/tonplay/dapp?startapp=hUWcg19SE6EZ5e")
