@@ -59,11 +59,8 @@ export class SessionsService {
           ...(parseStartParams.params.source && {
             source: parseStartParams.params.source,
           }),
-          ...(referralKey && {
-            referralKey: referralKey,
-          }),
           ...(startParams && {
-            startParam: startParams,
+            startParams: startParams,
           }),
           ...(parseStartParams.params.compaing && {
             compaingId: parseStartParams.params.compaing,
@@ -71,13 +68,13 @@ export class SessionsService {
           ...(parseStartParams.params.record && {
             recordId: parseStartParams.params.record,
           }),
-          ...(parseStartParams.params ||
-            (parseStartParams.none && {
-              otherData: JSON.stringify({
-                ...parseStartParams.params,
-                ...parseStartParams.none,
-              }),
-            })),
+          ...((Object.keys(parseStartParams.params).length > 0 ||
+            parseStartParams.none.length > 0) && {
+            otherData: JSON.stringify({
+              ...parseStartParams.params,
+              ...parseStartParams.none,
+            }),
+          }),
         },
       })
     } catch (error) {
