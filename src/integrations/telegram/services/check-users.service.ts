@@ -3,7 +3,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
-import { ChatFromGetChat } from 'telegraf/typings/core/types/typegram'
 
 @Injectable()
 export class CheckUsersService implements OnModuleInit {
@@ -25,8 +24,14 @@ export class CheckUsersService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.check()
+    try {
+      this.check()
+    } catch (error) {
+      this.logger.error('Error in CheckUsersService onModuleInit', error)
+    }
   }
+
+  private readonly maxExecutionTimeMs = 30 * 60 * 1000 // 30 минут
 
   private async sleep(ms: number): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, ms))
@@ -160,10 +165,21 @@ export class CheckUsersService implements OnModuleInit {
   }
 
   private async releaseLock(): Promise<void> {
-    await this.prisma.$queryRaw`SELECT pg_advisory_unlock(hashtext(${this.checkLockKey}))`
+    await this.prisma
+      .$queryRaw`SELECT pg_advisory_unlock(hashtext(${this.checkLockKey}))`
   }
 
-  @Cron('0 * * * * *')
+  public async secureShuffle(arr) {
+    const copy = [...arr]
+    for (let i = copy.length - 1; i > 0; i--) {
+      const rand = crypto.getRandomValues(new Uint32Array(1))[0]
+      const j = rand % (i + 1)
+      ;[copy[i], copy[j]] = [copy[j], copy[i]]
+    }
+    return copy
+  }
+
+  @Cron('0 */12 * * * *')
   private async check() {
     if (this.checkInProgress) {
       this.logger.warn('Check users skipped: previous run still in progress')
@@ -178,10 +194,18 @@ export class CheckUsersService implements OnModuleInit {
     try {
       let lastId: string | undefined
       let processed = 0
+      const startTime = Date.now()
 
       this.logger.log(`Check users started. BatchSize: ${this.batchSize}`)
 
       while (true) {
+        if (Date.now() - startTime > this.maxExecutionTimeMs) {
+          this.logger.warn(
+            `Check users timeout. Processed: ${processed}, maxExecutionTimeMs: ${this.maxExecutionTimeMs}`,
+          )
+          break
+        }
+
         const users = await this.prisma.users.findMany({
           where: {
             telegramDataId: {
@@ -206,77 +230,72 @@ export class CheckUsersService implements OnModuleInit {
 
         if (users.length === 0) break
 
-        for (const user of users) {
+        const shuffledUsers = await this.secureShuffle(users)
+
+        for (const user of shuffledUsers) {
+          await this.waitForGetChatSlot()
+
           try {
-            await this.waitForGetChatSlot()
+            const sentMessage = await this.bot.telegram.sendMessage(
+              user.telegramId,
+              'Check live...',
+              {
+                disable_notification: true,
+              },
+            )
+            this.handleGetChatSuccess()
 
-            let chatInfo: ChatFromGetChat | undefined
+            // Сразу удаляем сообщение
             try {
-              chatInfo = await this.bot.telegram.getChat(user.telegramId)
-              this.handleGetChatSuccess()
-            } catch (error) {
-              if (this.isRateLimited(error)) {
-                await this.handleRateLimit(error)
-                continue
-              }
-
-              this.consecutiveGetChatSuccessCount = 0
-
-              const { errorCode, description } =
-                this.getTelegramErrorMeta(error)
-              const errorMessage =
-                description ??
-                (error instanceof Error ? error.message : String(error))
-
-              if (this.isDefinitelyNotLive(error)) {
-                await this.prisma.userTelegramData.update({
-                  where: { id: user.telegramDataId },
-                  data: { isLive: false },
-                })
-              } else {
-                this.logger.warn(
-                  `getChat failed without definitive liveness signal: userId=${
-                    user.id
-                  }, telegramId=${user.telegramId}, errorCode=${
-                    errorCode ?? 'unknown'
-                  }, error=${errorMessage}`,
-                )
-              }
-              continue
+              await this.bot.telegram.deleteMessage(
+                user.telegramId,
+                // @ts-ignore
+                sentMessage.message_id,
+              )
+            } catch (deleteError) {
+              this.logger.debug(
+                `Failed to delete test message for userId=${user.id}: ${
+                  deleteError instanceof Error
+                    ? deleteError.message
+                    : String(deleteError)
+                }`,
+              )
             }
 
-            const birth = chatInfo &&
-              // @ts-ignore
-              chatInfo.birthdate && {
-                // @ts-ignore
-                year: chatInfo.birthdate.year ?? null,
-                // @ts-ignore
-                month: chatInfo.birthdate.month ?? null,
-                // @ts-ignore
-                day: chatInfo.birthdate.day ?? null,
-              }
-
+            // Сообщение отправлено успешно — пользователь живой
             await this.prisma.userTelegramData.update({
               where: { id: user.telegramDataId },
               data: {
                 isLive: true,
-                birthDay: birth?.day ?? null,
-                birthMonth: birth?.month ?? null,
-                birthYear: birth?.year ?? null,
-                // @ts-ignore
-                ...(chatInfo.username && { username: chatInfo.username }),
-                // @ts-ignore
-                ...(chatInfo.last_name && { lastName: chatInfo.last_name }),
-                // @ts-ignore
-                ...(chatInfo.first_name && { firstName: chatInfo.first_name }),
               },
             })
           } catch (error) {
-            this.logger.error(
-              `Check user failed: userId=${user.id}, telegramId=${
-                user.telegramId
-              }, error=${error instanceof Error ? error.message : String(error)}`,
-            )
+            if (this.isRateLimited(error)) {
+              await this.handleRateLimit(error)
+              continue
+            }
+
+            this.consecutiveGetChatSuccessCount = 0
+
+            const { errorCode, description } = this.getTelegramErrorMeta(error)
+            const errorMessage =
+              description ??
+              (error instanceof Error ? error.message : String(error))
+
+            if (this.isDefinitelyNotLive(error)) {
+              await this.prisma.userTelegramData.update({
+                where: { id: user.telegramDataId },
+                data: { isLive: false },
+              })
+            } else {
+              this.logger.warn(
+                `sendMessage failed without definitive liveness signal: userId=${
+                  user.id
+                }, telegramId=${user.telegramId}, errorCode=${
+                  errorCode ?? 'unknown'
+                }, error=${errorMessage}`,
+              )
+            }
           }
         }
 
