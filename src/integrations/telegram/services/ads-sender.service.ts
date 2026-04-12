@@ -32,8 +32,17 @@ export class AdsSenderService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.sendAd()
+    try {
+      this.sendAd()
+    } catch (error) {
+      this.logger.error({
+        msg: 'Error in AdsSenderService onModuleInit',
+        error,
+      })
+    }
   }
+
+  private readonly maxExecutionTimeMs = 30 * 60 * 1000 // 30 минут
 
   private async sleep(ms: number): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, ms))
@@ -164,12 +173,15 @@ export class AdsSenderService implements OnModuleInit {
           key: DefaultEnum.DEFAULT,
         },
       })
+
+      if (!settings?.isActiveSendAdsMessages) return
       const now = new Date()
       const failedCooldownAt = addHours(now, -3)
       const nextAdsHours = settings?.nextAdsHours ?? 12
       const nextAdsAt = addHours(now, -nextAdsHours)
       let lastId: string | undefined
       let processed = 0
+      const startTime = Date.now()
 
       this.logger.info({
         msg: 'Send ads started',
@@ -177,6 +189,15 @@ export class AdsSenderService implements OnModuleInit {
       })
 
       while (true) {
+        if (Date.now() - startTime > this.maxExecutionTimeMs) {
+          this.logger.warn({
+            msg: 'Send ads timeout',
+            processed,
+            maxExecutionTimeMs: this.maxExecutionTimeMs,
+          })
+          break
+        }
+
         const users = await this.prisma.users.findMany({
           where: {
             telegramData: {
@@ -225,10 +246,7 @@ export class AdsSenderService implements OnModuleInit {
             place: AdsPlaceEnum.MESSAGE,
             type: AdsTypeEnum.MESSAGE,
           })
-          this.logger.info({
-            msg: `Send ad to user ${user.id}`,
-            ad,
-          })
+
           if (!ad || ad.isNoAds) continue
           if (ad.richAds) {
             await this.waitForSendMessageSlot()
@@ -264,18 +282,15 @@ export class AdsSenderService implements OnModuleInit {
 
               sendSucceeded = true
               this.handleSendSuccess()
-              this.logger.info({
-                msg: `Send ad`,
-                res,
-              })
+
               await this.adsService.confirmAd({
                 userId: user.id,
                 verifyKey: ad.ad.verifyKey,
               })
               axios.get(ad.richAds.notification_url).catch((e) => {
-                this.logger.error({
-                  msg: `Error send ad notification`,
-                  e,
+                this.logger.warn({
+                  msg: 'Error sending ad notification',
+                  error: e instanceof Error ? e.message : String(e),
                 })
               })
             } catch (e) {
@@ -304,10 +319,6 @@ export class AdsSenderService implements OnModuleInit {
               })
             }
           } else if (ad.taddy) {
-            this.logger.info({
-              msg: 'Skip Taddy message ad (not supported yet)',
-              userId: user.id,
-            })
             await this.prisma.userAdsData.update({
               where: {
                 id: user.adsDataId,
@@ -329,9 +340,9 @@ export class AdsSenderService implements OnModuleInit {
         })
       }
     } catch (e) {
-      this.logger.error({
-        msg: `Error send ad`,
-        e,
+      this.logger.warn({
+        msg: 'Error sending ads',
+        error: e instanceof Error ? e.message : String(e),
       })
     } finally {
       this.sendAdInProgress = false
