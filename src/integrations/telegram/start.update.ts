@@ -194,79 +194,6 @@ If you have any difficulties with payment, subscription or anything else, write 
         this.telegramLogger.info(
           `Admin ${ctx.from.first_name} ${ctx.from.last_name} (${ctx.from.username}) started the bot`,
         )
-
-        this.richAdsService.fakeAdsSend()
-
-        // const res = await this.yandex.fetchAds({
-        //   user: {
-        //     telegramId: '645259468',
-        //     firstName: 'Test',
-        //     lastName: 'User',
-        //     languageCode: 'en',
-        //     premium: true,
-        //     version: '8.0',
-        //     platform: 'telegram-web',
-        //     sourceId: 'direct',
-        //     userAgent:
-        //       'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
-        //   },
-        // })
-
-        // this.logger.info(
-        //   { msg: 'Yandex ads widget', widget: res.widget },
-        //   'Yandex ads widget',
-        // )
-        // this.logger.info(
-        //   { msg: 'Yandex ads list', adsCount: res.ads.length, ads: res.ads },
-        //   'Yandex ads list',
-        // )
-
-        // const impressionResult = await this.yandex.simulateImpression({
-        //   fetchResult: res,
-        // })
-        // this.logger.info(
-        //   {
-        //     msg: 'Yandex ads impression simulated',
-        //     count: impressionResult.length,
-        //     results: impressionResult,
-        //   },
-        //   'Yandex ads impression simulated',
-        // )
-
-        // const ad = await this.taddyService.getAd({
-        //   user: {
-        //     id: Number(5524142496),
-        //   },
-        //   origin: TaddyOriginEnum.SERVER,
-        //   format: TaddyAdFromatEnum.BOT_AD,
-        // })
-        // if (ad && ad.result) {
-        //   if (ad.result.image) {
-        //     await ctx.replyWithPhoto(ad.result.image, {
-        //       caption: `<b>${ad.result.title}</b>\n\n${ad.result.text ?? ''}`,
-        //       parse_mode: 'HTML',
-        //       reply_markup: {
-        //         inline_keyboard: ad.result.button
-        //           ? [[{ text: ad.result.button, url: ad.result.link }]]
-        //           : [],
-        //       },
-        //     })
-        //   } else {
-        //     await ctx.replyWithHTML(
-        //       `<b>${ad.result.title}</b>\n\n${ad.result.text ?? ''}`,
-        //       {
-        //         parse_mode: 'HTML',
-        //         reply_markup: {
-        //           inline_keyboard: ad.result.button
-        //             ? [[{ text: ad.result.button, url: ad.result.link }]]
-        //             : [],
-        //         },
-        //       },
-        //     )
-        //   }
-
-        // await this.taddyService.adsImpressions({ id: [ad.result.id] })
-        // }
       }
 
       // await ctx.reply(
@@ -326,6 +253,19 @@ ${
                       ...Markup.button.url(
                         '🎮 TonPlay',
                         settings.partnerMiniAppLink,
+                      ),
+                      // @ts-ignore
+                      style: 'primary',
+                    },
+                  ],
+                ]),
+              ...(settings &&
+                settings.partnerSiteLink && [
+                  [
+                    {
+                      ...Markup.button.url(
+                        '🕹️ TonPlay (Web)',
+                        settings.partnerSiteLink,
                       ),
                       // @ts-ignore
                       style: 'primary',
