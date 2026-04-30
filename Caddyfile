@@ -126,7 +126,10 @@ api.fasti.fun {
     }
 
     log {
-        output file /var/log/caddy/frps-wildcard.access.log
+        output file /var/log/caddy/frps-wildcard.access.log {
+            roll_size 100MB
+            roll_keep 5
+        }
         format json
     }
 }
@@ -156,7 +159,10 @@ frp.fasti.fun {
     }
 
     log {
-        output file /var/log/caddy/frp.access.log
+        output file /var/log/caddy/frp.access.log {
+            roll_size 100MB
+            roll_keep 5
+        }
         format json
     }
 }
