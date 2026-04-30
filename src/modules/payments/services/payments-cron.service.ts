@@ -41,7 +41,17 @@ export class PaymentsCronService {
     try {
       const transactions = await this.prismaService.payments.findMany({
         where: {
-          status: PaymentStatusEnum.PENDING,
+          OR: [
+            { status: PaymentStatusEnum.PENDING },
+            // Повторно проверяем недавно зафейленные TON-платежи,
+            // чтобы нивелировать гонку с cron отмены и поздние подтверждения сети.
+            {
+              status: PaymentStatusEnum.FAILED,
+              updatedAt: {
+                gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+              },
+            },
+          ],
           methodKey: PaymentMethodEnum.TON_TON,
         },
       })
@@ -78,9 +88,13 @@ export class PaymentsCronService {
           continue
         }
 
-        if (transaction.amount !== payment.amount) {
+        const amountDelta = Number(
+          Math.abs(transaction.amount - payment.amount).toFixed(9),
+        )
+        const amountTolerance = 0.000001
+        if (amountDelta > amountTolerance) {
           this.logger.warn({
-            msg: `TON payment ${transaction.token} amount mismatch. Expected: ${transaction.amount}, Got: ${payment.amount}`,
+            msg: `TON payment ${transaction.token} amount mismatch. Expected: ${transaction.amount}, Got: ${payment.amount}, Delta: ${amountDelta}`,
           })
           continue
         }
@@ -221,6 +235,11 @@ export class PaymentsCronService {
       const expiredPayments = await this.prismaService.payments.findMany({
         where: {
           status: PaymentStatusEnum.PENDING,
+          // TON-платежи подтверждаются отдельным кроном и могут приходить позже 30 минут.
+          // Не переводим их в FAILED этим джобом, чтобы не терять успешные оплаты.
+          methodKey: {
+            not: PaymentMethodEnum.TON_TON,
+          },
           createdAt: {
             lt: thirtyMinutesAgo,
           },
