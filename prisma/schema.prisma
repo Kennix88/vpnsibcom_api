@@ -72,8 +72,13 @@ model Settings {
  partnerSiteLink     String?  @map("partner_site_link") @default("https://tonplay.fo/hUWcg1950zMXOm")
 
  importUsersUrl      String?  @map("import_users_url") @default("https://kennix88.github.io/vpnsib-tonconnect-manifest/users.txt")
+ isActiveImportUsers Boolean  @default(false) @map("is_active_import_users")
+
+ isActiveCheckUsers  Boolean  @default(false) @map("is_active_check_users")
 
  defaultAnnounce String? @default("(🇳🇱⏪🇷🇺) - Double Tunnel, 🆓 - Free Server, ⭐️ - Premium Server") @map("default_announce")
+
+ telegramConfigLinks               Json?            @map("telegram_config_links") @db.JsonB
 
  @@map("settings")
 }
