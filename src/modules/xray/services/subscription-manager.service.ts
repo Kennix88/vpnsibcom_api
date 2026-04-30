@@ -1,4 +1,5 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
+import { DefaultEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
@@ -91,6 +92,40 @@ export class SubscriptionManagerService {
               },
             }),
           ])
+
+          const getConfigName = (link: string): string => {
+            const hashIndex = link.lastIndexOf('#')
+            if (hashIndex === -1) return ''
+
+            const configNameEncoded = link.slice(hashIndex + 1)
+            try {
+              return decodeURIComponent(configNameEncoded)
+            } catch {
+              return configNameEncoded
+            }
+          }
+
+          const isTelegramOnlyConfig = (link: string): boolean =>
+            getConfigName(link).toLowerCase().includes('telegram only')
+
+          const telegramMarzbanUser = marzbanUsers.users.find(
+            (user) => user.username === 'telegram',
+          )
+
+          const globalTelegramOnlyLinks = telegramMarzbanUser
+            ? telegramMarzbanUser.links.filter((link) =>
+                isTelegramOnlyConfig(link),
+              )
+            : []
+
+          await this.prismaService.settings.update({
+            where: { key: DefaultEnum.DEFAULT },
+            data: {
+              telegramConfigLinks: {
+                links: globalTelegramOnlyLinks,
+              },
+            },
+          })
 
           this.logger.info({
             msg: `Found ${subscriptions.length} subscriptions to update`,
@@ -188,7 +223,7 @@ export class SubscriptionManagerService {
             await this.prismaService.$transaction(
               updatedBatch.map((subscription) => {
                 const announceMessages = []
-                const removalAt = new Date(add(new Date(), { days: 7 }))
+                const removalAt = new Date(add(new Date(), { days: 30 }))
                 let isRemovalAt = false
                 let isNotAnnounce = false
 
@@ -291,10 +326,30 @@ export class SubscriptionManagerService {
                     ? null
                     : undefined
 
+                const linksWithoutOwnTelegramOnly = subscription.links.filter(
+                  (link: string) => !isTelegramOnlyConfig(link),
+                )
+
+                const links = Array.from(
+                  new Set([
+                    ...linksWithoutOwnTelegramOnly,
+                    ...globalTelegramOnlyLinks,
+                  ]),
+                )
+
+                const isTrafficOrTrialExhausted =
+                  (subscription.plan.key == PlansEnum.TRAFFIC ||
+                    subscription.plan.key == PlansEnum.TRIAL) &&
+                  subscription.usedTraffic >= subscription.dataLimit
+
+                const linksForUpdate = isTrafficOrTrialExhausted
+                  ? globalTelegramOnlyLinks
+                  : links
+
                 return this.prismaService.subscriptions.update({
                   where: { id: subscription.id },
                   data: {
-                    links: subscription.links,
+                    links: linksForUpdate,
                     nextRenewalStars:
                       subscription.user.role.discount == 0
                         ? 0
@@ -310,9 +365,7 @@ export class SubscriptionManagerService {
                     marzbanData: subscription.marzbanData,
                     ...(isRemovalAt ? { removalAt } : {}),
                     ...(announce === undefined ? {} : { announce }),
-                    ...((subscription.plan.key == PlansEnum.TRAFFIC ||
-                      subscription.plan.key == PlansEnum.TRIAL) &&
-                      subscription.usedTraffic >= subscription.dataLimit && {
+                    ...(isTrafficOrTrialExhausted && {
                         isActive: false,
                       }),
                   },
@@ -523,7 +576,22 @@ export class SubscriptionManagerService {
         )
       }
 
-      const removalAt = new Date(add(new Date(), { days: 7 }))
+      const removalAt = new Date(add(new Date(), { days: 30 }))
+
+      const settings = await this.prismaService.settings.findFirst({
+        where: { key: DefaultEnum.DEFAULT },
+      })
+
+      const telegramConfigLinks =
+        settings && typeof settings.telegramConfigLinks === 'object'
+          ? (settings.telegramConfigLinks as { links?: unknown })
+          : null
+
+      const globalTelegramOnlyLinks = Array.isArray(telegramConfigLinks?.links)
+        ? telegramConfigLinks.links.filter(
+            (link): link is string => typeof link === 'string',
+          )
+        : []
 
       // Then update database status
       await this.prismaService.subscriptions.update({
@@ -531,6 +599,7 @@ export class SubscriptionManagerService {
           id: subscription.id,
         },
         data: {
+          links: globalTelegramOnlyLinks,
           isActive: false,
           removalAt,
         },
