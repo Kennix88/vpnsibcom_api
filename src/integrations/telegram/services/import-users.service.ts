@@ -239,7 +239,7 @@ export class ImportUsersService implements OnModuleInit {
         },
       })
       const importUsersUrl = settings?.importUsersUrl
-      if (!importUsersUrl) return
+      if (!importUsersUrl || !settings?.isActiveImportUsers) return
 
       const response = await axios.get<string>(importUsersUrl, {
         responseType: 'text',
