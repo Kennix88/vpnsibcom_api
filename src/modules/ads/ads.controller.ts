@@ -79,6 +79,7 @@ export class AdsController {
       ip,
       ua,
       meta,
+      ...(dto.isTaddy && { isTaddy: true }),
     })
     const userData = await this.usersService.getResUserByTgId(
       userJWT.telegramId,
