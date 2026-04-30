@@ -1,6 +1,7 @@
 import { AdsNetworkEnum, DefaultEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { AdsService } from '@modules/ads/ads.service'
+import { TaddyService } from '@modules/ads/taddy.service'
 import { AdsPlaceEnum } from '@modules/ads/types/ads-place.enum'
 import { AdsTypeEnum } from '@modules/ads/types/ads-type.enum'
 import { Injectable, OnModuleInit } from '@nestjs/common'
@@ -29,6 +30,7 @@ export class AdsSenderService implements OnModuleInit {
     private readonly logger: PinoLogger,
     private readonly prisma: PrismaService,
     private readonly adsService: AdsService,
+    private readonly taddyService: TaddyService,
   ) {}
 
   async onModuleInit() {
@@ -182,6 +184,7 @@ export class AdsSenderService implements OnModuleInit {
       let lastId: string | undefined
       let processed = 0
       const startTime = Date.now()
+      const sponsorMessage = `\n\n#AD #Sponsor\n<code>With an active subscription, no ads are shown! / При активной подписке, реклама не показывается!</code>`
 
       this.logger.info({
         msg: 'Send ads started',
@@ -261,7 +264,7 @@ export class AdsSenderService implements OnModuleInit {
                     ad.richAds.message ?? ''
                   }\n\n${
                     ad.richAds.brand ? `Ad by ${ad.richAds.brand}` : ''
-                  }\n\n#AD #Sponsor\n<code>With an active subscription, no ads are shown! / При активной подписке, реклама не показывается!</code>`,
+                  }${sponsorMessage}`,
                   parse_mode: 'HTML',
                   reply_markup: {
                     inline_keyboard: ad.richAds.button
@@ -318,16 +321,94 @@ export class AdsSenderService implements OnModuleInit {
                 },
               })
             }
-          } else if (ad.taddy) {
-            await this.prisma.userAdsData.update({
-              where: {
-                id: user.adsDataId,
-              },
-              data: {
-                lastMessageAt: failedCooldownAt,
-                lastMessageNetwork: AdsNetworkEnum.TADDY,
-              },
-            })
+          } else if (ad.taddy && ad.taddy.result) {
+            await this.waitForSendMessageSlot()
+
+            let sendSucceeded = false
+            try {
+              if (ad.taddy.result.image) {
+                await this.bot.telegram.sendPhoto(
+                  user.telegramId,
+                  ad.taddy.result.image,
+                  {
+                    caption: `<b>${ad.taddy.result.title}</b>\n\n${
+                      ad.taddy.result.text ?? ''
+                    }${sponsorMessage}`,
+                    parse_mode: 'HTML',
+                    reply_markup: {
+                      inline_keyboard: ad.taddy.result.button
+                        ? [
+                            [
+                              {
+                                text: ad.taddy.result.button,
+                                url: ad.taddy.result.link,
+                              },
+                            ],
+                          ]
+                        : [],
+                    },
+                  },
+                )
+              } else {
+                await this.bot.telegram.sendMessage(
+                  user.telegramId,
+                  `<b>${ad.taddy.result.title}</b>\n\n${
+                    ad.taddy.result.text ?? ''
+                  }${sponsorMessage}`,
+                  {
+                    parse_mode: 'HTML',
+                    reply_markup: {
+                      inline_keyboard: ad.taddy.result.button
+                        ? [
+                            [
+                              {
+                                text: ad.taddy.result.button,
+                                url: ad.taddy.result.link,
+                              },
+                            ],
+                          ]
+                        : [],
+                    },
+                  },
+                )
+              }
+
+              sendSucceeded = true
+              this.handleSendSuccess()
+
+              await this.adsService.confirmAd({
+                userId: user.id,
+                verifyKey: ad.ad.verifyKey,
+              })
+
+              await this.taddyService.adsImpressions({
+                id: [ad.taddy.result.id],
+              })
+            } catch (e) {
+              if (this.isRateLimited(e)) {
+                await this.handleRateLimit(e)
+              } else {
+                this.consecutiveSendMessageSuccessCount = 0
+                this.logger.error({
+                  msg: `Error send ad`,
+                  e,
+                })
+                await this.prisma.userTelegramData.update({
+                  where: { id: user.telegramDataId },
+                  data: { isLive: false },
+                })
+              }
+            } finally {
+              await this.prisma.userAdsData.update({
+                where: {
+                  id: user.adsDataId,
+                },
+                data: {
+                  lastMessageAt: sendSucceeded ? now : failedCooldownAt,
+                  lastMessageNetwork: AdsNetworkEnum.TADDY,
+                },
+              })
+            }
           }
         }
 
