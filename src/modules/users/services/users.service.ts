@@ -580,18 +580,29 @@ export class UsersService {
 <b>По партнерке телеграм:</b> <code>${
                 createUser.isTgProgramPartner ? '✅' : '❌'
               }</code>
-<b>По рефералке:</b> <code>${referrals.length !== 0 ? '✅' : '❌'}</code>
-${referralKey ? `<b>ReferralKey:</b> <code>${referralKey}</code>` : ''}
-${startParam ? `<b>StartParams:</b> <code>${startParam}</code>` : ''}
-<b>💐 Дата рождения:</b> <code>${birth.day}-${birth.month}-${birth.year}</code>
-${country ? `<b>Страна:</b> <code>${country}</code>` : ''}
+<b>По рефералке:</b> <code>${referrals.length !== 0 ? '✅' : '❌'}</code>${
+                referralKey
+                  ? `\n<b>ReferralKey:</b> <code>${referralKey}</code>`
+                  : ''
+              }${
+                startParam
+                  ? `\n<b>StartParams:</b> <code>${startParam}</code>`
+                  : ''
+              }
+<b>💐 Дата рождения:</b> <code>${birth.day}-${birth.month}-${
+                birth.year
+              }</code>${
+                country ? `\n<b>Страна:</b> <code>${country}</code>` : ''
+              }
 <b>Премиум:</b> <code>${tdata.isPremium ? '⭐' : '❌'}</code>
-<b>Имя:</b> <code>${tdata.firstName}</code>
-${tdata.lastName ? `<b>Фамилия:</b> <code>${tdata.lastName}</code>` : ''}
-${tdata.username ? `<b>Username:</b> @${tdata.username}` : ''}
-<b>Язык:</b> <code>${tdata.languageCode}</code>
-${ua ? `<b>User-Agent:</b> <code>${ua}</code>` : ''}
-${ip ? `<b>IP:</b> <code>${ip}</code>` : ''}
+<b>Имя:</b> <code>${tdata.firstName}</code>${
+                tdata.lastName
+                  ? `\n<b>Фамилия:</b> <code>${tdata.lastName}</code>`
+                  : ''
+              }${tdata.username ? `\n<b>Username:</b> @${tdata.username}` : ''}
+<b>Язык:</b> <code>${tdata.languageCode}</code>${
+                ua ? `\n<b>User-Agent:</b> <code>${ua}</code>` : ''
+              }${ip ? `\n<b>IP:</b> <code>${ip}</code>` : ''}
 `,
               {
                 parse_mode: 'HTML',
