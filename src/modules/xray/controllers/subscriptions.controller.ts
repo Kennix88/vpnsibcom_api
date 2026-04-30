@@ -5,6 +5,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
@@ -332,6 +333,10 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
+
       this.logger.error(
         `Ошибка при покупке подписки: ${
           error instanceof Error ? error.message : String(error)
