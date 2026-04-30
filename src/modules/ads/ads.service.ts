@@ -3,9 +3,9 @@ import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/services/users.service'
 import { Injectable } from '@nestjs/common'
-import { Cron } from '@nestjs/schedule'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { Cron } from '@nestjs/schedule'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
 import { PlatformEnum } from '@shared/enums/platform.enum'
@@ -150,36 +150,40 @@ export class AdsService {
     const sessionId = crypto.randomUUID()
 
     if (place == AdsPlaceEnum.MESSAGE) {
-      const availableMessageNetworks = new Set<AdsNetworkEnum>()
-      if (blocks.some((b) => b.networkKey === AdsNetworkEnum.TADDY))
-        availableMessageNetworks.add(AdsNetworkEnum.TADDY)
-      if (blocks.some((b) => b.networkKey === AdsNetworkEnum.RICHADS))
-        availableMessageNetworks.add(AdsNetworkEnum.RICHADS)
+      const hasTaddy = blocks.some((b) => b.networkKey === AdsNetworkEnum.TADDY)
+      const hasRichAds = blocks.some(
+        (b) => b.networkKey === AdsNetworkEnum.RICHADS,
+      )
 
-      if (availableMessageNetworks.size === 0) {
+      if (!hasTaddy && !hasRichAds) {
         return { isNoAds: true }
       }
 
-      const selectedNetwork =
-        Array.from(availableMessageNetworks)[
-          Math.floor(Math.random() * availableMessageNetworks.size)
-        ]
-
-      if (selectedNetwork === AdsNetworkEnum.TADDY) {
+      if (hasTaddy) {
         const blocksFiltered = blocks.filter(
           (b) => b.networkKey === AdsNetworkEnum.TADDY,
         )
         block =
           blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
 
-        ad = await this.taddy.getAd({
-          user: {
-            id: Number(userId),
-          },
-          origin: TaddyOriginEnum.SERVER,
-          format: TaddyAdFormatEnum.BOT_AD,
-        })
-      } else if (selectedNetwork === AdsNetworkEnum.RICHADS) {
+        try {
+          ad = await this.taddy.getAd({
+            user: {
+              id: Number(userId),
+            },
+            origin: TaddyOriginEnum.SERVER,
+            format: TaddyAdFormatEnum.BOT_AD,
+          })
+        } catch (e) {
+          this.logger.warn(
+            `TADDY getAd failed for user ${userId}: ${
+              e instanceof Error ? e.message : String(e)
+            }`,
+          )
+        }
+      }
+
+      if (!ad && hasRichAds) {
         if (!user?.telegramData || !user.telegramId) {
           return { isNoAds: true }
         }
@@ -189,11 +193,19 @@ export class AdsService {
         block =
           blocksFiltered[Math.floor(Math.random() * blocksFiltered.length)]
 
-        ad = await this.richAdsService.getAd({
-          language_code: user.telegramData.languageCode,
-          telegram_id: user.telegramId,
-          widget_id: block.key,
-        })
+        try {
+          ad = await this.richAdsService.getAd({
+            language_code: user.telegramData.languageCode,
+            telegram_id: user.telegramId,
+            widget_id: block.key,
+          })
+        } catch (e) {
+          this.logger.warn(
+            `RICHADS getAd failed for user ${userId}: ${
+              e instanceof Error ? e.message : String(e)
+            }`,
+          )
+        }
       }
 
       if (!ad || !block) {
@@ -315,6 +327,7 @@ export class AdsService {
     ip?: string
     ua?: string
     meta?: any // если Guard передал
+    isTaddy?: boolean
   }) {
     const { userId, verifyKey, verificationCode, ip, ua, meta } = opts
 
@@ -419,6 +432,7 @@ export class AdsService {
           where: { verifyKey: sessionId },
           data: {
             claimedAt: new Date(),
+            ...(opts.isTaddy && { networkKey: AdsNetworkEnum.TADDY }),
           },
           select: {
             type: true,
@@ -522,9 +536,7 @@ export class AdsService {
 
   @Cron('0 */10 * * * *')
   public async cleanupExpiredAdSessions(): Promise<void> {
-    const cutoff = new Date(
-      Date.now() - AdsService.SESSION_TTL_SECONDS * 1000,
-    )
+    const cutoff = new Date(Date.now() - AdsService.SESSION_TTL_SECONDS * 1000)
     const batchSize = 500
 
     while (true) {
