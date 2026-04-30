@@ -1,22 +1,33 @@
 import { PrismaService } from '@core/prisma/prisma.service'
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
+import { DefaultEnum } from '@shared/enums/default.enum'
 import { InjectBot } from 'nestjs-telegraf'
+import { Client } from 'pg'
 import { Telegraf } from 'telegraf'
 
 @Injectable()
-export class CheckUsersService implements OnModuleInit {
+export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(CheckUsersService.name)
-  private readonly baseGetChatRateLimitPerSecond = 20
-  private readonly minGetChatRateLimitPerSecond = 5
+  private readonly baseGetChatRateLimitPerSecond = 10
+  private readonly minGetChatRateLimitPerSecond = 3
   private readonly getChatRecoverySuccessThreshold = 200
   private readonly getChatRetryDelayBufferMs = 500
+  private readonly getChatSlotJitterMs = 120
+  private readonly maxDetailedWarningsPerRun = 20
   private currentGetChatRateLimitPerSecond = this.baseGetChatRateLimitPerSecond
   private consecutiveGetChatSuccessCount = 0
   private localNextGetChatAt = 0
   private checkInProgress = false
   private readonly checkLockKey = 'telegram:check-users'
   private readonly batchSize = 500
+  private lockClient: Client | null = null
+  private nextRunStartAfterId: string | undefined
 
   constructor(
     private readonly prisma: PrismaService,
@@ -31,6 +42,10 @@ export class CheckUsersService implements OnModuleInit {
     }
   }
 
+  async onModuleDestroy() {
+    await this.releaseLock()
+  }
+
   private readonly maxExecutionTimeMs = 30 * 60 * 1000 // 30 минут
 
   private async sleep(ms: number): Promise<void> {
@@ -39,7 +54,9 @@ export class CheckUsersService implements OnModuleInit {
 
   private async waitForGetChatSlot(): Promise<void> {
     const now = Date.now()
-    const waitMs = Math.max(0, this.localNextGetChatAt - now)
+    const jitterMs =
+      crypto.getRandomValues(new Uint32Array(1))[0] % this.getChatSlotJitterMs
+    const waitMs = Math.max(0, this.localNextGetChatAt - now) + jitterMs
     this.localNextGetChatAt =
       Math.max(this.localNextGetChatAt, now) + this.getCurrentGetChatStepMs()
 
@@ -156,17 +173,48 @@ export class CheckUsersService implements OnModuleInit {
   }
 
   private async tryAcquireLock(): Promise<boolean> {
-    const result = (await this.prisma.$queryRaw<
-      { locked: boolean }[]
-    >`SELECT pg_try_advisory_lock(hashtext(${this.checkLockKey})) as locked`) as {
-      locked: boolean
-    }[]
-    return result?.[0]?.locked === true
+    if (this.lockClient) return true
+
+    const connectionString = process.env.POSTGRES_URL
+    if (!connectionString) {
+      throw new Error('POSTGRES_URL is not defined')
+    }
+
+    const client = new Client({ connectionString })
+    await client.connect()
+
+    try {
+      const result = await client.query<{ locked: boolean }>(
+        'SELECT pg_try_advisory_lock(hashtext($1)) as locked',
+        [this.checkLockKey],
+      )
+
+      if (result.rows[0]?.locked === true) {
+        this.lockClient = client
+        return true
+      }
+
+      await client.end()
+      return false
+    } catch (error) {
+      await client.end()
+      throw error
+    }
   }
 
   private async releaseLock(): Promise<void> {
-    await this.prisma
-      .$queryRaw`SELECT pg_advisory_unlock(hashtext(${this.checkLockKey}))`
+    if (!this.lockClient) return
+
+    const client = this.lockClient
+    this.lockClient = null
+
+    try {
+      await client.query('SELECT pg_advisory_unlock(hashtext($1))', [
+        this.checkLockKey,
+      ])
+    } finally {
+      await client.end()
+    }
   }
 
   public async secureShuffle(arr) {
@@ -182,27 +230,39 @@ export class CheckUsersService implements OnModuleInit {
   @Cron('0 */12 * * * *')
   private async check() {
     if (this.checkInProgress) {
-      this.logger.warn('Check users skipped: previous run still in progress')
+      this.logger.debug('Check users skipped: previous run still in progress')
       return
     }
     const lockAcquired = await this.tryAcquireLock()
     if (!lockAcquired) {
-      this.logger.warn('Check users skipped: lock is held by another instance')
+      this.logger.debug('Check users skipped: lock is held by another instance')
       return
     }
     this.checkInProgress = true
     try {
-      let lastId: string | undefined
+      const settings = await this.prisma.settings.findFirst({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+      if (!settings?.isActiveCheckUsers) return
+      let lastId: string | undefined = this.nextRunStartAfterId
+      let lastProcessedIdInRun: string | undefined = this.nextRunStartAfterId
       let processed = 0
+      let nonDefinitiveErrors = 0
+      let rateLimitCount = 0
+      let timedOut = false
       const startTime = Date.now()
 
-      this.logger.log(`Check users started. BatchSize: ${this.batchSize}`)
+      this.logger.log(
+        `Check users started. BatchSize: ${this.batchSize}, startAfterId: ${
+          this.nextRunStartAfterId ?? 'none'
+        }`,
+      )
 
       while (true) {
         if (Date.now() - startTime > this.maxExecutionTimeMs) {
-          this.logger.warn(
-            `Check users timeout. Processed: ${processed}, maxExecutionTimeMs: ${this.maxExecutionTimeMs}`,
-          )
+          timedOut = true
           break
         }
 
@@ -231,82 +291,130 @@ export class CheckUsersService implements OnModuleInit {
         if (users.length === 0) break
 
         const shuffledUsers = await this.secureShuffle(users)
+        let processedInBatch = 0
 
         for (const user of shuffledUsers) {
-          await this.waitForGetChatSlot()
+          if (Date.now() - startTime > this.maxExecutionTimeMs) {
+            timedOut = true
+            break
+          }
 
-          try {
-            const sentMessage = await this.bot.telegram.sendMessage(
-              user.telegramId,
-              'Check live...',
-              {
-                disable_notification: true,
-              },
-            )
-            this.handleGetChatSuccess()
+          if (!user.telegramDataId) continue
 
-            // Сразу удаляем сообщение
+          let retryCurrentUser = true
+
+          while (retryCurrentUser) {
+            if (Date.now() - startTime > this.maxExecutionTimeMs) {
+              timedOut = true
+              break
+            }
+
+            await this.waitForGetChatSlot()
+
             try {
-              await this.bot.telegram.deleteMessage(
+              const sentMessage = await this.bot.telegram.sendMessage(
                 user.telegramId,
-                // @ts-ignore
-                sentMessage.message_id,
+                'Check live...',
+                {
+                  disable_notification: true,
+                },
               )
-            } catch (deleteError) {
-              this.logger.debug(
-                `Failed to delete test message for userId=${user.id}: ${
-                  deleteError instanceof Error
-                    ? deleteError.message
-                    : String(deleteError)
-                }`,
-              )
-            }
+              this.handleGetChatSuccess()
 
-            // Сообщение отправлено успешно — пользователь живой
-            await this.prisma.userTelegramData.update({
-              where: { id: user.telegramDataId },
-              data: {
-                isLive: true,
-              },
-            })
-          } catch (error) {
-            if (this.isRateLimited(error)) {
-              await this.handleRateLimit(error)
-              continue
-            }
+              // Сразу удаляем сообщение
+              try {
+                await this.bot.telegram.deleteMessage(
+                  user.telegramId,
+                  // @ts-ignore
+                  sentMessage.message_id,
+                )
+              } catch (deleteError) {
+                this.logger.debug(
+                  `Failed to delete test message for userId=${user.id}: ${
+                    deleteError instanceof Error
+                      ? deleteError.message
+                      : String(deleteError)
+                  }`,
+                )
+              }
 
-            this.consecutiveGetChatSuccessCount = 0
-
-            const { errorCode, description } = this.getTelegramErrorMeta(error)
-            const errorMessage =
-              description ??
-              (error instanceof Error ? error.message : String(error))
-
-            if (this.isDefinitelyNotLive(error)) {
+              // Сообщение отправлено успешно — пользователь живой
               await this.prisma.userTelegramData.update({
                 where: { id: user.telegramDataId },
-                data: { isLive: false },
+                data: {
+                  isLive: true,
+                },
               })
-            } else {
-              this.logger.warn(
-                `sendMessage failed without definitive liveness signal: userId=${
-                  user.id
-                }, telegramId=${user.telegramId}, errorCode=${
-                  errorCode ?? 'unknown'
-                }, error=${errorMessage}`,
-              )
+
+              retryCurrentUser = false
+            } catch (error) {
+              if (this.isRateLimited(error)) {
+                rateLimitCount += 1
+                await this.handleRateLimit(error)
+                continue
+              }
+
+              this.consecutiveGetChatSuccessCount = 0
+
+              const { errorCode, description } =
+                this.getTelegramErrorMeta(error)
+              const errorMessage =
+                description ??
+                (error instanceof Error ? error.message : String(error))
+
+              if (this.isDefinitelyNotLive(error)) {
+                await this.prisma.userTelegramData.update({
+                  where: { id: user.telegramDataId },
+                  data: { isLive: false },
+                })
+              } else {
+                nonDefinitiveErrors += 1
+                if (
+                  nonDefinitiveErrors <= this.maxDetailedWarningsPerRun ||
+                  nonDefinitiveErrors % 100 === 0
+                ) {
+                  this.logger.warn(
+                    `sendMessage failed without definitive liveness signal: userId=${
+                      user.id
+                    }, telegramId=${user.telegramId}, errorCode=${
+                      errorCode ?? 'unknown'
+                    }, error=${errorMessage}`,
+                  )
+                }
+              }
+
+              retryCurrentUser = false
             }
           }
+
+          if (timedOut) break
+          lastProcessedIdInRun = user.id
+          processedInBatch += 1
         }
 
-        processed += users.length
+        processed += processedInBatch
         lastId = users[users.length - 1].id
         this.logger.log(
-          `Check users batch processed: ${users.length}, total: ${processed}`,
+          `Check users batch processed: ${processedInBatch}/${users.length}, total: ${processed}`,
         )
+        if (timedOut) break
       }
 
-      this.logger.log(`Check users finished. Processed: ${processed}`)
+      if (timedOut) {
+        this.nextRunStartAfterId = lastProcessedIdInRun
+        this.logger.warn(
+          `Check users timeout. Processed: ${processed}, maxExecutionTimeMs: ${
+            this.maxExecutionTimeMs
+          }, nextStartAfterId: ${this.nextRunStartAfterId ?? 'none'}`,
+        )
+      } else {
+        this.nextRunStartAfterId = undefined
+      }
+      this.logger.log(
+        `Check users finished. Processed: ${processed}, rateLimits: ${rateLimitCount}, nonDefinitiveErrors: ${nonDefinitiveErrors}, nextStartAfterId: ${
+          this.nextRunStartAfterId ?? 'none'
+        }`,
+      )
     } catch (error) {
       this.logger.error(error)
     } finally {
