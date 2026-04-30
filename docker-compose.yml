@@ -1,3 +1,10 @@
+x-default-logging: &default-logging
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "5"
+    compress: "true"
+
 services:
   api:
     container_name: api
@@ -99,6 +106,7 @@ services:
       start_period: 20s
     tty: true
     stdin_open: true
+    logging: *default-logging
 
   frontend:
     container_name: frontend
@@ -127,6 +135,7 @@ services:
       - '3000:3000'
     tty: true
     stdin_open: true
+    logging: *default-logging
 
   db:
     container_name: postgres
@@ -154,6 +163,7 @@ services:
     tty: true
     stdin_open: true
     command: postgres -c idle_in_transaction_session_timeout=0 -c statement_timeout=0
+    logging: *default-logging
 
   redis:
     container_name: redis
@@ -184,6 +194,7 @@ services:
       retries: 5
     tty: true
     stdin_open: true
+    logging: *default-logging
 
   grafana:
     container_name: grafana
@@ -207,6 +218,7 @@ services:
       retries: 5
     tty: true
     stdin_open: true
+    logging: *default-logging
 
   caddy:
     container_name: caddy
@@ -244,6 +256,7 @@ services:
       retries: 3
     sysctls:
       - net.core.somaxconn=1024
+    logging: *default-logging
 
   pg-backup:
     image: postgres:17-alpine
@@ -260,9 +273,12 @@ services:
       - CRON_SCHEDULE=0 */6 * * *
     networks:
       - token-backend
+    tmpfs:
+      - /tmp:size=512m,mode=1777
     volumes:
       - ./docker/pg-backup/backup.sh:/backup.sh:ro
     entrypoint: ['/bin/sh', '/backup.sh']
+    logging: *default-logging
 
   frps:
     container_name: frps
@@ -277,6 +293,7 @@ services:
       - '7521:7500' # dashboard (опционально)
     networks:
       - token-backend
+    logging: *default-logging
 
 networks:
   token-backend:
