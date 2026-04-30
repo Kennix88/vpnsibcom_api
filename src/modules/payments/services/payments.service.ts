@@ -578,7 +578,7 @@ export class PaymentsService {
       },
     })
 
-    this.eventsService.createEvent({
+    await this.eventsService.createEvent({
       userId: updatedPayment.userId,
       eventType:
         payments.length == 1
