@@ -94,7 +94,7 @@ export class EventsService {
         parseStartParams.params.record &&
         eventType !== EventType.ACTIVATION
       ) {
-        this.adsgramService.sendEvent({
+        await this.adsgramService.sendEvent({
           recordId: parseStartParams.params.record,
           goaltype:
             eventType == EventType.REGISTRATION
@@ -110,7 +110,7 @@ export class EventsService {
         (eventType == EventType.RELOAD_PAYMENT ||
           eventType == EventType.FIRST_PAYMENT)
       ) {
-        this.graspilService.sendEvent({
+        await this.graspilService.sendEvent({
           tgid: user.telegramId,
           amountStars,
         })
