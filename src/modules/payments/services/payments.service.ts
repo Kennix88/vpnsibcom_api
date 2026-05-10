@@ -33,6 +33,7 @@ import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
+import { SuccessfulPayment } from '@telegraf/types'
 import { BonusesInterface } from '../types/bonuses.interface'
 import { PaymentTypeEnum } from '../types/payment-type.enum'
 import { TelegramPaymentsService } from './telegram-payments.service'
@@ -393,6 +394,148 @@ export class PaymentsService {
 
       // Пробрасываем ошибку дальше для обработки на уровне контроллера
       throw e
+    }
+  }
+
+  public async processTelegramStarsIncomingPayment(params: {
+    telegramUserId: string
+    invoicePayload?: string
+    totalAmount: number
+    telegramPaymentChargeId?: string
+    providerPaymentChargeId?: string
+    rawDetails?: object
+  }): Promise<{ processed: boolean; token?: string }> {
+    const {
+      telegramUserId,
+      invoicePayload,
+      totalAmount,
+      telegramPaymentChargeId,
+      providerPaymentChargeId,
+      rawDetails,
+    } = params
+
+    const incomingToken = invoicePayload?.trim()
+
+    if (incomingToken) {
+      try {
+        await this.updatePayment(
+          incomingToken,
+          PaymentStatusEnum.COMPLETED,
+          rawDetails,
+        )
+        return { processed: true, token: incomingToken }
+      } catch (error) {
+        this.logger.warn({
+          msg: 'Failed to complete payment by invoice payload token, fallback to recovery flow',
+          token: incomingToken,
+          telegramUserId,
+          error: error instanceof Error ? error.message : String(error),
+        })
+      }
+    }
+
+    const chargeId = telegramPaymentChargeId || providerPaymentChargeId
+    if (!chargeId) {
+      throw new Error('Telegram charge id is missing for incoming Stars payment')
+    }
+
+    const recoveryToken = `tg-stars-recovery-${chargeId}`
+
+    const existingRecovery = await this.prismaService.payments.findUnique({
+      where: { token: recoveryToken },
+      select: { id: true, status: true, token: true },
+    })
+
+    if (existingRecovery?.status === PaymentStatusEnum.COMPLETED) {
+      return { processed: true, token: existingRecovery.token }
+    }
+
+    const user = await this.prismaService.users.findUnique({
+      where: { telegramId: telegramUserId },
+      select: { id: true, isTgProgramPartner: true },
+    })
+    if (!user) {
+      throw new Error(`User not found by telegramId: ${telegramUserId}`)
+    }
+
+    const settings = await this.prismaService.settings.findUnique({
+      where: { key: DefaultEnum.DEFAULT },
+    })
+    if (!settings) {
+      throw new Error('Default settings not found')
+    }
+
+    const amountStars = Number(totalAmount.toFixed(0))
+    const bonusStars =
+      amountStars < 250
+        ? 0
+        : amountStars >= 250 && amountStars < 500
+        ? amountStars * settings.bonusPayment250
+        : amountStars >= 500 && amountStars < 1000
+        ? amountStars * settings.bonusPayment500
+        : amountStars >= 1000 && amountStars < 2500
+        ? amountStars * settings.bonusPayment1000
+        : amountStars >= 2500 && amountStars < 5000
+        ? amountStars * settings.bonusPayment2500
+        : amountStars >= 5000 && amountStars < 10000
+        ? amountStars * settings.bonusPayment5000
+        : amountStars >= 10000 && amountStars < 20000
+        ? amountStars * settings.bonusPayment10000
+        : amountStars >= 20000 && amountStars < 50000
+        ? amountStars * settings.bonusPayment20000
+        : amountStars * settings.bonusPayment50000
+
+    try {
+      if (!existingRecovery) {
+        await this.prismaService.payments.create({
+          data: {
+            status: PaymentStatusEnum.PENDING,
+            type: PaymentTypeEnum.ADD_PAYMENT_BALANCE,
+            amount: amountStars,
+            amountStars,
+            bonusStars,
+            exchangeRate: 1,
+            commission: 0,
+            isTgPartnerProgram: user.isTgProgramPartner,
+            amountStarsFeeTgPartner: user.isTgProgramPartner
+              ? amountStars * settings.commissionRatioTgPartnerProgram
+              : 0,
+            token: recoveryToken,
+            userId: user.id,
+            currencyKey: CurrencyEnum.XTR,
+            methodKey: PaymentMethodEnum.STARS,
+            details: (rawDetails ||
+              ({
+                telegram_payment_charge_id: telegramPaymentChargeId,
+                provider_payment_charge_id: providerPaymentChargeId,
+              } as SuccessfulPayment)) as Prisma.JsonObject,
+          },
+        })
+      }
+    } catch (error) {
+      this.logger.warn({
+        msg: 'Failed to create recovery payment, maybe already exists',
+        recoveryToken,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
+
+    try {
+      await this.updatePayment(
+        recoveryToken,
+        PaymentStatusEnum.COMPLETED,
+        rawDetails || { recoveryToken },
+      )
+      return { processed: true, token: recoveryToken }
+    } catch (error) {
+      const completed = await this.prismaService.payments.findUnique({
+        where: { token: recoveryToken },
+        select: { status: true, token: true },
+      })
+      if (completed?.status === PaymentStatusEnum.COMPLETED) {
+        return { processed: true, token: completed.token }
+      }
+      throw error
     }
   }
 
