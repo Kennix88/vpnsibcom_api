@@ -23,11 +23,11 @@ export class TaddyService {
     this.baseUrl = this.configService.getOrThrow<string>('TADDY_API_URL')
   }
 
-  public startEvent(
+  public async startEvent(
     data: Omit<TaddyStartEventRequestInterface, keyof TaddyPubId>,
-  ): void {
+  ): Promise<void> {
     const url = `${this.baseUrl}/events/start`
-    axios
+    await axios
       .post(url, {
         pubId: this.pubId,
         ...data,
@@ -67,8 +67,7 @@ export class TaddyService {
   public async adsImpressions(
     data: TaddySendAdImpressionEventRequestInterface,
   ): Promise<void> {
-    const url = `${this.baseUrl}/ads/impressions
-`
+    const url = `${this.baseUrl}/ads/impressions`
     await axios
       .post(url, {
         pubId: this.pubId,
