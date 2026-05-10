@@ -63,6 +63,12 @@ export class AuthController {
       return { data: { accessToken: auth.accessToken, user: auth.user } }
     } catch (error) {
       this.logger.warn(`Telegram login failed: ${(error as Error).message}`)
+      if (error instanceof UnauthorizedException) {
+        throw error
+      }
+      if (error instanceof BadRequestException) {
+        throw error
+      }
       throw new BadRequestException('Ошибка авторизации через Telegram')
     }
   }
