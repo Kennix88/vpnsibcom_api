@@ -42,7 +42,7 @@ export class TaddyService {
 
   public async getAd(
     data: Omit<TaddyGetAdRequestInterface, keyof TaddyPubId>,
-  ): Promise<TaddyGetAdResponseInterface> {
+  ): Promise<TaddyGetAdResponseInterface | null> {
     const url = `${this.baseUrl}/ads/get`
     const result = await axios
       .post(url, {
@@ -61,6 +61,7 @@ export class TaddyService {
       msg: `Get ad`,
       result,
     })
+    if (!result || !result.result || result.result === null) return null
     return result
   }
 

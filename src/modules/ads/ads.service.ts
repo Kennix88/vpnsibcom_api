@@ -183,7 +183,7 @@ export class AdsService {
         }
       }
 
-      if (!ad && hasRichAds) {
+      if ((!ad || ad === null) && hasRichAds) {
         if (!user?.telegramData || !user.telegramId) {
           return { isNoAds: true }
         }
