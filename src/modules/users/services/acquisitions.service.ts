@@ -31,7 +31,7 @@ export class AcquisitionsService {
         },
       })
 
-      if (!user || !user.acquisition.id) return
+      if (!user?.acquisition?.id) return
 
       const parseStartParams = parseStartParamUtil(startParams ?? '')
 
@@ -50,7 +50,7 @@ export class AcquisitionsService {
             lastStartParams: startParams,
           }),
           ...(parseStartParams.params.compaing && {
-            lastСompaingId: parseStartParams.params.compaing,
+            lastCompaingId: parseStartParams.params.compaing,
           }),
           ...(parseStartParams.params.record && {
             lastRecordId: parseStartParams.params.record,
