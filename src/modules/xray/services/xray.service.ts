@@ -39,8 +39,11 @@ import { MarzbanService } from './marzban.service'
 
 @Injectable()
 export class XrayService {
-  getLocalizedPeriodText(arg0: SubscriptionPeriodEnum, iso6391: string): any {
-    throw new Error('Method not implemented.')
+  getLocalizedPeriodText(
+    period: SubscriptionPeriodEnum,
+    _iso6391: string,
+  ): any {
+    return period
   }
   private readonly serviceName = 'XrayService'
 
@@ -82,12 +85,12 @@ export class XrayService {
 
       if (!sub) {
         this.logger.error({
-          msg: `Не сущействует такой подписки с таким пользователем!`,
+          msg: `Не существует такой подписки с таким пользователем!`,
           service: this.serviceName,
         })
         return {
           success: false,
-          message: 'Не сущействует такой подписки с таким пользователем!',
+          message: 'Не существует такой подписки с таким пользователем!',
         }
       }
 
@@ -96,6 +99,16 @@ export class XrayService {
           key: DefaultEnum.DEFAULT,
         },
       })
+      if (!settings) {
+        this.logger.error({
+          msg: 'Настройки не найдены',
+          service: this.serviceName,
+        })
+        return {
+          success: false,
+          message: 'settings_not_found',
+        }
+      }
 
       if (method === 'BALANCE' || method === 'USDT') {
         const deductionAmount =
@@ -1839,10 +1852,19 @@ export class XrayService {
       }
 
       // Получаем подписку и проверяем, принадлежит ли она пользователю
-      const subscription = await this.getSubscriptionByTokenOrId({
-        id: subscriptionId,
-        isToken: false,
-        agent: 'Root',
+      const subscription = await this.prismaService.subscriptions.findFirst({
+        where: {
+          id: subscriptionId,
+          userId: user.id,
+        },
+        include: {
+          plan: true,
+          servers: {
+            include: {
+              greenList: true,
+            },
+          },
+        },
       })
 
       if (!subscription) {
@@ -1858,6 +1880,16 @@ export class XrayService {
           key: DefaultEnum.DEFAULT,
         },
       })
+      if (!settings) {
+        this.logger.error({
+          msg: 'Настройки не найдены',
+          service: this.serviceName,
+        })
+        return {
+          success: false,
+          message: 'settings_not_found',
+        }
+      }
 
       // Расчет стоимости подписки
       const cost = calculateSubscriptionCost({
@@ -1865,15 +1897,23 @@ export class XrayService {
         isTgProgramPartner: user.isTgProgramPartner,
         period,
         periodMultiplier,
-        devicesCount: subscription.subscription.devicesCount,
-        serversCount: subscription.subscription.baseServersCount,
-        premiumServersCount: subscription.subscription.premiumServersCount,
-        isAllBaseServers: subscription.subscription.isAllBaseServers,
-        isAllPremiumServers: subscription.subscription.isAllPremiumServers,
-        trafficLimitGb: subscription.subscription.trafficLimitGb,
-        isUnlimitTraffic: subscription.subscription.isUnlimitTraffic,
+        devicesCount: subscription.devicesCount,
+        serversCount: subscription.isAllBaseServers
+          ? await this.prismaService.greenList.count({
+              where: { isActive: true, isPremium: false },
+            })
+          : subscription.servers.filter((s) => !s.greenList.isPremium).length,
+        premiumServersCount: subscription.isAllPremiumServers
+          ? await this.prismaService.greenList.count({
+              where: { isActive: true, isPremium: true },
+            })
+          : subscription.servers.filter((s) => s.greenList.isPremium).length,
+        isAllBaseServers: subscription.isAllBaseServers,
+        isAllPremiumServers: subscription.isAllPremiumServers,
+        trafficLimitGb: subscription.trafficLimitGb,
+        isUnlimitTraffic: subscription.isUnlimitTraffic,
         userDiscount: user.role.discount,
-        plan: subscription.subscription.plan,
+        plan: subscription.plan as unknown as PlansInterface,
         settings,
       })
 
@@ -2003,9 +2043,10 @@ export class XrayService {
       }
 
       // Получаем подписку и проверяем, принадлежит ли она пользователю
-      const subscription = await this.prismaService.subscriptions.findUnique({
+      const subscription = await this.prismaService.subscriptions.findFirst({
         where: {
           id: subscriptionId,
+          userId,
         },
       })
 
