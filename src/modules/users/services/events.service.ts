@@ -53,8 +53,12 @@ export class EventsService {
 
       if (!user) return
 
-      const startParams = user.acquisition?.firstStartParams || ''
-      const referralKey = user.acquisition?.firstReferralId || ''
+      const startParams =
+        user.acquisition?.firstStartParams ||
+        user.acquisition?.lastStartParams ||
+        ''
+      const referralKey =
+        user.acquisition?.firstReferralId || user.acquisition?.lastReferralId || ''
 
       const parseStartParams = parseStartParamUtil(startParams ?? '')
 
