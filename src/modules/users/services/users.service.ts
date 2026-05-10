@@ -1,3 +1,4 @@
+import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { Prisma } from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
@@ -28,6 +29,7 @@ export class UsersService {
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
+    private readonly telegramLogger: LoggerTelegramService,
     private readonly redis: RedisService,
     private readonly eventsService: EventsService,
     @InjectBot() private readonly bot: Telegraf,
@@ -177,13 +179,13 @@ export class UsersService {
               'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome.jpg',
             thumbnail_url:
               'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome.jpg',
-            caption: 'Free, fast and Secure VPN&MTProxy!',
+            caption: 'Бесплатный, быстрый и безопасный VPN!',
             reply_markup: {
               inline_keyboard: [
                 [
                   {
                     ...Markup.button.url(
-                      'Connect to a VPN',
+                      '🛡️ Подключить VPN бесплатно',
                       `${this.configService.get('TMA_URL')}?startapp=r-${
                         user.telegramId
                       }`,
@@ -197,7 +199,7 @@ export class UsersService {
                     [
                       {
                         ...Markup.button.url(
-                          '🎁 Free Telegram MTProxy',
+                          '🎁 Telegram MTProxy бесплатно',
                           settings.proxyPartnerLink,
                         ),
                         // @ts-ignore
@@ -272,7 +274,11 @@ export class UsersService {
         },
         include: {
           balance: true,
-          subscriptions: true,
+          subscriptions: {
+            where: {
+              deletedAt: null,
+            },
+          },
           referrals: true,
           inviters: {
             include: {
@@ -467,16 +473,16 @@ export class UsersService {
               lastSource: parseStartParams.params.source,
             }),
             ...(referralKey && {
-              firstReferralKey: referralKey,
-              lastReferralKey: referralKey,
+              firstReferralId: referralKey,
+              lastReferralId: referralKey,
             }),
             ...(startParam && {
               firstStartParams: startParam,
               lastStartParams: startParam,
             }),
-            ...(parseStartParams.params.comaping && {
-              firstComapingId: parseStartParams.params.comaping,
-              lastComapingId: parseStartParams.params.comaping,
+            ...(parseStartParams.params.compaing && {
+              firstCompaingId: parseStartParams.params.compaing,
+              lastCompaingId: parseStartParams.params.compaing,
             }),
             ...(parseStartParams.params.record && {
               firstRecordId: parseStartParams.params.record,
@@ -509,11 +515,6 @@ export class UsersService {
             isTgProgramPartner: isTelegramPartner,
             ...(country && { countryRegistration: country.toUpperCase() }),
           },
-        })
-
-        this.eventsService.createEvent({
-          userId: createUser.id,
-          eventType: EventType.REGISTRATION,
         })
 
         const referrals = []
@@ -570,62 +571,53 @@ export class UsersService {
           })
         }
 
-        try {
-          await this.bot.telegram
-            .sendMessage(
-              Number(process.env.TELEGRAM_LOG_CHAT_ID),
-              `<b>😁 НОВЫЙ ПОЛЬЗОВАТЕЛЬ</b>
-<b>👱 Пользователь:</b> <code>${createUser.id}</code>
-<b>🪪 Telegram ID:</b> <code>${createUser.telegramId}</code>
+        this.telegramLogger.sendMessage({
+          chatId: Number(process.env.TELEGRAM_LOG_CHAT_ID),
+          threadId: Number(process.env.TELEGRAM_THREAD_ID_USERS),
+          parseMode: 'HTML',
+          text: `<b>😁 НОВЫЙ ПОЛЬЗОВАТЕЛЬ</b>
+<b>👱 Пользователь:</b> <code>${this.escapeHtml(createUser.id)}</code>
+<b>🪪 Telegram ID:</b> <code>${this.escapeHtml(createUser.telegramId)}</code>
 <b>По партнерке телеграм:</b> <code>${
-                createUser.isTgProgramPartner ? '✅' : '❌'
-              }</code>
+            createUser.isTgProgramPartner ? '✅' : '❌'
+          }</code>
 <b>По рефералке:</b> <code>${referrals.length !== 0 ? '✅' : '❌'}</code>${
-                referralKey
-                  ? `\n<b>ReferralKey:</b> <code>${referralKey}</code>`
-                  : ''
-              }${
-                startParam
-                  ? `\n<b>StartParams:</b> <code>${startParam}</code>`
-                  : ''
-              }
-<b>💐 Дата рождения:</b> <code>${birth.day}-${birth.month}-${
-                birth.year
-              }</code>${
-                country ? `\n<b>Страна:</b> <code>${country}</code>` : ''
-              }
+            referralKey
+              ? `\n<b>ReferralKey:</b> <code>${this.escapeHtml(
+                  referralKey,
+                )}</code>`
+              : ''
+          }${
+            startParam
+              ? `\n<b>StartParams:</b> <code>${this.escapeHtml(
+                  startParam,
+                )}</code>`
+              : ''
+          }
+<b>💐 Дата рождения:</b> <code>${
+            birth ? `${birth.day}-${birth.month}-${birth.year}` : 'Не указана'
+          }</code>${
+            country
+              ? `\n<b>Страна:</b> <code>${this.escapeHtml(country)}</code>`
+              : ''
+          }
 <b>Премиум:</b> <code>${tdata.isPremium ? '⭐' : '❌'}</code>
-<b>Имя:</b> <code>${tdata.firstName}</code>${
-                tdata.lastName
-                  ? `\n<b>Фамилия:</b> <code>${tdata.lastName}</code>`
-                  : ''
-              }${tdata.username ? `\n<b>Username:</b> @${tdata.username}` : ''}
-<b>Язык:</b> <code>${tdata.languageCode}</code>${
-                ua ? `\n<b>User-Agent:</b> <code>${ua}</code>` : ''
-              }${ip ? `\n<b>IP:</b> <code>${ip}</code>` : ''}
+<b>Имя:</b> <code>${this.escapeHtml(tdata.firstName)}</code>${
+            tdata.lastName
+              ? `\n<b>Фамилия:</b> <code>${this.escapeHtml(
+                  tdata.lastName,
+                )}</code>`
+              : ''
+          }${
+            tdata.username
+              ? `\n<b>Username:</b> @${this.escapeHtml(tdata.username)}`
+              : ''
+          }
+<b>Язык:</b> <code>${this.escapeHtml(tdata.languageCode)}</code>${
+            ua ? `\n<b>User-Agent:</b> <code>${this.escapeHtml(ua)}</code>` : ''
+          }${ip ? `\n<b>IP:</b> <code>${this.escapeHtml(ip)}</code>` : ''}
 `,
-              {
-                parse_mode: 'HTML',
-                message_thread_id: Number(process.env.TELEGRAM_THREAD_ID_USERS),
-              },
-            )
-            .catch((e) => {
-              this.logger.error({
-                msg: `Error while sending message to telegram`,
-                e,
-              })
-            })
-            .then(() => {
-              this.logger.info({
-                msg: `Message sent to telegram`,
-              })
-            })
-        } catch (e) {
-          this.logger.error({
-            msg: `Error while sending message to telegram`,
-            e,
-          })
-        }
+        })
 
         return createUser
       })
@@ -635,6 +627,10 @@ export class UsersService {
           msg: `Error while creating user`,
         })
       } else {
+        await this.eventsService.createEvent({
+          userId: user.id,
+          eventType: EventType.REGISTRATION,
+        })
         return await this.getUserByTgId(telegramId)
       }
     } catch (e) {
@@ -643,6 +639,15 @@ export class UsersService {
         e,
       })
     }
+  }
+
+  private escapeHtml(value?: string | number | null) {
+    if (value === null || value === undefined) return ''
+
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
   }
 
   /**
