@@ -104,6 +104,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при получение подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -151,6 +154,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Error when receiving a subscription: ${
           error instanceof Error ? error.message : String(error)
@@ -219,6 +225,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при активации бесплатного плана: ${
           error instanceof Error ? error.message : String(error)
@@ -260,6 +269,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при получении подписок: ${
           error instanceof Error ? error.message : String(error)
@@ -397,6 +409,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при Добавлении трафика подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -455,6 +470,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при изменении сервера подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -517,6 +535,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при изменении имени подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -601,6 +622,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при удалении подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -669,6 +693,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при продлении подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -753,6 +780,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при сбросе токена подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -839,6 +869,9 @@ export class SubscriptionsController {
         },
       }
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error
+      }
       this.logger.error(
         `Ошибка при изменении статуса автопродления: ${
           error instanceof Error ? error.message : String(error)
