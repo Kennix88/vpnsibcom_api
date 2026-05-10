@@ -2,6 +2,7 @@ import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { DefaultEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
+import { AdsService } from '@modules/ads/ads.service'
 import { RichAdsService } from '@modules/ads/richads.service'
 import { YandexAdsService } from '@modules/ads/services/yandex-ads.service'
 import { TaddyService } from '@modules/ads/taddy.service'
@@ -45,6 +46,7 @@ export class StartUpdate {
     private readonly richAdsService: RichAdsService,
     private readonly prisma: PrismaService,
     private readonly yandex: YandexAdsService,
+    private readonly adsService: AdsService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(StartUpdate.name)
@@ -54,13 +56,13 @@ export class StartUpdate {
   async helpCommand(@Ctx() ctx: Context) {
     await ctx.replyWithHTML(
       `<b>Help</b>
-<b>Your Telegram id</b>: <code>${ctx.from.id}</code>
+<b>Ваш Telegram id</b>: <code>${ctx.from.id}</code>
 
-If you have any difficulties with payment, subscription or anything else, write to our chat, we will respond to you!
+Если у вас возникнут какие-либо трудности с оплатой, подпиской или чем-либо еще, напишите нам!
 
-<b>Commands</b>
-/start - start the bot
-/help - show this help message
+<b>Команды</b>
+/start - Перезапустить бота
+/help - Помощь
 `,
       {
         reply_markup: {
@@ -76,7 +78,7 @@ If you have any difficulties with payment, subscription or anything else, write 
             ],
             [
               Markup.button.url(
-                'Collaboration | Advertising',
+                'Сотрудничество и Реклама',
                 this.configService.get<string>('CHANNEL_URL') + '?direct',
               ),
             ],
@@ -127,7 +129,7 @@ If you have any difficulties with payment, subscription or anything else, write 
           day: chatInfo.birthdate.day ?? null,
         }
 
-      this.taddyService.startEvent({
+      await this.taddyService.startEvent({
         user: {
           id: Number(ctx.from.id),
           firstName: ctx.from.first_name,
@@ -161,19 +163,24 @@ If you have any difficulties with payment, subscription or anything else, write 
         // ctx,
       })
 
-      const user = await this.userService.getUserByTgId(ctx.from.id.toString())
+      let user = await this.userService.getUserByTgId(ctx.from.id.toString())
 
       if (!user) {
-        await this.userService.createUser({
+        user = await this.userService.createUser({
           telegramId: ctx.from.id.toString(),
           referralKey: referralKey,
           userInBotData: ctx.from,
           isTelegramPartner,
+          startParam,
           ...(birth && { birth }),
         })
       }
 
-      this.sessionsService.createSession({
+      if (!user) {
+        throw new Error('User was not created or loaded')
+      }
+
+      await this.sessionsService.createSession({
         userId: user.id,
         place: SessionPlaceEnum.BOT,
         ...(referralKey && {
@@ -182,7 +189,7 @@ If you have any difficulties with payment, subscription or anything else, write 
         startParams: startParam,
       })
 
-      this.acquisitionsService.updateAcquisition({
+      await this.acquisitionsService.updateAcquisition({
         userId: user.id,
         startParams: startParam,
         ...(referralKey && {
@@ -194,6 +201,61 @@ If you have any difficulties with payment, subscription or anything else, write 
         this.telegramLogger.info(
           `Admin ${ctx.from.first_name} ${ctx.from.last_name} (${ctx.from.username}) started the bot`,
         )
+
+        // const ad = await this.taddyService.getAd({
+        //   user: {
+        //     id: Number(2143544563),
+        //   },
+        //   origin: TaddyOriginEnum.SERVER,
+        //   format: TaddyAdFormatEnum.BOT_AD,
+        // })
+
+        // this.logger.info(`Ad: ${JSON.stringify(ad)}`)
+
+        // if (ad && ad.result) {
+        //   if (ad.result.image) {
+        //     await this.bot.telegram.sendPhoto(
+        //       user.telegramId,
+        //       ad.result.image,
+        //       {
+        //         caption: `<b>${ad.result.title}</b>\n\n${ad.result.text ?? ''}`,
+        //         parse_mode: 'HTML',
+        //         reply_markup: {
+        //           inline_keyboard: ad.result.button
+        //             ? [
+        //                 [
+        //                   {
+        //                     text: ad.result.button,
+        //                     url: ad.result.link,
+        //                   },
+        //                 ],
+        //               ]
+        //             : [],
+        //         },
+        //       },
+        //     )
+        //   } else {
+        //     await this.bot.telegram.sendMessage(
+        //       user.telegramId,
+        //       `<b>${ad.result.title}</b>\n\n${ad.result.text ?? ''}`,
+        //       {
+        //         parse_mode: 'HTML',
+        //         reply_markup: {
+        //           inline_keyboard: ad.result.button
+        //             ? [
+        //                 [
+        //                   {
+        //                     text: ad.result.button,
+        //                     url: ad.result.link,
+        //                   },
+        //                 ],
+        //               ]
+        //             : [],
+        //         },
+        //       },
+        //     )
+        //   }
+        // }
       }
 
       // await ctx.reply(
@@ -210,16 +272,9 @@ If you have any difficulties with payment, subscription or anything else, write 
       await ctx.sendPhoto(
         { source: createReadStream('assets/welcome.jpg') },
         {
-          caption: `<b>${this.i18n.t('telegraf.telegram.welcome.greeting', {
-            args: { name: ctx.from.first_name },
+          caption: `<b>${this.i18n.t('telegraf.telegram.welcome.message1', {
             lang: ctx.from.language_code,
           })}</b>
-${this.i18n.t('telegraf.telegram.welcome.message1', {
-  lang: ctx.from.language_code,
-})}
-${this.i18n.t('telegraf.telegram.welcome.message2', {
-  lang: ctx.from.language_code,
-})}
 
 ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
   lang: ctx.from.language_code,
@@ -228,7 +283,7 @@ ${this.i18n.t('telegraf.telegram.welcome.buyStars', {
 ${
   settings &&
   settings.partnerBotLink &&
-  `Sponsored by <a href="${settings.partnerBotLink}">@TonPlay</a>`
+  `Спонсировано <a href="${settings.partnerBotLink}">@TonPlay</a>`
 }
 `,
           parse_mode: 'HTML',
@@ -238,7 +293,7 @@ ${
               [
                 {
                   ...Markup.button.webApp(
-                    '🛡️ Connect to a vpn',
+                    '🛡️ Подключить VPN бесплатно',
                     this.configService.get<string>('WEBAPP_URL') +
                       '?gs_source=start_msg',
                   ),
@@ -246,9 +301,9 @@ ${
                   style: 'success',
                 },
               ],
-              ...(settings &&
-                settings.partnerMiniAppLink && [
-                  [
+              ...(settings && [
+                [
+                  ...(settings.partnerMiniAppLink && [
                     {
                       ...Markup.button.url(
                         '🎮 TonPlay',
@@ -257,27 +312,25 @@ ${
                       // @ts-ignore
                       style: 'primary',
                     },
-                  ],
-                ]),
-              ...(settings &&
-                settings.partnerSiteLink && [
-                  [
-                    {
-                      ...Markup.button.url(
-                        '🕹️ TonPlay (Web)',
-                        settings.partnerSiteLink,
-                      ),
-                      // @ts-ignore
-                      style: 'primary',
-                    },
-                  ],
-                ]),
+                  ]),
+                  ...(settings &&
+                    settings.partnerSiteLink && [
+                      {
+                        ...Markup.button.url(
+                          '—> На сайте',
+                          settings.partnerSiteLink,
+                        ),
+                      },
+                    ]),
+                ],
+              ]),
+
               ...(settings &&
                 settings.proxyPartnerLink && [
                   [
                     {
                       ...Markup.button.url(
-                        '🎁 Free Telegram MTProxy',
+                        '🎁 Telegram MTProxy бесплатно',
                         settings.proxyPartnerLink,
                       ),
                       // @ts-ignore
@@ -301,7 +354,7 @@ ${
               ],
               [
                 Markup.button.url(
-                  'Collaboration | Advertising',
+                  'Сотрудничество и Реклама',
                   this.configService.get<string>('CHANNEL_URL') + '?direct',
                 ),
               ],
@@ -315,6 +368,12 @@ ${
                   ),
                   // @ts-ignore
                   style: 'primary',
+                },
+                {
+                  ...Markup.button.url(
+                    '—> На сайте',
+                    'https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
+                  ),
                 },
               ],
             ],
