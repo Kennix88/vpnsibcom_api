@@ -184,7 +184,7 @@ export class AdsSenderService implements OnModuleInit {
       let lastId: string | undefined
       let processed = 0
       const startTime = Date.now()
-      const sponsorMessage = `\n\n#AD #Sponsor\n<code>With an active subscription, no ads are shown! / При активной подписке, реклама не показывается!</code>`
+      const sponsorMessage = `\n\n#Реклама #Спонсор`
 
       this.logger.info({
         msg: 'Send ads started',
@@ -263,7 +263,7 @@ export class AdsSenderService implements OnModuleInit {
                   caption: `<b>${ad.richAds.title}</b>\n\n${
                     ad.richAds.message ?? ''
                   }\n\n${
-                    ad.richAds.brand ? `Ad by ${ad.richAds.brand}` : ''
+                    ad.richAds.brand ? `Реклама от ${ad.richAds.brand}` : ''
                   }${sponsorMessage}`,
                   parse_mode: 'HTML',
                   reply_markup: {
