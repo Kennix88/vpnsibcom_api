@@ -20,20 +20,75 @@ export class AcquisitionsService {
     referralKey?: string
   }) {
     try {
-      if (!startParams && !referralKey) return
+      const hasInputData = Boolean(startParams || referralKey)
+
+      const parseStartParams = parseStartParamUtil(startParams ?? '')
+      const hasOtherData =
+        Object.keys(parseStartParams.params).length > 0 ||
+        parseStartParams.none.length > 0
 
       const user = await this.prismaService.users.findUnique({
         where: {
           id: userId,
         },
         select: {
+          acquisitionId: true,
           acquisition: true,
         },
       })
 
-      if (!user?.acquisition?.id) return
+      if (!user) return
 
-      const parseStartParams = parseStartParamUtil(startParams ?? '')
+      // Self-heal: for old users with null/broken acquisition link create and attach.
+      if (!user.acquisition?.id) {
+        const acquisition = await this.prismaService.acquisition.create({
+          data: {
+            ...(parseStartParams.params.source && {
+              firstSource: parseStartParams.params.source,
+              lastSource: parseStartParams.params.source,
+            }),
+            ...(referralKey && {
+              firstReferralId: referralKey,
+              lastReferralId: referralKey,
+            }),
+            ...(startParams && {
+              firstStartParams: startParams,
+              lastStartParams: startParams,
+            }),
+            ...(parseStartParams.params.compaing && {
+              firstCompaingId: parseStartParams.params.compaing,
+              lastCompaingId: parseStartParams.params.compaing,
+            }),
+            ...(parseStartParams.params.record && {
+              firstRecordId: parseStartParams.params.record,
+              lastRecordId: parseStartParams.params.record,
+            }),
+            ...(hasOtherData && {
+              firstOtherData: JSON.stringify({
+                ...parseStartParams.params,
+                ...parseStartParams.none,
+              }),
+              lastOtherData: JSON.stringify({
+                ...parseStartParams.params,
+                ...parseStartParams.none,
+              }),
+            }),
+          },
+        })
+
+        await this.prismaService.users.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            acquisitionId: acquisition.id,
+          },
+        })
+
+        return
+      }
+
+      if (!hasInputData) return
 
       await this.prismaService.acquisition.update({
         where: {
@@ -73,16 +128,14 @@ export class AcquisitionsService {
           ...(parseStartParams.params.record && {
             lastRecordId: parseStartParams.params.record,
           }),
-          ...((Object.keys(parseStartParams.params).length > 0 ||
-            parseStartParams.none.length > 0) &&
+          ...(hasOtherData &&
             !user.acquisition.firstOtherData && {
               firstOtherData: JSON.stringify({
                 ...parseStartParams.params,
                 ...parseStartParams.none,
               }),
             }),
-          ...((Object.keys(parseStartParams.params).length > 0 ||
-            parseStartParams.none.length > 0) && {
+          ...(hasOtherData && {
             lastOtherData: JSON.stringify({
               ...parseStartParams.params,
               ...parseStartParams.none,

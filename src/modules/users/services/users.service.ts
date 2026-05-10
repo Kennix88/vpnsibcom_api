@@ -507,6 +507,7 @@ export class UsersService {
             telegramId,
             languageId: language.id,
             balanceId: balance.id,
+            acquisitionId: acquisition.id,
             roleId: UserRolesEnum.USER,
             telegramDataId: tdata.id,
             adsDataId: adsData.id,
