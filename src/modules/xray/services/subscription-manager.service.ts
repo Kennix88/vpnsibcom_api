@@ -1,4 +1,5 @@
 import { I18nTranslations } from '@core/i18n/i18n.type'
+import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { DefaultEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
@@ -15,8 +16,6 @@ import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { add, differenceInDays, intlFormat } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import { InjectBot } from 'nestjs-telegraf'
-import { Telegraf } from 'telegraf'
 import { calculateSubscriptionCost } from '../utils/calculate-subscription-cost.util'
 import { periodHours } from '../utils/period-hours.util'
 import { MarzbanService } from './marzban.service'
@@ -41,10 +40,23 @@ export class SubscriptionManagerService {
     private readonly redis: RedisService,
     private readonly marzbanService: MarzbanService,
     private readonly xrayService: XrayService,
+    private readonly telegramLogger: LoggerTelegramService,
     private readonly configService: ConfigService,
     private readonly userService: UsersService,
-    @InjectBot() private readonly bot: Telegraf,
   ) {}
+
+  @Cron('0 0 */6 * * *')
+  async rebootTelegramConfig() {
+    try {
+      await this.marzbanService.revokeSubscription('telegram')
+    } catch (error) {
+      this.logger.error({
+        msg: 'Failed to reboot Telegram config',
+        service: this.serviceName,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
 
   /**
    * Updates subscription data with information from Marzban service
@@ -106,7 +118,7 @@ export class SubscriptionManagerService {
           }
 
           const isTelegramOnlyConfig = (link: string): boolean =>
-            getConfigName(link).toLowerCase().includes('telegram only')
+            getConfigName(link).toLowerCase().includes('telegram')
 
           const telegramMarzbanUser = marzbanUsers.users.find(
             (user) => user.username === 'telegram',
@@ -295,22 +307,10 @@ export class SubscriptionManagerService {
                 }
 
                 if (announceMessages.length > 0 && !isNotAnnounce) {
-                  this.bot.telegram
-                    .sendMessage(
-                      subscription.user.telegramId,
-                      `${subscription.name}: ${announceMessages.join(' ')}`,
-                    )
-                    .catch((error) => {
-                      this.logger.error({
-                        msg: 'Error sending message to user',
-                        error:
-                          error instanceof Error
-                            ? error.message
-                            : String(error),
-                        stack: error instanceof Error ? error.stack : undefined,
-                        service: this.serviceName,
-                      })
-                    })
+                  this.telegramLogger.sendMessage({
+                    chatId: Number(subscription.user.telegramId),
+                    text: `${subscription.name}: ${announceMessages.join(' ')}`,
+                  })
                 }
 
                 const defaultAnnounce = settings.defaultAnnounce
@@ -366,8 +366,8 @@ export class SubscriptionManagerService {
                     ...(isRemovalAt ? { removalAt } : {}),
                     ...(announce === undefined ? {} : { announce }),
                     ...(isTrafficOrTrialExhausted && {
-                        isActive: false,
-                      }),
+                      isActive: false,
+                    }),
                   },
                 })
               }),
@@ -640,7 +640,10 @@ export class SubscriptionManagerService {
         },
       })
 
-      await this.bot.telegram.sendMessage(user.telegramId, message)
+      this.telegramLogger.sendMessage({
+        chatId: Number(user.telegramId),
+        text: message,
+      })
     } catch (error) {
       this.logger.error({
         msg: 'Error sending deactivation notification',
@@ -787,7 +790,10 @@ export class SubscriptionManagerService {
         },
       })
 
-      await this.bot.telegram.sendMessage(user.telegramId, message as string)
+      this.telegramLogger.sendMessage({
+        chatId: Number(user.telegramId),
+        text: message as string,
+      })
 
       // Store in Redis that we sent this reminder (expire after 2 days)
       await this.redis.set(redisKey, 'sent', 'EX', 60 * 60 * 24 * 2)
@@ -950,7 +956,10 @@ export class SubscriptionManagerService {
         },
       })
 
-      await this.bot.telegram.sendMessage(user.telegramId, message)
+      this.telegramLogger.sendMessage({
+        chatId: Number(user.telegramId),
+        text: message,
+      })
     } catch (error) {
       this.logger.error({
         msg: 'Error sending subscription deletion notification',
