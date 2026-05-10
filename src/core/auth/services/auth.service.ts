@@ -121,6 +121,7 @@ export class AuthService {
       user = await this.userService.createUser({
         telegramId: userData.user.id.toString(),
         initData: userData,
+        startParam,
         ...(refId && {
           referralKey: refId,
         }),
