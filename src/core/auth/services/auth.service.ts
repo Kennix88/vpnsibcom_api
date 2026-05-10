@@ -76,7 +76,7 @@ export class AuthService {
     const chatInfo = await this.bot.telegram.getChat(userData.user.id)
     const country = this.geoService.getCountry(ip)
 
-    // this.taddyService.startEvent({
+    // await this.taddyService.startEvent({
     //   user: {
     //     id: Number(userData.user.id),
     //     firstName: userData.user.first_name,
@@ -145,7 +145,7 @@ export class AuthService {
       birth,
     )
 
-    this.sessionsService.createSession({
+    await this.sessionsService.createSession({
       userId: user.id,
       place: SessionPlaceEnum.TELEGRAM_MINIAPP,
       ...(refId && {
@@ -156,7 +156,7 @@ export class AuthService {
       startParams: startParam,
     })
 
-    this.acquisitionsService.updateAcquisition({
+    await this.acquisitionsService.updateAcquisition({
       userId: user.id,
       startParams: startParam,
       ...(refId && {
@@ -204,6 +204,9 @@ export class AuthService {
       )
 
       const user = await this.userService.getResUserByTgId(payload.telegramId)
+      if (!user) {
+        throw new UnauthorizedException('User not found for refresh token')
+      }
 
       return {
         ...tokens,
