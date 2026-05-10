@@ -3,7 +3,6 @@ import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
 import { UsersService } from '@modules/users/services/users.service'
 import { ConfigService } from '@nestjs/config'
-import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { SuccessfulPayment } from '@telegraf/types'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
@@ -62,6 +61,7 @@ export class PaymentsUpdate {
   async handleSuccessfulPayment(@Ctx() ctx: Context) {
     try {
       const msg = ctx.message
+      if (!msg) return
       if (!('successful_payment' in msg)) return
 
       const payment = msg.successful_payment as SuccessfulPayment
@@ -82,11 +82,16 @@ export class PaymentsUpdate {
         }
       }
 
-      const updatePayment = await this.paymentsService.updatePayment(
-        payment.invoice_payload,
-        PaymentStatusEnum.COMPLETED,
-        payment,
-      )
+      const updatePayment =
+        userId &&
+        (await this.paymentsService.processTelegramStarsIncomingPayment({
+          telegramUserId: userId,
+          invoicePayload: payment.invoice_payload,
+          totalAmount: payment.total_amount,
+          telegramPaymentChargeId: payment.telegram_payment_charge_id,
+          providerPaymentChargeId: payment.provider_payment_charge_id,
+          rawDetails: payment,
+        }))
 
       if (!updatePayment) {
         const errorMessage = await this.i18n.translate(
