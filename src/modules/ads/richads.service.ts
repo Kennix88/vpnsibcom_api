@@ -34,6 +34,10 @@ export class RichAdsService implements OnModuleInit {
     await new Promise((resolve) => setTimeout(resolve, ms))
   }
 
+  private randomBetween(min: number, max: number): number {
+    return min + Math.random() * (max - min)
+  }
+
   public async getAd(
     data: Omit<RichAdsGetAdRequestInterface, 'publisher_id'>,
   ): Promise<RichAdsGetAdResponseInterface | null> {
@@ -85,15 +89,16 @@ export class RichAdsService implements OnModuleInit {
     return copy
   }
 
-  @Cron('11 * * * *')
+  @Cron('*/10 * * * *')
   public async fakeAdsSend() {
     if (this.fakeInProgress) return
     this.fakeInProgress = true
 
     try {
-      const batchSize = 500 // Define your batch size here
+      const batchSize = 500
       let skip = 0
-      let users: any[] = [] // Initialize users as an empty array
+      let usersBatch: any[] = []
+      const allUsers: any[] = []
 
       const settings = await this.prisma.settings.findFirst({
         where: {
@@ -103,57 +108,84 @@ export class RichAdsService implements OnModuleInit {
 
       if (!settings || !settings.isActiveFakeAds) return
       const now = new Date()
-      const lastFakeAdsSend = new Date(settings.lastFakeAdsSend)
-      if (
-        lastFakeAdsSend.getTime() <
-        now.getTime() - settings.nextFakeAdsHours * 60 * 60 * 1000
-      )
-        return
+      const lastFakeAdsSend = settings.lastFakeAdsSend
+        ? new Date(settings.lastFakeAdsSend)
+        : new Date(0)
 
-      // Fetch users in batches
+      // Запуск примерно 1-2 раза в сутки с рандомной периодичностью.
+      const minHoursBetweenRuns = Math.max(12, settings.nextFakeAdsHours ?? 12)
+      const maxHoursBetweenRuns = Math.max(24, minHoursBetweenRuns)
+      const nextRunInMs =
+        this.randomBetween(minHoursBetweenRuns, maxHoursBetweenRuns) *
+        60 *
+        60 *
+        1000
+      if (now.getTime() - lastFakeAdsSend.getTime() < nextRunInMs) return
+
+      await this.prisma.settings.update({
+        where: { key: DefaultEnum.DEFAULT },
+        data: { lastFakeAdsSend: now },
+      })
+
+      // Собираем полный список пользователей батчами, чтобы пройти по всем.
       do {
-        users = await this.prisma.users.findMany({
+        usersBatch = await this.prisma.users.findMany({
           include: {
             telegramData: true,
+          },
+          where: {
+            telegramData: {
+              isNot: null,
+            },
+          },
+          orderBy: {
+            id: 'asc',
           },
           skip: skip,
           take: batchSize,
         })
+        allUsers.push(...usersBatch)
+        skip += batchSize
+      } while (usersBatch.length === batchSize)
 
-        const shuffledUsers = await this.secureShuffle(users)
+      if (allUsers.length === 0) return
 
-        const widgets = ['387042', null]
+      const shuffledUsers = await this.secureShuffle(allUsers)
+      const widgets = ['387042', null]
+
+      // Растягиваем один проход по пользователям примерно на 12-24 часа.
+      const targetRunDurationMs = this.randomBetween(12, 24) * 60 * 60 * 1000
+      const baseDelayMs = targetRunDurationMs / shuffledUsers.length
+
+      for (const user of shuffledUsers) {
         const getWidgets = widgets[Math.floor(Math.random() * widgets.length)]
 
-        for (const user of shuffledUsers) {
-          const ad = await this.getAd({
-            language_code: user.telegramData.languageCode,
-            telegram_id: user.telegramId,
-            ...(getWidgets !== undefined &&
-              getWidgets !== null && { widget_id: getWidgets }),
-            production: false,
-          })
+        const ad = await this.getAd({
+          language_code: user.telegramData.languageCode,
+          telegram_id: user.telegramId,
+          ...(getWidgets !== undefined &&
+            getWidgets !== null && { widget_id: getWidgets }),
+          production: false,
+        })
 
-          if (ad && ad.notification_url) {
-            axios.get(ad.notification_url).catch((e) => {
-              this.logger.error({
-                msg: `Error send ad notification`,
-                e,
-              })
+        if (ad && ad.notification_url) {
+          axios.get(ad.notification_url).catch((e) => {
+            this.logger.error({
+              msg: `Error send ad notification`,
+              e,
             })
-          }
-          this.logger.info({
-            msg: 'Fake ads send - ad',
-            ad,
           })
-
-          const delay = Math.random() * 1000
-
-          await this.sleep(delay)
         }
+        this.logger.info({
+          msg: 'Fake ads send - ad',
+          ad,
+        })
 
-        skip += batchSize
-      } while (users.length === batchSize) // Continue as long as the last batch was full
+        // Плавный случайный интервал между пользователями без "пачек".
+        const jitter = this.randomBetween(0.7, 1.3)
+        const delay = Math.max(1000, Math.min(baseDelayMs * jitter, 10 * 60 * 1000))
+        await this.sleep(delay)
+      }
     } catch (e) {
       this.logger.error({
         msg: 'Error fake ads send',
