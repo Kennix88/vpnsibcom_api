@@ -262,6 +262,9 @@ services:
     image: postgres:17-alpine
     container_name: pg-backup
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_USER=${POSTGRES_USER}
