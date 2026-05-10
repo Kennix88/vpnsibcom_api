@@ -1,8 +1,18 @@
 import { TELEGRAM_QUEUE } from '@core/bullmq/bullmq.module'
 import { Inject, Injectable } from '@nestjs/common'
 import { Queue } from 'bullmq'
+import { ParseMode } from 'telegraf/types'
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal'
+type TelegramMessagePayload = {
+  chatId: number
+  text: string
+  threadId?: number
+  parseMode?: ParseMode
+  disableWebPagePreview?: boolean
+  disableNotification?: boolean
+  dedupeSeconds?: number
+}
 
 @Injectable()
 export class LoggerTelegramService {
@@ -27,7 +37,18 @@ export class LoggerTelegramService {
     this.enqueue('fatal', msg)
   }
 
+  sendMessage(payload: TelegramMessagePayload) {
+    this.queue.add('send', {
+      type: 'message',
+      ...payload,
+    })
+  }
+
   private enqueue(level: LogLevel, text: string) {
-    this.queue.add('send', { level, text })
+    this.queue.add('send', {
+      type: 'log',
+      level,
+      text,
+    })
   }
 }
