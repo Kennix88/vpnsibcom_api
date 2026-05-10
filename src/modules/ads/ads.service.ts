@@ -169,14 +169,14 @@ export class AdsService {
         try {
           ad = await this.taddy.getAd({
             user: {
-              id: Number(userId),
+              id: Number(user.telegramId),
             },
             origin: TaddyOriginEnum.SERVER,
             format: TaddyAdFormatEnum.BOT_AD,
           })
         } catch (e) {
           this.logger.warn(
-            `TADDY getAd failed for user ${userId}: ${
+            `TADDY getAd failed for user ${user.telegramId}: ${
               e instanceof Error ? e.message : String(e)
             }`,
           )
