@@ -227,7 +227,7 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
     return copy
   }
 
-  @Cron('0 */12 * * * *')
+  @Cron('0 0 */3 * *')
   private async check() {
     if (this.checkInProgress) {
       this.logger.debug('Check users skipped: previous run still in progress')
