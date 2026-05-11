@@ -114,7 +114,15 @@ export class AuthService {
 
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
 
-    const startParam = userData.start_param ?? ''
+    const initDataParams = new URLSearchParams(initData)
+    const startParam =
+      userData.start_param ??
+      // compatibility: some parsers may expose camelCase fields
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (userData as any).startParam ??
+      initDataParams.get('start_param') ??
+      initDataParams.get('tgWebAppStartParam') ??
+      ''
     const refId = startParam.match(/r-([a-zA-Z0-9]+)/)?.[1] ?? null
 
     if (!user) {
