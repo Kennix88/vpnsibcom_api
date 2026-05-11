@@ -7,7 +7,7 @@ import { Telegraf } from 'telegraf'
 
 @Injectable()
 export class AdsgramService {
-  private TOKEN: string
+  private readonly TOKEN?: string
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
@@ -27,12 +27,42 @@ export class AdsgramService {
     recordId: string
     goaltype: 1 | 2 | 3
   }) {
+    if (!this.TOKEN) {
+      this.logger.warn({
+        msg: 'Adsgram conversion skipped: ADSGRAM_TOKEN is empty',
+        goaltype,
+        recordId,
+      })
+      return
+    }
+
     try {
-      await axios.get(
-        `https://api.adsgram.ai/confirm_conversion?token=${this.TOKEN}&record=${recordId}&goaltype=${goaltype}`,
+      const response = await axios.get(
+        'https://api.adsgram.ai/confirm_conversion',
+        {
+          params: {
+            token: this.TOKEN,
+            record: recordId,
+            goaltype,
+          },
+          timeout: 10000,
+        },
       )
+
+      this.logger.info({
+        msg: 'Adsgram conversion sent',
+        goaltype,
+        recordId,
+        status: response.status,
+      })
     } catch (error) {
-      this.logger.error(error)
+      this.logger.error({
+        msg: 'Adsgram conversion failed',
+        goaltype,
+        recordId,
+        tokenExists: Boolean(this.TOKEN),
+        error,
+      })
     }
   }
 }
