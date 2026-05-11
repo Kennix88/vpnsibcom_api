@@ -2,18 +2,130 @@ import { PrismaService } from '@core/prisma/prisma.service'
 import { AdsgramService } from '@modules/ads/services/adsgram.service'
 import { GraspilService } from '@modules/ads/services/graspil.service'
 import { Injectable } from '@nestjs/common'
+import { Cron } from '@nestjs/schedule'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
 import { PinoLogger } from 'nestjs-pino'
 import { EventType } from '../types/event-type.enum'
 
 @Injectable()
 export class EventsService {
+  private readonly ADSGRAM_REG_RETRY_BATCH = 200
+
   constructor(
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
     private readonly adsgramService: AdsgramService,
     private readonly graspilService: GraspilService,
   ) {}
+
+  @Cron(process.env.ADSGRAM_REGISTRATION_RETRY_CRON || '0 */5 * * * *')
+  public async retryPendingAdsgramRegistrationEvents() {
+    try {
+      const pending = await this.prismaService.events.findMany({
+        where: {
+          eventType: EventType.REGISTRATION,
+          adsgramRegistrationSentAt: null,
+          source: {
+            equals: 'adsgram',
+            mode: 'insensitive',
+          },
+          recordId: {
+            not: null,
+          },
+        },
+        select: {
+          id: true,
+          recordId: true,
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+        take: this.ADSGRAM_REG_RETRY_BATCH,
+      })
+
+      if (pending.length === 0) return
+
+      let sentCount = 0
+      for (const event of pending) {
+        if (!event.recordId?.trim()) continue
+
+        const sent = await this.adsgramService.sendEvent({
+          recordId: event.recordId,
+          goaltype: 1,
+        })
+
+        if (!sent) continue
+
+        const updated = await this.prismaService.events.updateMany({
+          where: {
+            id: event.id,
+            adsgramRegistrationSentAt: null,
+          },
+          data: {
+            adsgramRegistrationSentAt: new Date(),
+          },
+        })
+        if (updated.count > 0) sentCount++
+      }
+
+      if (sentCount > 0) {
+        this.logger.info({
+          msg: 'Adsgram registration retry sent',
+          processed: pending.length,
+          sent: sentCount,
+        })
+      }
+    } catch (error) {
+      this.logger.error({
+        msg: 'Adsgram registration retry failed',
+        error,
+      })
+    }
+  }
+
+  public async trySendAdsgramRegistrationByUserId(userId: string) {
+    const event = await this.prismaService.events.findFirst({
+      where: {
+        userId,
+        eventType: EventType.REGISTRATION,
+        adsgramRegistrationSentAt: null,
+        source: {
+          equals: 'adsgram',
+          mode: 'insensitive',
+        },
+        recordId: {
+          not: null,
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      select: {
+        id: true,
+        recordId: true,
+      },
+    })
+
+    if (!event?.recordId?.trim()) return false
+
+    const sent = await this.adsgramService.sendEvent({
+      recordId: event.recordId,
+      goaltype: 1,
+    })
+    if (!sent) return false
+
+    const updated = await this.prismaService.events.updateMany({
+      where: {
+        id: event.id,
+        adsgramRegistrationSentAt: null,
+      },
+      data: {
+        adsgramRegistrationSentAt: new Date(),
+      },
+    })
+
+    return updated.count > 0
+  }
 
   public async createEvent({
     userId,
@@ -102,15 +214,14 @@ export class EventsService {
           eventType == EventType.FIRST_PAYMENT ||
           eventType == EventType.RELOAD_PAYMENT)
       ) {
-        await this.adsgramService.sendEvent({
-          recordId: parseStartParams.params.record,
-          goaltype:
-            eventType == EventType.REGISTRATION
-              ? 1
-              : eventType == EventType.FIRST_PAYMENT
-              ? 2
-              : 3,
-        })
+        if (eventType === EventType.REGISTRATION) {
+          await this.trySendAdsgramRegistrationByUserId(userId)
+        } else {
+          await this.adsgramService.sendEvent({
+            recordId: parseStartParams.params.record,
+            goaltype: eventType == EventType.FIRST_PAYMENT ? 2 : 3,
+          })
+        }
       } else if (parseStartParams.params.source) {
         this.logger.debug({
           msg: 'Adsgram conversion condition not met',
