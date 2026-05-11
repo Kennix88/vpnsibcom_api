@@ -615,7 +615,7 @@ export class UsersService {
               : ''
           }${
             tdata.username
-              ? `\n<b>Username:</b> @${this.escapeHtml(tdata.username)}`
+              ? `\n<b>Username:</b> <code>@${this.escapeHtml(tdata.username)}</code>`
               : ''
           }
 <b>Язык:</b> <code>${this.escapeHtml(tdata.languageCode)}</code>
