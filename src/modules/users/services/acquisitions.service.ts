@@ -3,12 +3,14 @@ import { Injectable } from '@nestjs/common'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
 import { PinoLogger } from 'nestjs-pino'
 import { EventType } from '../types/event-type.enum'
+import { EventsService } from './events.service'
 
 @Injectable()
 export class AcquisitionsService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
+    private readonly eventsService: EventsService,
   ) {}
 
   public async updateAcquisition({
@@ -110,7 +112,7 @@ export class AcquisitionsService {
         })
 
         if (hasInputData) {
-          await this.prismaService.events.updateMany({
+          const updatedRegistrationEvent = await this.prismaService.events.updateMany({
             where: {
               userId,
               eventType: EventType.REGISTRATION,
@@ -127,6 +129,10 @@ export class AcquisitionsService {
             },
             data: registrationEventPatch,
           })
+
+          if (updatedRegistrationEvent.count > 0) {
+            await this.eventsService.trySendAdsgramRegistrationByUserId(userId)
+          }
         }
 
         return
@@ -188,7 +194,7 @@ export class AcquisitionsService {
         },
       })
 
-      await this.prismaService.events.updateMany({
+      const updatedRegistrationEvent = await this.prismaService.events.updateMany({
         where: {
           userId,
           eventType: EventType.REGISTRATION,
@@ -205,6 +211,10 @@ export class AcquisitionsService {
         },
         data: registrationEventPatch,
       })
+
+      if (updatedRegistrationEvent.count > 0) {
+        await this.eventsService.trySendAdsgramRegistrationByUserId(userId)
+      }
     } catch (error) {
       this.logger.error(error)
     }
