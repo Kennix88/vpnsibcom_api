@@ -111,6 +111,14 @@ export class EventsService {
               ? 2
               : 3,
         })
+      } else if (parseStartParams.params.source) {
+        this.logger.debug({
+          msg: 'Adsgram conversion condition not met',
+          userId,
+          eventType,
+          source: parseStartParams.params.source,
+          hasRecord: Boolean(parseStartParams.params.record),
+        })
       }
 
       if (
