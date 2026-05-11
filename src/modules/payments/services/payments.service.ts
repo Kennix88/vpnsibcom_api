@@ -650,10 +650,31 @@ export class PaymentsService {
         user: {
           include: {
             telegramData: true,
+            acquisition: true,
           },
         },
       },
     })
+
+    const payments = await tx.payments.findMany({
+      where: {
+        userId: updatedPayment.userId,
+        status: PaymentStatusEnum.COMPLETED,
+      },
+    })
+    const isFirstPayment = payments.length === 1
+    const paymentOrderText = isFirstPayment ? 'Первый' : 'Повторный'
+    const startParams =
+      updatedPayment.user.acquisition?.firstStartParams ||
+      updatedPayment.user.acquisition?.lastStartParams
+    const referralId =
+      updatedPayment.user.acquisition?.firstReferralId ||
+      updatedPayment.user.acquisition?.lastReferralId
+    const escapeHtml = (value?: string | null) =>
+      String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
 
     try {
       await this.bot.telegram
@@ -661,6 +682,7 @@ export class PaymentsService {
           Number(process.env.TELEGRAM_LOG_CHAT_ID),
           `<b>💳 НОВЫЙ УСПЕШНЫЙ ПЛАТЕЖ</b>
 <b>Статус:</b> <code>${updatedPayment.status}</code>
+<b>Платеж по счету:</b> <code>${paymentOrderText}</code>
 <b>👤 Пользователь:</b> ${
             updatedPayment.user.telegramData?.username
               ? `@${updatedPayment.user.telegramData?.username}`
@@ -689,7 +711,15 @@ export class PaymentsService {
             updatedPayment.amountStarsFeeTgPartner
           } ⭐</code>
 <b>Тип платежа:</b> <code>${updatedPayment.type}</code>
-<b>Подписка:</b> <code>${updatedPayment.subscriptionId}</code>
+<b>Подписка:</b> <code>${updatedPayment.subscriptionId}</code>${
+            referralId
+              ? `\n<b>Referral ID:</b> <code>${escapeHtml(referralId)}</code>`
+              : ''
+          }${
+            startParams
+              ? `\n<b>StartParams:</b> <code>${escapeHtml(startParams)}</code>`
+              : ''
+          }
 `,
           {
             parse_mode: 'HTML',
@@ -714,19 +744,10 @@ export class PaymentsService {
       })
     }
 
-    const payments = await tx.payments.findMany({
-      where: {
-        userId: updatedPayment.userId,
-        status: PaymentStatusEnum.COMPLETED,
-      },
-    })
-
     await this.eventsService.createEvent({
       userId: updatedPayment.userId,
       eventType:
-        payments.length == 1
-          ? EventType.FIRST_PAYMENT
-          : EventType.RELOAD_PAYMENT,
+        isFirstPayment ? EventType.FIRST_PAYMENT : EventType.RELOAD_PAYMENT,
       amountStars: updatedPayment.amountStars,
       isSendGraspil: updatedPayment.currencyKey !== CurrencyEnum.XTR,
     })
