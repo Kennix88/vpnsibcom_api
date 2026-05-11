@@ -572,6 +572,11 @@ export class UsersService {
           })
         }
 
+        const normalizedStartParam = startParam?.trim()
+        const normalizedUa = ua?.trim()
+        const normalizedIp = ip?.trim()
+        const normalizedCountry = country?.trim()
+
         this.telegramLogger.sendMessage({
           chatId: Number(process.env.TELEGRAM_LOG_CHAT_ID),
           threadId: Number(process.env.TELEGRAM_THREAD_ID_USERS),
@@ -588,18 +593,17 @@ export class UsersService {
                   referralKey,
                 )}</code>`
               : ''
-          }${
-            startParam
-              ? `\n<b>StartParams:</b> <code>${this.escapeHtml(
-                  startParam,
-                )}</code>`
-              : ''
           }
+<b>StartParams:</b> <code>${this.escapeHtml(
+            normalizedStartParam || 'Не передан',
+          )}</code>
 <b>💐 Дата рождения:</b> <code>${
             birth ? `${birth.day}-${birth.month}-${birth.year}` : 'Не указана'
           }</code>${
-            country
-              ? `\n<b>Страна:</b> <code>${this.escapeHtml(country)}</code>`
+            normalizedCountry
+              ? `\n<b>Страна:</b> <code>${this.escapeHtml(
+                  normalizedCountry.toUpperCase(),
+                )}</code>`
               : ''
           }
 <b>Премиум:</b> <code>${tdata.isPremium ? '⭐' : '❌'}</code>
@@ -614,9 +618,9 @@ export class UsersService {
               ? `\n<b>Username:</b> @${this.escapeHtml(tdata.username)}`
               : ''
           }
-<b>Язык:</b> <code>${this.escapeHtml(tdata.languageCode)}</code>${
-            ua ? `\n<b>User-Agent:</b> <code>${this.escapeHtml(ua)}</code>` : ''
-          }${ip ? `\n<b>IP:</b> <code>${this.escapeHtml(ip)}</code>` : ''}
+<b>Язык:</b> <code>${this.escapeHtml(tdata.languageCode)}</code>
+<b>User-Agent:</b> <code>${this.escapeHtml(normalizedUa || 'Не передан')}</code>
+<b>IP:</b> <code>${this.escapeHtml(normalizedIp || 'Не передан')}</code>
 `,
         })
 
