@@ -58,7 +58,9 @@ export class EventsService {
         user.acquisition?.lastStartParams ||
         ''
       const referralKey =
-        user.acquisition?.firstReferralId || user.acquisition?.lastReferralId || ''
+        user.acquisition?.firstReferralId ||
+        user.acquisition?.lastReferralId ||
+        ''
 
       const parseStartParams = parseStartParamUtil(startParams ?? '')
 
@@ -96,7 +98,9 @@ export class EventsService {
         parseStartParams.params.source &&
         parseStartParams.params.source.toLocaleLowerCase() == 'adsgram' &&
         parseStartParams.params.record &&
-        eventType !== EventType.ACTIVATION
+        (eventType == EventType.REGISTRATION ||
+          eventType == EventType.FIRST_PAYMENT ||
+          eventType == EventType.RELOAD_PAYMENT)
       ) {
         await this.adsgramService.sendEvent({
           recordId: parseStartParams.params.record,

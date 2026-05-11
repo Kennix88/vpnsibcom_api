@@ -2,6 +2,7 @@ import { PrismaService } from '@core/prisma/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
 import { PinoLogger } from 'nestjs-pino'
+import { EventType } from '../types/event-type.enum'
 
 @Injectable()
 export class AcquisitionsService {
@@ -26,6 +27,29 @@ export class AcquisitionsService {
       const hasOtherData =
         Object.keys(parseStartParams.params).length > 0 ||
         parseStartParams.none.length > 0
+      const registrationEventPatch = {
+        ...(parseStartParams.params.source && {
+          source: parseStartParams.params.source,
+        }),
+        ...(referralKey && {
+          referralId: referralKey,
+        }),
+        ...(startParams && {
+          startParams: startParams,
+        }),
+        ...(parseStartParams.params.compaing && {
+          compaingId: parseStartParams.params.compaing,
+        }),
+        ...(parseStartParams.params.record && {
+          recordId: parseStartParams.params.record,
+        }),
+        ...(hasOtherData && {
+          otherData: JSON.stringify({
+            ...parseStartParams.params,
+            ...parseStartParams.none,
+          }),
+        }),
+      }
 
       const user = await this.prismaService.users.findUnique({
         where: {
@@ -85,6 +109,26 @@ export class AcquisitionsService {
           },
         })
 
+        if (hasInputData) {
+          await this.prismaService.events.updateMany({
+            where: {
+              userId,
+              eventType: EventType.REGISTRATION,
+              OR: [
+                { startParams: null },
+                { startParams: '' },
+                { source: null },
+                { source: '' },
+                { recordId: null },
+                { recordId: '' },
+                { compaingId: null },
+                { compaingId: '' },
+              ],
+            },
+            data: registrationEventPatch,
+          })
+        }
+
         return
       }
 
@@ -142,6 +186,24 @@ export class AcquisitionsService {
             }),
           }),
         },
+      })
+
+      await this.prismaService.events.updateMany({
+        where: {
+          userId,
+          eventType: EventType.REGISTRATION,
+          OR: [
+            { startParams: null },
+            { startParams: '' },
+            { source: null },
+            { source: '' },
+            { recordId: null },
+            { recordId: '' },
+            { compaingId: null },
+            { compaingId: '' },
+          ],
+        },
+        data: registrationEventPatch,
       })
     } catch (error) {
       this.logger.error(error)
