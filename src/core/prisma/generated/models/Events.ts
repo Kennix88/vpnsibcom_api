@@ -43,6 +43,7 @@ export type EventsMinAggregateOutputType = {
   startParams: string | null
   compaingId: string | null
   recordId: string | null
+  adsgramRegistrationSentAt: Date | null
   createdAt: Date | null
   userId: string | null
 }
@@ -56,6 +57,7 @@ export type EventsMaxAggregateOutputType = {
   startParams: string | null
   compaingId: string | null
   recordId: string | null
+  adsgramRegistrationSentAt: Date | null
   createdAt: Date | null
   userId: string | null
 }
@@ -70,6 +72,7 @@ export type EventsCountAggregateOutputType = {
   compaingId: number
   recordId: number
   otherData: number
+  adsgramRegistrationSentAt: number
   createdAt: number
   userId: number
   _all: number
@@ -93,6 +96,7 @@ export type EventsMinAggregateInputType = {
   startParams?: true
   compaingId?: true
   recordId?: true
+  adsgramRegistrationSentAt?: true
   createdAt?: true
   userId?: true
 }
@@ -106,6 +110,7 @@ export type EventsMaxAggregateInputType = {
   startParams?: true
   compaingId?: true
   recordId?: true
+  adsgramRegistrationSentAt?: true
   createdAt?: true
   userId?: true
 }
@@ -120,6 +125,7 @@ export type EventsCountAggregateInputType = {
   compaingId?: true
   recordId?: true
   otherData?: true
+  adsgramRegistrationSentAt?: true
   createdAt?: true
   userId?: true
   _all?: true
@@ -221,6 +227,7 @@ export type EventsGroupByOutputType = {
   compaingId: string | null
   recordId: string | null
   otherData: runtime.JsonValue | null
+  adsgramRegistrationSentAt: Date | null
   createdAt: Date
   userId: string
   _count: EventsCountAggregateOutputType | null
@@ -258,6 +265,7 @@ export type EventsWhereInput = {
   compaingId?: Prisma.StringNullableFilter<"Events"> | string | null
   recordId?: Prisma.StringNullableFilter<"Events"> | string | null
   otherData?: Prisma.JsonNullableFilter<"Events">
+  adsgramRegistrationSentAt?: Prisma.DateTimeNullableFilter<"Events"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Events"> | Date | string
   userId?: Prisma.StringFilter<"Events"> | string
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
@@ -273,6 +281,7 @@ export type EventsOrderByWithRelationInput = {
   compaingId?: Prisma.SortOrderInput | Prisma.SortOrder
   recordId?: Prisma.SortOrderInput | Prisma.SortOrder
   otherData?: Prisma.SortOrderInput | Prisma.SortOrder
+  adsgramRegistrationSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   user?: Prisma.UsersOrderByWithRelationInput
@@ -291,6 +300,7 @@ export type EventsWhereUniqueInput = Prisma.AtLeast<{
   compaingId?: Prisma.StringNullableFilter<"Events"> | string | null
   recordId?: Prisma.StringNullableFilter<"Events"> | string | null
   otherData?: Prisma.JsonNullableFilter<"Events">
+  adsgramRegistrationSentAt?: Prisma.DateTimeNullableFilter<"Events"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Events"> | Date | string
   userId?: Prisma.StringFilter<"Events"> | string
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
@@ -306,6 +316,7 @@ export type EventsOrderByWithAggregationInput = {
   compaingId?: Prisma.SortOrderInput | Prisma.SortOrder
   recordId?: Prisma.SortOrderInput | Prisma.SortOrder
   otherData?: Prisma.SortOrderInput | Prisma.SortOrder
+  adsgramRegistrationSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   _count?: Prisma.EventsCountOrderByAggregateInput
@@ -328,6 +339,7 @@ export type EventsScalarWhereWithAggregatesInput = {
   compaingId?: Prisma.StringNullableWithAggregatesFilter<"Events"> | string | null
   recordId?: Prisma.StringNullableWithAggregatesFilter<"Events"> | string | null
   otherData?: Prisma.JsonNullableWithAggregatesFilter<"Events">
+  adsgramRegistrationSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Events"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Events"> | Date | string
   userId?: Prisma.StringWithAggregatesFilter<"Events"> | string
 }
@@ -342,6 +354,7 @@ export type EventsCreateInput = {
   compaingId?: string | null
   recordId?: string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Date | string | null
   createdAt?: Date | string
   user: Prisma.UsersCreateNestedOneWithoutEventsInput
 }
@@ -356,6 +369,7 @@ export type EventsUncheckedCreateInput = {
   compaingId?: string | null
   recordId?: string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Date | string | null
   createdAt?: Date | string
   userId: string
 }
@@ -370,6 +384,7 @@ export type EventsUpdateInput = {
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUpdateOneRequiredWithoutEventsNestedInput
 }
@@ -384,6 +399,7 @@ export type EventsUncheckedUpdateInput = {
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -398,6 +414,7 @@ export type EventsCreateManyInput = {
   compaingId?: string | null
   recordId?: string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Date | string | null
   createdAt?: Date | string
   userId: string
 }
@@ -412,6 +429,7 @@ export type EventsUpdateManyMutationInput = {
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -425,6 +443,7 @@ export type EventsUncheckedUpdateManyInput = {
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -449,6 +468,7 @@ export type EventsCountOrderByAggregateInput = {
   compaingId?: Prisma.SortOrder
   recordId?: Prisma.SortOrder
   otherData?: Prisma.SortOrder
+  adsgramRegistrationSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -466,6 +486,7 @@ export type EventsMaxOrderByAggregateInput = {
   startParams?: Prisma.SortOrder
   compaingId?: Prisma.SortOrder
   recordId?: Prisma.SortOrder
+  adsgramRegistrationSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -479,6 +500,7 @@ export type EventsMinOrderByAggregateInput = {
   startParams?: Prisma.SortOrder
   compaingId?: Prisma.SortOrder
   recordId?: Prisma.SortOrder
+  adsgramRegistrationSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -543,6 +565,7 @@ export type EventsCreateWithoutUserInput = {
   compaingId?: string | null
   recordId?: string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -556,6 +579,7 @@ export type EventsUncheckedCreateWithoutUserInput = {
   compaingId?: string | null
   recordId?: string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -598,6 +622,7 @@ export type EventsScalarWhereInput = {
   compaingId?: Prisma.StringNullableFilter<"Events"> | string | null
   recordId?: Prisma.StringNullableFilter<"Events"> | string | null
   otherData?: Prisma.JsonNullableFilter<"Events">
+  adsgramRegistrationSentAt?: Prisma.DateTimeNullableFilter<"Events"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Events"> | Date | string
   userId?: Prisma.StringFilter<"Events"> | string
 }
@@ -612,6 +637,7 @@ export type EventsCreateManyUserInput = {
   compaingId?: string | null
   recordId?: string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -625,6 +651,7 @@ export type EventsUpdateWithoutUserInput = {
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -638,6 +665,7 @@ export type EventsUncheckedUpdateWithoutUserInput = {
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -651,6 +679,7 @@ export type EventsUncheckedUpdateManyWithoutUserInput = {
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  adsgramRegistrationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -666,6 +695,7 @@ export type EventsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   compaingId?: boolean
   recordId?: boolean
   otherData?: boolean
+  adsgramRegistrationSentAt?: boolean
   createdAt?: boolean
   userId?: boolean
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -681,6 +711,7 @@ export type EventsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   compaingId?: boolean
   recordId?: boolean
   otherData?: boolean
+  adsgramRegistrationSentAt?: boolean
   createdAt?: boolean
   userId?: boolean
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -696,6 +727,7 @@ export type EventsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   compaingId?: boolean
   recordId?: boolean
   otherData?: boolean
+  adsgramRegistrationSentAt?: boolean
   createdAt?: boolean
   userId?: boolean
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -711,11 +743,12 @@ export type EventsSelectScalar = {
   compaingId?: boolean
   recordId?: boolean
   otherData?: boolean
+  adsgramRegistrationSentAt?: boolean
   createdAt?: boolean
   userId?: boolean
 }
 
-export type EventsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "eventType" | "amountStars" | "source" | "referralId" | "startParams" | "compaingId" | "recordId" | "otherData" | "createdAt" | "userId", ExtArgs["result"]["events"]>
+export type EventsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "eventType" | "amountStars" | "source" | "referralId" | "startParams" | "compaingId" | "recordId" | "otherData" | "adsgramRegistrationSentAt" | "createdAt" | "userId", ExtArgs["result"]["events"]>
 export type EventsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }
@@ -741,6 +774,7 @@ export type $EventsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     compaingId: string | null
     recordId: string | null
     otherData: runtime.JsonValue | null
+    adsgramRegistrationSentAt: Date | null
     createdAt: Date
     userId: string
   }, ExtArgs["result"]["events"]>
@@ -1176,6 +1210,7 @@ export interface EventsFieldRefs {
   readonly compaingId: Prisma.FieldRef<"Events", 'String'>
   readonly recordId: Prisma.FieldRef<"Events", 'String'>
   readonly otherData: Prisma.FieldRef<"Events", 'Json'>
+  readonly adsgramRegistrationSentAt: Prisma.FieldRef<"Events", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Events", 'DateTime'>
   readonly userId: Prisma.FieldRef<"Events", 'String'>
 }

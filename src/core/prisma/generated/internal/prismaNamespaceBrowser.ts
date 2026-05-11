@@ -226,6 +226,7 @@ export const EventsScalarFieldEnum = {
   compaingId: 'compaingId',
   recordId: 'recordId',
   otherData: 'otherData',
+  adsgramRegistrationSentAt: 'adsgramRegistrationSentAt',
   createdAt: 'createdAt',
   userId: 'userId'
 } as const
