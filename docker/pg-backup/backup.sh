@@ -39,10 +39,12 @@ require_var TELEGRAM_LOG_CHAT_ID
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 FILENAME="backup_${TIMESTAMP}.sql.gz"
-TMP_FILE="$(mktemp /tmp/pgdump.XXXXXX.sql.gz)"
-RESP_FILE="$(mktemp /tmp/telegram-response.XXXXXX.json)"
+TMP_BASE="$(mktemp /tmp/pgdump.XXXXXX)"
+TMP_FILE="${TMP_BASE}.sql.gz"
+RESP_FILE="$(mktemp /tmp/telegram-response.XXXXXX)"
 
 cleanup() {
+  rm -f "${TMP_BASE}"
   rm -f "${TMP_FILE}"
   rm -f "${RESP_FILE}"
 }
