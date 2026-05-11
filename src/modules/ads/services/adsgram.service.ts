@@ -26,14 +26,14 @@ export class AdsgramService {
   }: {
     recordId: string
     goaltype: 1 | 2 | 3
-  }) {
+  }): Promise<boolean> {
     if (!this.TOKEN) {
       this.logger.warn({
         msg: 'Adsgram conversion skipped: ADSGRAM_TOKEN is empty',
         goaltype,
         recordId,
       })
-      return
+      return false
     }
 
     try {
@@ -55,6 +55,7 @@ export class AdsgramService {
         recordId,
         status: response.status,
       })
+      return response.status === 200
     } catch (error) {
       this.logger.error({
         msg: 'Adsgram conversion failed',
@@ -63,6 +64,7 @@ export class AdsgramService {
         tokenExists: Boolean(this.TOKEN),
         error,
       })
+      return false
     }
   }
 }
