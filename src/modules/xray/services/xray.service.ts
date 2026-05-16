@@ -566,7 +566,7 @@ export class XrayService {
         isAllBaseServers: true,
         isAllPremiumServers: true,
         isUnlimitTraffic: false,
-        trafficLimitGb: user.trialGb || 3,
+        trafficLimitGb: user.trialGb || 5000,
         servers: [],
         isAutoRenewal: false,
       })
@@ -684,9 +684,9 @@ export class XrayService {
         ? (subscription.links as string[])
         : []
 
-      const activate_title = 'Telegram Bot: @vpnsibcom_bot'
-      const support_title = 'Support: @vpnsibcom'
-      const chat_title = 'Chat: @vpnsibcom_chat'
+      const activate_title = 'Telegram бот: @vpnsibcom_bot'
+      const support_title = 'Канал: @vpnsibcom'
+      const chat_title = 'Чат: @vpnsibcom_chat'
 
       globalTelegramOnlyLinks.push(
         `vless://ce@0.0.0.0:228?name=${encodeURIComponent(
