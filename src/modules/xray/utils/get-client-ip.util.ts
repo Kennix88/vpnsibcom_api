@@ -22,7 +22,12 @@ function cleanIp(ip: string): string {
   const ipv6Match = ip.match(/^\[([^\]]+)](?::\d+)?$/)
   if (ipv6Match) return ipv6Match[1]
 
-  // IPv4 с портом: 192.168.0.1:12345 → 192.168.0.1
-  const [cleanedIp] = ip.split(':')
-  return cleanedIp
+  // IPv4 с портом: 192.168.0.1:12345 -> 192.168.0.1
+  if (ip.includes('.') && ip.includes(':')) {
+    const lastColon = ip.lastIndexOf(':')
+    return ip.slice(0, lastColon)
+  }
+
+  // Обычный IPv4 или IPv6 без порта
+  return ip
 }
