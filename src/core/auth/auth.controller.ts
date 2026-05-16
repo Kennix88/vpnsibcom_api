@@ -45,7 +45,9 @@ export class AuthController {
   ) {
     try {
       const ip = getClientIp(req) ?? 'unknown'
-      const ua = req.headers['user-agent'] as string | undefined
+      const userAgentHeader = req.headers['user-agent']
+      const ua =
+        typeof userAgentHeader === 'string' ? userAgentHeader : undefined
       const auth = await this.authService.telegramLogin(dto.initData, ip, ua)
 
       // Check if auth and auth.user are defined to prevent "Cannot read properties of undefined (reading 'id')" error.
