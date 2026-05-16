@@ -15,6 +15,7 @@ import { SessionsService } from '@modules/users/services/sessions.service'
 import { UsersService } from '@modules/users/services/users.service'
 import { SessionPlaceEnum } from '@modules/users/types/session-place.enum'
 import { ConfigService } from '@nestjs/config'
+import { extractReferralKey } from '@shared/utils/parse-start-param.util'
 import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
@@ -70,16 +71,18 @@ export class StartUpdate {
           inline_keyboard: [
             [
               Markup.button.url(
-                this.i18n.t('telegraf.telegram.button.chatSupport', {
-                  lang: ctx.from.language_code,
-                }),
-                this.configService.get<string>('CHAT_URL'),
+                '🤝 Сотрудничество и Реклама',
+                this.configService.get<string>('CHANNEL_URL') + '?direct',
               ),
             ],
             [
               Markup.button.url(
-                'Сотрудничество и Реклама',
-                this.configService.get<string>('CHANNEL_URL') + '?direct',
+                '📢 Канал',
+                this.configService.get<string>('CHANNEL_URL'),
+              ),
+              Markup.button.url(
+                '💬 Чат и Поддержка',
+                this.configService.get<string>('CHAT_URL'),
               ),
             ],
           ],
@@ -152,7 +155,7 @@ export class StartUpdate {
       })
 
       const isTelegramPartner = /^_tgr_[\w-]+$/.test(startParam ?? '')
-      const referralKey = startParam?.match(/r-([a-zA-Z0-9]+)/)?.[1] ?? null
+      const referralKey = extractReferralKey(startParam ?? '')
 
       this.logger.info({
         msg: `Start command`,
@@ -274,17 +277,10 @@ export class StartUpdate {
         {
           caption: `<b>${this.i18n.t('telegraf.telegram.welcome.message1', {
             lang: ctx.from.language_code,
-          })}</b>
+          })}
 
-${this.i18n.t('telegraf.telegram.welcome.buyStars', {
-  lang: ctx.from.language_code,
-})}
-
-${
-  settings &&
-  settings.partnerBotLink &&
-  `Спонсировано <a href="${settings.partnerBotLink}">@TonPlay</a>`
-}
+Бесплатный, быстрый и безопасный VPN для всех!
+Оставайся всегда на связи и получай доступ к интернету с VPNsib!</b>
 `,
           parse_mode: 'HTML',
           reply_markup: {
@@ -301,80 +297,31 @@ ${
                   style: 'success',
                 },
               ],
-              ...(settings && [
-                [
-                  ...(settings.partnerMiniAppLink && [
-                    {
-                      ...Markup.button.url(
-                        '🎮 TonPlay',
-                        settings.partnerMiniAppLink,
-                      ),
-                      // @ts-ignore
-                      style: 'primary',
-                    },
-                  ]),
-                  ...(settings &&
-                    settings.partnerSiteLink && [
-                      {
-                        ...Markup.button.url(
-                          '—> На сайте',
-                          settings.partnerSiteLink,
-                        ),
-                      },
-                    ]),
-                ],
-              ]),
-
-              ...(settings &&
-                settings.proxyPartnerLink && [
-                  [
-                    {
-                      ...Markup.button.url(
-                        '🎁 Telegram MTProxy бесплатно',
-                        settings.proxyPartnerLink,
-                      ),
-                      // @ts-ignore
-                      style: 'danger',
-                    },
-                  ],
-                ]),
               [
-                Markup.button.url(
-                  this.i18n.t('telegraf.telegram.button.channel', {
-                    lang: ctx.from.language_code,
-                  }),
-                  this.configService.get<string>('CHANNEL_URL'),
-                ),
-                Markup.button.url(
-                  this.i18n.t('telegraf.telegram.button.chatSupport', {
-                    lang: ctx.from.language_code,
-                  }),
-                  this.configService.get<string>('CHAT_URL'),
-                ),
+                {
+                  ...Markup.button.url(
+                    '📰 Заказать рекламу через Taddy',
+                    'https://taddy.pro/vpnsibcom_bot',
+                  ),
+                  // @ts-ignore
+                  style: 'danger',
+                },
               ],
               [
                 Markup.button.url(
-                  'Сотрудничество и Реклама',
+                  '🤝 Сотрудничество и Реклама',
                   this.configService.get<string>('CHANNEL_URL') + '?direct',
                 ),
               ],
               [
-                {
-                  ...Markup.button.url(
-                    this.i18n.t('telegraf.telegram.button.buyStars', {
-                      lang: ctx.from.language_code,
-                    }),
-                    'https://t.me/stars?start=ref-UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
-                  ),
-                  // @ts-ignore
-                  style: 'primary',
-                },
-                {
-                  ...Markup.button.url(
-                    '—> На сайте',
-                    'https://split.tg/?ref=UQAjDnbTYmkesnuG0DZv-PeMo3lY-B-K6mfArUBEEdAb4xaJ',
-                  ),
-                },
+                Markup.button.url(
+                  '📢 Канал',
+                  this.configService.get<string>('CHANNEL_URL'),
+                ),
+                Markup.button.url(
+                  '💬 Чат и Поддержка',
+                  this.configService.get<string>('CHAT_URL'),
+                ),
               ],
             ],
           },
