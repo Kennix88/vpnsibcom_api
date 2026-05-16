@@ -174,12 +174,14 @@ export class UsersService {
           user_id: user.telegramId, // для какого пользователя готовим сообщение
           result: {
             type: 'photo',
-            id: 'test',
+            id: crypto.randomUUID(),
             photo_url:
-              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome.jpg',
+              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome-2.jpg',
             thumbnail_url:
-              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome.jpg',
-            caption: 'Бесплатный, быстрый и безопасный VPN!',
+              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome-2.jpg',
+            caption:
+              '<b>Бесплатный, быстрый и безопасный VPN для всех!\nОставайся всегда на связи и получай доступ к интернету с VPNsib!</b>',
+            parse_mode: 'HTML',
             reply_markup: {
               inline_keyboard: [
                 [
@@ -194,19 +196,32 @@ export class UsersService {
                     style: 'success',
                   },
                 ],
-                ...(settings &&
-                  settings.proxyPartnerLink && [
-                    [
-                      {
-                        ...Markup.button.url(
-                          '🎁 Telegram MTProxy бесплатно',
-                          settings.proxyPartnerLink,
-                        ),
-                        // @ts-ignore
-                        style: 'danger',
-                      },
-                    ],
-                  ]),
+                [
+                  {
+                    ...Markup.button.url(
+                      '📰 Заказать рекламу через Taddy',
+                      'https://taddy.pro/vpnsibcom_bot',
+                    ),
+                    // @ts-ignore
+                    style: 'danger',
+                  },
+                ],
+                [
+                  Markup.button.url(
+                    '🤝 Сотрудничество и Реклама',
+                    this.configService.get<string>('CHANNEL_URL') + '?direct',
+                  ),
+                ],
+                [
+                  Markup.button.url(
+                    '📢 Канал',
+                    this.configService.get<string>('CHANNEL_URL'),
+                  ),
+                  Markup.button.url(
+                    '💬 Чат и Поддержка',
+                    this.configService.get<string>('CHAT_URL'),
+                  ),
+                ],
               ],
             },
           },
@@ -225,7 +240,7 @@ export class UsersService {
         telegramId: user.telegramId,
         isTgProgramPartner: user.isTgProgramPartner,
         isFreePlanAvailable: user.isFreePlanAvailable,
-        trialGb: user.inviters.length <= 0 ? 3 : 0,
+        trialGb: 5000,
         isBanned: user.isBanned,
         isDeleted: user.isDeleted,
         banExpiredAt: user.banExpiredAt,
@@ -615,7 +630,7 @@ export class UsersService {
               : ''
           }${
             tdata.username
-              ? `\n<b>Username:</b> <code>@${this.escapeHtml(tdata.username)}</code>`
+              ? `\n<b>Username:</b> @${this.escapeHtml(tdata.username)}`
               : ''
           }
 <b>Язык:</b> <code>${this.escapeHtml(tdata.languageCode)}</code>
