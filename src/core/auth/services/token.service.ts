@@ -6,6 +6,51 @@ import { JwtPayload } from '@shared/types/jwt-payload.interface'
 
 @Injectable()
 export class TokenService {
+  private getRefreshTokenKey(refreshToken: string): string {
+    return `refresh_token:value:${refreshToken}`
+  }
+
+  private getUserRefreshTokensSetKey(userId: string): string {
+    return `refresh_tokens:user:${userId}`
+  }
+
+  private async registerRefreshToken(
+    userId: string,
+    refreshToken: string,
+    ttlSeconds: number,
+  ): Promise<void> {
+    const tokenKey = this.getRefreshTokenKey(refreshToken)
+    const userSetKey = this.getUserRefreshTokensSetKey(userId)
+
+    await this.redis.multi()
+      .set(tokenKey, userId, 'EX', ttlSeconds)
+      .sadd(userSetKey, refreshToken)
+      .expire(userSetKey, ttlSeconds)
+      .exec()
+  }
+
+  private async revokeRefreshToken(refreshToken: string): Promise<void> {
+    const tokenKey = this.getRefreshTokenKey(refreshToken)
+    const ownerUserId = await this.redis.get(tokenKey)
+
+    if (!ownerUserId) return
+
+    const userSetKey = this.getUserRefreshTokensSetKey(ownerUserId)
+    await this.redis.multi().del(tokenKey).srem(userSetKey, refreshToken).exec()
+  }
+
+  private async revokeAllRefreshTokensByUser(userId: string): Promise<void> {
+    const userSetKey = this.getUserRefreshTokensSetKey(userId)
+    const tokens = await this.redis.smembers(userSetKey)
+
+    const pipeline = this.redis.multi()
+    for (const refreshToken of tokens) {
+      pipeline.del(this.getRefreshTokenKey(refreshToken))
+    }
+    pipeline.del(userSetKey)
+    await pipeline.exec()
+  }
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -69,12 +114,7 @@ export class TokenService {
     const ttlSeconds = this.parseExpiryToSeconds(refreshTokenExpiry)
 
     try {
-      await this.redis.set(
-        `refresh_token:${payload.sub}`,
-        refreshToken,
-        'EX',
-        ttlSeconds,
-      )
+      await this.registerRefreshToken(payload.sub, refreshToken, ttlSeconds)
     } catch (error) {
       throw new Error(
         `Failed to store refresh token for user ID: ${payload.sub}. Error: ${
@@ -106,10 +146,11 @@ export class TokenService {
         },
       )
 
-      // Check if token is in Redis
-      const storedRefreshToken = await this.redis.get(`refresh_token:${userId}`)
-
-      if (!storedRefreshToken || storedRefreshToken !== oldRefreshToken) {
+      // Check token ownership in Redis by token value
+      const tokenOwner = await this.redis.get(
+        this.getRefreshTokenKey(oldRefreshToken),
+      )
+      if (!tokenOwner || tokenOwner !== userId) {
         throw new Error('Invalid refresh token')
       }
 
@@ -129,7 +170,9 @@ export class TokenService {
         role: payload.role,
       }
 
-      return this.generateTokens(newPayload)
+      const newTokens = await this.generateTokens(newPayload)
+      await this.revokeRefreshToken(oldRefreshToken)
+      return newTokens
     } catch (error) {
       throw new Error(
         `Failed to rotate refresh token for user ID: ${userId}. Error: ${
@@ -155,8 +198,8 @@ export class TokenService {
       const expiresIn = Math.floor(payload.exp - Date.now() / 1000)
       await this.redis.set(`blacklist:${token}`, 'true', 'EX', expiresIn)
 
-      // Remove refresh token
-      await this.redis.del(`refresh_token:${userId}`)
+      // Remove all refresh tokens for this user
+      await this.revokeAllRefreshTokensByUser(userId)
     } catch (error) {
       throw new Error(
         `Failed to invalidate tokens for user ID: ${userId}. Error: ${

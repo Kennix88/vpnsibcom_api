@@ -4,6 +4,7 @@ export interface ParseStartParamResult {
 }
 
 const TGR_PARAM_REGEXP = /^_tgr_([\w-]+)$/
+const KEY_VALUE_REGEXP = /(?:^|_)([a-zA-Z][a-zA-Z0-9]*)-/g
 
 export function parseStartParamUtil(value: string): ParseStartParamResult {
   const result: ParseStartParamResult = {
@@ -24,26 +25,57 @@ export function parseStartParamUtil(value: string): ParseStartParamResult {
     return result
   }
 
-  const chunks = normalizedValue.split('_').filter(Boolean)
+  const matches = Array.from(normalizedValue.matchAll(KEY_VALUE_REGEXP))
+  if (matches.length === 0) {
+    noneValues.push(normalizedValue)
+    return result
+  }
 
-  for (const chunk of chunks) {
-    const dashIndex = chunk.indexOf('-')
+  const pushNoneChunk = (chunk: string) => {
+    const trimmed = chunk.trim()
+    if (!trimmed) return
 
-    if (dashIndex <= 0 || dashIndex === chunk.length - 1) {
-      noneValues.push(chunk)
-      continue
+    for (const part of trimmed.split('_')) {
+      const normalizedPart = part.trim()
+      if (normalizedPart) noneValues.push(normalizedPart)
     }
+  }
 
-    const key = chunk.slice(0, dashIndex)
-    const chunkValue = chunk.slice(dashIndex + 1)
+  const firstMatchIndex = matches[0].index ?? 0
+  if (firstMatchIndex > 0) {
+    pushNoneChunk(normalizedValue.slice(0, firstMatchIndex))
+  }
+
+  for (let i = 0; i < matches.length; i++) {
+    const current = matches[i]
+    const next = matches[i + 1]
+    const key = current[1]
+
+    const rawStartIndex = current.index ?? 0
+    const valueStartIndex = rawStartIndex + current[0].length
+    const valueEndIndex = next?.index ?? normalizedValue.length
+    const chunkValue = normalizedValue.slice(valueStartIndex, valueEndIndex)
 
     if (!key || !chunkValue) {
-      noneValues.push(chunk)
+      noneValues.push(normalizedValue.slice(rawStartIndex, valueEndIndex))
       continue
     }
 
     result.params[key] = chunkValue
+
+    if (next) {
+      const nextStartIndex = next.index ?? valueEndIndex
+      const betweenChunk = normalizedValue.slice(valueEndIndex, nextStartIndex)
+      pushNoneChunk(betweenChunk)
+    }
   }
 
   return result
+}
+
+export function extractReferralKey(value: string): string | null {
+  const parsed = parseStartParamUtil(value)
+  if (parsed.params.r?.trim()) return parsed.params.r.trim()
+
+  return value.match(/(?:^|_)r-([a-zA-Z0-9_-]+)(?:_|$)/)?.[1] ?? null
 }
