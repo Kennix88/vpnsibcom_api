@@ -15,7 +15,6 @@
 # Общие заголовки безопасности
 (security_headers) {
     header {
-        X-Frame-Options "SAMEORIGIN"
         X-Content-Type-Options "nosniff"
         Referrer-Policy "strict-origin-when-cross-origin"
         Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
@@ -68,7 +67,7 @@ fasti.fun, front.fasti.fun, www.fasti.fun {
         style-src 'self' 'unsafe-inline';
         img-src 'self' data:;
         connect-src 'self' https://api.fasti.fun;
-        frame-ancestors 'none';
+        frame-ancestors https://web.telegram.org https://*.telegram.org;
         base-uri 'none';
     "
 
@@ -103,7 +102,7 @@ api.fasti.fun {
         }
     }
 
-    header Content-Security-Policy "default-src 'none'; connect-src 'self';"
+    header Content-Security-Policy "default-src 'none'; connect-src 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org;"
 
     log {
         output file /var/log/caddy/api.access.log {
@@ -116,6 +115,8 @@ api.fasti.fun {
 
 *.frps.fasti.fun {
     import standard_config
+
+    header Content-Security-Policy "frame-ancestors https://web.telegram.org https://*.telegram.org;"
 
     reverse_proxy frps:8090 {
         transport http {
@@ -146,6 +147,7 @@ grafana.fasti.fun {
         script-src 'self' 'unsafe-inline' 'unsafe-eval';
         style-src 'self' 'unsafe-inline';
         img-src 'self' data:;
+        frame-ancestors https://web.telegram.org https://*.telegram.org;
     "
 }
 
