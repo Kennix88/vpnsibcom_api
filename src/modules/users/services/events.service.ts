@@ -9,7 +9,7 @@ import { EventType } from '../types/event-type.enum'
 
 @Injectable()
 export class EventsService {
-  private readonly ADSGRAM_REG_RETRY_BATCH = 200
+  private readonly ADSGRAM_RETRY_BATCH = 200
 
   constructor(
     private readonly prismaService: PrismaService,
@@ -19,11 +19,17 @@ export class EventsService {
   ) {}
 
   @Cron(process.env.ADSGRAM_REGISTRATION_RETRY_CRON || '0 */5 * * * *')
-  public async retryPendingAdsgramRegistrationEvents() {
+  public async retryPendingAdsgramEvents() {
     try {
       const pending = await this.prismaService.events.findMany({
         where: {
-          eventType: EventType.REGISTRATION,
+          eventType: {
+            in: [
+              EventType.REGISTRATION,
+              EventType.FIRST_PAYMENT,
+              EventType.RELOAD_PAYMENT,
+            ],
+          },
           adsgramRegistrationSentAt: null,
           source: {
             equals: 'adsgram',
@@ -36,11 +42,12 @@ export class EventsService {
         select: {
           id: true,
           recordId: true,
+          eventType: true,
         },
         orderBy: {
           createdAt: 'asc',
         },
-        take: this.ADSGRAM_REG_RETRY_BATCH,
+        take: this.ADSGRAM_RETRY_BATCH,
       })
 
       if (pending.length === 0) return
@@ -49,35 +56,20 @@ export class EventsService {
       for (const event of pending) {
         if (!event.recordId?.trim()) continue
 
-        const sent = await this.adsgramService.sendEvent({
-          recordId: event.recordId,
-          goaltype: 1,
-        })
-
-        if (!sent) continue
-
-        const updated = await this.prismaService.events.updateMany({
-          where: {
-            id: event.id,
-            adsgramRegistrationSentAt: null,
-          },
-          data: {
-            adsgramRegistrationSentAt: new Date(),
-          },
-        })
-        if (updated.count > 0) sentCount++
+        const sent = await this.trySendAdsgramEventById(event.id)
+        if (sent) sentCount++
       }
 
       if (sentCount > 0) {
         this.logger.info({
-          msg: 'Adsgram registration retry sent',
+          msg: 'Adsgram retry sent',
           processed: pending.length,
           sent: sentCount,
         })
       }
     } catch (error) {
       this.logger.error({
-        msg: 'Adsgram registration retry failed',
+        msg: 'Adsgram retry failed',
         error,
       })
     }
@@ -102,21 +94,48 @@ export class EventsService {
       },
       select: {
         id: true,
-        recordId: true,
       },
     })
 
-    if (!event?.recordId?.trim()) return false
+    if (!event) return false
+
+    return this.trySendAdsgramEventById(event.id)
+  }
+
+  private getAdsgramGoalType(eventType: EventType): 1 | 2 | 3 | null {
+    if (eventType === EventType.REGISTRATION) return 1
+    if (eventType === EventType.FIRST_PAYMENT) return 2
+    if (eventType === EventType.RELOAD_PAYMENT) return 3
+    return null
+  }
+
+  private async trySendAdsgramEventById(eventId: string): Promise<boolean> {
+    const event = await this.prismaService.events.findUnique({
+      where: { id: eventId },
+      select: {
+        id: true,
+        eventType: true,
+        recordId: true,
+        adsgramRegistrationSentAt: true,
+      },
+    })
+
+    if (!event || event.adsgramRegistrationSentAt || !event.recordId?.trim()) {
+      return false
+    }
+
+    const goaltype = this.getAdsgramGoalType(event.eventType as EventType)
+    if (!goaltype) return false
 
     const sent = await this.adsgramService.sendEvent({
       recordId: event.recordId,
-      goaltype: 1,
+      goaltype,
     })
     if (!sent) return false
 
     const updated = await this.prismaService.events.updateMany({
       where: {
-        id: event.id,
+        id: eventId,
         adsgramRegistrationSentAt: null,
       },
       data: {
@@ -176,7 +195,7 @@ export class EventsService {
 
       const parseStartParams = parseStartParamUtil(startParams ?? '')
 
-      await this.prismaService.events.create({
+      const createdEvent = await this.prismaService.events.create({
         data: {
           userId,
           eventType,
@@ -214,14 +233,7 @@ export class EventsService {
           eventType == EventType.FIRST_PAYMENT ||
           eventType == EventType.RELOAD_PAYMENT)
       ) {
-        if (eventType === EventType.REGISTRATION) {
-          await this.trySendAdsgramRegistrationByUserId(userId)
-        } else {
-          await this.adsgramService.sendEvent({
-            recordId: parseStartParams.params.record,
-            goaltype: eventType == EventType.FIRST_PAYMENT ? 2 : 3,
-          })
-        }
+        await this.trySendAdsgramEventById(createdEvent.id)
       } else if (parseStartParams.params.source) {
         this.logger.debug({
           msg: 'Adsgram conversion condition not met',
