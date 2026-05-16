@@ -197,7 +197,11 @@ export class AuthService {
     }
   }
 
-  async refreshTokens(refreshToken: string): Promise<{
+  async refreshTokens(
+    refreshToken: string,
+    ip?: string,
+    ua?: string,
+  ): Promise<{
     accessToken: string
     refreshToken: string
     user: UserDataInterface
@@ -217,6 +221,13 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException('User not found for refresh token')
       }
+
+      await this.sessionsService.createSession({
+        userId: payload.sub,
+        place: SessionPlaceEnum.TELEGRAM_MINIAPP,
+        ip,
+        ua,
+      })
 
       return {
         ...tokens,
