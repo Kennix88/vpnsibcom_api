@@ -12,6 +12,7 @@ import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
 import { UserDataInterface } from '@shared/types/user-data.interface'
+import { extractReferralKey } from '@shared/utils/parse-start-param.util'
 import { parse } from '@telegram-apps/init-data-node'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
@@ -123,7 +124,7 @@ export class AuthService {
       initDataParams.get('start_param') ??
       initDataParams.get('tgWebAppStartParam') ??
       ''
-    const refId = startParam.match(/r-([a-zA-Z0-9]+)/)?.[1] ?? null
+    const refId = extractReferralKey(startParam)
 
     if (!user) {
       user = await this.userService.createUser({
