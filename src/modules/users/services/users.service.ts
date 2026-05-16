@@ -81,14 +81,18 @@ export class UsersService {
   }
 
   public async updateUserActivity(userId: string) {
-    const key = `${this.USER_ACTIVITY_PREFIX}${userId}`
-    const now = Math.floor(Date.now() / 1000) // Unix timestamp в секундах
-
-    await this.redis
-      .multi()
-      .set(key, now, 'EX', 86400) // TTL 24 часа
-      .zadd('recent_activities', now, userId) // Сортированный набор для быстрого доступа
-      .exec()
+    try {
+      await this.prismaService.users.update({
+        where: { id: userId },
+        data: { lastStartedAt: new Date() },
+      })
+    } catch (e) {
+      this.logger.error({
+        msg: `Error while touching user lastStartedAt`,
+        userId,
+        e,
+      })
+    }
   }
 
   @Cron('*/5 * * * *')
