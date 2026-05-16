@@ -12,8 +12,24 @@ echo "Starting PostgreSQL Telegram backup cron (${CRON_SCHEDULE})..."
 # Создаём временную директорию
 mkdir -p /tmp/pgdump
 
+escape_squotes() {
+  printf "%s" "$1" | sed "s/'/'\"'\"'/g"
+}
+
+cat <<EOF > /tmp/backup-env.sh
+export POSTGRES_HOST='$(escape_squotes "${POSTGRES_HOST}")'
+export POSTGRES_USER='$(escape_squotes "${POSTGRES_USER}")'
+export POSTGRES_PASSWORD='$(escape_squotes "${POSTGRES_PASSWORD}")'
+export POSTGRES_DB='$(escape_squotes "${POSTGRES_DB}")'
+export TELEGRAM_BOT_TOKEN='$(escape_squotes "${TELEGRAM_BOT_TOKEN}")'
+export TELEGRAM_LOG_CHAT_ID='$(escape_squotes "${TELEGRAM_LOG_CHAT_ID}")'
+export TELEGRAM_THREAD_ID_BACKUPS='$(escape_squotes "${TELEGRAM_THREAD_ID_BACKUPS:-}")'
+EOF
+
+chmod 600 /tmp/backup-env.sh
+
 cat <<EOF > /etc/crontabs/root
-${CRON_SCHEDULE} /bin/sh /tmp/backup-now.sh >> /proc/1/fd/1 2>> /proc/1/fd/2
+${CRON_SCHEDULE} . /tmp/backup-env.sh && /bin/sh /tmp/backup-now.sh >> /proc/1/fd/1 2>> /proc/1/fd/2
 EOF
 
 # Создаём исполняемый файл для бэкапа
@@ -62,16 +78,23 @@ if ! PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump \
 fi
 
 echo "[INFO] Sending ${FILENAME} to Telegram..."
-if ! curl -sS -f \
-     --retry 5 \
-     --retry-delay 3 \
-     --retry-all-errors \
-     --connect-timeout 20 \
-     --max-time 300 \
-     -F chat_id="${TELEGRAM_LOG_CHAT_ID}" \
-     -F message_thread_id="${TELEGRAM_THREAD_ID_BACKUPS:-}" \
-     -F "document=@${TMP_FILE};filename=${FILENAME}" \
-     "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" > "${RESP_FILE}"; then
+set -- curl -sS -f \
+  --retry 5 \
+  --retry-delay 3 \
+  --retry-all-errors \
+  --connect-timeout 20 \
+  --max-time 300 \
+  -F "chat_id=${TELEGRAM_LOG_CHAT_ID}"
+
+if [ -n "${TELEGRAM_THREAD_ID_BACKUPS:-}" ]; then
+  set -- "$@" -F "message_thread_id=${TELEGRAM_THREAD_ID_BACKUPS}"
+fi
+
+set -- "$@" \
+  -F "document=@${TMP_FILE};filename=${FILENAME}" \
+  "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
+
+if ! "$@" > "${RESP_FILE}"; then
   echo "[ERROR] Telegram upload failed" >&2
   exit 1
 fi
