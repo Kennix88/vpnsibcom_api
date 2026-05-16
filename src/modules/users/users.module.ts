@@ -8,6 +8,7 @@ import { TelegramPaymentsService } from '../payments/services/telegram-payments.
 import { AcquisitionsService } from './services/acquisitions.service'
 import { EventsService } from './services/events.service'
 import { SessionsService } from './services/sessions.service'
+import { StartParamsRepairService } from './services/start-params-repair.service'
 
 @Global()
 @Module({
@@ -23,6 +24,7 @@ import { SessionsService } from './services/sessions.service'
     EventsService,
     SessionsService,
     AcquisitionsService,
+    StartParamsRepairService,
   ],
   exports: [
     UsersService,
@@ -30,6 +32,7 @@ import { SessionsService } from './services/sessions.service'
     EventsService,
     SessionsService,
     AcquisitionsService,
+    StartParamsRepairService,
   ],
 })
 export class UsersModule {}
