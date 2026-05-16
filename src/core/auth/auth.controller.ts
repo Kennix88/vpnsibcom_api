@@ -93,8 +93,14 @@ export class AuthController {
     }
 
     try {
-      const tokens = await this.authService.refreshTokens(refreshToken)
+      const ip = getClientIp(req) ?? 'unknown'
+      const userAgentHeader = req.headers['user-agent']
+      const ua =
+        typeof userAgentHeader === 'string' ? userAgentHeader : undefined
+
+      const tokens = await this.authService.refreshTokens(refreshToken, ip, ua)
       res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS)
+      await this.authService.updateUserActivity(tokens.accessToken)
 
       this.logger.debug(`Refreshed token for user ${tokens.user.id}`)
       return { data: { accessToken: tokens.accessToken, user: tokens.user } }
