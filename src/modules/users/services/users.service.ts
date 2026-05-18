@@ -509,14 +509,14 @@ export class UsersService {
             }),
             ...((Object.keys(parseStartParams.params).length > 0 ||
               parseStartParams.none.length > 0) && {
-              firstOtherData: JSON.stringify({
+              firstOtherData: {
                 ...parseStartParams.params,
                 ...parseStartParams.none,
-              }),
-              lastOtherData: JSON.stringify({
+              },
+              lastOtherData: {
                 ...parseStartParams.params,
                 ...parseStartParams.none,
-              }),
+              },
             }),
           },
         })
@@ -581,6 +581,12 @@ export class UsersService {
                 })
               }
             }
+          } else {
+            this.logger.warn({
+              msg: 'Referral key present but inviter not found',
+              telegramId,
+              referralKey,
+            })
           }
         }
 
@@ -660,8 +666,14 @@ export class UsersService {
     } catch (e) {
       this.logger.error({
         msg: `Error while creating user`,
+        telegramId,
+        referralKey,
+        startParam,
+        ip,
+        ua,
         e,
       })
+      throw e
     }
   }
 
