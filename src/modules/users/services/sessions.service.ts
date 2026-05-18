@@ -1,4 +1,5 @@
 import { PrismaService } from '@core/prisma/prisma.service'
+import { Prisma } from '@core/prisma/generated/client'
 import { GeoService } from '@modules/geo/geo.service'
 import { Injectable } from '@nestjs/common'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
@@ -85,9 +86,9 @@ export class SessionsService {
             userAgent: normalizedUa,
             ip: normalizedIp,
             ...(normalizedUa && {
-              browser: JSON.stringify(browser),
-              device: JSON.stringify(device),
-              os: JSON.stringify(os),
+              browser: browser as unknown as Prisma.InputJsonValue,
+              device: device as unknown as Prisma.InputJsonValue,
+              os: os as unknown as Prisma.InputJsonValue,
             }),
             ...(country && { country }),
             ...(parseStartParams.params.source && {
@@ -101,10 +102,10 @@ export class SessionsService {
             }),
             ...((Object.keys(parseStartParams.params).length > 0 ||
               parseStartParams.none.length > 0) && {
-              otherData: JSON.stringify({
+              otherData: {
                 ...parseStartParams.params,
-                ...parseStartParams.none,
-              }),
+                none: parseStartParams.none,
+              } as Prisma.InputJsonValue,
             }),
           },
         })
