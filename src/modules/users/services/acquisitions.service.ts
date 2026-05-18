@@ -46,10 +46,10 @@ export class AcquisitionsService {
           recordId: parseStartParams.params.record,
         }),
         ...(hasOtherData && {
-          otherData: JSON.stringify({
+          otherData: {
             ...parseStartParams.params,
             ...parseStartParams.none,
-          }),
+          },
         }),
       }
 
@@ -90,14 +90,14 @@ export class AcquisitionsService {
               lastRecordId: parseStartParams.params.record,
             }),
             ...(hasOtherData && {
-              firstOtherData: JSON.stringify({
+              firstOtherData: {
                 ...parseStartParams.params,
                 ...parseStartParams.none,
-              }),
-              lastOtherData: JSON.stringify({
+              },
+              lastOtherData: {
                 ...parseStartParams.params,
                 ...parseStartParams.none,
-              }),
+              },
             }),
           },
         })
@@ -180,16 +180,16 @@ export class AcquisitionsService {
           }),
           ...(hasOtherData &&
             !user.acquisition.firstOtherData && {
-              firstOtherData: JSON.stringify({
+              firstOtherData: {
                 ...parseStartParams.params,
                 ...parseStartParams.none,
-              }),
+              },
             }),
           ...(hasOtherData && {
-            lastOtherData: JSON.stringify({
+            lastOtherData: {
               ...parseStartParams.params,
               ...parseStartParams.none,
-            }),
+            },
           }),
         },
       })
