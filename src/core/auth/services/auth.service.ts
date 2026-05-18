@@ -61,6 +61,7 @@ export class AuthService {
     initData: string,
     ip: string,
     ua: string | undefined,
+    startParamFromClient?: string,
   ): Promise<{
     accessToken: string
     refreshToken: string
@@ -116,7 +117,9 @@ export class AuthService {
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
 
     const initDataParams = new URLSearchParams(initData)
-    const startParam =
+    const normalizedStartParamFromClient = startParamFromClient?.trim()
+    let startParam =
+      normalizedStartParamFromClient ??
       userData.start_param ??
       // compatibility: some parsers may expose camelCase fields
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,7 +127,7 @@ export class AuthService {
       initDataParams.get('start_param') ??
       initDataParams.get('tgWebAppStartParam') ??
       ''
-    const refId = extractReferralKey(startParam)
+    let refId = extractReferralKey(startParam)
 
     if (!user) {
       user = await this.userService.createUser({
@@ -139,6 +142,43 @@ export class AuthService {
         ua,
         ip,
       })
+      if (!user) {
+        throw new UnauthorizedException(
+          'Telegram login failed: unable to create user.',
+        )
+      }
+    } else if (!refId || !startParam) {
+      const lastSession = await this.prisma.sessions.findFirst({
+        where: {
+          userId: user.id,
+          place: SessionPlaceEnum.TELEGRAM_MINIAPP,
+          OR: [
+            { referralId: { not: null } },
+            { startParams: { not: null } },
+          ],
+        },
+        select: {
+          referralId: true,
+          startParams: true,
+        },
+        orderBy: {
+          startedAt: 'desc',
+        },
+      })
+
+      if (!refId && lastSession?.referralId) {
+        refId = lastSession.referralId
+      }
+
+      if (!startParam && lastSession?.startParams) {
+        startParam = lastSession.startParams
+        this.logger.info({
+          msg: 'Using last known start params for acquisition/session patch',
+          userId: user.id,
+          startParams: lastSession.startParams,
+          service: this.serviceName,
+        })
+      }
     }
 
     // Update user country registration if it's not set
@@ -172,6 +212,17 @@ export class AuthService {
       ...(refId && {
         referralKey: refId,
       }),
+    })
+
+    this.logger.info({
+      msg: 'Telegram login tracking context',
+      service: this.serviceName,
+      userId: user.id,
+      ip,
+      ua: ua ?? null,
+      startParam: startParam || null,
+      refId: refId || null,
+      country: country ?? null,
     })
 
     const payload: JwtPayload = {
