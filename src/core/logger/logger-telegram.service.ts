@@ -25,7 +25,8 @@ export class LoggerTelegramService {
     this.enqueue('debug', msg)
   }
   info(msg: string) {
-    this.enqueue('info', msg)
+    return
+    // this.enqueue('info', msg)
   }
   warn(msg: string) {
     this.enqueue('warn', msg)
