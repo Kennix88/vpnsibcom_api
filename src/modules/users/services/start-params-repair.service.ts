@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
 import { PinoLogger } from 'nestjs-pino'
+import { Prisma } from '@core/prisma/generated/client'
 
 @Injectable()
 export class StartParamsRepairService {
@@ -39,6 +40,7 @@ export class StartParamsRepairService {
     } catch (error) {
       this.logger.error({
         msg: 'Start params repair failed',
+        stack: error?.stack,
         error,
       })
     }
@@ -54,10 +56,10 @@ export class StartParamsRepairService {
       compaingId: parsed.params.compaing ?? null,
       recordId: parsed.params.record ?? null,
       otherData: hasOtherData
-        ? JSON.stringify({
+        ? {
             ...parsed.params,
             ...parsed.none,
-          })
+          }
         : null,
     }
   }
@@ -70,9 +72,7 @@ export class StartParamsRepairService {
     while (true) {
       const rows = await this.prismaService.sessions.findMany({
         where: {
-          startParams: {
-            notIn: [null, ''],
-          },
+          AND: [{ startParams: { not: null } }, { startParams: { not: '' } }],
         },
         select: {
           id: true,
@@ -104,13 +104,13 @@ export class StartParamsRepairService {
         const currentOtherData =
           row.otherData === null || row.otherData === undefined
             ? null
-            : JSON.stringify(row.otherData)
+            : row.otherData
 
         const needsUpdate =
           (row.source ?? null) !== parsed.source ||
           (row.compaingId ?? null) !== parsed.compaingId ||
           (row.recordId ?? null) !== parsed.recordId ||
-          currentOtherData !== parsed.otherData
+          JSON.stringify(currentOtherData) !== JSON.stringify(parsed.otherData)
 
         if (!needsUpdate) continue
 
@@ -120,7 +120,10 @@ export class StartParamsRepairService {
             source: parsed.source,
             compaingId: parsed.compaingId,
             recordId: parsed.recordId,
-            otherData: parsed.otherData,
+            otherData:
+              parsed.otherData === null
+                ? Prisma.DbNull
+                : (parsed.otherData as Prisma.InputJsonValue),
           },
         })
         updated++
@@ -142,8 +145,18 @@ export class StartParamsRepairService {
       const rows = await this.prismaService.acquisition.findMany({
         where: {
           OR: [
-            { firstStartParams: { notIn: [null, ''] } },
-            { lastStartParams: { notIn: [null, ''] } },
+            {
+              AND: [
+                { firstStartParams: { not: null } },
+                { firstStartParams: { not: '' } },
+              ],
+            },
+            {
+              AND: [
+                { lastStartParams: { not: null } },
+                { lastStartParams: { not: '' } },
+              ],
+            },
           ],
         },
         select: {
@@ -183,18 +196,22 @@ export class StartParamsRepairService {
           const currentOtherData =
             row.firstOtherData === null || row.firstOtherData === undefined
               ? null
-              : JSON.stringify(row.firstOtherData)
+              : row.firstOtherData
 
           if (
             (row.firstSource ?? null) !== parsed.source ||
             (row.firstCompaingId ?? null) !== parsed.compaingId ||
             (row.firstRecordId ?? null) !== parsed.recordId ||
-            currentOtherData !== parsed.otherData
+            JSON.stringify(currentOtherData) !==
+              JSON.stringify(parsed.otherData)
           ) {
             data.firstSource = parsed.source
             data.firstCompaingId = parsed.compaingId
             data.firstRecordId = parsed.recordId
-            data.firstOtherData = parsed.otherData
+            data.firstOtherData =
+              parsed.otherData === null
+                ? Prisma.DbNull
+                : (parsed.otherData as Prisma.InputJsonValue)
             needsUpdate = true
           }
         }
@@ -205,18 +222,22 @@ export class StartParamsRepairService {
           const currentOtherData =
             row.lastOtherData === null || row.lastOtherData === undefined
               ? null
-              : JSON.stringify(row.lastOtherData)
+              : row.lastOtherData
 
           if (
             (row.lastSource ?? null) !== parsed.source ||
             (row.lastCompaingId ?? null) !== parsed.compaingId ||
             (row.lastRecordId ?? null) !== parsed.recordId ||
-            currentOtherData !== parsed.otherData
+            JSON.stringify(currentOtherData) !==
+              JSON.stringify(parsed.otherData)
           ) {
             data.lastSource = parsed.source
             data.lastCompaingId = parsed.compaingId
             data.lastRecordId = parsed.recordId
-            data.lastOtherData = parsed.otherData
+            data.lastOtherData =
+              parsed.otherData === null
+                ? Prisma.DbNull
+                : (parsed.otherData as Prisma.InputJsonValue)
             needsUpdate = true
           }
         }
@@ -242,9 +263,7 @@ export class StartParamsRepairService {
     while (true) {
       const rows = await this.prismaService.events.findMany({
         where: {
-          startParams: {
-            notIn: [null, ''],
-          },
+          AND: [{ startParams: { not: null } }, { startParams: { not: '' } }],
         },
         select: {
           id: true,
@@ -276,13 +295,13 @@ export class StartParamsRepairService {
         const currentOtherData =
           row.otherData === null || row.otherData === undefined
             ? null
-            : JSON.stringify(row.otherData)
+            : row.otherData
 
         const needsUpdate =
           (row.source ?? null) !== parsed.source ||
           (row.compaingId ?? null) !== parsed.compaingId ||
           (row.recordId ?? null) !== parsed.recordId ||
-          currentOtherData !== parsed.otherData
+          JSON.stringify(currentOtherData) !== JSON.stringify(parsed.otherData)
 
         if (!needsUpdate) continue
 
@@ -292,7 +311,10 @@ export class StartParamsRepairService {
             source: parsed.source,
             compaingId: parsed.compaingId,
             recordId: parsed.recordId,
-            otherData: parsed.otherData,
+            otherData:
+              parsed.otherData === null
+                ? Prisma.DbNull
+                : (parsed.otherData as Prisma.InputJsonValue),
           },
         })
         updated++
