@@ -36,86 +36,86 @@ export class PaymentsCronService {
     this.logger.setContext(PaymentsCronService.name)
   }
 
-  @Cron('0 5 * * * *')
-  async checkTelegramStarsPayments() {
-    try {
-      this.logger.info({ msg: 'Starting Telegram Stars incoming payments check' })
+  // @Cron('0 5 * * * *')
+  // async checkTelegramStarsPayments() {
+  //   try {
+  //     this.logger.info({ msg: 'Starting Telegram Stars incoming payments check' })
 
-      const response = await (this.bot.telegram as any).callApi(
-        'getStarTransactions',
-        {
-          offset: 0,
-          limit: 100,
-        },
-      )
+  //     const response = await (this.bot.telegram as any).callApi(
+  //       'getStarTransactions',
+  //       {
+  //         offset: 0,
+  //         limit: 100,
+  //       },
+  //     )
 
-      const transactions = (response as { transactions?: any[] })?.transactions
-      if (!transactions || transactions.length === 0) {
-        this.logger.info({ msg: 'No Telegram Stars transactions found' })
-        return
-      }
+  //     const transactions = (response as { transactions?: any[] })?.transactions
+  //     if (!transactions || transactions.length === 0) {
+  //       this.logger.info({ msg: 'No Telegram Stars transactions found' })
+  //       return
+  //     }
 
-      this.logger.info({
-        msg: `Loaded Telegram Stars transactions`,
-        count: transactions.length,
-      })
+  //     this.logger.info({
+  //       msg: `Loaded Telegram Stars transactions`,
+  //       count: transactions.length,
+  //     })
 
-      for (const transaction of transactions) {
-        const amount = Number(transaction?.amount ?? 0)
-        if (!Number.isFinite(amount) || amount <= 0) continue
+  //     for (const transaction of transactions) {
+  //       const amount = Number(transaction?.amount ?? 0)
+  //       if (!Number.isFinite(amount) || amount <= 0) continue
 
-        const source = transaction?.source
-        const transactionId = transaction?.id?.toString?.()
-        const telegramUserId =
-          source?.user?.id?.toString?.() || source?.id?.toString?.()
-        const invoicePayload =
-          source?.invoice_payload || source?.paid_media_payload || undefined
+  //       const source = transaction?.source
+  //       const transactionId = transaction?.id?.toString?.()
+  //       const telegramUserId =
+  //         source?.user?.id?.toString?.() || source?.id?.toString?.()
+  //       const invoicePayload =
+  //         source?.invoice_payload || source?.paid_media_payload || undefined
 
-        if (!telegramUserId) continue
+  //       if (!telegramUserId) continue
 
-        if (invoicePayload) {
-          const existingInvoicePayment =
-            await this.prismaService.payments.findUnique({
-              where: { token: invoicePayload },
-              select: { status: true },
-            })
+  //       if (invoicePayload) {
+  //         const existingInvoicePayment =
+  //           await this.prismaService.payments.findUnique({
+  //             where: { token: invoicePayload },
+  //             select: { status: true },
+  //           })
 
-          if (existingInvoicePayment?.status === PaymentStatusEnum.COMPLETED) {
-            continue
-          }
-        }
+  //         if (existingInvoicePayment?.status === PaymentStatusEnum.COMPLETED) {
+  //           continue
+  //         }
+  //       }
 
-        if (transactionId) {
-          const recoveryToken = `tg-stars-recovery-${transactionId}`
-          const existingRecoveryPayment =
-            await this.prismaService.payments.findUnique({
-              where: { token: recoveryToken },
-              select: { status: true },
-            })
+  //       if (transactionId) {
+  //         const recoveryToken = `tg-stars-recovery-${transactionId}`
+  //         const existingRecoveryPayment =
+  //           await this.prismaService.payments.findUnique({
+  //             where: { token: recoveryToken },
+  //             select: { status: true },
+  //           })
 
-          if (existingRecoveryPayment?.status === PaymentStatusEnum.COMPLETED) {
-            continue
-          }
-        }
+  //         if (existingRecoveryPayment?.status === PaymentStatusEnum.COMPLETED) {
+  //           continue
+  //         }
+  //       }
 
-        await this.paymentsService.processTelegramStarsIncomingPayment({
-          telegramUserId,
-          invoicePayload,
-          totalAmount: amount,
-          telegramPaymentChargeId: transactionId,
-          rawDetails: transaction,
-        })
-      }
+  //       await this.paymentsService.processTelegramStarsIncomingPayment({
+  //         telegramUserId,
+  //         invoicePayload,
+  //         totalAmount: amount,
+  //         telegramPaymentChargeId: transactionId,
+  //         rawDetails: transaction,
+  //       })
+  //     }
 
-      this.logger.info({ msg: 'Telegram Stars incoming payments check completed' })
-    } catch (e) {
-      this.logger.error({
-        msg: 'Error checking Telegram Stars incoming payments',
-        error: e instanceof Error ? e.message : String(e),
-        stack: e instanceof Error ? e.stack : undefined,
-      })
-    }
-  }
+  //     this.logger.info({ msg: 'Telegram Stars incoming payments check completed' })
+  //   } catch (e) {
+  //     this.logger.error({
+  //       msg: 'Error checking Telegram Stars incoming payments',
+  //       error: e instanceof Error ? e.message : String(e),
+  //       stack: e instanceof Error ? e.stack : undefined,
+  //     })
+  //   }
+  // }
 
   @Cron('*/15 * * * * *')
   async checkTonPayments() {
