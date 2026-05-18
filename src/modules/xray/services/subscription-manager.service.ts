@@ -226,7 +226,7 @@ export class SubscriptionManagerService {
                   dataLimit: marzbanUser.data_limit,
                   lifeTimeUsedTraffic: marzbanUser.lifetime_used_traffic,
                   onlineAt: marzbanUser.online_at,
-                  marzbanData: JSON.stringify(marzbanUser),
+                  marzbanData: marzbanUser,
                 }
               }),
             )
