@@ -89,6 +89,8 @@ export class GeoUpdaterService implements OnModuleInit {
           fs.mkdirSync(this.dir, { recursive: true })
         }
 
+        this.cleanupStaleTmpDirs()
+
         // tmp inside same FS for atomic rename
         const tmp = fs.mkdtempSync(join(this.dir, '.tmp-'))
 
@@ -108,8 +110,14 @@ export class GeoUpdaterService implements OnModuleInit {
             const tmpFinal = join(this.dir, `${f.name}.tmp`)
             const final = join(this.dir, f.name)
 
-            fs.copyFileSync(src, tmpFinal)
-            fs.renameSync(tmpFinal, final)
+            try {
+              fs.copyFileSync(src, tmpFinal)
+              fs.renameSync(tmpFinal, final)
+            } finally {
+              if (fs.existsSync(tmpFinal)) {
+                fs.rmSync(tmpFinal, { force: true })
+              }
+            }
 
             this.logger.log(`Replaced ${f.name}`)
           }
@@ -137,6 +145,22 @@ export class GeoUpdaterService implements OnModuleInit {
       })
     } finally {
       this.updating = false
+    }
+  }
+
+  private cleanupStaleTmpDirs() {
+    try {
+      const entries = fs.readdirSync(this.dir, { withFileTypes: true })
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue
+        if (!entry.name.startsWith('.tmp-')) continue
+
+        const fullPath = join(this.dir, entry.name)
+        fs.rmSync(fullPath, { recursive: true, force: true })
+        this.logger.log(`Removed stale tmp dir ${entry.name}`)
+      }
+    } catch (e) {
+      this.logger.error('Failed to cleanup stale tmp dirs: ' + String(e))
     }
   }
 
