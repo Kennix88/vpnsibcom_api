@@ -17,6 +17,25 @@ export class SessionsService {
     private readonly geoService: GeoService,
   ) {}
 
+  private toJsonObject(
+    value: Record<string, unknown> | undefined,
+  ): Prisma.InputJsonValue | undefined {
+    if (!value) return undefined
+
+    const plain = Object.entries(value).reduce<Record<string, unknown>>(
+      (acc, [key, item]) => {
+        if (item === undefined || typeof item === 'function') return acc
+        acc[key] = item
+        return acc
+      },
+      {},
+    )
+
+    return Object.keys(plain).length > 0
+      ? (plain as Prisma.InputJsonValue)
+      : undefined
+  }
+
   public async createSession({
     userId,
     startParams,
@@ -40,7 +59,16 @@ export class SessionsService {
 
       const parseStartParams = parseStartParamUtil(normalizedStartParams ?? '')
       const country = this.geoService.getCountry(normalizedIp)
-      const { browser, device, os } = UAParser(normalizedUa || '')
+      const parsedUa = new UAParser(normalizedUa || '').getResult()
+      const browser = this.toJsonObject(
+        parsedUa.browser as unknown as Record<string, unknown>,
+      )
+      const device = this.toJsonObject(
+        parsedUa.device as unknown as Record<string, unknown>,
+      )
+      const os = this.toJsonObject(
+        parsedUa.os as unknown as Record<string, unknown>,
+      )
       const duplicateSince = new Date(
         Date.now() - SessionsService.DUPLICATE_WINDOW_MS,
       )
@@ -85,11 +113,9 @@ export class SessionsService {
             referralId: normalizedReferralKey,
             userAgent: normalizedUa,
             ip: normalizedIp,
-            ...(normalizedUa && {
-              browser: browser as unknown as Prisma.InputJsonValue,
-              device: device as unknown as Prisma.InputJsonValue,
-              os: os as unknown as Prisma.InputJsonValue,
-            }),
+            ...(browser && { browser }),
+            ...(device && { device }),
+            ...(os && { os }),
             ...(country && { country }),
             ...(parseStartParams.params.source && {
               source: parseStartParams.params.source,
