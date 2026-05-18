@@ -217,10 +217,10 @@ export class EventsService {
           }),
           ...((Object.keys(parseStartParams.params).length > 0 ||
             parseStartParams.none.length > 0) && {
-            otherData: JSON.stringify({
+            otherData: {
               ...parseStartParams.params,
               ...parseStartParams.none,
-            }),
+            },
           }),
         },
       })
