@@ -582,8 +582,9 @@ export class PaymentsService {
         id: payment.user.balanceId,
       },
       data: {
-        paymentBalance:
-          payment.user.balance.paymentBalance + payment.amountStars,
+        paymentBalance: {
+          increment: payment.amountStars,
+        },
       },
     })
 
@@ -842,8 +843,9 @@ export class PaymentsService {
       data: {
         usdt: { increment: referralCommission * settings.tgStarsToUSD },
         ...(payment.methodKey == PaymentMethodEnum.STARS && {
-          holdBalance:
-            referrer.inviter.balance.holdBalance + referralCommission,
+          holdBalance: new Prisma.Decimal(referrer.inviter.balance.holdBalance)
+            .plus(referralCommission)
+            .toString(),
         }),
       },
     })
