@@ -1,4 +1,5 @@
 import { PrismaService } from '@core/prisma/prisma.service'
+import { Prisma } from '@core/prisma/generated/client'
 import { RedisService } from '@core/redis/redis.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
 import { PaymentTypeEnum } from '@modules/payments/types/payment-type.enum'
@@ -291,7 +292,7 @@ export class XrayService {
             ? new Date(marzbanUser.online_at + 'Z')
             : null,
           removalAt: null,
-          marzbanData: JSON.stringify(marzbanUser),
+          marzbanData: marzbanUser as unknown as Prisma.InputJsonValue,
           announce: null,
         },
       })
@@ -1269,7 +1270,7 @@ export class XrayService {
           isIndefinitely || planKey == PlansEnum.TRAFFIC
             ? null
             : nextRenewalStars,
-        marzbanData: JSON.parse(JSON.stringify(marzbanData)),
+        marzbanData: marzbanData as unknown as Prisma.InputJsonValue,
         servers: {
           create: getServers.map((server) => ({
             greenListId: server.green,
@@ -2308,7 +2309,10 @@ export class XrayService {
         },
         data: {
           token: newToken,
-          marzbanData: JSON.parse(JSON.stringify(marzbanResult)),
+          marzbanData:
+              marzbanResult === null
+                ? Prisma.DbNull
+              : (marzbanResult as unknown as Prisma.InputJsonValue),
         },
       })
 
