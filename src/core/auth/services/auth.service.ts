@@ -75,7 +75,19 @@ export class AuthService {
       service: this.serviceName,
     })
 
-    const chatInfo = await this.bot.telegram.getChat(userData.user.id)
+    let chatInfo: Awaited<ReturnType<typeof this.bot.telegram.getChat>> | null =
+      null
+    try {
+      chatInfo = await this.bot.telegram.getChat(userData.user.id)
+    } catch (error) {
+      this.logger.warn({
+        msg: 'Telegram getChat failed, continue auth without chat profile',
+        service: this.serviceName,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        error: (error as any)?.message ?? String(error),
+        telegramId: userData?.user?.id ?? null,
+      })
+    }
     const country = this.geoService.getCountry(ip)
 
     // await this.taddyService.startEvent({
