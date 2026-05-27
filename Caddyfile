@@ -61,15 +61,7 @@ fasti.fun, front.fasti.fun, www.fasti.fun {
         }
     }
 
-    header Content-Security-Policy "
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data:;
-        connect-src 'self' https://api.fasti.fun;
-        frame-ancestors https://web.telegram.org https://*.telegram.org;
-        base-uri 'none';
-    "
+    header Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https:; script-src-elem 'self' 'unsafe-inline' blob: https:; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https: blob: data:; child-src 'self' https: blob: data:; media-src 'self' data: blob: https:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self' https:; frame-ancestors https://web.telegram.org https://*.telegram.org;"
 
     log {
         output file /var/log/caddy/fasti.access.log {
@@ -116,7 +108,7 @@ api.fasti.fun {
 *.frps.fasti.fun {
     import standard_config
 
-    header Content-Security-Policy "frame-ancestors https://web.telegram.org https://*.telegram.org;"
+    header Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https:; script-src-elem 'self' 'unsafe-inline' blob: https:; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https: blob: data:; child-src 'self' https: blob: data:; media-src 'self' data: blob: https:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self' https:; frame-ancestors https://web.telegram.org https://*.telegram.org;"
 
     reverse_proxy frps:8090 {
         transport http {
@@ -149,6 +141,25 @@ grafana.fasti.fun {
         img-src 'self' data:;
         frame-ancestors https://web.telegram.org https://*.telegram.org;
     "
+}
+
+# Loki ingest/query with auth
+logs.fasti.fun {
+    import standard_config
+
+    basic_auth bcrypt {
+        {env.LOKI_BASIC_AUTH_USER} {env.LOKI_BASIC_AUTH_HASH}
+    }
+
+    reverse_proxy loki:3100
+
+    log {
+        output file /var/log/caddy/logs.access.log {
+            roll_size 100MB
+            roll_keep 5
+        }
+        format json
+    }
 }
 
 # FRP Control (WebSocket)
