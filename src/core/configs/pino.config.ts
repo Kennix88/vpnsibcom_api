@@ -1,7 +1,5 @@
-import { ConfigService } from '@nestjs/config'
 import { LoggerModuleAsyncParams } from 'nestjs-pino'
 import { join } from 'path'
-import { IS_DEV_ENV } from '@shared/utils/is-dev.util'
 
 // Определяем типы для разных целей логирования
 type ConsoleTargetOptions = {
@@ -34,9 +32,7 @@ type FileTarget = {
 type LogTarget = ConsoleTarget | FileTarget
 
 export const pinoConfig: LoggerModuleAsyncParams = {
-  useFactory: async (configService: ConfigService) => {
-    const isDevelopment = configService.get('NODE_ENV') === 'development'
-    
+  useFactory: async () => {
     // Базовые настройки для консольного логгера
     const consoleTarget: ConsoleTarget = {
       target: 'pino-pretty',
@@ -93,7 +89,7 @@ export const pinoConfig: LoggerModuleAsyncParams = {
     return {
       pinoHttp: {
         transport: {
-          targets: [consoleTarget],
+          targets: pinoTargets,
         },
       },
       // Это отдельный логгер, используемый через `Logger` из `nestjs-pino`
@@ -105,5 +101,4 @@ export const pinoConfig: LoggerModuleAsyncParams = {
       },
     }
   },
-  inject: [ConfigService],
 }
