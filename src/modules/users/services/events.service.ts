@@ -247,11 +247,27 @@ export class EventsService {
       if (
         isSendGraspil &&
         (eventType == EventType.RELOAD_PAYMENT ||
-          eventType == EventType.FIRST_PAYMENT)
+          eventType == EventType.FIRST_PAYMENT ||
+          eventType == EventType.ACTIVATION ||
+          eventType == EventType.REGISTRATION)
       ) {
         await this.graspilService.sendEvent({
           tgid: user.telegramId,
-          amountStars,
+          amountStars:
+            eventType == EventType.RELOAD_PAYMENT ||
+            eventType == EventType.FIRST_PAYMENT
+              ? amountStars
+              : eventType == EventType.ACTIVATION
+              ? 10
+              : 1,
+          targetId:
+            eventType == EventType.REGISTRATION
+              ? 10806
+              : eventType == EventType.ACTIVATION
+              ? 10809
+              : eventType == EventType.FIRST_PAYMENT
+              ? 10806
+              : 10808,
         })
       }
     } catch (error) {
