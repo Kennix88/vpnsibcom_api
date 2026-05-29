@@ -204,61 +204,6 @@ export class StartUpdate {
         this.telegramLogger.info(
           `Admin ${ctx.from.first_name} ${ctx.from.last_name} (${ctx.from.username}) started the bot`,
         )
-
-        // const ad = await this.taddyService.getAd({
-        //   user: {
-        //     id: Number(2143544563),
-        //   },
-        //   origin: TaddyOriginEnum.SERVER,
-        //   format: TaddyAdFormatEnum.BOT_AD,
-        // })
-
-        // this.logger.info(`Ad: ${JSON.stringify(ad)}`)
-
-        // if (ad && ad.result) {
-        //   if (ad.result.image) {
-        //     await this.bot.telegram.sendPhoto(
-        //       user.telegramId,
-        //       ad.result.image,
-        //       {
-        //         caption: `<b>${ad.result.title}</b>\n\n${ad.result.text ?? ''}`,
-        //         parse_mode: 'HTML',
-        //         reply_markup: {
-        //           inline_keyboard: ad.result.button
-        //             ? [
-        //                 [
-        //                   {
-        //                     text: ad.result.button,
-        //                     url: ad.result.link,
-        //                   },
-        //                 ],
-        //               ]
-        //             : [],
-        //         },
-        //       },
-        //     )
-        //   } else {
-        //     await this.bot.telegram.sendMessage(
-        //       user.telegramId,
-        //       `<b>${ad.result.title}</b>\n\n${ad.result.text ?? ''}`,
-        //       {
-        //         parse_mode: 'HTML',
-        //         reply_markup: {
-        //           inline_keyboard: ad.result.button
-        //             ? [
-        //                 [
-        //                   {
-        //                     text: ad.result.button,
-        //                     url: ad.result.link,
-        //                   },
-        //                 ],
-        //               ]
-        //             : [],
-        //         },
-        //       },
-        //     )
-        //   }
-        // }
       }
 
       // await ctx.reply(
