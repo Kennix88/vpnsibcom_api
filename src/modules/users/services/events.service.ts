@@ -252,7 +252,7 @@ export class EventsService {
           eventType == EventType.REGISTRATION)
       ) {
         await this.graspilService.sendEvent({
-          tgid: user.telegramId,
+          tgid: Number(user.telegramId),
           amountStars:
             eventType == EventType.RELOAD_PAYMENT ||
             eventType == EventType.FIRST_PAYMENT
