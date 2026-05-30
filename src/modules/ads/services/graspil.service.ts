@@ -19,7 +19,7 @@ export class GraspilService {
     this.TOKEN = this.configService.get<string>('GRASPIL_TOKEN')
   }
 
-  /** Отправка конверсии в аналитку Graspil
+  /** Отправка конверсии в аналитику Graspil
    * tgid - идентификатор пользователя телеграм
    * amountStars - количество звезд
    * targetId (необязательный) - id цели, по умолчанию 1 (Sale)
@@ -29,9 +29,9 @@ export class GraspilService {
     amountStars,
     targetId = 1,
   }: {
-    tgid: string | number
+    tgid: number
     amountStars: number
-    targetId?: number | string
+    targetId?: number
   }) {
     try {
       const settings = await this.prisma.settings.findFirst({
@@ -39,13 +39,13 @@ export class GraspilService {
           key: DefaultEnum.DEFAULT,
         },
       })
-      const usd = amountStars * settings.tgStarsToUSD
+      const usd = Number((amountStars * settings.tgStarsToUSD).toFixed(2))
       await axios.post(
         `https://api.graspil.com/v1/send-target`,
         {
-          target_id: targetId,
-          user_id: tgid,
-          date: new Date().toISOString(),
+          target_id: Number(targetId),
+          user_id: Number(tgid),
+          // date: new Date().toISOString(),
           value: usd,
           unit: 'usd',
         },
