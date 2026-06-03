@@ -71,11 +71,23 @@ async function configureFastify(
   app.enableCors({
     origin: (origin, cb) => {
       const allowed = config
-        .getOrThrow<string>('ALLOWED_ORIGINS') // "https://fasti.fun,https://vpnsib-front.frps.fasti.fun"
+        .getOrThrow<string>('ALLOWED_ORIGINS')
         .split(',')
         .map((o) => o.trim())
         .filter(Boolean)
-      cb(null, !origin || allowed.includes(origin))
+
+      // Запросы без origin (curl, контейнеры, server-to-server) — всегда пропускаем
+      if (!origin) return cb(null, true)
+
+      // Локальные origin для браузерной разработки
+      const localOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3000',
+        'https://127.0.0.1:3000',
+      ]
+
+      cb(null, allowed.includes(origin) || localOrigins.includes(origin))
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
