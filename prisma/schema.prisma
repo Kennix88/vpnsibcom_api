@@ -89,6 +89,12 @@ model UserTelegramData {
  isRtl                 Boolean  @default(false) @map("is_rtl")
  isPremium             Boolean  @default(false) @map("is_premium")
  isBot                 Boolean  @default(false) @map("is_bot")
+ gender                Int?
+ verified              Boolean?
+ scam                  Boolean?
+ fake                  Boolean?
+ stargiftsCount        Int?     @map("stargifts_count")
+ personalChannelId     String?  @map("personal_channel_id")
  firstName             String   @map("first_name")
  lastName              String?  @map("last_name")
  username              String?
@@ -273,7 +279,9 @@ model UserAdsData {
 
 model AdsRewards {
  key        DefaultEnum          @id @default(DEFAULT)
- taskView Decimal @default(0.125) @map("task_view") @db.Decimal(18, 6)
+ taskView Decimal @default(1) @map("task_view") @db.Decimal(18, 6)
+ taskAdsgram Decimal @default(2) @map("task_adsgram") @db.Decimal(18, 6)
+ botMessage Decimal @default(2) @map("bot_message") @db.Decimal(18, 6)
  updatedAt DateTime @updatedAt @map("updated_at")
 
  @@map("ads_rewards")
@@ -300,9 +308,13 @@ model AdsViews {
  block   AdsBlocks @relation(fields: [blockId], references: [id])
  blockId String    @map("block_id")
 
+ redirectUrl String? @map("redirect_url")
+
  @@index([userId])
  @@index([networkKey])
  @@index([blockId])
+ @@index([userId, createdAt])
+ @@index([userId, claimedAt])
  @@map("ads_views")
 }
 
@@ -321,6 +333,11 @@ model AdsBlocks {
  name          String
  place         AdsBlockPlaceEnum
  isActive      Boolean           @default(true) @map("is_active")
+ showAndroid   Boolean           @default(true) @map("show_android")
+ showIos       Boolean           @default(true) @map("show_ios")
+ showDesktop     Boolean           @default(true) @map("show_desktop")
+ showBot       Boolean           @default(true) @map("show_bot")
+ showWeb       Boolean           @default(false) @map("show_web")
  duration      Int               @default(0) @map("duration")
  limit         Int               @default(0) @map("limit")
 
@@ -350,6 +367,7 @@ model AdsNetworks {
  key       AdsNetworkEnum @id
  isActive  Boolean        @map("is_active")
  name      String
+ priority  Int            @default(100)
  adsViews  AdsViews[]
  adsBlocks AdsBlocks[]
 
