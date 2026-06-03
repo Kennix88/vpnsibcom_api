@@ -108,14 +108,7 @@ api.fasti.fun {
 *.frps.fasti.fun {
     import standard_config
 
-    # CORS обрабатывается самим приложением за frps-туннелем.
-    # Caddy не вмешивается: не добавляет и не удаляет CORS-заголовки.
-    # header_down гарантирует, что upstream-заголовки проходят без перезаписи.
-    header_down -Access-Control-Allow-Origin
-    header_down -Access-Control-Allow-Headers
-    header_down -Access-Control-Allow-Methods
-    header_down -Access-Control-Allow-Credentials
-    header_down -Access-Control-Max-Age
+    # Caddy не трогает CORS — заголовки от upstream проходят насквозь как есть
 
     reverse_proxy frps:8090 {
         transport http {
