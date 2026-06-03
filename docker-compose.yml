@@ -1,9 +1,9 @@
 x-default-logging: &default-logging
   driver: local
   options:
-    max-size: "10m"
-    max-file: "5"
-    compress: "true"
+    max-size: '10m'
+    max-file: '5'
+    compress: 'true'
 
 services:
   api:
@@ -24,7 +24,7 @@ services:
       - TONAPI_KEY=${TONAPI_KEY}
       - TON_WALLET=${TON_WALLET}
       - APPLICATION_URL=${APPLICATION_URL}
-      - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - TMA_URL=${TMA_URL}
       - WEBAPP_URL=${WEBAPP_URL}
       - BOT_URL=${BOT_URL}
