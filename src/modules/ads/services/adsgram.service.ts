@@ -5,9 +5,19 @@ import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 
+export interface AdsgramBotAdResponse {
+  text_html: string
+  click_url: string
+  button_name: string
+  image_url?: string
+  button_reward_name?: string
+  reward_url?: string
+}
+
 @Injectable()
 export class AdsgramService {
   private readonly TOKEN?: string
+
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
@@ -16,10 +26,50 @@ export class AdsgramService {
     this.TOKEN = this.configService.get<string>('ADSGRAM_TOKEN')
   }
 
-  /** Отправка трекинга в adsgram для оптимимзации рекламы
-   * recordId - идентификатор записи
-   * goaltype - тип цели (1 - регистрация, 2 - первый платеж, 3 - повторный платеж)
-   **/
+  /** Получить рекламу для Telegram-бота */
+  public async getAdForBot(opts: {
+    telegramId: string | number
+    blockId: string
+    language?: string
+  }): Promise<AdsgramBotAdResponse | null> {
+    if (!this.TOKEN) {
+      this.logger.warn({
+        msg: 'Adsgram bot getAd skipped: ADSGRAM_TOKEN is empty',
+      })
+      return null
+    }
+
+    try {
+      const response = await axios.get<AdsgramBotAdResponse>(
+        'https://api.adsgram.ai/advbot',
+        {
+          params: {
+            tgid: opts.telegramId,
+            blockid: opts.blockId, // только числовая часть, без "bot-"
+            language: opts.language ?? 'en',
+            token: this.TOKEN,
+          },
+          timeout: 5_000,
+        },
+      )
+
+      this.logger.info('AdsgramBotAdResponse', response)
+
+      if (response.status === 200 && response.data?.click_url) {
+        return response.data
+      }
+      return null
+    } catch (error) {
+      this.logger.warn({
+        msg: 'Adsgram bot getAd failed',
+        telegramId: opts.telegramId,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return null
+    }
+  }
+
+  /** Трекинг конверсий (существующий метод без изменений) */
   public async sendEvent({
     recordId,
     goaltype,
@@ -35,20 +85,14 @@ export class AdsgramService {
       })
       return false
     }
-
     try {
       const response = await axios.get(
         'https://api.adsgram.ai/confirm_conversion',
         {
-          params: {
-            token: this.TOKEN,
-            record: recordId,
-            goaltype,
-          },
-          timeout: 10000,
+          params: { token: this.TOKEN, record: recordId, goaltype },
+          timeout: 10_000,
         },
       )
-
       this.logger.info({
         msg: 'Adsgram conversion sent',
         goaltype,
@@ -61,7 +105,6 @@ export class AdsgramService {
         msg: 'Adsgram conversion failed',
         goaltype,
         recordId,
-        tokenExists: Boolean(this.TOKEN),
         error,
       })
       return false
