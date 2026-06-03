@@ -70,16 +70,25 @@ async function configureFastify(
   })
   app.enableCors({
     origin: (origin, cb) => {
-      const allowed = [
-        config.getOrThrow<string>('ALLOWED_ORIGIN'),
-        'https://127.0.0.1:3000',
-      ]
+      const allowed = config
+        .getOrThrow<string>('ALLOWED_ORIGINS') // "https://fasti.fun,https://vpnsib-front.frps.fasti.fun"
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean)
       cb(null, !origin || allowed.includes(origin))
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['set-cookie'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Platform', // добавлено
+      'X-Lang', // используется i18n HeaderResolver
+      'X-Request-ID', // для трейсинга
+      'X-Api-Key', // на случай если понадобится
+    ],
+    exposedHeaders: ['Set-Cookie', 'X-Request-ID'],
+    optionsSuccessStatus: 204, // preflight → 204, не 200
   })
 
   const fastify = app.getHttpAdapter().getInstance()
