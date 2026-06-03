@@ -23,6 +23,15 @@ import { genReqId } from '@shared/utils/gen-req-id.util'
 import { ms, type StringValue } from '@shared/utils/ms.util'
 import { parseBoolean } from '@shared/utils/parse-boolean.util'
 
+// Проверяет принадлежность IP к приватным диапазонам или явному списку
+function isInternalIp(ip: string): boolean {
+  if (!ip) return false
+  if (['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(ip)) return true
+  return /^(?:10\.|172\.(?:1[6-9]|2\d|3[01])\.|192\.168\.|::ffff:(?:10\.|172\.(?:1[6-9]|2\d|3[01])\.|192\.168\.))/.test(
+    ip,
+  )
+}
+
 async function configureFastify(
   app: NestFastifyApplication,
   isProd: boolean,
@@ -59,8 +68,15 @@ async function configureFastify(
     max: 100,
     timeWindow: '1 minute',
     redis,
-    whitelist: ['127.0.0.1', '::1', '172.18.0.0/16'],
-    errorResponseBuilder: (req, context) => ({
+    // ИСПРАВЛЕНО: whitelist с CIDR не поддерживается — используем функцию
+    allowList: (req) => {
+      const ip =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+        req.ip ||
+        ''
+      return isInternalIp(ip)
+    },
+    errorResponseBuilder: (_req, context) => ({
       code: 429,
       error: 'Too Many Requests',
       message: `TOO_MANY_REQUESTS:${context.after}`,
@@ -68,6 +84,9 @@ async function configureFastify(
       expiresIn: context.after,
     }),
   })
+
+  // ИСПРАВЛЕНО: ALLOWED_ORIGINS (множественное) — список через запятую в .env
+  // Пример: ALLOWED_ORIGINS=https://fasti.fun,https://vpnsib-front.frps.fasti.fun
   app.enableCors({
     origin: (origin, cb) => {
       const allowed = config
@@ -76,7 +95,7 @@ async function configureFastify(
         .map((o) => o.trim())
         .filter(Boolean)
 
-      // Запросы без origin (curl, контейнеры, server-to-server) — всегда пропускаем
+      // Запросы без Origin (curl, healthcheck, server-to-server) — пропускаем
       if (!origin) return cb(null, true)
 
       // Локальные origin для браузерной разработки
@@ -87,20 +106,22 @@ async function configureFastify(
         'https://127.0.0.1:3000',
       ]
 
-      cb(null, allowed.includes(origin) || localOrigins.includes(origin))
+      const isAllowed =
+        allowed.includes(origin) || (!isProd && localOrigins.includes(origin))
+      cb(null, isAllowed)
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: [
       'Content-Type',
       'Authorization',
-      'X-Platform', // добавлено
-      'X-Lang', // используется i18n HeaderResolver
-      'X-Request-ID', // для трейсинга
-      'X-Api-Key', // на случай если понадобится
+      'X-Platform',
+      'X-Lang', // i18n HeaderResolver
+      'X-Request-ID', // трейсинг
+      'X-Api-Key',
     ],
     exposedHeaders: ['Set-Cookie', 'X-Request-ID'],
-    optionsSuccessStatus: 204, // preflight → 204, не 200
+    optionsSuccessStatus: 204,
   })
 
   const fastify = app.getHttpAdapter().getInstance()
@@ -119,38 +140,21 @@ async function configureFastify(
   // Suspicious URL scanner + lightweight autoban
   const SUSPICIOUS_PATH_RE = new RegExp(
     [
-      // явные php-файлы в конце пути: .php .phtml .php3 .php4 .php5 .pht
       '\\.(?:php|phtml|php3|php4|php5|pht)$',
-
-      // распространённые админ/уязвимые скрипты
       '(?:\\b(?:wp-login|wp-admin|xmlrpc)\\.php\\b)',
       '(?:\\b(?:phpmyadmin|pma|adminer|sqlmanager|sql-admin)\\b)',
-
-      // конфиг/уязвимости/резервные файлы
       '(?:\\.env(?:\\b|\\.|$))',
       '(?:\\.git(?:/|$))',
       '(?:composer\\.(?:json|lock))',
       '(?:\\.htaccess|\\.htpasswd)',
-
-      // стандартные установщики/setup/install
       '(?:\\b(?:install|setup|upgrade|upgrade\\.php|install\\.php)\\b)',
-
-      // vendor/phpunit и подобные тестовые утилиты
       '(?:vendor\\/phpunit|phpunit\\/)',
       '(?:\\/vendor\\/)',
-
-      // попытки прочитать системные файлы в path / payload
       '(?:\\/etc\\/passwd)',
       '(?:\\/proc\\/self\\/environ)',
       '(?:\\.bash_history)',
-
-      // попытки directory traversal или двойных точек
       '(?:\\.\\./|%2e%2e%2f)',
-
-      // common webshell / eval / base64 payload indicators (в URL/Query)
       '(?:\\beval\\s*\\(|base64_decode\\()',
-
-      // резервные/бэкап-файлы
       '(?:\\.bak$|\\.backup$|~$)',
     ].join('|'),
     'i',
@@ -158,22 +162,12 @@ async function configureFastify(
 
   const BOT_UA_RE = new RegExp(
     [
-      // generic
       '\\b(?:bot|spider|crawler|crawler2|scanner|probe|monitor)\\b',
-
-      // curl/wget/http clients
-      '\\b(?:curl|wget|fetch|httpclient|libwww-perl|python-requests|ruby|mechanize)\\b',
-
-      // common http libs / mobile clients that иногда используются by scanners
+      // curl намеренно убран — используется в healthcheck
+      '\\b(?:wget|httpclient|libwww-perl|python-requests|ruby|mechanize)\\b',
       '\\b(?:okhttp|okhttp3|apache-httpclient|java\\/|golang|go-http-client)\\b',
-
-      // SEO / big crawlers (если не хочешь блокировать известных ботов, можешь убрать)
       '\\b(?:googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp)\\b',
-
-      // security / spider tools & scanners
-      '\\b(?:nikto|sqlmap|acunetix|nessus|nikto|masscan|zgrab|nmap|burp|zap)\\b',
-
-      // common developer tools
+      '\\b(?:nikto|sqlmap|acunetix|nessus|masscan|zgrab|nmap|burp|zap)\\b',
       '\\b(?:postmanruntime|postman|insomnia|httpie)\\b',
     ].join('|'),
     'i',
@@ -184,40 +178,33 @@ async function configureFastify(
       const rawUrl = (request.raw.url || '').toString()
       const ua = (request.headers['user-agent'] || '').toString()
 
-      // 1) quick allow list: авторизованные клиенты, внутренние IP, healthchecks
-      if (request.headers.authorization || request.headers['x-api-key']) return
+      // 1) healthcheck и авторизованные клиенты — пропускаем сразу
       if (/^\/health\b/i.test(rawUrl)) return
-      const forwardIp = (request.headers['x-forwarded-for'] as string)?.split(
-        ',',
-      )?.[0]
-      if (
-        ['127.0.0.1', '::1'].includes(forwardIp) ||
-        /^10\.|^172\.(1[6-9]|2\d|3[0-1])|^192\.168\./.test(forwardIp || '')
-      ) {
-        return
-      }
+      if (request.headers.authorization || request.headers['x-api-key']) return
 
-      // 2) path check
+      // 2) внутренние IP — пропускаем
+      const forwardIp = (request.headers['x-forwarded-for'] as string)
+        ?.split(',')[0]
+        ?.trim()
+      const remoteIp = request.ip || ''
+      if (isInternalIp(forwardIp || remoteIp)) return
+
+      // 3) подозрительный путь → 403
       if (SUSPICIOUS_PATH_RE.test(rawUrl)) {
-        // increment & possible blacklisting logic (redis)
-        // respond 403 minimal
         return reply
           .code(403)
           .header('Content-Type', 'text/plain')
           .send('forbidden')
       }
 
-      // 3) UA check (less strict) — count and possibly ban after threshold
+      // 4) бот UA → 403
       if (BOT_UA_RE.test(ua)) {
-        // increment counter for ip and ban if threshold exceeded
-        // but do not immediately alert telegram
         return reply
           .code(403)
           .header('Content-Type', 'text/plain')
           .send('forbidden')
       }
     } catch (err) {
-      // не ломаем основной flow при ошибках
       console.warn('scanner hook error', err)
     }
   })
