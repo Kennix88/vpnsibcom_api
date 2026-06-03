@@ -157,6 +157,12 @@ export const UserTelegramDataScalarFieldEnum = {
   isRtl: 'isRtl',
   isPremium: 'isPremium',
   isBot: 'isBot',
+  gender: 'gender',
+  verified: 'verified',
+  scam: 'scam',
+  fake: 'fake',
+  stargiftsCount: 'stargiftsCount',
+  personalChannelId: 'personalChannelId',
   firstName: 'firstName',
   lastName: 'lastName',
   username: 'username',
@@ -292,6 +298,8 @@ export type UserAdsDataScalarFieldEnum = (typeof UserAdsDataScalarFieldEnum)[key
 export const AdsRewardsScalarFieldEnum = {
   key: 'key',
   taskView: 'taskView',
+  taskAdsgram: 'taskAdsgram',
+  botMessage: 'botMessage',
   updatedAt: 'updatedAt'
 } as const
 
@@ -310,7 +318,8 @@ export const AdsViewsScalarFieldEnum = {
   claimedAt: 'claimedAt',
   verifyKey: 'verifyKey',
   userId: 'userId',
-  blockId: 'blockId'
+  blockId: 'blockId',
+  redirectUrl: 'redirectUrl'
 } as const
 
 export type AdsViewsScalarFieldEnum = (typeof AdsViewsScalarFieldEnum)[keyof typeof AdsViewsScalarFieldEnum]
@@ -322,6 +331,11 @@ export const AdsBlocksScalarFieldEnum = {
   name: 'name',
   place: 'place',
   isActive: 'isActive',
+  showAndroid: 'showAndroid',
+  showIos: 'showIos',
+  showDesktop: 'showDesktop',
+  showBot: 'showBot',
+  showWeb: 'showWeb',
   duration: 'duration',
   limit: 'limit',
   createdAt: 'createdAt',
@@ -335,7 +349,8 @@ export type AdsBlocksScalarFieldEnum = (typeof AdsBlocksScalarFieldEnum)[keyof t
 export const AdsNetworksScalarFieldEnum = {
   key: 'key',
   isActive: 'isActive',
-  name: 'name'
+  name: 'name',
+  priority: 'priority'
 } as const
 
 export type AdsNetworksScalarFieldEnum = (typeof AdsNetworksScalarFieldEnum)[keyof typeof AdsNetworksScalarFieldEnum]

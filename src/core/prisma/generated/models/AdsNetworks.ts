@@ -20,46 +20,70 @@ export type AdsNetworksModel = runtime.Types.Result.DefaultSelection<Prisma.$Ads
 
 export type AggregateAdsNetworks = {
   _count: AdsNetworksCountAggregateOutputType | null
+  _avg: AdsNetworksAvgAggregateOutputType | null
+  _sum: AdsNetworksSumAggregateOutputType | null
   _min: AdsNetworksMinAggregateOutputType | null
   _max: AdsNetworksMaxAggregateOutputType | null
+}
+
+export type AdsNetworksAvgAggregateOutputType = {
+  priority: number | null
+}
+
+export type AdsNetworksSumAggregateOutputType = {
+  priority: number | null
 }
 
 export type AdsNetworksMinAggregateOutputType = {
   key: $Enums.AdsNetworkEnum | null
   isActive: boolean | null
   name: string | null
+  priority: number | null
 }
 
 export type AdsNetworksMaxAggregateOutputType = {
   key: $Enums.AdsNetworkEnum | null
   isActive: boolean | null
   name: string | null
+  priority: number | null
 }
 
 export type AdsNetworksCountAggregateOutputType = {
   key: number
   isActive: number
   name: number
+  priority: number
   _all: number
 }
 
+
+export type AdsNetworksAvgAggregateInputType = {
+  priority?: true
+}
+
+export type AdsNetworksSumAggregateInputType = {
+  priority?: true
+}
 
 export type AdsNetworksMinAggregateInputType = {
   key?: true
   isActive?: true
   name?: true
+  priority?: true
 }
 
 export type AdsNetworksMaxAggregateInputType = {
   key?: true
   isActive?: true
   name?: true
+  priority?: true
 }
 
 export type AdsNetworksCountAggregateInputType = {
   key?: true
   isActive?: true
   name?: true
+  priority?: true
   _all?: true
 }
 
@@ -101,6 +125,18 @@ export type AdsNetworksAggregateArgs<ExtArgs extends runtime.Types.Extensions.In
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AdsNetworksAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AdsNetworksSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AdsNetworksMinAggregateInputType
@@ -131,6 +167,8 @@ export type AdsNetworksGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   _count?: AdsNetworksCountAggregateInputType | true
+  _avg?: AdsNetworksAvgAggregateInputType
+  _sum?: AdsNetworksSumAggregateInputType
   _min?: AdsNetworksMinAggregateInputType
   _max?: AdsNetworksMaxAggregateInputType
 }
@@ -139,7 +177,10 @@ export type AdsNetworksGroupByOutputType = {
   key: $Enums.AdsNetworkEnum
   isActive: boolean
   name: string
+  priority: number
   _count: AdsNetworksCountAggregateOutputType | null
+  _avg: AdsNetworksAvgAggregateOutputType | null
+  _sum: AdsNetworksSumAggregateOutputType | null
   _min: AdsNetworksMinAggregateOutputType | null
   _max: AdsNetworksMaxAggregateOutputType | null
 }
@@ -166,6 +207,7 @@ export type AdsNetworksWhereInput = {
   key?: Prisma.EnumAdsNetworkEnumFilter<"AdsNetworks"> | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFilter<"AdsNetworks"> | boolean
   name?: Prisma.StringFilter<"AdsNetworks"> | string
+  priority?: Prisma.IntFilter<"AdsNetworks"> | number
   adsViews?: Prisma.AdsViewsListRelationFilter
   adsBlocks?: Prisma.AdsBlocksListRelationFilter
 }
@@ -174,6 +216,7 @@ export type AdsNetworksOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
   adsViews?: Prisma.AdsViewsOrderByRelationAggregateInput
   adsBlocks?: Prisma.AdsBlocksOrderByRelationAggregateInput
 }
@@ -185,6 +228,7 @@ export type AdsNetworksWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AdsNetworksWhereInput | Prisma.AdsNetworksWhereInput[]
   isActive?: Prisma.BoolFilter<"AdsNetworks"> | boolean
   name?: Prisma.StringFilter<"AdsNetworks"> | string
+  priority?: Prisma.IntFilter<"AdsNetworks"> | number
   adsViews?: Prisma.AdsViewsListRelationFilter
   adsBlocks?: Prisma.AdsBlocksListRelationFilter
 }, "key">
@@ -193,9 +237,12 @@ export type AdsNetworksOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
   _count?: Prisma.AdsNetworksCountOrderByAggregateInput
+  _avg?: Prisma.AdsNetworksAvgOrderByAggregateInput
   _max?: Prisma.AdsNetworksMaxOrderByAggregateInput
   _min?: Prisma.AdsNetworksMinOrderByAggregateInput
+  _sum?: Prisma.AdsNetworksSumOrderByAggregateInput
 }
 
 export type AdsNetworksScalarWhereWithAggregatesInput = {
@@ -205,12 +252,14 @@ export type AdsNetworksScalarWhereWithAggregatesInput = {
   key?: Prisma.EnumAdsNetworkEnumWithAggregatesFilter<"AdsNetworks"> | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolWithAggregatesFilter<"AdsNetworks"> | boolean
   name?: Prisma.StringWithAggregatesFilter<"AdsNetworks"> | string
+  priority?: Prisma.IntWithAggregatesFilter<"AdsNetworks"> | number
 }
 
 export type AdsNetworksCreateInput = {
   key: $Enums.AdsNetworkEnum
   isActive: boolean
   name: string
+  priority?: number
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutNetworkInput
   adsBlocks?: Prisma.AdsBlocksCreateNestedManyWithoutNetworkInput
 }
@@ -219,6 +268,7 @@ export type AdsNetworksUncheckedCreateInput = {
   key: $Enums.AdsNetworkEnum
   isActive: boolean
   name: string
+  priority?: number
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutNetworkInput
   adsBlocks?: Prisma.AdsBlocksUncheckedCreateNestedManyWithoutNetworkInput
 }
@@ -227,6 +277,7 @@ export type AdsNetworksUpdateInput = {
   key?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
   adsViews?: Prisma.AdsViewsUpdateManyWithoutNetworkNestedInput
   adsBlocks?: Prisma.AdsBlocksUpdateManyWithoutNetworkNestedInput
 }
@@ -235,6 +286,7 @@ export type AdsNetworksUncheckedUpdateInput = {
   key?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutNetworkNestedInput
   adsBlocks?: Prisma.AdsBlocksUncheckedUpdateManyWithoutNetworkNestedInput
 }
@@ -243,18 +295,21 @@ export type AdsNetworksCreateManyInput = {
   key: $Enums.AdsNetworkEnum
   isActive: boolean
   name: string
+  priority?: number
 }
 
 export type AdsNetworksUpdateManyMutationInput = {
   key?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AdsNetworksUncheckedUpdateManyInput = {
   key?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AdsNetworksScalarRelationFilter = {
@@ -266,18 +321,29 @@ export type AdsNetworksCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+}
+
+export type AdsNetworksAvgOrderByAggregateInput = {
+  priority?: Prisma.SortOrder
 }
 
 export type AdsNetworksMaxOrderByAggregateInput = {
   key?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
 }
 
 export type AdsNetworksMinOrderByAggregateInput = {
   key?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+}
+
+export type AdsNetworksSumOrderByAggregateInput = {
+  priority?: Prisma.SortOrder
 }
 
 export type AdsNetworksCreateNestedOneWithoutAdsViewsInput = {
@@ -312,6 +378,7 @@ export type AdsNetworksCreateWithoutAdsViewsInput = {
   key: $Enums.AdsNetworkEnum
   isActive: boolean
   name: string
+  priority?: number
   adsBlocks?: Prisma.AdsBlocksCreateNestedManyWithoutNetworkInput
 }
 
@@ -319,6 +386,7 @@ export type AdsNetworksUncheckedCreateWithoutAdsViewsInput = {
   key: $Enums.AdsNetworkEnum
   isActive: boolean
   name: string
+  priority?: number
   adsBlocks?: Prisma.AdsBlocksUncheckedCreateNestedManyWithoutNetworkInput
 }
 
@@ -342,6 +410,7 @@ export type AdsNetworksUpdateWithoutAdsViewsInput = {
   key?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
   adsBlocks?: Prisma.AdsBlocksUpdateManyWithoutNetworkNestedInput
 }
 
@@ -349,6 +418,7 @@ export type AdsNetworksUncheckedUpdateWithoutAdsViewsInput = {
   key?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
   adsBlocks?: Prisma.AdsBlocksUncheckedUpdateManyWithoutNetworkNestedInput
 }
 
@@ -356,6 +426,7 @@ export type AdsNetworksCreateWithoutAdsBlocksInput = {
   key: $Enums.AdsNetworkEnum
   isActive: boolean
   name: string
+  priority?: number
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutNetworkInput
 }
 
@@ -363,6 +434,7 @@ export type AdsNetworksUncheckedCreateWithoutAdsBlocksInput = {
   key: $Enums.AdsNetworkEnum
   isActive: boolean
   name: string
+  priority?: number
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutNetworkInput
 }
 
@@ -386,6 +458,7 @@ export type AdsNetworksUpdateWithoutAdsBlocksInput = {
   key?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
   adsViews?: Prisma.AdsViewsUpdateManyWithoutNetworkNestedInput
 }
 
@@ -393,6 +466,7 @@ export type AdsNetworksUncheckedUpdateWithoutAdsBlocksInput = {
   key?: Prisma.EnumAdsNetworkEnumFieldUpdateOperationsInput | $Enums.AdsNetworkEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutNetworkNestedInput
 }
 
@@ -440,6 +514,7 @@ export type AdsNetworksSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   key?: boolean
   isActive?: boolean
   name?: boolean
+  priority?: boolean
   adsViews?: boolean | Prisma.AdsNetworks$adsViewsArgs<ExtArgs>
   adsBlocks?: boolean | Prisma.AdsNetworks$adsBlocksArgs<ExtArgs>
   _count?: boolean | Prisma.AdsNetworksCountOutputTypeDefaultArgs<ExtArgs>
@@ -449,21 +524,24 @@ export type AdsNetworksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   key?: boolean
   isActive?: boolean
   name?: boolean
+  priority?: boolean
 }, ExtArgs["result"]["adsNetworks"]>
 
 export type AdsNetworksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   isActive?: boolean
   name?: boolean
+  priority?: boolean
 }, ExtArgs["result"]["adsNetworks"]>
 
 export type AdsNetworksSelectScalar = {
   key?: boolean
   isActive?: boolean
   name?: boolean
+  priority?: boolean
 }
 
-export type AdsNetworksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "isActive" | "name", ExtArgs["result"]["adsNetworks"]>
+export type AdsNetworksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "isActive" | "name" | "priority", ExtArgs["result"]["adsNetworks"]>
 export type AdsNetworksInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   adsViews?: boolean | Prisma.AdsNetworks$adsViewsArgs<ExtArgs>
   adsBlocks?: boolean | Prisma.AdsNetworks$adsBlocksArgs<ExtArgs>
@@ -482,6 +560,7 @@ export type $AdsNetworksPayload<ExtArgs extends runtime.Types.Extensions.Interna
     key: $Enums.AdsNetworkEnum
     isActive: boolean
     name: string
+    priority: number
   }, ExtArgs["result"]["adsNetworks"]>
   composites: {}
 }
@@ -910,6 +989,7 @@ export interface AdsNetworksFieldRefs {
   readonly key: Prisma.FieldRef<"AdsNetworks", 'AdsNetworkEnum'>
   readonly isActive: Prisma.FieldRef<"AdsNetworks", 'Boolean'>
   readonly name: Prisma.FieldRef<"AdsNetworks", 'String'>
+  readonly priority: Prisma.FieldRef<"AdsNetworks", 'Int'>
 }
     
 

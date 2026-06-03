@@ -49,6 +49,7 @@ export type AdsViewsMinAggregateOutputType = {
   verifyKey: string | null
   userId: string | null
   blockId: string | null
+  redirectUrl: string | null
 }
 
 export type AdsViewsMaxAggregateOutputType = {
@@ -64,6 +65,7 @@ export type AdsViewsMaxAggregateOutputType = {
   verifyKey: string | null
   userId: string | null
   blockId: string | null
+  redirectUrl: string | null
 }
 
 export type AdsViewsCountAggregateOutputType = {
@@ -79,6 +81,7 @@ export type AdsViewsCountAggregateOutputType = {
   verifyKey: number
   userId: number
   blockId: number
+  redirectUrl: number
   _all: number
 }
 
@@ -106,6 +109,7 @@ export type AdsViewsMinAggregateInputType = {
   verifyKey?: true
   userId?: true
   blockId?: true
+  redirectUrl?: true
 }
 
 export type AdsViewsMaxAggregateInputType = {
@@ -121,6 +125,7 @@ export type AdsViewsMaxAggregateInputType = {
   verifyKey?: true
   userId?: true
   blockId?: true
+  redirectUrl?: true
 }
 
 export type AdsViewsCountAggregateInputType = {
@@ -136,6 +141,7 @@ export type AdsViewsCountAggregateInputType = {
   verifyKey?: true
   userId?: true
   blockId?: true
+  redirectUrl?: true
   _all?: true
 }
 
@@ -238,6 +244,7 @@ export type AdsViewsGroupByOutputType = {
   verifyKey: string
   userId: string
   blockId: string
+  redirectUrl: string | null
   _count: AdsViewsCountAggregateOutputType | null
   _avg: AdsViewsAvgAggregateOutputType | null
   _sum: AdsViewsSumAggregateOutputType | null
@@ -276,6 +283,7 @@ export type AdsViewsWhereInput = {
   verifyKey?: Prisma.StringFilter<"AdsViews"> | string
   userId?: Prisma.StringFilter<"AdsViews"> | string
   blockId?: Prisma.StringFilter<"AdsViews"> | string
+  redirectUrl?: Prisma.StringNullableFilter<"AdsViews"> | string | null
   network?: Prisma.XOR<Prisma.AdsNetworksScalarRelationFilter, Prisma.AdsNetworksWhereInput>
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   block?: Prisma.XOR<Prisma.AdsBlocksScalarRelationFilter, Prisma.AdsBlocksWhereInput>
@@ -294,6 +302,7 @@ export type AdsViewsOrderByWithRelationInput = {
   verifyKey?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   blockId?: Prisma.SortOrder
+  redirectUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   network?: Prisma.AdsNetworksOrderByWithRelationInput
   user?: Prisma.UsersOrderByWithRelationInput
   block?: Prisma.AdsBlocksOrderByWithRelationInput
@@ -315,6 +324,7 @@ export type AdsViewsWhereUniqueInput = Prisma.AtLeast<{
   claimedAt?: Prisma.DateTimeNullableFilter<"AdsViews"> | Date | string | null
   userId?: Prisma.StringFilter<"AdsViews"> | string
   blockId?: Prisma.StringFilter<"AdsViews"> | string
+  redirectUrl?: Prisma.StringNullableFilter<"AdsViews"> | string | null
   network?: Prisma.XOR<Prisma.AdsNetworksScalarRelationFilter, Prisma.AdsNetworksWhereInput>
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   block?: Prisma.XOR<Prisma.AdsBlocksScalarRelationFilter, Prisma.AdsBlocksWhereInput>
@@ -333,6 +343,7 @@ export type AdsViewsOrderByWithAggregationInput = {
   verifyKey?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   blockId?: Prisma.SortOrder
+  redirectUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AdsViewsCountOrderByAggregateInput
   _avg?: Prisma.AdsViewsAvgOrderByAggregateInput
   _max?: Prisma.AdsViewsMaxOrderByAggregateInput
@@ -356,6 +367,7 @@ export type AdsViewsScalarWhereWithAggregatesInput = {
   verifyKey?: Prisma.StringWithAggregatesFilter<"AdsViews"> | string
   userId?: Prisma.StringWithAggregatesFilter<"AdsViews"> | string
   blockId?: Prisma.StringWithAggregatesFilter<"AdsViews"> | string
+  redirectUrl?: Prisma.StringNullableWithAggregatesFilter<"AdsViews"> | string | null
 }
 
 export type AdsViewsCreateInput = {
@@ -368,6 +380,7 @@ export type AdsViewsCreateInput = {
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
+  redirectUrl?: string | null
   network?: Prisma.AdsNetworksCreateNestedOneWithoutAdsViewsInput
   user: Prisma.UsersCreateNestedOneWithoutAdsViewsInput
   block: Prisma.AdsBlocksCreateNestedOneWithoutViewsInput
@@ -386,6 +399,7 @@ export type AdsViewsUncheckedCreateInput = {
   verifyKey: string
   userId: string
   blockId: string
+  redirectUrl?: string | null
 }
 
 export type AdsViewsUpdateInput = {
@@ -398,6 +412,7 @@ export type AdsViewsUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   network?: Prisma.AdsNetworksUpdateOneRequiredWithoutAdsViewsNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutAdsViewsNestedInput
   block?: Prisma.AdsBlocksUpdateOneRequiredWithoutViewsNestedInput
@@ -416,6 +431,7 @@ export type AdsViewsUncheckedUpdateInput = {
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   blockId?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdsViewsCreateManyInput = {
@@ -431,6 +447,7 @@ export type AdsViewsCreateManyInput = {
   verifyKey: string
   userId: string
   blockId: string
+  redirectUrl?: string | null
 }
 
 export type AdsViewsUpdateManyMutationInput = {
@@ -443,6 +460,7 @@ export type AdsViewsUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdsViewsUncheckedUpdateManyInput = {
@@ -458,6 +476,7 @@ export type AdsViewsUncheckedUpdateManyInput = {
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   blockId?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdsViewsListRelationFilter = {
@@ -483,6 +502,7 @@ export type AdsViewsCountOrderByAggregateInput = {
   verifyKey?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   blockId?: Prisma.SortOrder
+  redirectUrl?: Prisma.SortOrder
 }
 
 export type AdsViewsAvgOrderByAggregateInput = {
@@ -503,6 +523,7 @@ export type AdsViewsMaxOrderByAggregateInput = {
   verifyKey?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   blockId?: Prisma.SortOrder
+  redirectUrl?: Prisma.SortOrder
 }
 
 export type AdsViewsMinOrderByAggregateInput = {
@@ -518,6 +539,7 @@ export type AdsViewsMinOrderByAggregateInput = {
   verifyKey?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   blockId?: Prisma.SortOrder
+  redirectUrl?: Prisma.SortOrder
 }
 
 export type AdsViewsSumOrderByAggregateInput = {
@@ -669,6 +691,7 @@ export type AdsViewsCreateWithoutUserInput = {
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
+  redirectUrl?: string | null
   network?: Prisma.AdsNetworksCreateNestedOneWithoutAdsViewsInput
   block: Prisma.AdsBlocksCreateNestedOneWithoutViewsInput
 }
@@ -685,6 +708,7 @@ export type AdsViewsUncheckedCreateWithoutUserInput = {
   claimedAt?: Date | string | null
   verifyKey: string
   blockId: string
+  redirectUrl?: string | null
 }
 
 export type AdsViewsCreateOrConnectWithoutUserInput = {
@@ -729,6 +753,7 @@ export type AdsViewsScalarWhereInput = {
   verifyKey?: Prisma.StringFilter<"AdsViews"> | string
   userId?: Prisma.StringFilter<"AdsViews"> | string
   blockId?: Prisma.StringFilter<"AdsViews"> | string
+  redirectUrl?: Prisma.StringNullableFilter<"AdsViews"> | string | null
 }
 
 export type AdsViewsCreateWithoutBlockInput = {
@@ -741,6 +766,7 @@ export type AdsViewsCreateWithoutBlockInput = {
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
+  redirectUrl?: string | null
   network?: Prisma.AdsNetworksCreateNestedOneWithoutAdsViewsInput
   user: Prisma.UsersCreateNestedOneWithoutAdsViewsInput
 }
@@ -757,6 +783,7 @@ export type AdsViewsUncheckedCreateWithoutBlockInput = {
   claimedAt?: Date | string | null
   verifyKey: string
   userId: string
+  redirectUrl?: string | null
 }
 
 export type AdsViewsCreateOrConnectWithoutBlockInput = {
@@ -795,6 +822,7 @@ export type AdsViewsCreateWithoutNetworkInput = {
   createdAt?: Date | string
   claimedAt?: Date | string | null
   verifyKey: string
+  redirectUrl?: string | null
   user: Prisma.UsersCreateNestedOneWithoutAdsViewsInput
   block: Prisma.AdsBlocksCreateNestedOneWithoutViewsInput
 }
@@ -811,6 +839,7 @@ export type AdsViewsUncheckedCreateWithoutNetworkInput = {
   verifyKey: string
   userId: string
   blockId: string
+  redirectUrl?: string | null
 }
 
 export type AdsViewsCreateOrConnectWithoutNetworkInput = {
@@ -851,6 +880,7 @@ export type AdsViewsCreateManyUserInput = {
   claimedAt?: Date | string | null
   verifyKey: string
   blockId: string
+  redirectUrl?: string | null
 }
 
 export type AdsViewsUpdateWithoutUserInput = {
@@ -863,6 +893,7 @@ export type AdsViewsUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   network?: Prisma.AdsNetworksUpdateOneRequiredWithoutAdsViewsNestedInput
   block?: Prisma.AdsBlocksUpdateOneRequiredWithoutViewsNestedInput
 }
@@ -879,6 +910,7 @@ export type AdsViewsUncheckedUpdateWithoutUserInput = {
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
   blockId?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdsViewsUncheckedUpdateManyWithoutUserInput = {
@@ -893,6 +925,7 @@ export type AdsViewsUncheckedUpdateManyWithoutUserInput = {
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
   blockId?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdsViewsCreateManyBlockInput = {
@@ -907,6 +940,7 @@ export type AdsViewsCreateManyBlockInput = {
   claimedAt?: Date | string | null
   verifyKey: string
   userId: string
+  redirectUrl?: string | null
 }
 
 export type AdsViewsUpdateWithoutBlockInput = {
@@ -919,6 +953,7 @@ export type AdsViewsUpdateWithoutBlockInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   network?: Prisma.AdsNetworksUpdateOneRequiredWithoutAdsViewsNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutAdsViewsNestedInput
 }
@@ -935,6 +970,7 @@ export type AdsViewsUncheckedUpdateWithoutBlockInput = {
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdsViewsUncheckedUpdateManyWithoutBlockInput = {
@@ -949,6 +985,7 @@ export type AdsViewsUncheckedUpdateManyWithoutBlockInput = {
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdsViewsCreateManyNetworkInput = {
@@ -963,6 +1000,7 @@ export type AdsViewsCreateManyNetworkInput = {
   verifyKey: string
   userId: string
   blockId: string
+  redirectUrl?: string | null
 }
 
 export type AdsViewsUpdateWithoutNetworkInput = {
@@ -975,6 +1013,7 @@ export type AdsViewsUpdateWithoutNetworkInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UsersUpdateOneRequiredWithoutAdsViewsNestedInput
   block?: Prisma.AdsBlocksUpdateOneRequiredWithoutViewsNestedInput
 }
@@ -991,6 +1030,7 @@ export type AdsViewsUncheckedUpdateWithoutNetworkInput = {
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   blockId?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdsViewsUncheckedUpdateManyWithoutNetworkInput = {
@@ -1005,6 +1045,7 @@ export type AdsViewsUncheckedUpdateManyWithoutNetworkInput = {
   verifyKey?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   blockId?: Prisma.StringFieldUpdateOperationsInput | string
+  redirectUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1022,6 +1063,7 @@ export type AdsViewsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   verifyKey?: boolean
   userId?: boolean
   blockId?: boolean
+  redirectUrl?: boolean
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   block?: boolean | Prisma.AdsBlocksDefaultArgs<ExtArgs>
@@ -1040,6 +1082,7 @@ export type AdsViewsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   verifyKey?: boolean
   userId?: boolean
   blockId?: boolean
+  redirectUrl?: boolean
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   block?: boolean | Prisma.AdsBlocksDefaultArgs<ExtArgs>
@@ -1058,6 +1101,7 @@ export type AdsViewsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   verifyKey?: boolean
   userId?: boolean
   blockId?: boolean
+  redirectUrl?: boolean
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   block?: boolean | Prisma.AdsBlocksDefaultArgs<ExtArgs>
@@ -1076,9 +1120,10 @@ export type AdsViewsSelectScalar = {
   verifyKey?: boolean
   userId?: boolean
   blockId?: boolean
+  redirectUrl?: boolean
 }
 
-export type AdsViewsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "networkKey" | "type" | "rewardStars" | "duration" | "ip" | "ua" | "createdAt" | "claimedAt" | "verifyKey" | "userId" | "blockId", ExtArgs["result"]["adsViews"]>
+export type AdsViewsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "networkKey" | "type" | "rewardStars" | "duration" | "ip" | "ua" | "createdAt" | "claimedAt" | "verifyKey" | "userId" | "blockId" | "redirectUrl", ExtArgs["result"]["adsViews"]>
 export type AdsViewsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -1115,6 +1160,7 @@ export type $AdsViewsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     verifyKey: string
     userId: string
     blockId: string
+    redirectUrl: string | null
   }, ExtArgs["result"]["adsViews"]>
   composites: {}
 }
@@ -1553,6 +1599,7 @@ export interface AdsViewsFieldRefs {
   readonly verifyKey: Prisma.FieldRef<"AdsViews", 'String'>
   readonly userId: Prisma.FieldRef<"AdsViews", 'String'>
   readonly blockId: Prisma.FieldRef<"AdsViews", 'String'>
+  readonly redirectUrl: Prisma.FieldRef<"AdsViews", 'String'>
 }
     
 

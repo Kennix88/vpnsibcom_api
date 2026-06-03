@@ -27,12 +27,16 @@ export type AggregateUserTelegramData = {
 }
 
 export type UserTelegramDataAvgAggregateOutputType = {
+  gender: number | null
+  stargiftsCount: number | null
   birthDay: number | null
   birthMonth: number | null
   birthYear: number | null
 }
 
 export type UserTelegramDataSumAggregateOutputType = {
+  gender: number | null
+  stargiftsCount: number | null
   birthDay: number | null
   birthMonth: number | null
   birthYear: number | null
@@ -44,6 +48,12 @@ export type UserTelegramDataMinAggregateOutputType = {
   isRtl: boolean | null
   isPremium: boolean | null
   isBot: boolean | null
+  gender: number | null
+  verified: boolean | null
+  scam: boolean | null
+  fake: boolean | null
+  stargiftsCount: number | null
+  personalChannelId: string | null
   firstName: string | null
   lastName: string | null
   username: string | null
@@ -63,6 +73,12 @@ export type UserTelegramDataMaxAggregateOutputType = {
   isRtl: boolean | null
   isPremium: boolean | null
   isBot: boolean | null
+  gender: number | null
+  verified: boolean | null
+  scam: boolean | null
+  fake: boolean | null
+  stargiftsCount: number | null
+  personalChannelId: string | null
   firstName: string | null
   lastName: string | null
   username: string | null
@@ -82,6 +98,12 @@ export type UserTelegramDataCountAggregateOutputType = {
   isRtl: number
   isPremium: number
   isBot: number
+  gender: number
+  verified: number
+  scam: number
+  fake: number
+  stargiftsCount: number
+  personalChannelId: number
   firstName: number
   lastName: number
   username: number
@@ -98,12 +120,16 @@ export type UserTelegramDataCountAggregateOutputType = {
 
 
 export type UserTelegramDataAvgAggregateInputType = {
+  gender?: true
+  stargiftsCount?: true
   birthDay?: true
   birthMonth?: true
   birthYear?: true
 }
 
 export type UserTelegramDataSumAggregateInputType = {
+  gender?: true
+  stargiftsCount?: true
   birthDay?: true
   birthMonth?: true
   birthYear?: true
@@ -115,6 +141,12 @@ export type UserTelegramDataMinAggregateInputType = {
   isRtl?: true
   isPremium?: true
   isBot?: true
+  gender?: true
+  verified?: true
+  scam?: true
+  fake?: true
+  stargiftsCount?: true
+  personalChannelId?: true
   firstName?: true
   lastName?: true
   username?: true
@@ -134,6 +166,12 @@ export type UserTelegramDataMaxAggregateInputType = {
   isRtl?: true
   isPremium?: true
   isBot?: true
+  gender?: true
+  verified?: true
+  scam?: true
+  fake?: true
+  stargiftsCount?: true
+  personalChannelId?: true
   firstName?: true
   lastName?: true
   username?: true
@@ -153,6 +191,12 @@ export type UserTelegramDataCountAggregateInputType = {
   isRtl?: true
   isPremium?: true
   isBot?: true
+  gender?: true
+  verified?: true
+  scam?: true
+  fake?: true
+  stargiftsCount?: true
+  personalChannelId?: true
   firstName?: true
   lastName?: true
   username?: true
@@ -259,6 +303,12 @@ export type UserTelegramDataGroupByOutputType = {
   isRtl: boolean
   isPremium: boolean
   isBot: boolean
+  gender: number | null
+  verified: boolean | null
+  scam: boolean | null
+  fake: boolean | null
+  stargiftsCount: number | null
+  personalChannelId: string | null
   firstName: string
   lastName: string | null
   username: string | null
@@ -301,6 +351,12 @@ export type UserTelegramDataWhereInput = {
   isRtl?: Prisma.BoolFilter<"UserTelegramData"> | boolean
   isPremium?: Prisma.BoolFilter<"UserTelegramData"> | boolean
   isBot?: Prisma.BoolFilter<"UserTelegramData"> | boolean
+  gender?: Prisma.IntNullableFilter<"UserTelegramData"> | number | null
+  verified?: Prisma.BoolNullableFilter<"UserTelegramData"> | boolean | null
+  scam?: Prisma.BoolNullableFilter<"UserTelegramData"> | boolean | null
+  fake?: Prisma.BoolNullableFilter<"UserTelegramData"> | boolean | null
+  stargiftsCount?: Prisma.IntNullableFilter<"UserTelegramData"> | number | null
+  personalChannelId?: Prisma.StringNullableFilter<"UserTelegramData"> | string | null
   firstName?: Prisma.StringFilter<"UserTelegramData"> | string
   lastName?: Prisma.StringNullableFilter<"UserTelegramData"> | string | null
   username?: Prisma.StringNullableFilter<"UserTelegramData"> | string | null
@@ -321,6 +377,12 @@ export type UserTelegramDataOrderByWithRelationInput = {
   isRtl?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   isBot?: Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  verified?: Prisma.SortOrderInput | Prisma.SortOrder
+  scam?: Prisma.SortOrderInput | Prisma.SortOrder
+  fake?: Prisma.SortOrderInput | Prisma.SortOrder
+  stargiftsCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  personalChannelId?: Prisma.SortOrderInput | Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrderInput | Prisma.SortOrder
   username?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -344,6 +406,12 @@ export type UserTelegramDataWhereUniqueInput = Prisma.AtLeast<{
   isRtl?: Prisma.BoolFilter<"UserTelegramData"> | boolean
   isPremium?: Prisma.BoolFilter<"UserTelegramData"> | boolean
   isBot?: Prisma.BoolFilter<"UserTelegramData"> | boolean
+  gender?: Prisma.IntNullableFilter<"UserTelegramData"> | number | null
+  verified?: Prisma.BoolNullableFilter<"UserTelegramData"> | boolean | null
+  scam?: Prisma.BoolNullableFilter<"UserTelegramData"> | boolean | null
+  fake?: Prisma.BoolNullableFilter<"UserTelegramData"> | boolean | null
+  stargiftsCount?: Prisma.IntNullableFilter<"UserTelegramData"> | number | null
+  personalChannelId?: Prisma.StringNullableFilter<"UserTelegramData"> | string | null
   firstName?: Prisma.StringFilter<"UserTelegramData"> | string
   lastName?: Prisma.StringNullableFilter<"UserTelegramData"> | string | null
   username?: Prisma.StringNullableFilter<"UserTelegramData"> | string | null
@@ -364,6 +432,12 @@ export type UserTelegramDataOrderByWithAggregationInput = {
   isRtl?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   isBot?: Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  verified?: Prisma.SortOrderInput | Prisma.SortOrder
+  scam?: Prisma.SortOrderInput | Prisma.SortOrder
+  fake?: Prisma.SortOrderInput | Prisma.SortOrder
+  stargiftsCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  personalChannelId?: Prisma.SortOrderInput | Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrderInput | Prisma.SortOrder
   username?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -391,6 +465,12 @@ export type UserTelegramDataScalarWhereWithAggregatesInput = {
   isRtl?: Prisma.BoolWithAggregatesFilter<"UserTelegramData"> | boolean
   isPremium?: Prisma.BoolWithAggregatesFilter<"UserTelegramData"> | boolean
   isBot?: Prisma.BoolWithAggregatesFilter<"UserTelegramData"> | boolean
+  gender?: Prisma.IntNullableWithAggregatesFilter<"UserTelegramData"> | number | null
+  verified?: Prisma.BoolNullableWithAggregatesFilter<"UserTelegramData"> | boolean | null
+  scam?: Prisma.BoolNullableWithAggregatesFilter<"UserTelegramData"> | boolean | null
+  fake?: Prisma.BoolNullableWithAggregatesFilter<"UserTelegramData"> | boolean | null
+  stargiftsCount?: Prisma.IntNullableWithAggregatesFilter<"UserTelegramData"> | number | null
+  personalChannelId?: Prisma.StringNullableWithAggregatesFilter<"UserTelegramData"> | string | null
   firstName?: Prisma.StringWithAggregatesFilter<"UserTelegramData"> | string
   lastName?: Prisma.StringNullableWithAggregatesFilter<"UserTelegramData"> | string | null
   username?: Prisma.StringNullableWithAggregatesFilter<"UserTelegramData"> | string | null
@@ -410,6 +490,12 @@ export type UserTelegramDataCreateInput = {
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: number | null
+  verified?: boolean | null
+  scam?: boolean | null
+  fake?: boolean | null
+  stargiftsCount?: number | null
+  personalChannelId?: string | null
   firstName: string
   lastName?: string | null
   username?: string | null
@@ -430,6 +516,12 @@ export type UserTelegramDataUncheckedCreateInput = {
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: number | null
+  verified?: boolean | null
+  scam?: boolean | null
+  fake?: boolean | null
+  stargiftsCount?: number | null
+  personalChannelId?: string | null
   firstName: string
   lastName?: string | null
   username?: string | null
@@ -450,6 +542,12 @@ export type UserTelegramDataUpdateInput = {
   isRtl?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gender?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  scam?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  fake?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  stargiftsCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  personalChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -470,6 +568,12 @@ export type UserTelegramDataUncheckedUpdateInput = {
   isRtl?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gender?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  scam?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  fake?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  stargiftsCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  personalChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -490,6 +594,12 @@ export type UserTelegramDataCreateManyInput = {
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: number | null
+  verified?: boolean | null
+  scam?: boolean | null
+  fake?: boolean | null
+  stargiftsCount?: number | null
+  personalChannelId?: string | null
   firstName: string
   lastName?: string | null
   username?: string | null
@@ -509,6 +619,12 @@ export type UserTelegramDataUpdateManyMutationInput = {
   isRtl?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gender?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  scam?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  fake?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  stargiftsCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  personalChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -528,6 +644,12 @@ export type UserTelegramDataUncheckedUpdateManyInput = {
   isRtl?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gender?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  scam?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  fake?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  stargiftsCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  personalChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -547,6 +669,12 @@ export type UserTelegramDataCountOrderByAggregateInput = {
   isRtl?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   isBot?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
+  verified?: Prisma.SortOrder
+  scam?: Prisma.SortOrder
+  fake?: Prisma.SortOrder
+  stargiftsCount?: Prisma.SortOrder
+  personalChannelId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   username?: Prisma.SortOrder
@@ -561,6 +689,8 @@ export type UserTelegramDataCountOrderByAggregateInput = {
 }
 
 export type UserTelegramDataAvgOrderByAggregateInput = {
+  gender?: Prisma.SortOrder
+  stargiftsCount?: Prisma.SortOrder
   birthDay?: Prisma.SortOrder
   birthMonth?: Prisma.SortOrder
   birthYear?: Prisma.SortOrder
@@ -572,6 +702,12 @@ export type UserTelegramDataMaxOrderByAggregateInput = {
   isRtl?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   isBot?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
+  verified?: Prisma.SortOrder
+  scam?: Prisma.SortOrder
+  fake?: Prisma.SortOrder
+  stargiftsCount?: Prisma.SortOrder
+  personalChannelId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   username?: Prisma.SortOrder
@@ -591,6 +727,12 @@ export type UserTelegramDataMinOrderByAggregateInput = {
   isRtl?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   isBot?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
+  verified?: Prisma.SortOrder
+  scam?: Prisma.SortOrder
+  fake?: Prisma.SortOrder
+  stargiftsCount?: Prisma.SortOrder
+  personalChannelId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   username?: Prisma.SortOrder
@@ -605,6 +747,8 @@ export type UserTelegramDataMinOrderByAggregateInput = {
 }
 
 export type UserTelegramDataSumOrderByAggregateInput = {
+  gender?: Prisma.SortOrder
+  stargiftsCount?: Prisma.SortOrder
   birthDay?: Prisma.SortOrder
   birthMonth?: Prisma.SortOrder
   birthYear?: Prisma.SortOrder
@@ -617,6 +761,10 @@ export type UserTelegramDataNullableScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
 }
 
 export type UserTelegramDataCreateNestedOneWithoutUserInput = {
@@ -641,6 +789,12 @@ export type UserTelegramDataCreateWithoutUserInput = {
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: number | null
+  verified?: boolean | null
+  scam?: boolean | null
+  fake?: boolean | null
+  stargiftsCount?: number | null
+  personalChannelId?: string | null
   firstName: string
   lastName?: string | null
   username?: string | null
@@ -660,6 +814,12 @@ export type UserTelegramDataUncheckedCreateWithoutUserInput = {
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: number | null
+  verified?: boolean | null
+  scam?: boolean | null
+  fake?: boolean | null
+  stargiftsCount?: number | null
+  personalChannelId?: string | null
   firstName: string
   lastName?: string | null
   username?: string | null
@@ -695,6 +855,12 @@ export type UserTelegramDataUpdateWithoutUserInput = {
   isRtl?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gender?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  scam?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  fake?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  stargiftsCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  personalChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -714,6 +880,12 @@ export type UserTelegramDataUncheckedUpdateWithoutUserInput = {
   isRtl?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gender?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  verified?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  scam?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  fake?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  stargiftsCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  personalChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -735,6 +907,12 @@ export type UserTelegramDataSelect<ExtArgs extends runtime.Types.Extensions.Inte
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: boolean
+  verified?: boolean
+  scam?: boolean
+  fake?: boolean
+  stargiftsCount?: boolean
+  personalChannelId?: boolean
   firstName?: boolean
   lastName?: boolean
   username?: boolean
@@ -755,6 +933,12 @@ export type UserTelegramDataSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: boolean
+  verified?: boolean
+  scam?: boolean
+  fake?: boolean
+  stargiftsCount?: boolean
+  personalChannelId?: boolean
   firstName?: boolean
   lastName?: boolean
   username?: boolean
@@ -774,6 +958,12 @@ export type UserTelegramDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: boolean
+  verified?: boolean
+  scam?: boolean
+  fake?: boolean
+  stargiftsCount?: boolean
+  personalChannelId?: boolean
   firstName?: boolean
   lastName?: boolean
   username?: boolean
@@ -793,6 +983,12 @@ export type UserTelegramDataSelectScalar = {
   isRtl?: boolean
   isPremium?: boolean
   isBot?: boolean
+  gender?: boolean
+  verified?: boolean
+  scam?: boolean
+  fake?: boolean
+  stargiftsCount?: boolean
+  personalChannelId?: boolean
   firstName?: boolean
   lastName?: boolean
   username?: boolean
@@ -806,7 +1002,7 @@ export type UserTelegramDataSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserTelegramDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "isLive" | "isRtl" | "isPremium" | "isBot" | "firstName" | "lastName" | "username" | "languageCode" | "photoUrl" | "addedToAttachmentMenu" | "allowsWriteToPm" | "birthDay" | "birthMonth" | "birthYear" | "updatedAt", ExtArgs["result"]["userTelegramData"]>
+export type UserTelegramDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "isLive" | "isRtl" | "isPremium" | "isBot" | "gender" | "verified" | "scam" | "fake" | "stargiftsCount" | "personalChannelId" | "firstName" | "lastName" | "username" | "languageCode" | "photoUrl" | "addedToAttachmentMenu" | "allowsWriteToPm" | "birthDay" | "birthMonth" | "birthYear" | "updatedAt", ExtArgs["result"]["userTelegramData"]>
 export type UserTelegramDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserTelegramData$userArgs<ExtArgs>
 }
@@ -824,6 +1020,12 @@ export type $UserTelegramDataPayload<ExtArgs extends runtime.Types.Extensions.In
     isRtl: boolean
     isPremium: boolean
     isBot: boolean
+    gender: number | null
+    verified: boolean | null
+    scam: boolean | null
+    fake: boolean | null
+    stargiftsCount: number | null
+    personalChannelId: string | null
     firstName: string
     lastName: string | null
     username: string | null
@@ -1264,6 +1466,12 @@ export interface UserTelegramDataFieldRefs {
   readonly isRtl: Prisma.FieldRef<"UserTelegramData", 'Boolean'>
   readonly isPremium: Prisma.FieldRef<"UserTelegramData", 'Boolean'>
   readonly isBot: Prisma.FieldRef<"UserTelegramData", 'Boolean'>
+  readonly gender: Prisma.FieldRef<"UserTelegramData", 'Int'>
+  readonly verified: Prisma.FieldRef<"UserTelegramData", 'Boolean'>
+  readonly scam: Prisma.FieldRef<"UserTelegramData", 'Boolean'>
+  readonly fake: Prisma.FieldRef<"UserTelegramData", 'Boolean'>
+  readonly stargiftsCount: Prisma.FieldRef<"UserTelegramData", 'Int'>
+  readonly personalChannelId: Prisma.FieldRef<"UserTelegramData", 'String'>
   readonly firstName: Prisma.FieldRef<"UserTelegramData", 'String'>
   readonly lastName: Prisma.FieldRef<"UserTelegramData", 'String'>
   readonly username: Prisma.FieldRef<"UserTelegramData", 'String'>

@@ -28,27 +28,37 @@ export type AggregateAdsRewards = {
 
 export type AdsRewardsAvgAggregateOutputType = {
   taskView: runtime.Decimal | null
+  taskAdsgram: runtime.Decimal | null
+  botMessage: runtime.Decimal | null
 }
 
 export type AdsRewardsSumAggregateOutputType = {
   taskView: runtime.Decimal | null
+  taskAdsgram: runtime.Decimal | null
+  botMessage: runtime.Decimal | null
 }
 
 export type AdsRewardsMinAggregateOutputType = {
   key: $Enums.DefaultEnum | null
   taskView: runtime.Decimal | null
+  taskAdsgram: runtime.Decimal | null
+  botMessage: runtime.Decimal | null
   updatedAt: Date | null
 }
 
 export type AdsRewardsMaxAggregateOutputType = {
   key: $Enums.DefaultEnum | null
   taskView: runtime.Decimal | null
+  taskAdsgram: runtime.Decimal | null
+  botMessage: runtime.Decimal | null
   updatedAt: Date | null
 }
 
 export type AdsRewardsCountAggregateOutputType = {
   key: number
   taskView: number
+  taskAdsgram: number
+  botMessage: number
   updatedAt: number
   _all: number
 }
@@ -56,27 +66,37 @@ export type AdsRewardsCountAggregateOutputType = {
 
 export type AdsRewardsAvgAggregateInputType = {
   taskView?: true
+  taskAdsgram?: true
+  botMessage?: true
 }
 
 export type AdsRewardsSumAggregateInputType = {
   taskView?: true
+  taskAdsgram?: true
+  botMessage?: true
 }
 
 export type AdsRewardsMinAggregateInputType = {
   key?: true
   taskView?: true
+  taskAdsgram?: true
+  botMessage?: true
   updatedAt?: true
 }
 
 export type AdsRewardsMaxAggregateInputType = {
   key?: true
   taskView?: true
+  taskAdsgram?: true
+  botMessage?: true
   updatedAt?: true
 }
 
 export type AdsRewardsCountAggregateInputType = {
   key?: true
   taskView?: true
+  taskAdsgram?: true
+  botMessage?: true
   updatedAt?: true
   _all?: true
 }
@@ -170,6 +190,8 @@ export type AdsRewardsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type AdsRewardsGroupByOutputType = {
   key: $Enums.DefaultEnum
   taskView: runtime.Decimal
+  taskAdsgram: runtime.Decimal
+  botMessage: runtime.Decimal
   updatedAt: Date
   _count: AdsRewardsCountAggregateOutputType | null
   _avg: AdsRewardsAvgAggregateOutputType | null
@@ -199,12 +221,16 @@ export type AdsRewardsWhereInput = {
   NOT?: Prisma.AdsRewardsWhereInput | Prisma.AdsRewardsWhereInput[]
   key?: Prisma.EnumDefaultEnumFilter<"AdsRewards"> | $Enums.DefaultEnum
   taskView?: Prisma.DecimalFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: Prisma.DecimalFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: Prisma.DecimalFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFilter<"AdsRewards"> | Date | string
 }
 
 export type AdsRewardsOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   taskView?: Prisma.SortOrder
+  taskAdsgram?: Prisma.SortOrder
+  botMessage?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -214,12 +240,16 @@ export type AdsRewardsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AdsRewardsWhereInput[]
   NOT?: Prisma.AdsRewardsWhereInput | Prisma.AdsRewardsWhereInput[]
   taskView?: Prisma.DecimalFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: Prisma.DecimalFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: Prisma.DecimalFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFilter<"AdsRewards"> | Date | string
 }, "key">
 
 export type AdsRewardsOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   taskView?: Prisma.SortOrder
+  taskAdsgram?: Prisma.SortOrder
+  botMessage?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AdsRewardsCountOrderByAggregateInput
   _avg?: Prisma.AdsRewardsAvgOrderByAggregateInput
@@ -234,75 +264,101 @@ export type AdsRewardsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AdsRewardsScalarWhereWithAggregatesInput | Prisma.AdsRewardsScalarWhereWithAggregatesInput[]
   key?: Prisma.EnumDefaultEnumWithAggregatesFilter<"AdsRewards"> | $Enums.DefaultEnum
   taskView?: Prisma.DecimalWithAggregatesFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: Prisma.DecimalWithAggregatesFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: Prisma.DecimalWithAggregatesFilter<"AdsRewards"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AdsRewards"> | Date | string
 }
 
 export type AdsRewardsCreateInput = {
   key?: $Enums.DefaultEnum
   taskView?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
 }
 
 export type AdsRewardsUncheckedCreateInput = {
   key?: $Enums.DefaultEnum
   taskView?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
 }
 
 export type AdsRewardsUpdateInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   taskView?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdsRewardsUncheckedUpdateInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   taskView?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdsRewardsCreateManyInput = {
   key?: $Enums.DefaultEnum
   taskView?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Date | string
 }
 
 export type AdsRewardsUpdateManyMutationInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   taskView?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdsRewardsUncheckedUpdateManyInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   taskView?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taskAdsgram?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  botMessage?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdsRewardsCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   taskView?: Prisma.SortOrder
+  taskAdsgram?: Prisma.SortOrder
+  botMessage?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type AdsRewardsAvgOrderByAggregateInput = {
   taskView?: Prisma.SortOrder
+  taskAdsgram?: Prisma.SortOrder
+  botMessage?: Prisma.SortOrder
 }
 
 export type AdsRewardsMaxOrderByAggregateInput = {
   key?: Prisma.SortOrder
   taskView?: Prisma.SortOrder
+  taskAdsgram?: Prisma.SortOrder
+  botMessage?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type AdsRewardsMinOrderByAggregateInput = {
   key?: Prisma.SortOrder
   taskView?: Prisma.SortOrder
+  taskAdsgram?: Prisma.SortOrder
+  botMessage?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type AdsRewardsSumOrderByAggregateInput = {
   taskView?: Prisma.SortOrder
+  taskAdsgram?: Prisma.SortOrder
+  botMessage?: Prisma.SortOrder
 }
 
 
@@ -310,28 +366,36 @@ export type AdsRewardsSumOrderByAggregateInput = {
 export type AdsRewardsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   taskView?: boolean
+  taskAdsgram?: boolean
+  botMessage?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["adsRewards"]>
 
 export type AdsRewardsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   taskView?: boolean
+  taskAdsgram?: boolean
+  botMessage?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["adsRewards"]>
 
 export type AdsRewardsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   taskView?: boolean
+  taskAdsgram?: boolean
+  botMessage?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["adsRewards"]>
 
 export type AdsRewardsSelectScalar = {
   key?: boolean
   taskView?: boolean
+  taskAdsgram?: boolean
+  botMessage?: boolean
   updatedAt?: boolean
 }
 
-export type AdsRewardsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "taskView" | "updatedAt", ExtArgs["result"]["adsRewards"]>
+export type AdsRewardsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "taskView" | "taskAdsgram" | "botMessage" | "updatedAt", ExtArgs["result"]["adsRewards"]>
 
 export type $AdsRewardsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AdsRewards"
@@ -339,6 +403,8 @@ export type $AdsRewardsPayload<ExtArgs extends runtime.Types.Extensions.Internal
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     key: $Enums.DefaultEnum
     taskView: runtime.Decimal
+    taskAdsgram: runtime.Decimal
+    botMessage: runtime.Decimal
     updatedAt: Date
   }, ExtArgs["result"]["adsRewards"]>
   composites: {}
@@ -765,6 +831,8 @@ export interface Prisma__AdsRewardsClient<T, Null = never, ExtArgs extends runti
 export interface AdsRewardsFieldRefs {
   readonly key: Prisma.FieldRef<"AdsRewards", 'DefaultEnum'>
   readonly taskView: Prisma.FieldRef<"AdsRewards", 'Decimal'>
+  readonly taskAdsgram: Prisma.FieldRef<"AdsRewards", 'Decimal'>
+  readonly botMessage: Prisma.FieldRef<"AdsRewards", 'Decimal'>
   readonly updatedAt: Prisma.FieldRef<"AdsRewards", 'DateTime'>
 }
     

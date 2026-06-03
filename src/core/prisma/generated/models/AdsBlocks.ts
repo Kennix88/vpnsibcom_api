@@ -42,6 +42,11 @@ export type AdsBlocksMinAggregateOutputType = {
   name: string | null
   place: $Enums.AdsBlockPlaceEnum | null
   isActive: boolean | null
+  showAndroid: boolean | null
+  showIos: boolean | null
+  showDesktop: boolean | null
+  showBot: boolean | null
+  showWeb: boolean | null
   duration: number | null
   limit: number | null
   createdAt: Date | null
@@ -55,6 +60,11 @@ export type AdsBlocksMaxAggregateOutputType = {
   name: string | null
   place: $Enums.AdsBlockPlaceEnum | null
   isActive: boolean | null
+  showAndroid: boolean | null
+  showIos: boolean | null
+  showDesktop: boolean | null
+  showBot: boolean | null
+  showWeb: boolean | null
   duration: number | null
   limit: number | null
   createdAt: Date | null
@@ -68,6 +78,11 @@ export type AdsBlocksCountAggregateOutputType = {
   name: number
   place: number
   isActive: number
+  showAndroid: number
+  showIos: number
+  showDesktop: number
+  showBot: number
+  showWeb: number
   duration: number
   limit: number
   createdAt: number
@@ -93,6 +108,11 @@ export type AdsBlocksMinAggregateInputType = {
   name?: true
   place?: true
   isActive?: true
+  showAndroid?: true
+  showIos?: true
+  showDesktop?: true
+  showBot?: true
+  showWeb?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -106,6 +126,11 @@ export type AdsBlocksMaxAggregateInputType = {
   name?: true
   place?: true
   isActive?: true
+  showAndroid?: true
+  showIos?: true
+  showDesktop?: true
+  showBot?: true
+  showWeb?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -119,6 +144,11 @@ export type AdsBlocksCountAggregateInputType = {
   name?: true
   place?: true
   isActive?: true
+  showAndroid?: true
+  showIos?: true
+  showDesktop?: true
+  showBot?: true
+  showWeb?: true
   duration?: true
   limit?: true
   createdAt?: true
@@ -219,6 +249,11 @@ export type AdsBlocksGroupByOutputType = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive: boolean
+  showAndroid: boolean
+  showIos: boolean
+  showDesktop: boolean
+  showBot: boolean
+  showWeb: boolean
   duration: number
   limit: number
   createdAt: Date
@@ -255,6 +290,11 @@ export type AdsBlocksWhereInput = {
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showAndroid?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showIos?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showDesktop?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showBot?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showWeb?: Prisma.BoolFilter<"AdsBlocks"> | boolean
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -270,6 +310,11 @@ export type AdsBlocksOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showAndroid?: Prisma.SortOrder
+  showIos?: Prisma.SortOrder
+  showDesktop?: Prisma.SortOrder
+  showBot?: Prisma.SortOrder
+  showWeb?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -289,6 +334,11 @@ export type AdsBlocksWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showAndroid?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showIos?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showDesktop?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showBot?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showWeb?: Prisma.BoolFilter<"AdsBlocks"> | boolean
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -304,6 +354,11 @@ export type AdsBlocksOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showAndroid?: Prisma.SortOrder
+  showIos?: Prisma.SortOrder
+  showDesktop?: Prisma.SortOrder
+  showBot?: Prisma.SortOrder
+  showWeb?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -325,6 +380,11 @@ export type AdsBlocksScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumWithAggregatesFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolWithAggregatesFilter<"AdsBlocks"> | boolean
+  showAndroid?: Prisma.BoolWithAggregatesFilter<"AdsBlocks"> | boolean
+  showIos?: Prisma.BoolWithAggregatesFilter<"AdsBlocks"> | boolean
+  showDesktop?: Prisma.BoolWithAggregatesFilter<"AdsBlocks"> | boolean
+  showBot?: Prisma.BoolWithAggregatesFilter<"AdsBlocks"> | boolean
+  showWeb?: Prisma.BoolWithAggregatesFilter<"AdsBlocks"> | boolean
   duration?: Prisma.IntWithAggregatesFilter<"AdsBlocks"> | number
   limit?: Prisma.IntWithAggregatesFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AdsBlocks"> | Date | string
@@ -338,6 +398,11 @@ export type AdsBlocksCreateInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -352,6 +417,11 @@ export type AdsBlocksUncheckedCreateInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -366,6 +436,11 @@ export type AdsBlocksUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -380,6 +455,11 @@ export type AdsBlocksUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -394,6 +474,11 @@ export type AdsBlocksCreateManyInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -407,6 +492,11 @@ export type AdsBlocksUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -419,6 +509,11 @@ export type AdsBlocksUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -442,6 +537,11 @@ export type AdsBlocksCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showAndroid?: Prisma.SortOrder
+  showIos?: Prisma.SortOrder
+  showDesktop?: Prisma.SortOrder
+  showBot?: Prisma.SortOrder
+  showWeb?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -460,6 +560,11 @@ export type AdsBlocksMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showAndroid?: Prisma.SortOrder
+  showIos?: Prisma.SortOrder
+  showDesktop?: Prisma.SortOrder
+  showBot?: Prisma.SortOrder
+  showWeb?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -473,6 +578,11 @@ export type AdsBlocksMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   place?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showAndroid?: Prisma.SortOrder
+  showIos?: Prisma.SortOrder
+  showDesktop?: Prisma.SortOrder
+  showBot?: Prisma.SortOrder
+  showWeb?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   limit?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -561,6 +671,11 @@ export type AdsBlocksCreateWithoutViewsInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -574,6 +689,11 @@ export type AdsBlocksUncheckedCreateWithoutViewsInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -603,6 +723,11 @@ export type AdsBlocksUpdateWithoutViewsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -616,6 +741,11 @@ export type AdsBlocksUncheckedUpdateWithoutViewsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -629,6 +759,11 @@ export type AdsBlocksCreateWithoutNetworkInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -642,6 +777,11 @@ export type AdsBlocksUncheckedCreateWithoutNetworkInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -684,6 +824,11 @@ export type AdsBlocksScalarWhereInput = {
   name?: Prisma.StringFilter<"AdsBlocks"> | string
   place?: Prisma.EnumAdsBlockPlaceEnumFilter<"AdsBlocks"> | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showAndroid?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showIos?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showDesktop?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showBot?: Prisma.BoolFilter<"AdsBlocks"> | boolean
+  showWeb?: Prisma.BoolFilter<"AdsBlocks"> | boolean
   duration?: Prisma.IntFilter<"AdsBlocks"> | number
   limit?: Prisma.IntFilter<"AdsBlocks"> | number
   createdAt?: Prisma.DateTimeFilter<"AdsBlocks"> | Date | string
@@ -697,6 +842,11 @@ export type AdsBlocksCreateManyNetworkInput = {
   name: string
   place: $Enums.AdsBlockPlaceEnum
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: number
   limit?: number
   createdAt?: Date | string
@@ -709,6 +859,11 @@ export type AdsBlocksUpdateWithoutNetworkInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -722,6 +877,11 @@ export type AdsBlocksUncheckedUpdateWithoutNetworkInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -735,6 +895,11 @@ export type AdsBlocksUncheckedUpdateManyWithoutNetworkInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   place?: Prisma.EnumAdsBlockPlaceEnumFieldUpdateOperationsInput | $Enums.AdsBlockPlaceEnum
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAndroid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showIos?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showDesktop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showBot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWeb?: Prisma.BoolFieldUpdateOperationsInput | boolean
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   limit?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -778,6 +943,11 @@ export type AdsBlocksSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   name?: boolean
   place?: boolean
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -794,6 +964,11 @@ export type AdsBlocksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   place?: boolean
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -808,6 +983,11 @@ export type AdsBlocksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   place?: boolean
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -822,6 +1002,11 @@ export type AdsBlocksSelectScalar = {
   name?: boolean
   place?: boolean
   isActive?: boolean
+  showAndroid?: boolean
+  showIos?: boolean
+  showDesktop?: boolean
+  showBot?: boolean
+  showWeb?: boolean
   duration?: boolean
   limit?: boolean
   createdAt?: boolean
@@ -829,7 +1014,7 @@ export type AdsBlocksSelectScalar = {
   networkKey?: boolean
 }
 
-export type AdsBlocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "place" | "isActive" | "duration" | "limit" | "createdAt" | "updatedAt" | "networkKey", ExtArgs["result"]["adsBlocks"]>
+export type AdsBlocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "place" | "isActive" | "showAndroid" | "showIos" | "showDesktop" | "showBot" | "showWeb" | "duration" | "limit" | "createdAt" | "updatedAt" | "networkKey", ExtArgs["result"]["adsBlocks"]>
 export type AdsBlocksInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   network?: boolean | Prisma.AdsNetworksDefaultArgs<ExtArgs>
   views?: boolean | Prisma.AdsBlocks$viewsArgs<ExtArgs>
@@ -854,6 +1039,11 @@ export type $AdsBlocksPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     name: string
     place: $Enums.AdsBlockPlaceEnum
     isActive: boolean
+    showAndroid: boolean
+    showIos: boolean
+    showDesktop: boolean
+    showBot: boolean
+    showWeb: boolean
     duration: number
     limit: number
     createdAt: Date
@@ -1289,6 +1479,11 @@ export interface AdsBlocksFieldRefs {
   readonly name: Prisma.FieldRef<"AdsBlocks", 'String'>
   readonly place: Prisma.FieldRef<"AdsBlocks", 'AdsBlockPlaceEnum'>
   readonly isActive: Prisma.FieldRef<"AdsBlocks", 'Boolean'>
+  readonly showAndroid: Prisma.FieldRef<"AdsBlocks", 'Boolean'>
+  readonly showIos: Prisma.FieldRef<"AdsBlocks", 'Boolean'>
+  readonly showDesktop: Prisma.FieldRef<"AdsBlocks", 'Boolean'>
+  readonly showBot: Prisma.FieldRef<"AdsBlocks", 'Boolean'>
+  readonly showWeb: Prisma.FieldRef<"AdsBlocks", 'Boolean'>
   readonly duration: Prisma.FieldRef<"AdsBlocks", 'Int'>
   readonly limit: Prisma.FieldRef<"AdsBlocks", 'Int'>
   readonly createdAt: Prisma.FieldRef<"AdsBlocks", 'DateTime'>
