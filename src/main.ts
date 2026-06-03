@@ -85,12 +85,12 @@ async function configureFastify(
     }),
   })
 
-  // ИСПРАВЛЕНО: ALLOWED_ORIGINS (множественное) — список через запятую в .env
-  // Пример: ALLOWED_ORIGINS=https://fasti.fun,https://vpnsib-front.frps.fasti.fun
+  // ИСПРАВЛЕНО: ALLOWED_ORIGIN (множественное) — список через запятую в .env
+  // Пример: ALLOWED_ORIGIN=https://fasti.fun,https://vpnsib-front.frps.fasti.fun
   app.enableCors({
     origin: (origin, cb) => {
       const allowed = config
-        .getOrThrow<string>('ALLOWED_ORIGINS')
+        .getOrThrow<string>('ALLOWED_ORIGIN')
         .split(',')
         .map((o) => o.trim())
         .filter(Boolean)
