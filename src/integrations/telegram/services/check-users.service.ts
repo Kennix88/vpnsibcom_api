@@ -1,4 +1,10 @@
+import { Prisma } from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
+import {
+  GraspilService,
+  GraspilUser,
+} from '@modules/ads/services/graspil.service'
+import { UsersService } from '@modules/users/services/users.service'
 import {
   Injectable,
   Logger,
@@ -7,169 +13,33 @@ import {
 } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { DefaultEnum } from '@shared/enums/default.enum'
-import { InjectBot } from 'nestjs-telegraf'
 import { Client } from 'pg'
-import { Telegraf } from 'telegraf'
 
 @Injectable()
 export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(CheckUsersService.name)
-  private readonly baseGetChatRateLimitPerSecond = 10
-  private readonly minGetChatRateLimitPerSecond = 3
-  private readonly getChatRecoverySuccessThreshold = 200
-  private readonly getChatRetryDelayBufferMs = 500
-  private readonly getChatSlotJitterMs = 120
-  private readonly maxDetailedWarningsPerRun = 20
-  private currentGetChatRateLimitPerSecond = this.baseGetChatRateLimitPerSecond
-  private consecutiveGetChatSuccessCount = 0
-  private localNextGetChatAt = 0
   private checkInProgress = false
   private readonly checkLockKey = 'telegram:check-users'
   private readonly batchSize = 500
   private lockClient: Client | null = null
-  private nextRunStartAfterId: string | undefined
+  private nextRunOffset = 0
+  private readonly maxExecutionTimeMs = 30 * 60 * 1000 // 30 минут
+  private supportedLanguageCodes: Set<string> | null = null
 
   constructor(
     private readonly prisma: PrismaService,
-    @InjectBot() private readonly bot: Telegraf,
+    private readonly graspilService: GraspilService,
+    private readonly usersService: UsersService,
   ) {}
 
   async onModuleInit() {
-    try {
-      this.check()
-    } catch (error) {
+    void this.check().catch((error) => {
       this.logger.error('Error in CheckUsersService onModuleInit', error)
-    }
+    })
   }
 
   async onModuleDestroy() {
     await this.releaseLock()
-  }
-
-  private readonly maxExecutionTimeMs = 30 * 60 * 1000 // 30 минут
-
-  private async sleep(ms: number): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, ms))
-  }
-
-  private async waitForGetChatSlot(): Promise<void> {
-    const now = Date.now()
-    const jitterMs =
-      crypto.getRandomValues(new Uint32Array(1))[0] % this.getChatSlotJitterMs
-    const waitMs = Math.max(0, this.localNextGetChatAt - now) + jitterMs
-    this.localNextGetChatAt =
-      Math.max(this.localNextGetChatAt, now) + this.getCurrentGetChatStepMs()
-
-    if (waitMs > 0) {
-      await this.sleep(waitMs)
-    }
-  }
-
-  private getCurrentGetChatStepMs(): number {
-    return Math.ceil(1000 / this.currentGetChatRateLimitPerSecond)
-  }
-
-  private getTelegramErrorMeta(error: unknown): {
-    errorCode?: number
-    description?: string
-    retryAfterSeconds?: number
-  } {
-    if (!error || typeof error !== 'object') {
-      return {}
-    }
-
-    const response = 'response' in error ? error.response : undefined
-    if (!response || typeof response !== 'object') {
-      return {}
-    }
-
-    const errorCode =
-      'error_code' in response && typeof response.error_code === 'number'
-        ? response.error_code
-        : undefined
-    const description =
-      'description' in response && typeof response.description === 'string'
-        ? response.description
-        : undefined
-    const retryAfterSeconds =
-      'parameters' in response &&
-      response.parameters &&
-      typeof response.parameters === 'object' &&
-      'retry_after' in response.parameters &&
-      typeof response.parameters.retry_after === 'number'
-        ? response.parameters.retry_after
-        : undefined
-
-    return { errorCode, description, retryAfterSeconds }
-  }
-
-  private isDefinitelyNotLive(error: unknown): boolean {
-    const { errorCode, description } = this.getTelegramErrorMeta(error)
-    const normalizedDescription = description?.toLowerCase() ?? ''
-
-    return (
-      errorCode === 403 ||
-      normalizedDescription.includes('bot was blocked by the user') ||
-      normalizedDescription.includes('user is deactivated') ||
-      normalizedDescription.includes('chat not found')
-    )
-  }
-
-  private isRateLimited(error: unknown): boolean {
-    const { errorCode, description } = this.getTelegramErrorMeta(error)
-    const normalizedDescription = description?.toLowerCase() ?? ''
-
-    return (
-      errorCode === 429 || normalizedDescription.includes('too many requests')
-    )
-  }
-
-  private async handleRateLimit(error: unknown): Promise<void> {
-    const previousRate = this.currentGetChatRateLimitPerSecond
-    const { retryAfterSeconds, description } = this.getTelegramErrorMeta(error)
-    const waitMs =
-      Math.max(1, retryAfterSeconds ?? 1) * 1000 +
-      this.getChatRetryDelayBufferMs
-
-    this.currentGetChatRateLimitPerSecond = Math.max(
-      this.minGetChatRateLimitPerSecond,
-      Math.floor(this.currentGetChatRateLimitPerSecond * 0.7),
-    )
-    this.consecutiveGetChatSuccessCount = 0
-    this.localNextGetChatAt = Date.now() + waitMs
-
-    this.logger.warn(
-      `getChat rate limited. PreviousRate=${previousRate}/s, newRate=${
-        this.currentGetChatRateLimitPerSecond
-      }/s, waitMs=${waitMs}, retryAfterSeconds=${
-        retryAfterSeconds ?? 'unknown'
-      }, error=${description ?? 'Too Many Requests'}`,
-    )
-
-    await this.sleep(waitMs)
-  }
-
-  private handleGetChatSuccess(): void {
-    if (
-      this.currentGetChatRateLimitPerSecond >=
-      this.baseGetChatRateLimitPerSecond
-    ) {
-      this.consecutiveGetChatSuccessCount = 0
-      return
-    }
-
-    this.consecutiveGetChatSuccessCount += 1
-    if (
-      this.consecutiveGetChatSuccessCount >=
-      this.getChatRecoverySuccessThreshold
-    ) {
-      this.currentGetChatRateLimitPerSecond += 1
-      this.consecutiveGetChatSuccessCount = 0
-
-      this.logger.log(
-        `getChat rate recovered to ${this.currentGetChatRateLimitPerSecond}/s`,
-      )
-    }
   }
 
   private async tryAcquireLock(): Promise<boolean> {
@@ -217,17 +87,118 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  public async secureShuffle(arr) {
-    const copy = [...arr]
-    for (let i = copy.length - 1; i > 0; i--) {
-      const rand = crypto.getRandomValues(new Uint32Array(1))[0]
-      const j = rand % (i + 1)
-      ;[copy[i], copy[j]] = [copy[j], copy[i]]
-    }
-    return copy
+  private toBoolean(value: boolean | number | null | undefined): boolean {
+    return value === true || value === 1
   }
 
-  @Cron('0 0 */3 * *')
+  private getTelegramDataUpdate(
+    graspilUser: GraspilUser,
+  ): Prisma.UserTelegramDataUpdateInput {
+    return {
+      isLive: graspilUser.user_status === 0,
+      isBot: this.toBoolean(graspilUser.is_bot),
+      isPremium: this.toBoolean(graspilUser.is_premium),
+      gender: graspilUser.gender,
+      verified: graspilUser.verified,
+      scam: graspilUser.scam,
+      fake: graspilUser.fake,
+      stargiftsCount: graspilUser.stargifts_count,
+      personalChannelId:
+        graspilUser.personal_channel_id === null ||
+        graspilUser.personal_channel_id === undefined
+          ? null
+          : String(graspilUser.personal_channel_id),
+    }
+  }
+
+  private getBirthData(graspilUser: GraspilUser):
+    | {
+        year?: number
+        month: number
+        day: number
+      }
+    | undefined {
+    if (!graspilUser.birth_day || !graspilUser.birth_month) {
+      return undefined
+    }
+
+    return {
+      day: graspilUser.birth_day,
+      month: graspilUser.birth_month,
+      ...(graspilUser.birth_year && { year: graspilUser.birth_year }),
+    }
+  }
+
+  private async getSupportedLanguageCode(
+    languageCode: string | null,
+  ): Promise<string> {
+    if (!languageCode) return 'ru'
+
+    if (!this.supportedLanguageCodes) {
+      const languages = await this.prisma.language.findMany({
+        select: {
+          iso6391: true,
+        },
+      })
+      this.supportedLanguageCodes = new Set(
+        languages.map((language) => language.iso6391),
+      )
+    }
+
+    return this.supportedLanguageCodes.has(languageCode) ? languageCode : 'ru'
+  }
+
+  private async createMissingUserFromGraspil(
+    graspilUser: GraspilUser,
+  ): Promise<boolean> {
+    const telegramId = String(graspilUser.user_id)
+
+    try {
+      const birth = this.getBirthData(graspilUser)
+      const languageCode = await this.getSupportedLanguageCode(
+        graspilUser.language_code,
+      )
+      const country = graspilUser.geo?.countryCode ?? graspilUser.country
+
+      await this.usersService.createUser({
+        telegramId,
+        userInBotData: {
+          id: graspilUser.user_id,
+          is_bot: this.toBoolean(graspilUser.is_bot),
+          first_name: graspilUser.first_name ?? 'ANONIM',
+          ...(graspilUser.last_name && { last_name: graspilUser.last_name }),
+          ...(graspilUser.username && { username: graspilUser.username }),
+          language_code: languageCode,
+          is_premium: this.toBoolean(graspilUser.is_premium),
+        },
+        ...(country && { country }),
+        ...(birth && { birth }),
+      })
+
+      const createdUser = await this.prisma.users.findUnique({
+        where: { telegramId },
+        select: { telegramDataId: true },
+      })
+
+      if (createdUser?.telegramDataId) {
+        await this.prisma.userTelegramData.update({
+          where: { id: createdUser.telegramDataId },
+          data: this.getTelegramDataUpdate(graspilUser),
+        })
+      }
+
+      return true
+    } catch (error) {
+      this.logger.warn(
+        `Failed to create missing user from Graspil: telegramId=${telegramId}, error=${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      )
+      return false
+    }
+  }
+
+  @Cron('0 0 0 * * *')
   private async check() {
     if (this.checkInProgress) {
       this.logger.debug('Check users skipped: previous run still in progress')
@@ -246,18 +217,16 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
         },
       })
       if (!settings?.isActiveCheckUsers) return
-      let lastId: string | undefined = this.nextRunStartAfterId
-      let lastProcessedIdInRun: string | undefined = this.nextRunStartAfterId
+      let offset = this.nextRunOffset
       let processed = 0
-      let nonDefinitiveErrors = 0
-      let rateLimitCount = 0
+      let updated = 0
+      let created = 0
+      let createFailed = 0
       let timedOut = false
       const startTime = Date.now()
 
       this.logger.log(
-        `Check users started. BatchSize: ${this.batchSize}, startAfterId: ${
-          this.nextRunStartAfterId ?? 'none'
-        }`,
+        `Check users started via Graspil. BatchSize: ${this.batchSize}, offset: ${offset}`,
       )
 
       while (true) {
@@ -266,154 +235,80 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
           break
         }
 
+        const graspilUsers = await this.graspilService.getUsers({
+          limit: this.batchSize,
+          offset,
+        })
+        if (graspilUsers.rows.length === 0) break
+
         const users = await this.prisma.users.findMany({
           where: {
-            telegramDataId: {
-              not: null,
+            telegramId: {
+              in: graspilUsers.rows.map((user) => String(user.user_id)),
             },
-            ...(lastId && {
-              id: {
-                gt: lastId,
-              },
-            }),
           },
-          orderBy: {
-            id: 'asc',
-          },
-          take: this.batchSize,
           select: {
-            id: true,
             telegramId: true,
             telegramDataId: true,
           },
         })
-
-        if (users.length === 0) break
-
-        const shuffledUsers = await this.secureShuffle(users)
+        const usersByTelegramId = new Map(
+          users
+            .filter((user) => user.telegramDataId)
+            .map((user) => [user.telegramId, user.telegramDataId]),
+        )
         let processedInBatch = 0
+        let updatedInBatch = 0
 
-        for (const user of shuffledUsers) {
+        for (const graspilUser of graspilUsers.rows) {
           if (Date.now() - startTime > this.maxExecutionTimeMs) {
             timedOut = true
             break
           }
 
-          if (!user.telegramDataId) continue
-
-          let retryCurrentUser = true
-
-          while (retryCurrentUser) {
-            if (Date.now() - startTime > this.maxExecutionTimeMs) {
-              timedOut = true
-              break
+          const telegramDataId = usersByTelegramId.get(
+            String(graspilUser.user_id),
+          )
+          if (!telegramDataId) {
+            if (await this.createMissingUserFromGraspil(graspilUser)) {
+              created += 1
+            } else {
+              createFailed += 1
             }
-
-            await this.waitForGetChatSlot()
-
-            try {
-              const sentMessage = await this.bot.telegram.sendMessage(
-                user.telegramId,
-                'Check live...',
-                {
-                  disable_notification: true,
-                },
-              )
-              this.handleGetChatSuccess()
-
-              // Сразу удаляем сообщение
-              try {
-                await this.bot.telegram.deleteMessage(
-                  user.telegramId,
-                  // @ts-ignore
-                  sentMessage.message_id,
-                )
-              } catch (deleteError) {
-                this.logger.debug(
-                  `Failed to delete test message for userId=${user.id}: ${
-                    deleteError instanceof Error
-                      ? deleteError.message
-                      : String(deleteError)
-                  }`,
-                )
-              }
-
-              // Сообщение отправлено успешно — пользователь живой
-              await this.prisma.userTelegramData.update({
-                where: { id: user.telegramDataId },
-                data: {
-                  isLive: true,
-                },
-              })
-
-              retryCurrentUser = false
-            } catch (error) {
-              if (this.isRateLimited(error)) {
-                rateLimitCount += 1
-                await this.handleRateLimit(error)
-                continue
-              }
-
-              this.consecutiveGetChatSuccessCount = 0
-
-              const { errorCode, description } =
-                this.getTelegramErrorMeta(error)
-              const errorMessage =
-                description ??
-                (error instanceof Error ? error.message : String(error))
-
-              if (this.isDefinitelyNotLive(error)) {
-                await this.prisma.userTelegramData.update({
-                  where: { id: user.telegramDataId },
-                  data: { isLive: false },
-                })
-              } else {
-                nonDefinitiveErrors += 1
-                if (
-                  nonDefinitiveErrors <= this.maxDetailedWarningsPerRun ||
-                  nonDefinitiveErrors % 100 === 0
-                ) {
-                  this.logger.warn(
-                    `sendMessage failed without definitive liveness signal: userId=${
-                      user.id
-                    }, telegramId=${user.telegramId}, errorCode=${
-                      errorCode ?? 'unknown'
-                    }, error=${errorMessage}`,
-                  )
-                }
-              }
-
-              retryCurrentUser = false
-            }
+            processedInBatch += 1
+            continue
           }
 
-          if (timedOut) break
-          lastProcessedIdInRun = user.id
+          await this.prisma.userTelegramData.update({
+            where: { id: telegramDataId },
+            data: this.getTelegramDataUpdate(graspilUser),
+          })
+
+          updatedInBatch += 1
           processedInBatch += 1
         }
 
         processed += processedInBatch
-        lastId = users[users.length - 1].id
+        updated += updatedInBatch
         this.logger.log(
-          `Check users batch processed: ${processedInBatch}/${users.length}, total: ${processed}`,
+          `Check users Graspil page processed: offset=${offset}, processed=${processedInBatch}/${graspilUsers.rows.length}, updated=${updatedInBatch}, created=${created}, createFailed=${createFailed}, total=${processed}`,
         )
         if (timedOut) break
+        offset += 1
+
+        if (offset * this.batchSize >= graspilUsers.count) break
       }
 
       if (timedOut) {
-        this.nextRunStartAfterId = lastProcessedIdInRun
+        this.nextRunOffset = offset
         this.logger.warn(
-          `Check users timeout. Processed: ${processed}, maxExecutionTimeMs: ${
-            this.maxExecutionTimeMs
-          }, nextStartAfterId: ${this.nextRunStartAfterId ?? 'none'}`,
+          `Check users timeout. Processed: ${processed}, updated: ${updated}, created: ${created}, createFailed: ${createFailed}, maxExecutionTimeMs: ${this.maxExecutionTimeMs}, nextOffset: ${this.nextRunOffset}`,
         )
       } else {
-        this.nextRunStartAfterId = undefined
+        this.nextRunOffset = 0
       }
       this.logger.log(
-        `Check users finished. Processed: ${processed}, rateLimits: ${rateLimitCount}, nonDefinitiveErrors: ${nonDefinitiveErrors}, nextStartAfterId: ${
-          this.nextRunStartAfterId ?? 'none'
-        }`,
+        `Check users finished via Graspil. Processed: ${processed}, updated: ${updated}, created: ${created}, createFailed: ${createFailed}, nextOffset: ${this.nextRunOffset}`,
       )
     } catch (error) {
       this.logger.error(error)
