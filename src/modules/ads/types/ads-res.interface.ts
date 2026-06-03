@@ -1,3 +1,4 @@
+import { AdsgramBotAdResponse } from '../services/adsgram.service'
 import { AdsNetworkEnum } from './ads-network.enum'
 import { AdsPlaceEnum } from './ads-place.enum'
 import { AdsTypeEnum } from './ads-type.enum'
@@ -9,6 +10,7 @@ export interface AdsResInterface {
   ad?: AdsDataInterface
   taddy?: TaddyGetAdResponseInterface
   richAds?: RichAdsGetAdResponseInterface
+  adsgram?: AdsgramBotAdResponse
 }
 
 export interface AdsDataInterface {
@@ -18,4 +20,5 @@ export interface AdsDataInterface {
   time: Date
   blockId: string
   verifyKey: string
+  goAdsUrl: string
 }
