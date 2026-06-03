@@ -6,6 +6,7 @@ import { AdsPlaceEnum } from '@modules/ads/types/ads-place.enum'
 import { AdsTypeEnum } from '@modules/ads/types/ads-type.enum'
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
+import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import axios from 'axios'
 import { addHours } from 'date-fns'
 import { PinoLogger } from 'nestjs-pino'
@@ -176,6 +177,12 @@ export class AdsSenderService implements OnModuleInit {
         },
       })
 
+      const adsRewards = await this.prisma.adsRewards.findFirst({
+        where: {
+          key: DefaultEnum.DEFAULT,
+        },
+      })
+
       if (!settings?.isActiveSendAdsMessages) return
       const now = new Date()
       const failedCooldownAt = addHours(now, -3)
@@ -184,7 +191,9 @@ export class AdsSenderService implements OnModuleInit {
       let lastId: string | undefined
       let processed = 0
       const startTime = Date.now()
-      const sponsorMessage = `\n\n#Реклама #Спонсор`
+      const sponsorMessage = `\n\n<b><i>Переходя по рекламе, вы получаете ${Number(
+        adsRewards.botMessage,
+      )} STARS на ваш баланс и поддерживаете наш VPN сервис❤️‍🔥</i></b>`
 
       this.logger.info({
         msg: 'Send ads started',
@@ -248,6 +257,7 @@ export class AdsSenderService implements OnModuleInit {
             telegramId: user.telegramId,
             place: AdsPlaceEnum.MESSAGE,
             type: AdsTypeEnum.MESSAGE,
+            platform: TelegramPlatformEnum.BOT,
           })
 
           if (!ad || ad.isNoAds) continue
@@ -266,13 +276,14 @@ export class AdsSenderService implements OnModuleInit {
                     ad.richAds.brand ? `Реклама от ${ad.richAds.brand}` : ''
                   }${sponsorMessage}`,
                   parse_mode: 'HTML',
+                  protect_content: true,
                   reply_markup: {
                     inline_keyboard: ad.richAds.button
                       ? [
                           [
                             {
                               text: ad.richAds.button,
-                              url: ad.richAds.link,
+                              url: ad.ad.goAdsUrl,
                               // @ts-ignore
                               style: 'success',
                             },
@@ -286,10 +297,10 @@ export class AdsSenderService implements OnModuleInit {
               sendSucceeded = true
               this.handleSendSuccess()
 
-              await this.adsService.confirmAd({
-                userId: user.id,
-                verifyKey: ad.ad.verifyKey,
-              })
+              // await this.adsService.confirmAd({
+              //   userId: user.id,
+              //   verifyKey: ad.ad.verifyKey,
+              // })
               axios.get(ad.richAds.notification_url).catch((e) => {
                 this.logger.warn({
                   msg: 'Error sending ad notification',
@@ -335,13 +346,14 @@ export class AdsSenderService implements OnModuleInit {
                       ad.taddy.result.text ?? ''
                     }${sponsorMessage}`,
                     parse_mode: 'HTML',
+                    protect_content: true,
                     reply_markup: {
                       inline_keyboard: ad.taddy.result.button
                         ? [
                             [
                               {
                                 text: ad.taddy.result.button,
-                                url: ad.taddy.result.link,
+                                url: ad.ad.goAdsUrl,
                               },
                             ],
                           ]
@@ -357,13 +369,14 @@ export class AdsSenderService implements OnModuleInit {
                   }${sponsorMessage}`,
                   {
                     parse_mode: 'HTML',
+                    protect_content: true,
                     reply_markup: {
                       inline_keyboard: ad.taddy.result.button
                         ? [
                             [
                               {
                                 text: ad.taddy.result.button,
-                                url: ad.taddy.result.link,
+                                url: ad.ad.goAdsUrl,
                               },
                             ],
                           ]
@@ -376,10 +389,10 @@ export class AdsSenderService implements OnModuleInit {
               sendSucceeded = true
               this.handleSendSuccess()
 
-              await this.adsService.confirmAd({
-                userId: user.id,
-                verifyKey: ad.ad.verifyKey,
-              })
+              // await this.adsService.confirmAd({
+              //   userId: user.id,
+              //   verifyKey: ad.ad.verifyKey,
+              // })
 
               await this.taddyService.adsImpressions({
                 id: [ad.taddy.result.id],
@@ -406,6 +419,84 @@ export class AdsSenderService implements OnModuleInit {
                 data: {
                   lastMessageAt: sendSucceeded ? now : failedCooldownAt,
                   lastMessageNetwork: AdsNetworkEnum.TADDY,
+                },
+              })
+            }
+          } else if (ad.adsgram) {
+            await this.waitForSendMessageSlot()
+
+            let sendSucceeded = false
+            try {
+              const adsgramAd = ad.adsgram
+
+              // Кнопки: основная (click) + reward если есть
+              const inlineKeyboard: any[][] = []
+              if (adsgramAd.button_name && adsgramAd.click_url) {
+                inlineKeyboard.push([
+                  { text: adsgramAd.button_name, url: ad.ad.goAdsUrl },
+                ])
+              }
+              if (adsgramAd.button_reward_name && adsgramAd.reward_url) {
+                inlineKeyboard.push([
+                  {
+                    text: adsgramAd.button_reward_name,
+                    url: adsgramAd.reward_url,
+                  },
+                ])
+              }
+
+              const msgOptions = {
+                parse_mode: 'HTML' as const,
+                protect_content: true, // Adsgram требует запрет пересылки
+                reply_markup: { inline_keyboard: inlineKeyboard },
+              }
+
+              const textHtmlWithTracking = adsgramAd.text_html.replace(
+                /<a\b([^>]*)href=(["'])(.*?)\2([^>]*)>/gi,
+                `<a$1href="${ad.ad.goAdsUrl}"$4>`,
+              )
+
+              if (adsgramAd.image_url) {
+                await this.bot.telegram.sendPhoto(
+                  user.telegramId,
+                  adsgramAd.image_url,
+                  {
+                    ...msgOptions,
+                    caption: `${textHtmlWithTracking}${sponsorMessage}`,
+                  },
+                )
+              } else {
+                await this.bot.telegram.sendMessage(
+                  user.telegramId,
+                  `${textHtmlWithTracking}${sponsorMessage}`,
+                  msgOptions,
+                )
+              }
+
+              sendSucceeded = true
+              this.handleSendSuccess()
+
+              // await this.adsService.confirmAd({
+              //   userId: user.id,
+              //   verifyKey: ad.ad.verifyKey,
+              // })
+            } catch (e) {
+              if (this.isRateLimited(e)) {
+                await this.handleRateLimit(e)
+              } else {
+                this.consecutiveSendMessageSuccessCount = 0
+                this.logger.error({ msg: 'Error sending Adsgram bot ad', e })
+                await this.prisma.userTelegramData.update({
+                  where: { id: user.telegramDataId },
+                  data: { isLive: false },
+                })
+              }
+            } finally {
+              await this.prisma.userAdsData.update({
+                where: { id: user.adsDataId },
+                data: {
+                  lastMessageAt: sendSucceeded ? now : failedCooldownAt,
+                  lastMessageNetwork: AdsNetworkEnum.ADSGRAM,
                 },
               })
             }
