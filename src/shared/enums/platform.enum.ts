@@ -1,4 +1,6 @@
 export enum PlatformEnum {
+  BOT = 'BOT',
+  WEB = 'WEB',
   ANDROID = 'ANDROID',
   ANDROID_TV = 'ANDROID_TV',
   IOS = 'IOS',
