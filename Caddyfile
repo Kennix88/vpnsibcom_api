@@ -108,7 +108,14 @@ api.fasti.fun {
 *.frps.fasti.fun {
     import standard_config
 
-    header Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https:; script-src-elem 'self' 'unsafe-inline' blob: https:; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https: blob: data:; child-src 'self' https: blob: data:; media-src 'self' data: blob: https:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self' https:; frame-ancestors https://web.telegram.org https://*.telegram.org;"
+    # CORS обрабатывается самим приложением за frps-туннелем.
+    # Caddy не вмешивается: не добавляет и не удаляет CORS-заголовки.
+    # header_down гарантирует, что upstream-заголовки проходят без перезаписи.
+    header_down -Access-Control-Allow-Origin
+    header_down -Access-Control-Allow-Headers
+    header_down -Access-Control-Allow-Methods
+    header_down -Access-Control-Allow-Credentials
+    header_down -Access-Control-Max-Age
 
     reverse_proxy frps:8090 {
         transport http {
