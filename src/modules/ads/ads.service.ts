@@ -35,7 +35,7 @@ import { TaskRewardResInterface } from './types/task-reward-res.interface'
 
 @Injectable()
 export class AdsService {
-  private static readonly SESSION_TTL_SECONDS = 60 * 60 * 3
+  private static readonly SESSION_TTL_SECONDS = 60 * 60 * 24 * 7
 
   constructor(
     private readonly prisma: PrismaService,
@@ -808,7 +808,7 @@ export class AdsService {
 
   // ── Cleanup cron ────────────────────────────────────────────────────────────
 
-  @Cron('0 */10 * * * *')
+  @Cron('0 0 3 * * *') // каждый день в 03:00
   public async cleanupExpiredAdSessions(): Promise<void> {
     const cutoff = new Date(Date.now() - AdsService.SESSION_TTL_SECONDS * 1000)
     const batchSize = 500
@@ -820,6 +820,7 @@ export class AdsService {
           createdAt: { lt: cutoff },
         },
         select: { verifyKey: true },
+        orderBy: { createdAt: 'asc' },
         take: batchSize,
       })
 
