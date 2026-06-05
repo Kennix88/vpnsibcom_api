@@ -1,3 +1,4 @@
+import { TelegramPlatformEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { TaddyService } from '@modules/ads/taddy.service'
 import { GeoService } from '@modules/geo/geo.service'
@@ -61,6 +62,7 @@ export class AuthService {
     initData: string,
     ip: string,
     ua: string | undefined,
+    telegramPlatform: TelegramPlatformEnum,
     startParamFromClient?: string,
   ): Promise<{
     accessToken: string
@@ -164,10 +166,7 @@ export class AuthService {
         where: {
           userId: user.id,
           place: SessionPlaceEnum.TELEGRAM_MINIAPP,
-          OR: [
-            { referralId: { not: null } },
-            { startParams: { not: null } },
-          ],
+          OR: [{ referralId: { not: null } }, { startParams: { not: null } }],
         },
         select: {
           referralId: true,
@@ -215,6 +214,7 @@ export class AuthService {
       }),
       ip,
       ua,
+      telegramPlatform,
       startParams: startParam,
     })
 
