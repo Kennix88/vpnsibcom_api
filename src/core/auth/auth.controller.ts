@@ -22,6 +22,7 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { LoggerTelegramService } from '../logger/logger-telegram.service'
+import { DetectedPlatform, Platform } from './decorators/platform.decorator'
 import { TelegramAuthGuard } from './guards/telegram-auth.guard'
 import { AuthService } from './services/auth.service'
 
@@ -42,6 +43,7 @@ export class AuthController {
     @Body() dto: TelegramAuthDto,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
+    @Platform() platform: DetectedPlatform,
   ) {
     try {
       const ip = getClientIp(req) ?? 'unknown'
@@ -52,6 +54,7 @@ export class AuthController {
         dto.initData,
         ip,
         ua,
+        platform.platform,
         dto.startParam,
       )
 
