@@ -395,6 +395,13 @@ export type EnumSessionPlaceEnumFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumSessionPlaceEnumFilter<$PrismaModel> | $Enums.SessionPlaceEnum
 }
 
+export type EnumTelegramPlatformEnumNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.TelegramPlatformEnum | Prisma.EnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  in?: $Enums.TelegramPlatformEnum[] | Prisma.ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.TelegramPlatformEnum[] | Prisma.ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumTelegramPlatformEnumNullableFilter<$PrismaModel> | $Enums.TelegramPlatformEnum | null
+}
+
 export type EnumSessionPlaceEnumWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.SessionPlaceEnum | Prisma.EnumSessionPlaceEnumFieldRefInput<$PrismaModel>
   in?: $Enums.SessionPlaceEnum[] | Prisma.ListEnumSessionPlaceEnumFieldRefInput<$PrismaModel>
@@ -403,6 +410,16 @@ export type EnumSessionPlaceEnumWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSessionPlaceEnumFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSessionPlaceEnumFilter<$PrismaModel>
+}
+
+export type EnumTelegramPlatformEnumNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TelegramPlatformEnum | Prisma.EnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  in?: $Enums.TelegramPlatformEnum[] | Prisma.ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.TelegramPlatformEnum[] | Prisma.ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumTelegramPlatformEnumNullableWithAggregatesFilter<$PrismaModel> | $Enums.TelegramPlatformEnum | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTelegramPlatformEnumNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTelegramPlatformEnumNullableFilter<$PrismaModel>
 }
 
 export type EnumAdsNetworkEnumNullableFilter<$PrismaModel = never> = {
@@ -1111,6 +1128,13 @@ export type NestedEnumSessionPlaceEnumFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumSessionPlaceEnumFilter<$PrismaModel> | $Enums.SessionPlaceEnum
 }
 
+export type NestedEnumTelegramPlatformEnumNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.TelegramPlatformEnum | Prisma.EnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  in?: $Enums.TelegramPlatformEnum[] | Prisma.ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.TelegramPlatformEnum[] | Prisma.ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumTelegramPlatformEnumNullableFilter<$PrismaModel> | $Enums.TelegramPlatformEnum | null
+}
+
 export type NestedEnumSessionPlaceEnumWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.SessionPlaceEnum | Prisma.EnumSessionPlaceEnumFieldRefInput<$PrismaModel>
   in?: $Enums.SessionPlaceEnum[] | Prisma.ListEnumSessionPlaceEnumFieldRefInput<$PrismaModel>
@@ -1119,6 +1143,16 @@ export type NestedEnumSessionPlaceEnumWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSessionPlaceEnumFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSessionPlaceEnumFilter<$PrismaModel>
+}
+
+export type NestedEnumTelegramPlatformEnumNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TelegramPlatformEnum | Prisma.EnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  in?: $Enums.TelegramPlatformEnum[] | Prisma.ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.TelegramPlatformEnum[] | Prisma.ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumTelegramPlatformEnumNullableWithAggregatesFilter<$PrismaModel> | $Enums.TelegramPlatformEnum | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTelegramPlatformEnumNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTelegramPlatformEnumNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumAdsNetworkEnumNullableFilter<$PrismaModel = never> = {

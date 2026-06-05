@@ -35,6 +35,7 @@ export type SessionsMinAggregateOutputType = {
   startParams: string | null
   compaingId: string | null
   recordId: string | null
+  telegramPlatform: $Enums.TelegramPlatformEnum | null
   startedAt: Date | null
   userId: string | null
 }
@@ -50,6 +51,7 @@ export type SessionsMaxAggregateOutputType = {
   startParams: string | null
   compaingId: string | null
   recordId: string | null
+  telegramPlatform: $Enums.TelegramPlatformEnum | null
   startedAt: Date | null
   userId: string | null
 }
@@ -68,6 +70,7 @@ export type SessionsCountAggregateOutputType = {
   startParams: number
   compaingId: number
   recordId: number
+  telegramPlatform: number
   otherData: number
   startedAt: number
   userId: number
@@ -86,6 +89,7 @@ export type SessionsMinAggregateInputType = {
   startParams?: true
   compaingId?: true
   recordId?: true
+  telegramPlatform?: true
   startedAt?: true
   userId?: true
 }
@@ -101,6 +105,7 @@ export type SessionsMaxAggregateInputType = {
   startParams?: true
   compaingId?: true
   recordId?: true
+  telegramPlatform?: true
   startedAt?: true
   userId?: true
 }
@@ -119,6 +124,7 @@ export type SessionsCountAggregateInputType = {
   startParams?: true
   compaingId?: true
   recordId?: true
+  telegramPlatform?: true
   otherData?: true
   startedAt?: true
   userId?: true
@@ -211,6 +217,7 @@ export type SessionsGroupByOutputType = {
   startParams: string | null
   compaingId: string | null
   recordId: string | null
+  telegramPlatform: $Enums.TelegramPlatformEnum | null
   otherData: runtime.JsonValue | null
   startedAt: Date
   userId: string
@@ -251,6 +258,7 @@ export type SessionsWhereInput = {
   startParams?: Prisma.StringNullableFilter<"Sessions"> | string | null
   compaingId?: Prisma.StringNullableFilter<"Sessions"> | string | null
   recordId?: Prisma.StringNullableFilter<"Sessions"> | string | null
+  telegramPlatform?: Prisma.EnumTelegramPlatformEnumNullableFilter<"Sessions"> | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.JsonNullableFilter<"Sessions">
   startedAt?: Prisma.DateTimeFilter<"Sessions"> | Date | string
   userId?: Prisma.StringFilter<"Sessions"> | string
@@ -271,6 +279,7 @@ export type SessionsOrderByWithRelationInput = {
   startParams?: Prisma.SortOrderInput | Prisma.SortOrder
   compaingId?: Prisma.SortOrderInput | Prisma.SortOrder
   recordId?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramPlatform?: Prisma.SortOrderInput | Prisma.SortOrder
   otherData?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -294,6 +303,7 @@ export type SessionsWhereUniqueInput = Prisma.AtLeast<{
   startParams?: Prisma.StringNullableFilter<"Sessions"> | string | null
   compaingId?: Prisma.StringNullableFilter<"Sessions"> | string | null
   recordId?: Prisma.StringNullableFilter<"Sessions"> | string | null
+  telegramPlatform?: Prisma.EnumTelegramPlatformEnumNullableFilter<"Sessions"> | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.JsonNullableFilter<"Sessions">
   startedAt?: Prisma.DateTimeFilter<"Sessions"> | Date | string
   userId?: Prisma.StringFilter<"Sessions"> | string
@@ -314,6 +324,7 @@ export type SessionsOrderByWithAggregationInput = {
   startParams?: Prisma.SortOrderInput | Prisma.SortOrder
   compaingId?: Prisma.SortOrderInput | Prisma.SortOrder
   recordId?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramPlatform?: Prisma.SortOrderInput | Prisma.SortOrder
   otherData?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -339,6 +350,7 @@ export type SessionsScalarWhereWithAggregatesInput = {
   startParams?: Prisma.StringNullableWithAggregatesFilter<"Sessions"> | string | null
   compaingId?: Prisma.StringNullableWithAggregatesFilter<"Sessions"> | string | null
   recordId?: Prisma.StringNullableWithAggregatesFilter<"Sessions"> | string | null
+  telegramPlatform?: Prisma.EnumTelegramPlatformEnumNullableWithAggregatesFilter<"Sessions"> | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.JsonNullableWithAggregatesFilter<"Sessions">
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"Sessions"> | Date | string
   userId?: Prisma.StringWithAggregatesFilter<"Sessions"> | string
@@ -358,6 +370,7 @@ export type SessionsCreateInput = {
   startParams?: string | null
   compaingId?: string | null
   recordId?: string | null
+  telegramPlatform?: $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Date | string
   user: Prisma.UsersCreateNestedOneWithoutSessionsInput
@@ -377,6 +390,7 @@ export type SessionsUncheckedCreateInput = {
   startParams?: string | null
   compaingId?: string | null
   recordId?: string | null
+  telegramPlatform?: $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Date | string
   userId: string
@@ -396,6 +410,7 @@ export type SessionsUpdateInput = {
   startParams?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUpdateOneRequiredWithoutSessionsNestedInput
@@ -415,6 +430,7 @@ export type SessionsUncheckedUpdateInput = {
   startParams?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -434,6 +450,7 @@ export type SessionsCreateManyInput = {
   startParams?: string | null
   compaingId?: string | null
   recordId?: string | null
+  telegramPlatform?: $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Date | string
   userId: string
@@ -453,6 +470,7 @@ export type SessionsUpdateManyMutationInput = {
   startParams?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -471,6 +489,7 @@ export type SessionsUncheckedUpdateManyInput = {
   startParams?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -500,6 +519,7 @@ export type SessionsCountOrderByAggregateInput = {
   startParams?: Prisma.SortOrder
   compaingId?: Prisma.SortOrder
   recordId?: Prisma.SortOrder
+  telegramPlatform?: Prisma.SortOrder
   otherData?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -516,6 +536,7 @@ export type SessionsMaxOrderByAggregateInput = {
   startParams?: Prisma.SortOrder
   compaingId?: Prisma.SortOrder
   recordId?: Prisma.SortOrder
+  telegramPlatform?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -531,6 +552,7 @@ export type SessionsMinOrderByAggregateInput = {
   startParams?: Prisma.SortOrder
   compaingId?: Prisma.SortOrder
   recordId?: Prisma.SortOrder
+  telegramPlatform?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
@@ -581,6 +603,10 @@ export type EnumSessionPlaceEnumFieldUpdateOperationsInput = {
   set?: $Enums.SessionPlaceEnum
 }
 
+export type NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput = {
+  set?: $Enums.TelegramPlatformEnum | null
+}
+
 export type SessionsCreateWithoutUserInput = {
   id?: string
   place?: $Enums.SessionPlaceEnum
@@ -595,6 +621,7 @@ export type SessionsCreateWithoutUserInput = {
   startParams?: string | null
   compaingId?: string | null
   recordId?: string | null
+  telegramPlatform?: $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Date | string
 }
@@ -613,6 +640,7 @@ export type SessionsUncheckedCreateWithoutUserInput = {
   startParams?: string | null
   compaingId?: string | null
   recordId?: string | null
+  telegramPlatform?: $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Date | string
 }
@@ -660,6 +688,7 @@ export type SessionsScalarWhereInput = {
   startParams?: Prisma.StringNullableFilter<"Sessions"> | string | null
   compaingId?: Prisma.StringNullableFilter<"Sessions"> | string | null
   recordId?: Prisma.StringNullableFilter<"Sessions"> | string | null
+  telegramPlatform?: Prisma.EnumTelegramPlatformEnumNullableFilter<"Sessions"> | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.JsonNullableFilter<"Sessions">
   startedAt?: Prisma.DateTimeFilter<"Sessions"> | Date | string
   userId?: Prisma.StringFilter<"Sessions"> | string
@@ -679,6 +708,7 @@ export type SessionsCreateManyUserInput = {
   startParams?: string | null
   compaingId?: string | null
   recordId?: string | null
+  telegramPlatform?: $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Date | string
 }
@@ -697,6 +727,7 @@ export type SessionsUpdateWithoutUserInput = {
   startParams?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -715,6 +746,7 @@ export type SessionsUncheckedUpdateWithoutUserInput = {
   startParams?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -733,6 +765,7 @@ export type SessionsUncheckedUpdateManyWithoutUserInput = {
   startParams?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   compaingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   otherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -753,6 +786,7 @@ export type SessionsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   startParams?: boolean
   compaingId?: boolean
   recordId?: boolean
+  telegramPlatform?: boolean
   otherData?: boolean
   startedAt?: boolean
   userId?: boolean
@@ -773,6 +807,7 @@ export type SessionsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   startParams?: boolean
   compaingId?: boolean
   recordId?: boolean
+  telegramPlatform?: boolean
   otherData?: boolean
   startedAt?: boolean
   userId?: boolean
@@ -793,6 +828,7 @@ export type SessionsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   startParams?: boolean
   compaingId?: boolean
   recordId?: boolean
+  telegramPlatform?: boolean
   otherData?: boolean
   startedAt?: boolean
   userId?: boolean
@@ -813,12 +849,13 @@ export type SessionsSelectScalar = {
   startParams?: boolean
   compaingId?: boolean
   recordId?: boolean
+  telegramPlatform?: boolean
   otherData?: boolean
   startedAt?: boolean
   userId?: boolean
 }
 
-export type SessionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "place" | "ip" | "userAgent" | "browser" | "device" | "os" | "country" | "source" | "referralId" | "startParams" | "compaingId" | "recordId" | "otherData" | "startedAt" | "userId", ExtArgs["result"]["sessions"]>
+export type SessionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "place" | "ip" | "userAgent" | "browser" | "device" | "os" | "country" | "source" | "referralId" | "startParams" | "compaingId" | "recordId" | "telegramPlatform" | "otherData" | "startedAt" | "userId", ExtArgs["result"]["sessions"]>
 export type SessionsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }
@@ -848,6 +885,7 @@ export type $SessionsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     startParams: string | null
     compaingId: string | null
     recordId: string | null
+    telegramPlatform: $Enums.TelegramPlatformEnum | null
     otherData: runtime.JsonValue | null
     startedAt: Date
     userId: string
@@ -1288,6 +1326,7 @@ export interface SessionsFieldRefs {
   readonly startParams: Prisma.FieldRef<"Sessions", 'String'>
   readonly compaingId: Prisma.FieldRef<"Sessions", 'String'>
   readonly recordId: Prisma.FieldRef<"Sessions", 'String'>
+  readonly telegramPlatform: Prisma.FieldRef<"Sessions", 'TelegramPlatformEnum'>
   readonly otherData: Prisma.FieldRef<"Sessions", 'Json'>
   readonly startedAt: Prisma.FieldRef<"Sessions", 'DateTime'>
   readonly userId: Prisma.FieldRef<"Sessions", 'String'>

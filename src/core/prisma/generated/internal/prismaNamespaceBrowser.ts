@@ -145,7 +145,8 @@ export const SettingsScalarFieldEnum = {
   isActiveImportUsers: 'isActiveImportUsers',
   isActiveCheckUsers: 'isActiveCheckUsers',
   defaultAnnounce: 'defaultAnnounce',
-  telegramConfigLinks: 'telegramConfigLinks'
+  telegramConfigLinks: 'telegramConfigLinks',
+  routingUrl: 'routingUrl'
 } as const
 
 export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -275,6 +276,7 @@ export const SessionsScalarFieldEnum = {
   startParams: 'startParams',
   compaingId: 'compaingId',
   recordId: 'recordId',
+  telegramPlatform: 'telegramPlatform',
   otherData: 'otherData',
   startedAt: 'startedAt',
   userId: 'userId'

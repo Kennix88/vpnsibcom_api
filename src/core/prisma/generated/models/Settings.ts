@@ -157,6 +157,7 @@ export type SettingsMinAggregateOutputType = {
   isActiveImportUsers: boolean | null
   isActiveCheckUsers: boolean | null
   defaultAnnounce: string | null
+  routingUrl: string | null
 }
 
 export type SettingsMaxAggregateOutputType = {
@@ -210,6 +211,7 @@ export type SettingsMaxAggregateOutputType = {
   isActiveImportUsers: boolean | null
   isActiveCheckUsers: boolean | null
   defaultAnnounce: string | null
+  routingUrl: string | null
 }
 
 export type SettingsCountAggregateOutputType = {
@@ -264,6 +266,7 @@ export type SettingsCountAggregateOutputType = {
   isActiveCheckUsers: number
   defaultAnnounce: number
   telegramConfigLinks: number
+  routingUrl: number
   _all: number
 }
 
@@ -399,6 +402,7 @@ export type SettingsMinAggregateInputType = {
   isActiveImportUsers?: true
   isActiveCheckUsers?: true
   defaultAnnounce?: true
+  routingUrl?: true
 }
 
 export type SettingsMaxAggregateInputType = {
@@ -452,6 +456,7 @@ export type SettingsMaxAggregateInputType = {
   isActiveImportUsers?: true
   isActiveCheckUsers?: true
   defaultAnnounce?: true
+  routingUrl?: true
 }
 
 export type SettingsCountAggregateInputType = {
@@ -506,6 +511,7 @@ export type SettingsCountAggregateInputType = {
   isActiveCheckUsers?: true
   defaultAnnounce?: true
   telegramConfigLinks?: true
+  routingUrl?: true
   _all?: true
 }
 
@@ -647,6 +653,7 @@ export type SettingsGroupByOutputType = {
   isActiveCheckUsers: boolean
   defaultAnnounce: string | null
   telegramConfigLinks: runtime.JsonValue | null
+  routingUrl: string | null
   _count: SettingsCountAggregateOutputType | null
   _avg: SettingsAvgAggregateOutputType | null
   _sum: SettingsSumAggregateOutputType | null
@@ -724,6 +731,7 @@ export type SettingsWhereInput = {
   isActiveCheckUsers?: Prisma.BoolFilter<"Settings"> | boolean
   defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableFilter<"Settings">
+  routingUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
 }
 
 export type SettingsOrderByWithRelationInput = {
@@ -778,6 +786,7 @@ export type SettingsOrderByWithRelationInput = {
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrderInput | Prisma.SortOrder
+  routingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type SettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -835,6 +844,7 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   isActiveCheckUsers?: Prisma.BoolFilter<"Settings"> | boolean
   defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableFilter<"Settings">
+  routingUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
 }, "key">
 
 export type SettingsOrderByWithAggregationInput = {
@@ -889,6 +899,7 @@ export type SettingsOrderByWithAggregationInput = {
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrderInput | Prisma.SortOrder
+  routingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
   _avg?: Prisma.SettingsAvgOrderByAggregateInput
   _max?: Prisma.SettingsMaxOrderByAggregateInput
@@ -951,6 +962,7 @@ export type SettingsScalarWhereWithAggregatesInput = {
   isActiveCheckUsers?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
   defaultAnnounce?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableWithAggregatesFilter<"Settings">
+  routingUrl?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
 }
 
 export type SettingsCreateInput = {
@@ -1005,6 +1017,7 @@ export type SettingsCreateInput = {
   isActiveCheckUsers?: boolean
   defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  routingUrl?: string | null
 }
 
 export type SettingsUncheckedCreateInput = {
@@ -1059,6 +1072,7 @@ export type SettingsUncheckedCreateInput = {
   isActiveCheckUsers?: boolean
   defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  routingUrl?: string | null
 }
 
 export type SettingsUpdateInput = {
@@ -1113,6 +1127,7 @@ export type SettingsUpdateInput = {
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  routingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsUncheckedUpdateInput = {
@@ -1167,6 +1182,7 @@ export type SettingsUncheckedUpdateInput = {
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  routingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsCreateManyInput = {
@@ -1221,6 +1237,7 @@ export type SettingsCreateManyInput = {
   isActiveCheckUsers?: boolean
   defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  routingUrl?: string | null
 }
 
 export type SettingsUpdateManyMutationInput = {
@@ -1275,6 +1292,7 @@ export type SettingsUpdateManyMutationInput = {
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  routingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsUncheckedUpdateManyInput = {
@@ -1329,6 +1347,7 @@ export type SettingsUncheckedUpdateManyInput = {
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  routingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SettingsCountOrderByAggregateInput = {
@@ -1383,6 +1402,7 @@ export type SettingsCountOrderByAggregateInput = {
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrder
+  routingUrl?: Prisma.SortOrder
 }
 
 export type SettingsAvgOrderByAggregateInput = {
@@ -1476,6 +1496,7 @@ export type SettingsMaxOrderByAggregateInput = {
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
+  routingUrl?: Prisma.SortOrder
 }
 
 export type SettingsMinOrderByAggregateInput = {
@@ -1529,6 +1550,7 @@ export type SettingsMinOrderByAggregateInput = {
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
+  routingUrl?: Prisma.SortOrder
 }
 
 export type SettingsSumOrderByAggregateInput = {
@@ -1665,6 +1687,7 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   isActiveCheckUsers?: boolean
   defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
+  routingUrl?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1719,6 +1742,7 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isActiveCheckUsers?: boolean
   defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
+  routingUrl?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1773,6 +1797,7 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isActiveCheckUsers?: boolean
   defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
+  routingUrl?: boolean
 }, ExtArgs["result"]["settings"]>
 
 export type SettingsSelectScalar = {
@@ -1827,9 +1852,10 @@ export type SettingsSelectScalar = {
   isActiveCheckUsers?: boolean
   defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
+  routingUrl?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "isActiveSendAdsMessages" | "nextAdsHours" | "isActiveFakeAds" | "nextFakeAdsHours" | "lastFakeAdsSend" | "proxyPartnerLink" | "partnerBotLink" | "partnerMiniAppLink" | "partnerSiteLink" | "importUsersUrl" | "isActiveImportUsers" | "isActiveCheckUsers" | "defaultAnnounce" | "telegramConfigLinks", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "isActiveSendAdsMessages" | "nextAdsHours" | "isActiveFakeAds" | "nextFakeAdsHours" | "lastFakeAdsSend" | "proxyPartnerLink" | "partnerBotLink" | "partnerMiniAppLink" | "partnerSiteLink" | "importUsersUrl" | "isActiveImportUsers" | "isActiveCheckUsers" | "defaultAnnounce" | "telegramConfigLinks" | "routingUrl", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -1886,6 +1912,7 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     isActiveCheckUsers: boolean
     defaultAnnounce: string | null
     telegramConfigLinks: runtime.JsonValue | null
+    routingUrl: string | null
   }, ExtArgs["result"]["settings"]>
   composites: {}
 }
@@ -2360,6 +2387,7 @@ export interface SettingsFieldRefs {
   readonly isActiveCheckUsers: Prisma.FieldRef<"Settings", 'Boolean'>
   readonly defaultAnnounce: Prisma.FieldRef<"Settings", 'String'>
   readonly telegramConfigLinks: Prisma.FieldRef<"Settings", 'Json'>
+  readonly routingUrl: Prisma.FieldRef<"Settings", 'String'>
 }
     
 

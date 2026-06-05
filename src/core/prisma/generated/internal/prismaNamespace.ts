@@ -2368,7 +2368,8 @@ export const SettingsScalarFieldEnum = {
   isActiveImportUsers: 'isActiveImportUsers',
   isActiveCheckUsers: 'isActiveCheckUsers',
   defaultAnnounce: 'defaultAnnounce',
-  telegramConfigLinks: 'telegramConfigLinks'
+  telegramConfigLinks: 'telegramConfigLinks',
+  routingUrl: 'routingUrl'
 } as const
 
 export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -2498,6 +2499,7 @@ export const SessionsScalarFieldEnum = {
   startParams: 'startParams',
   compaingId: 'compaingId',
   recordId: 'recordId',
+  telegramPlatform: 'telegramPlatform',
   otherData: 'otherData',
   startedAt: 'startedAt',
   userId: 'userId'
@@ -2996,6 +2998,20 @@ export type EnumSessionPlaceEnumFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'SessionPlaceEnum[]'
  */
 export type ListEnumSessionPlaceEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SessionPlaceEnum[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TelegramPlatformEnum'
+ */
+export type EnumTelegramPlatformEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TelegramPlatformEnum'>
+    
+
+
+/**
+ * Reference to a field of type 'TelegramPlatformEnum[]'
+ */
+export type ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TelegramPlatformEnum[]'>
     
 
 

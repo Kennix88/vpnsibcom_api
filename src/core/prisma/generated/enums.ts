@@ -26,6 +26,17 @@ export const EventTypeEnum = {
 export type EventTypeEnum = (typeof EventTypeEnum)[keyof typeof EventTypeEnum]
 
 
+export const TelegramPlatformEnum = {
+  DESKTOP: 'DESKTOP',
+  IOS: 'IOS',
+  ANDROID: 'ANDROID',
+  WEB: 'WEB',
+  BOT: 'BOT'
+} as const
+
+export type TelegramPlatformEnum = (typeof TelegramPlatformEnum)[keyof typeof TelegramPlatformEnum]
+
+
 export const SessionPlaceEnum = {
   WEB: 'WEB',
   BOT: 'BOT',
