@@ -1,5 +1,5 @@
-import { PrismaService } from '@core/prisma/prisma.service'
 import { Prisma } from '@core/prisma/generated/client'
+import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
 import { PaymentTypeEnum } from '@modules/payments/types/payment-type.enum'
@@ -717,7 +717,11 @@ export class XrayService {
         return 0
       })
 
+      const routing = settings.routingUrl ? settings.routingUrl : undefined
+      const subscriptionUrl = `${allowedOrigin}/sub/${subscription.token}`
+
       return {
+        routing,
         subscription: {
           id: subscription.id,
           name: subscription.name,
@@ -785,7 +789,7 @@ export class XrayService {
           expiredAt: subscription.expiredAt,
           onlineAt: subscription.onlineAt,
           token: subscription.token,
-          subscriptionUrl: `${allowedOrigin}/sub/${subscription.token}`,
+          subscriptionUrl,
         },
         marzbanSubRes: undefined,
       }
@@ -2310,8 +2314,8 @@ export class XrayService {
         data: {
           token: newToken,
           marzbanData:
-              marzbanResult === null
-                ? Prisma.DbNull
+            marzbanResult === null
+              ? Prisma.DbNull
               : (marzbanResult as unknown as Prisma.InputJsonValue),
         },
       })
