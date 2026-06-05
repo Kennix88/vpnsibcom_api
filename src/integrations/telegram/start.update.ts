@@ -1,5 +1,5 @@
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
-import { DefaultEnum } from '@core/prisma/generated/enums'
+import { DefaultEnum, TelegramPlatformEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
 import { AdsService } from '@modules/ads/ads.service'
@@ -190,6 +190,7 @@ export class StartUpdate {
           referralKey,
         }),
         startParams: startParam,
+        telegramPlatform: TelegramPlatformEnum.BOT,
       })
 
       await this.acquisitionsService.updateAcquisition({
