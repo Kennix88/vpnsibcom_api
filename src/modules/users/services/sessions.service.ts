@@ -1,5 +1,5 @@
+import { Prisma, TelegramPlatformEnum } from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
-import { Prisma } from '@core/prisma/generated/client'
 import { GeoService } from '@modules/geo/geo.service'
 import { Injectable } from '@nestjs/common'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
@@ -43,6 +43,7 @@ export class SessionsService {
     place,
     ua,
     ip,
+    telegramPlatform,
   }: {
     userId: string
     place: SessionPlaceEnum
@@ -50,6 +51,7 @@ export class SessionsService {
     referralKey?: string
     ua?: string
     ip?: string
+    telegramPlatform?: TelegramPlatformEnum
   }) {
     try {
       const normalizedStartParams = startParams?.trim()
@@ -112,6 +114,7 @@ export class SessionsService {
             startParams: normalizedStartParams,
             referralId: normalizedReferralKey,
             userAgent: normalizedUa,
+            telegramPlatform,
             ip: normalizedIp,
             ...(browser && { browser }),
             ...(device && { device }),
