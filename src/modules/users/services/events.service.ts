@@ -7,6 +7,21 @@ import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
 import { PinoLogger } from 'nestjs-pino'
 import { EventType } from '../types/event-type.enum'
 
+// Маппинг типов событий на ID целей в Graspil.
+// Проверьте ID в личном кабинете: https://app.graspil.com/targets
+const GRASPIL_TARGET_ID: Partial<Record<EventType, number>> = {
+  [EventType.REGISTRATION]: 10806,
+  [EventType.ACTIVATION]: 10809,
+  [EventType.FIRST_PAYMENT]: 10807,
+  [EventType.RELOAD_PAYMENT]: 10808,
+}
+
+// Фиксированные суммы в звёздах для событий без реальной оплаты
+const GRASPIL_FIXED_STARS: Partial<Record<EventType, number>> = {
+  [EventType.REGISTRATION]: 1,
+  [EventType.ACTIVATION]: 10,
+}
+
 @Injectable()
 export class EventsService {
   private readonly ADSGRAM_RETRY_BATCH = 200
@@ -244,34 +259,56 @@ export class EventsService {
         })
       }
 
-      if (
-        isSendGraspil &&
-        (eventType == EventType.RELOAD_PAYMENT ||
-          eventType == EventType.FIRST_PAYMENT ||
-          eventType == EventType.ACTIVATION ||
-          eventType == EventType.REGISTRATION)
-      ) {
-        await this.graspilService.sendEvent({
+      if (isSendGraspil) {
+        await this.trySendGraspilEvent({
           tgid: Number(user.telegramId),
-          amountStars:
-            eventType == EventType.RELOAD_PAYMENT ||
-            eventType == EventType.FIRST_PAYMENT
-              ? amountStars
-              : eventType == EventType.ACTIVATION
-              ? 10
-              : 1,
-          targetId:
-            eventType == EventType.REGISTRATION
-              ? 10806
-              : eventType == EventType.ACTIVATION
-              ? 10809
-              : eventType == EventType.FIRST_PAYMENT
-              ? 10806
-              : 10808,
+          eventType,
+          amountStars,
         })
       }
     } catch (error) {
       this.logger.error(error)
+    }
+  }
+
+  private async trySendGraspilEvent({
+    tgid,
+    eventType,
+    amountStars,
+  }: {
+    tgid: number
+    eventType: EventType
+    amountStars: number
+  }): Promise<void> {
+    const targetId = GRASPIL_TARGET_ID[eventType]
+    if (!targetId) {
+      this.logger.debug({
+        msg: 'Graspil: no targetId configured for eventType, skipping',
+        eventType,
+      })
+      return
+    }
+
+    const stars =
+      eventType === EventType.RELOAD_PAYMENT ||
+      eventType === EventType.FIRST_PAYMENT
+        ? amountStars
+        : GRASPIL_FIXED_STARS[eventType] ?? 0
+
+    const sent = await this.graspilService.sendEvent({
+      tgid,
+      amountStars: stars,
+      targetId,
+    })
+
+    if (!sent) {
+      this.logger.warn({
+        msg: 'Graspil event not sent',
+        tgid,
+        eventType,
+        targetId,
+        amountStars: stars,
+      })
     }
   }
 }
