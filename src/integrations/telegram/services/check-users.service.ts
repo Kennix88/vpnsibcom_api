@@ -97,7 +97,7 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
     graspilUser: GraspilUser,
   ): Prisma.UserTelegramDataUpdateInput {
     return {
-      isLive: graspilUser.user_status === 0,
+      isLive: graspilUser.user_status === 1,
       isBot: this.toBoolean(graspilUser.is_bot),
       isPremium: this.toBoolean(graspilUser.is_premium),
       gender: graspilUser.gender,
