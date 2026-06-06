@@ -22,6 +22,8 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
   private readonly checkLockKey = 'telegram:check-users'
   private readonly batchSize = 500
   private lockClient: Client | null = null
+  // offset — номер страницы (page-based), как требует Graspil API.
+  // Реальное смещение строк = offset * limit.
   private nextRunOffset = 0
   private readonly maxExecutionTimeMs = 30 * 60 * 1000 // 30 минут
   private supportedLanguageCodes: Set<string> | null = null
@@ -217,6 +219,8 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
         },
       })
       if (!settings?.isActiveCheckUsers) return
+
+      // offset — номер страницы (0-based). Graspil: реальный сдвиг = offset * limit.
       let offset = this.nextRunOffset
       let processed = 0
       let updated = 0
@@ -257,8 +261,10 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
             .filter((user) => user.telegramDataId)
             .map((user) => [user.telegramId, user.telegramDataId]),
         )
+
+        const updatePromises: Promise<unknown>[] = []
+        const createPromises: Promise<boolean>[] = []
         let processedInBatch = 0
-        let updatedInBatch = 0
 
         for (const graspilUser of graspilUsers.rows) {
           if (Date.now() - startTime > this.maxExecutionTimeMs) {
@@ -269,33 +275,59 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
           const telegramDataId = usersByTelegramId.get(
             String(graspilUser.user_id),
           )
+
           if (!telegramDataId) {
-            if (await this.createMissingUserFromGraspil(graspilUser)) {
-              created += 1
-            } else {
-              createFailed += 1
-            }
-            processedInBatch += 1
-            continue
+            createPromises.push(this.createMissingUserFromGraspil(graspilUser))
+          } else {
+            updatePromises.push(
+              this.prisma.userTelegramData.update({
+                where: { id: telegramDataId },
+                data: this.getTelegramDataUpdate(graspilUser),
+              }),
+            )
           }
 
-          await this.prisma.userTelegramData.update({
-            where: { id: telegramDataId },
-            data: this.getTelegramDataUpdate(graspilUser),
-          })
-
-          updatedInBatch += 1
           processedInBatch += 1
+        }
+
+        // Параллельно выполняем все обновления и создания батча
+        const [updateResults, createResults] = await Promise.all([
+          Promise.allSettled(updatePromises),
+          Promise.allSettled(createPromises),
+        ])
+
+        const updatedInBatch = updateResults.filter(
+          (r) => r.status === 'fulfilled',
+        ).length
+        const failedUpdates = updateResults.filter(
+          (r) => r.status === 'rejected',
+        )
+        if (failedUpdates.length > 0) {
+          this.logger.warn(
+            `Check users: ${failedUpdates.length} update(s) failed in batch offset=${offset}`,
+          )
+        }
+
+        for (const result of createResults) {
+          if (result.status === 'fulfilled' && result.value) {
+            created += 1
+          } else {
+            createFailed += 1
+          }
         }
 
         processed += processedInBatch
         updated += updatedInBatch
+
         this.logger.log(
           `Check users Graspil page processed: offset=${offset}, processed=${processedInBatch}/${graspilUsers.rows.length}, updated=${updatedInBatch}, created=${created}, createFailed=${createFailed}, total=${processed}`,
         )
-        if (timedOut) break
-        offset += 1
 
+        if (timedOut) break
+
+        // Переходим на следующую страницу.
+        // Условие выхода: следующая страница начиналась бы за пределами count.
+        offset += 1
         if (offset * this.batchSize >= graspilUsers.count) break
       }
 
@@ -306,7 +338,11 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
         )
       } else {
         this.nextRunOffset = 0
+        // Сбрасываем кеш языков после полного прогона,
+        // чтобы при следующем запуске подхватить изменения в таблице Language.
+        this.supportedLanguageCodes = null
       }
+
       this.logger.log(
         `Check users finished via Graspil. Processed: ${processed}, updated: ${updated}, created: ${created}, createFailed: ${createFailed}, nextOffset: ${this.nextRunOffset}`,
       )
