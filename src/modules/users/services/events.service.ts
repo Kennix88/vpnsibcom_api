@@ -165,12 +165,10 @@ export class EventsService {
     userId,
     eventType,
     amountStars = 0,
-    isSendGraspil = false,
   }: {
     userId: string
     eventType: EventType
     amountStars?: number
-    isSendGraspil?: boolean
   }) {
     try {
       if (
@@ -259,13 +257,11 @@ export class EventsService {
         })
       }
 
-      if (isSendGraspil) {
-        await this.trySendGraspilEvent({
-          tgid: Number(user.telegramId),
-          eventType,
-          amountStars,
-        })
-      }
+      await this.trySendGraspilEvent({
+        tgid: Number(user.telegramId),
+        eventType,
+        amountStars,
+      })
     } catch (error) {
       this.logger.error(error)
     }
