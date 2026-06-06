@@ -328,7 +328,7 @@ export class AdsService {
         rewardStars:
           place == AdsPlaceEnum.REWARD_TASK && type == AdsTypeEnum.REWARD
             ? Number(adsRewards?.taskView)
-            : place == AdsPlaceEnum.REWARD_TASK && type == AdsTypeEnum.TASK
+            : place == AdsPlaceEnum.TASK && type == AdsTypeEnum.TASK
             ? Number(adsRewards?.taskAdsgram)
             : place == AdsPlaceEnum.MESSAGE && type == AdsTypeEnum.MESSAGE
             ? Number(adsRewards?.botMessage)
