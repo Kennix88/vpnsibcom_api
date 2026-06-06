@@ -64,11 +64,15 @@ export class MarzbanService {
       retryDelay: axiosRetry.exponentialDelay, // Exponential backoff retry delay
       retryCondition: (error) => {
         // Retry on network errors or 5xx errors
-        return axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error)
+        return (
+          axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error)
+        )
       },
       onRetry: (retryCount, error, requestConfig) => {
         this.logger.warn({
-          msg: `Retry attempt ${retryCount} for ${requestConfig.method?.toUpperCase()} ${requestConfig.url}: ${error.message}`,
+          msg: `Retry attempt ${retryCount} for ${requestConfig.method?.toUpperCase()} ${
+            requestConfig.url
+          }: ${error.message}`,
           service: this.serviceName,
         })
       },
@@ -337,6 +341,7 @@ export class MarzbanService {
    * Удаление администратора
    */
   async removeAdmin(username: string): Promise<void> {
+    if (process.env.NODE_ENV === 'development') return
     this.logger.info({
       msg: `Удаление администратора: ${username}`,
       service: this.serviceName,
@@ -387,6 +392,7 @@ export class MarzbanService {
     username: string,
     userData: UserModify,
   ): Promise<UserResponse> {
+    if (process.env.NODE_ENV === 'development') return
     this.logger.info({
       msg: `Изменение данных пользователя: ${username}`,
       service: this.serviceName,
@@ -403,6 +409,7 @@ export class MarzbanService {
    * @returns true в случае успеха, false в случае ошибки
    */
   async removeUser(username: string): Promise<boolean> {
+    if (process.env.NODE_ENV === 'development') return
     try {
       this.logger.info({
         msg: `Удаление пользователя ${username} из Marzban`,
@@ -455,17 +462,17 @@ export class MarzbanService {
         msg: `Requesting subscription config with token: ${token}, format: ${format}`,
         service: this.serviceName,
       })
-      
+
       // Очищаем токен от возможных лишних символов
       const cleanToken = token.trim().replace(/[`"'\s]+/g, '')
-      
+
       if (cleanToken !== token) {
         this.logger.warn({
           msg: `Token was cleaned from extra characters: '${token}' -> '${cleanToken}'`,
           service: this.serviceName,
         })
       }
-      
+
       const response: AxiosResponse = await this.logApiCall(
         'getSubscriptionConfig',
         () =>
@@ -507,6 +514,7 @@ export class MarzbanService {
    * Сброс статистики использования пользователя
    */
   async resetUserUsage(username: string): Promise<void> {
+    if (process.env.NODE_ENV === 'development') return
     this.logger.info({
       msg: `Сброс статистики использования пользователя: ${username}`,
       service: this.serviceName,
@@ -626,6 +634,7 @@ export class MarzbanService {
   async updateServerSettings(
     settings: ServerSettings,
   ): Promise<ServerSettings> {
+    if (process.env.NODE_ENV === 'development') return
     this.logger.info({
       msg: `Обновление настроек сервера`,
       service: this.serviceName,
@@ -674,6 +683,7 @@ export class MarzbanService {
    * Изменение данных ноды
    */
   async modifyNode(id: number, nodeData: NodeModify): Promise<NodeResponse> {
+    if (process.env.NODE_ENV === 'development') return
     this.logger.info({
       msg: `Изменение данных ноды с ID: ${id}`,
       service: this.serviceName,
@@ -688,6 +698,7 @@ export class MarzbanService {
    * Удаление ноды
    */
   async removeNode(id: number): Promise<void> {
+    if (process.env.NODE_ENV === 'development') return
     this.logger.info({
       msg: `Удаление ноды с ID: ${id}`,
       service: this.serviceName,
@@ -736,6 +747,7 @@ export class MarzbanService {
    * @returns Результат операции
    */
   async deactivateUser(username: string): Promise<UserResponse> {
+    if (process.env.NODE_ENV === 'development') return
     this.logger.info({
       msg: `Деактивация пользователя: ${username}`,
       service: this.serviceName,
@@ -749,6 +761,7 @@ export class MarzbanService {
    * @returns True if successful, false otherwise
    */
   public async revokeSubscription(username: string): Promise<UserResponse> {
+    if (process.env.NODE_ENV === 'development') return
     try {
       this.logger.info({
         msg: `Отзыв подписки для пользователя ${username}`,
