@@ -5,6 +5,7 @@ import { UsersService } from '@modules/users/services/users.service'
 import { UsersController } from '@modules/users/users.controller'
 import { forwardRef, Global, Module } from '@nestjs/common'
 import { TelegramPaymentsService } from '../payments/services/telegram-payments.service'
+import { AcquisitionRepairService } from './services/acquisition-repair.service'
 import { AcquisitionsService } from './services/acquisitions.service'
 import { EventsService } from './services/events.service'
 import { SessionsService } from './services/sessions.service'
@@ -25,6 +26,7 @@ import { StartParamsRepairService } from './services/start-params-repair.service
     SessionsService,
     AcquisitionsService,
     StartParamsRepairService,
+    AcquisitionRepairService,
   ],
   exports: [
     UsersService,
@@ -33,6 +35,7 @@ import { StartParamsRepairService } from './services/start-params-repair.service
     SessionsService,
     AcquisitionsService,
     StartParamsRepairService,
+    AcquisitionRepairService,
   ],
 })
 export class UsersModule {}
