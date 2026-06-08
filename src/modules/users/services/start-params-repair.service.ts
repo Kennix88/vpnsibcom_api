@@ -1,9 +1,9 @@
+import { Prisma } from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { Injectable } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
 import { PinoLogger } from 'nestjs-pino'
-import { Prisma } from '@core/prisma/generated/client'
 
 @Injectable()
 export class StartParamsRepairService {
@@ -55,16 +55,45 @@ export class StartParamsRepairService {
       source: parsed.params.source ?? null,
       compaingId: parsed.params.compaing ?? null,
       recordId: parsed.params.record ?? null,
+      // [БАГ #6] Единый формат: none[] храним как поле `none`,
+      // а не спредим с числовыми ключами.
       otherData: hasOtherData
         ? {
             ...parsed.params,
-            ...parsed.none,
+            ...(parsed.none.length > 0 && { none: parsed.none }),
           }
         : null,
     }
   }
 
-  private async repairAllSessions(): Promise<{ scanned: number; updated: number }> {
+  /**
+   * [БАГ #8] Глубокое сравнение объектов без зависимости от порядка ключей.
+   * JSON.stringify({ a: 1, b: 2 }) !== JSON.stringify({ b: 2, a: 1 }) —
+   * это приводило к лишним UPDATE при неизменённых данных.
+   */
+  private deepEqual(a: unknown, b: unknown): boolean {
+    if (a === b) return true
+    if (a === null || b === null) return a === b
+    if (typeof a !== typeof b) return false
+    if (typeof a !== 'object') return a === b
+
+    const aObj = a as Record<string, unknown>
+    const bObj = b as Record<string, unknown>
+    const aKeys = Object.keys(aObj).sort()
+    const bKeys = Object.keys(bObj).sort()
+
+    if (aKeys.length !== bKeys.length) return false
+    for (let i = 0; i < aKeys.length; i++) {
+      if (aKeys[i] !== bKeys[i]) return false
+      if (!this.deepEqual(aObj[aKeys[i]], bObj[bKeys[i]])) return false
+    }
+    return true
+  }
+
+  private async repairAllSessions(): Promise<{
+    scanned: number
+    updated: number
+  }> {
     let scanned = 0
     let updated = 0
     let cursorId: string | undefined
@@ -82,18 +111,17 @@ export class StartParamsRepairService {
           recordId: true,
           otherData: true,
         },
-        orderBy: {
-          id: 'asc',
-        },
-        ...(cursorId && {
-          cursor: { id: cursorId },
-          skip: 1,
-        }),
+        orderBy: { id: 'asc' },
+        ...(cursorId && { cursor: { id: cursorId }, skip: 1 }),
         take: this.REPAIR_BATCH,
       })
 
       if (rows.length === 0) break
       cursorId = rows[rows.length - 1].id
+
+      // [БАГ #8] Собираем все нужные апдейты и выполняем одной транзакцией
+      // вместо N отдельных запросов.
+      const updateOps: Prisma.PrismaPromise<unknown>[] = []
 
       for (const row of rows) {
         scanned++
@@ -106,27 +134,34 @@ export class StartParamsRepairService {
             ? null
             : row.otherData
 
+        // [БАГ #8] Используем deepEqual вместо JSON.stringify
         const needsUpdate =
           (row.source ?? null) !== parsed.source ||
           (row.compaingId ?? null) !== parsed.compaingId ||
           (row.recordId ?? null) !== parsed.recordId ||
-          JSON.stringify(currentOtherData) !== JSON.stringify(parsed.otherData)
+          !this.deepEqual(currentOtherData, parsed.otherData)
 
         if (!needsUpdate) continue
 
-        await this.prismaService.sessions.update({
-          where: { id: row.id },
-          data: {
-            source: parsed.source,
-            compaingId: parsed.compaingId,
-            recordId: parsed.recordId,
-            otherData:
-              parsed.otherData === null
-                ? Prisma.DbNull
-                : (parsed.otherData as Prisma.InputJsonValue),
-          },
-        })
+        updateOps.push(
+          this.prismaService.sessions.update({
+            where: { id: row.id },
+            data: {
+              source: parsed.source,
+              compaingId: parsed.compaingId,
+              recordId: parsed.recordId,
+              otherData:
+                parsed.otherData === null
+                  ? Prisma.DbNull
+                  : (parsed.otherData as Prisma.InputJsonValue),
+            },
+          }),
+        )
         updated++
+      }
+
+      if (updateOps.length > 0) {
+        await this.prismaService.$transaction(updateOps)
       }
     }
 
@@ -172,18 +207,16 @@ export class StartParamsRepairService {
           lastRecordId: true,
           lastOtherData: true,
         },
-        orderBy: {
-          id: 'asc',
-        },
-        ...(cursorId && {
-          cursor: { id: cursorId },
-          skip: 1,
-        }),
+        orderBy: { id: 'asc' },
+        ...(cursorId && { cursor: { id: cursorId }, skip: 1 }),
         take: this.REPAIR_BATCH,
       })
 
       if (rows.length === 0) break
       cursorId = rows[rows.length - 1].id
+
+      // [БАГ #8] Батчевые апдейты
+      const updateOps: Prisma.PrismaPromise<unknown>[] = []
 
       for (const row of rows) {
         scanned++
@@ -198,12 +231,12 @@ export class StartParamsRepairService {
               ? null
               : row.firstOtherData
 
+          // [БАГ #8] deepEqual вместо JSON.stringify
           if (
             (row.firstSource ?? null) !== parsed.source ||
             (row.firstCompaingId ?? null) !== parsed.compaingId ||
             (row.firstRecordId ?? null) !== parsed.recordId ||
-            JSON.stringify(currentOtherData) !==
-              JSON.stringify(parsed.otherData)
+            !this.deepEqual(currentOtherData, parsed.otherData)
           ) {
             data.firstSource = parsed.source
             data.firstCompaingId = parsed.compaingId
@@ -224,12 +257,12 @@ export class StartParamsRepairService {
               ? null
               : row.lastOtherData
 
+          // [БАГ #8] deepEqual вместо JSON.stringify
           if (
             (row.lastSource ?? null) !== parsed.source ||
             (row.lastCompaingId ?? null) !== parsed.compaingId ||
             (row.lastRecordId ?? null) !== parsed.recordId ||
-            JSON.stringify(currentOtherData) !==
-              JSON.stringify(parsed.otherData)
+            !this.deepEqual(currentOtherData, parsed.otherData)
           ) {
             data.lastSource = parsed.source
             data.lastCompaingId = parsed.compaingId
@@ -244,18 +277,27 @@ export class StartParamsRepairService {
 
         if (!needsUpdate) continue
 
-        await this.prismaService.acquisition.update({
-          where: { id: row.id },
-          data,
-        })
+        updateOps.push(
+          this.prismaService.acquisition.update({
+            where: { id: row.id },
+            data,
+          }),
+        )
         updated++
+      }
+
+      if (updateOps.length > 0) {
+        await this.prismaService.$transaction(updateOps)
       }
     }
 
     return { scanned, updated }
   }
 
-  private async repairAllEvents(): Promise<{ scanned: number; updated: number }> {
+  private async repairAllEvents(): Promise<{
+    scanned: number
+    updated: number
+  }> {
     let scanned = 0
     let updated = 0
     let cursorId: string | undefined
@@ -273,18 +315,16 @@ export class StartParamsRepairService {
           recordId: true,
           otherData: true,
         },
-        orderBy: {
-          id: 'asc',
-        },
-        ...(cursorId && {
-          cursor: { id: cursorId },
-          skip: 1,
-        }),
+        orderBy: { id: 'asc' },
+        ...(cursorId && { cursor: { id: cursorId }, skip: 1 }),
         take: this.REPAIR_BATCH,
       })
 
       if (rows.length === 0) break
       cursorId = rows[rows.length - 1].id
+
+      // [БАГ #8] Батчевые апдейты
+      const updateOps: Prisma.PrismaPromise<unknown>[] = []
 
       for (const row of rows) {
         scanned++
@@ -297,27 +337,34 @@ export class StartParamsRepairService {
             ? null
             : row.otherData
 
+        // [БАГ #8] deepEqual вместо JSON.stringify
         const needsUpdate =
           (row.source ?? null) !== parsed.source ||
           (row.compaingId ?? null) !== parsed.compaingId ||
           (row.recordId ?? null) !== parsed.recordId ||
-          JSON.stringify(currentOtherData) !== JSON.stringify(parsed.otherData)
+          !this.deepEqual(currentOtherData, parsed.otherData)
 
         if (!needsUpdate) continue
 
-        await this.prismaService.events.update({
-          where: { id: row.id },
-          data: {
-            source: parsed.source,
-            compaingId: parsed.compaingId,
-            recordId: parsed.recordId,
-            otherData:
-              parsed.otherData === null
-                ? Prisma.DbNull
-                : (parsed.otherData as Prisma.InputJsonValue),
-          },
-        })
+        updateOps.push(
+          this.prismaService.events.update({
+            where: { id: row.id },
+            data: {
+              source: parsed.source,
+              compaingId: parsed.compaingId,
+              recordId: parsed.recordId,
+              otherData:
+                parsed.otherData === null
+                  ? Prisma.DbNull
+                  : (parsed.otherData as Prisma.InputJsonValue),
+            },
+          }),
+        )
         updated++
+      }
+
+      if (updateOps.length > 0) {
+        await this.prismaService.$transaction(updateOps)
       }
     }
 
