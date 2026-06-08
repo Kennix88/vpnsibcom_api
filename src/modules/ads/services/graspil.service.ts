@@ -27,6 +27,7 @@ export interface GraspilUser {
   birth_day: number | null
   birth_month: number | null
   birth_year: number | null
+  bio: string | null
 }
 
 interface GraspilGetUsersResponse {
