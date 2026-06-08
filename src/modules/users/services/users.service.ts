@@ -14,6 +14,7 @@ import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
 import { UserDataInterface } from '@shared/types/user-data.interface'
+import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import { isRtl } from '@shared/utils/is-rtl.util'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
 import { PinoLogger } from 'nestjs-pino'
@@ -38,45 +39,27 @@ export class UsersService {
   public async updateLanguage(tgId: string, language: string) {
     try {
       const languageId = await this.prismaService.language.findUnique({
-        where: {
-          iso6391: language,
-        },
-        select: {
-          id: true,
-        },
+        where: { iso6391: language },
+        select: { id: true },
       })
 
       return await this.prismaService.users.update({
-        where: {
-          telegramId: tgId,
-        },
-        data: {
-          languageId: languageId.id,
-        },
+        where: { telegramId: tgId },
+        data: { languageId: languageId.id },
       })
     } catch (e) {
-      this.logger.error({
-        msg: `Error while updating user language`,
-        e,
-      })
+      this.logger.error({ msg: `Error while updating user language`, e })
     }
   }
 
   public async updateCurrency(tgId: string, currency: CurrencyEnum) {
     try {
       return await this.prismaService.users.update({
-        where: {
-          telegramId: tgId,
-        },
-        data: {
-          currencyKey: currency,
-        },
+        where: { telegramId: tgId },
+        data: { currencyKey: currency },
       })
     } catch (e) {
-      this.logger.error({
-        msg: `Error while updating user currency`,
-        e,
-      })
+      this.logger.error({ msg: `Error while updating user currency`, e })
     }
   }
 
@@ -101,7 +84,6 @@ export class UsersService {
     const FIVE_MIN_AGO = now - 300
     const ONE_HOUR_AGO = now - 3600
 
-    // 1. Получаем пользователей без активности >5 минут
     const inactiveUsers = await this.redis.zrangebyscore(
       'recent_activities',
       '-inf',
@@ -110,22 +92,19 @@ export class UsersService {
 
     if (inactiveUsers.length === 0) return
 
-    // 2. Пакетно получаем временные метки
     const pipeline = this.redis.pipeline()
     inactiveUsers.forEach((userId) =>
       pipeline.get(`${this.USER_ACTIVITY_PREFIX}${userId}`),
     )
     const results = await pipeline.exec()
 
-    // 3. Формируем данные для обновления
     const updates = inactiveUsers
       .map((userId, i) => ({
         userId,
-        lastActive: parseInt(<string>results[i][1]) * 1000, // Конвертируем в ms
+        lastActive: parseInt(<string>results[i][1]) * 1000,
       }))
-      .filter((u) => u.lastActive <= Date.now() - 300000) // Точная проверка 5 минут
+      .filter((u) => u.lastActive <= Date.now() - 300000)
 
-    // 4. Пакетное обновление в PostgreSQL
     if (updates.length > 0) {
       await this.prismaService.$transaction(
         updates.map((user) =>
@@ -137,10 +116,8 @@ export class UsersService {
       )
     }
 
-    // 5. Очистка данных старше 1 часа (но оставляем свежие)
     await this.redis.zremrangebyscore('recent_activities', '-inf', ONE_HOUR_AGO)
 
-    // Для каждого удаленного из zset проверяем нужно ли удалять ключ
     const hourOldKeys = updates
       .filter((u) => u.lastActive <= Date.now() - 3600000)
       .map((u) => `${this.USER_ACTIVITY_PREFIX}${u.userId}`)
@@ -151,11 +128,7 @@ export class UsersService {
   }
 
   public async getResUserById(id: string): Promise<UserDataInterface> {
-    const user = await this.prismaService.users.findUnique({
-      where: {
-        id,
-      },
-    })
+    const user = await this.prismaService.users.findUnique({ where: { id } })
     return this.getResUserByTgId(user.telegramId)
   }
 
@@ -167,15 +140,13 @@ export class UsersService {
       if (!user) return
 
       const settings = await this.prismaService.settings.findUnique({
-        where: {
-          key: DefaultEnum.DEFAULT,
-        },
+        where: { key: DefaultEnum.DEFAULT },
       })
 
       const messageId: string = await this.bot.telegram
         // @ts-ignore
         .callApi('savePreparedInlineMessage', {
-          user_id: user.telegramId, // для какого пользователя готовим сообщение
+          user_id: user.telegramId,
           result: {
             type: 'photo',
             id: crypto.randomUUID(),
@@ -278,34 +249,21 @@ export class UsersService {
         lastFullscreenViewedAt: user.adsData.lastFullscreenViewedAt,
       }
     } catch (e) {
-      this.logger.error({
-        msg: `Error while getting user by tgId`,
-        e,
-      })
+      this.logger.error({ msg: `Error while getting user by tgId`, e })
     }
   }
 
   public async getUserByTgId(telegramId: string) {
     try {
       return await this.prismaService.users.findUnique({
-        where: {
-          telegramId,
-        },
+        where: { telegramId },
         include: {
           balance: true,
-          subscriptions: {
-            where: {
-              deletedAt: null,
-            },
-          },
+          subscriptions: { where: { deletedAt: null } },
           referrals: true,
           inviters: {
             include: {
-              inviter: {
-                include: {
-                  balance: true,
-                },
-              },
+              inviter: { include: { balance: true } },
             },
           },
           telegramData: true,
@@ -317,40 +275,28 @@ export class UsersService {
         },
       })
     } catch (e) {
-      this.logger.error({
-        msg: `Error while getting user by tgId`,
-        e,
-      })
+      this.logger.error({ msg: `Error while getting user by tgId`, e })
     }
   }
 
   public async updateTelegramDataUser(
     telegramId: string,
     initData: TelegramInitDataInterface,
-    birth?: {
-      year?: number
-      month: number
-      day: number
-    },
+    birth?: { year?: number; month: number; day: number },
   ) {
     try {
       const user = await this.prismaService.users.findUnique({
-        where: {
-          telegramId,
-        },
-        select: {
-          telegramDataId: true,
-        },
+        where: { telegramId },
+        select: { telegramDataId: true },
       })
       if (!user) return
 
       const isRTL = !initData
         ? false
         : isRtl([initData?.user.first_name, initData?.user.last_name])
+
       await this.prismaService.userTelegramData.update({
-        where: {
-          id: user.telegramDataId,
-        },
+        where: { id: user.telegramDataId },
         data: {
           isLive: true,
           isRtl: isRTL,
@@ -389,28 +335,24 @@ export class UsersService {
     startParam,
     ua,
     ip,
+    telegramPlatform,
   }: {
     telegramId: string
     referralKey?: string
     initData?: TelegramInitDataInterface
     userInBotData?: UserInBotInterface
     isTelegramPartner?: boolean
-    birth?: {
-      year?: number
-      month: number
-      day: number
-    }
+    birth?: { year?: number; month: number; day: number }
     country?: string
     startParam?: string
     ua?: string
     ip?: string
+    telegramPlatform?: TelegramPlatformEnum
   }) {
     try {
       const user = await this.prismaService.$transaction(async (tx) => {
         const parseStartParams = parseStartParamUtil(startParam ?? '')
-        const balance = await tx.userBalance.create({
-          data: {},
-        })
+        const balance = await tx.userBalance.create({ data: {} })
         const isRTL = !initData
           ? false
           : isRtl([initData?.user.first_name, initData?.user.last_name])
@@ -467,9 +409,7 @@ export class UsersService {
         })
 
         const language = await tx.language.findUnique({
-          where: {
-            iso6391: requestedLanguageCode,
-          },
+          where: { iso6391: requestedLanguageCode },
         })
         if (!language) {
           throw new Error(`Language not found: ${requestedLanguageCode}`)
@@ -482,6 +422,21 @@ export class UsersService {
             lastMessageNetwork: null,
           },
         })
+
+        const hasOtherData =
+          Object.keys(parseStartParams.params).length > 0 ||
+          parseStartParams.none.length > 0
+
+        // [БАГ #6] Единый формат none[]: храним как поле `none`,
+        // а не спредим с числовыми ключами ({ 0: "value" }).
+        const otherDataValue = hasOtherData
+          ? {
+              ...parseStartParams.params,
+              ...(parseStartParams.none.length > 0 && {
+                none: parseStartParams.none,
+              }),
+            }
+          : undefined
 
         const acquisition = await tx.acquisition.create({
           data: {
@@ -507,16 +462,9 @@ export class UsersService {
               firstRecordId: parseStartParams.params.record,
               lastRecordId: parseStartParams.params.record,
             }),
-            ...((Object.keys(parseStartParams.params).length > 0 ||
-              parseStartParams.none.length > 0) && {
-              firstOtherData: {
-                ...parseStartParams.params,
-                ...parseStartParams.none,
-              },
-              lastOtherData: {
-                ...parseStartParams.params,
-                ...parseStartParams.none,
-              },
+            ...(otherDataValue && {
+              firstOtherData: otherDataValue,
+              lastOtherData: otherDataValue,
             }),
           },
         })
@@ -546,11 +494,7 @@ export class UsersService {
             include: {
               inviters: {
                 include: {
-                  inviter: {
-                    include: {
-                      inviters: true,
-                    },
-                  },
+                  inviter: { include: { inviters: true } },
                 },
               },
             },
@@ -646,6 +590,7 @@ export class UsersService {
 <b>Язык:</b> <code>${this.escapeHtml(tdata.languageCode)}</code>
 <b>User-Agent:</b> <code>${this.escapeHtml(normalizedUa || 'Не передан')}</code>
 <b>IP:</b> <code>${this.escapeHtml(normalizedIp || 'Не передан')}</code>
+<b>Platform:</b> <code>${telegramPlatform || 'Не передан'}</code>
 `,
         })
 
@@ -653,9 +598,7 @@ export class UsersService {
       })
 
       if (!user) {
-        this.logger.error({
-          msg: `Error while creating user`,
-        })
+        this.logger.error({ msg: `Error while creating user` })
       } else {
         await this.eventsService.createEvent({
           userId: user.id,
@@ -686,14 +629,6 @@ export class UsersService {
       .replace(/>/g, '&gt;')
   }
 
-  /**
-   * Deducts funds from user balance considering balance type
-   * @param userId - User ID
-   * @param amount - Amount to deduct
-   * @param reason - Transaction reason
-   * @param balanceType - Type of balance to deduct from (PAYMENT, HOLD, WAGER, TICKETS)
-   * @returns Object with transaction information or null if error
-   */
   public async deductUserBalance(
     userId: string,
     amount: number,
@@ -702,22 +637,16 @@ export class UsersService {
       | BalanceTypeEnum.PAYMENT
       | BalanceTypeEnum.HOLD
       | BalanceTypeEnum.USDT,
-  ): Promise<{
-    success: boolean
-  }> {
+  ): Promise<{ success: boolean }> {
     try {
       if (amount <= 0) return { success: true }
-      // Get user data with balance information
+
       const user = await this.prismaService.users.findUnique({
         where: { id: userId },
         select: {
           id: true,
           balance: true,
-          language: {
-            select: {
-              iso6391: true,
-            },
-          },
+          language: { select: { iso6391: true } },
         },
       })
 
@@ -730,7 +659,6 @@ export class UsersService {
         return { success: false }
       }
 
-      // Check if user has enough balance based on balance type
       if (
         (balanceType === BalanceTypeEnum.USDT &&
           Number(user.balance.usdt) < amount) ||
@@ -741,14 +669,13 @@ export class UsersService {
       )
         return { success: false }
 
-      // Perform deduction in transaction
       const result = await this.prismaService.$transaction(async (tx) => {
         await tx.userBalance.update({
           where: { id: user.balance.id },
           data: {
-            ...(balanceType == BalanceTypeEnum.USDT
+            ...(balanceType === BalanceTypeEnum.USDT
               ? { usdt: { decrement: amount } }
-              : balanceType == BalanceTypeEnum.PAYMENT
+              : balanceType === BalanceTypeEnum.PAYMENT
               ? { paymentBalance: { decrement: amount } }
               : {}),
           },
@@ -756,17 +683,15 @@ export class UsersService {
 
         await tx.transactions.create({
           data: {
-            amount: amount,
+            amount,
             type: TransactionTypeEnum.MINUS,
-            reason: reason,
-            balanceType: balanceType,
+            reason,
+            balanceType,
             balanceId: user.balance.id,
           },
         })
 
-        return {
-          success: true,
-        }
+        return { success: true }
       })
 
       return result
@@ -793,22 +718,16 @@ export class UsersService {
       | BalanceTypeEnum.PAYMENT
       | BalanceTypeEnum.HOLD
       | BalanceTypeEnum.USDT,
-  ): Promise<{
-    success: boolean
-  }> {
+  ): Promise<{ success: boolean }> {
     try {
       if (amount <= 0) return { success: true }
-      // Get user data with balance information
+
       const user = await this.prismaService.users.findUnique({
         where: { id: userId },
         select: {
           id: true,
           balance: true,
-          language: {
-            select: {
-              iso6391: true,
-            },
-          },
+          language: { select: { iso6391: true } },
         },
       })
 
@@ -821,14 +740,13 @@ export class UsersService {
         return { success: false }
       }
 
-      // Perform deduction in transaction
       const result = await this.prismaService.$transaction(async (tx) => {
         await tx.userBalance.update({
           where: { id: user.balance.id },
           data: {
-            ...(balanceType == BalanceTypeEnum.USDT
+            ...(balanceType === BalanceTypeEnum.USDT
               ? { usdt: { increment: amount } }
-              : balanceType == BalanceTypeEnum.PAYMENT
+              : balanceType === BalanceTypeEnum.PAYMENT
               ? { paymentBalance: { increment: amount } }
               : {}),
           },
@@ -836,23 +754,21 @@ export class UsersService {
 
         await tx.transactions.create({
           data: {
-            amount: amount,
+            amount,
             type: TransactionTypeEnum.PLUS,
-            reason: reason,
-            balanceType: balanceType,
+            reason,
+            balanceType,
             balanceId: user.balance.id,
           },
         })
 
-        return {
-          success: true,
-        }
+        return { success: true }
       })
 
       return result
     } catch (error) {
       this.logger.error({
-        msg: `Error while deducting user balance`,
+        msg: `Error while adding user balance`,
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
         userId,
