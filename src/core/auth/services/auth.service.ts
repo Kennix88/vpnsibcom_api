@@ -1,4 +1,3 @@
-import { TelegramPlatformEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { TaddyService } from '@modules/ads/taddy.service'
 import { GeoService } from '@modules/geo/geo.service'
@@ -13,6 +12,7 @@ import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
 import { UserDataInterface } from '@shared/types/user-data.interface'
+import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import { extractReferralKey } from '@shared/utils/parse-start-param.util'
 import { parse } from '@telegram-apps/init-data-node'
 import { PinoLogger } from 'nestjs-pino'
@@ -47,16 +47,136 @@ export class AuthService {
       await this.userService.updateUserActivity(payload.sub)
     } catch (e) {
       this.logger.error({
-        msg: `Error udapte user activity`,
+        msg: `Error updating user activity`,
         e,
       })
     }
   }
 
   /**
+   * Максимальный возраст аккаунта (в мс), при котором ещё допустимо
+   * привязать реферала. По умолчанию 3 суток.
+   * Смысл: пользователь «свежий» — скорее всего пришёл именно по этой ссылке.
+   * Старый пользователь просто кликнул чужую рефку — привязывать его нечестно.
+   */
+  private static readonly MAX_REFERRAL_ACCOUNT_AGE_MS = 3 * 24 * 60 * 60 * 1000
+
+  /**
+   * Создаёт реферальные записи для уже существующего пользователя,
+   * пришедшего по реферальной ссылке (например, переустановил TMA).
+   * [БАГ #3] — для новых пользователей цепочка создаётся в createUser,
+   * для существующих раньше она не создавалась никогда.
+   *
+   * Защита от накрутки: если аккаунт старше MAX_REFERRAL_ACCOUNT_AGE_MS —
+   * пропускаем. Старый пользователь мог кликнуть чужую ссылку случайно.
+   */
+  private async createReferralsForExistingUser(
+    userId: string,
+    referralKey: string,
+    isPremium: boolean,
+  ): Promise<void> {
+    try {
+      // Если у пользователя уже есть любой реферал — не переприсваиваем
+      const existingReferral = await this.prisma.referrals.findFirst({
+        where: { referralId: userId },
+        select: { id: true },
+      })
+      if (existingReferral) return
+
+      // Проверяем возраст аккаунта — берём дату создания пользователя
+      const userMeta = await this.prisma.users.findUnique({
+        where: { id: userId },
+        select: { createdAt: true },
+      })
+      if (!userMeta) return
+
+      const accountAgeMs = Date.now() - userMeta.createdAt.getTime()
+      if (accountAgeMs > AuthService.MAX_REFERRAL_ACCOUNT_AGE_MS) {
+        this.logger.info({
+          msg: 'Skipping referral creation: account is too old',
+          userId,
+          referralKey,
+          accountAgeDays: Math.floor(accountAgeMs / 86_400_000),
+          service: this.serviceName,
+        })
+        return
+      }
+
+      const inviterLvl1 = await this.prisma.users.findUnique({
+        where: { telegramId: referralKey },
+        include: {
+          inviters: {
+            include: {
+              inviter: {
+                include: { inviters: true },
+              },
+            },
+          },
+        },
+      })
+
+      if (!inviterLvl1) {
+        this.logger.warn({
+          msg: 'Referral key present but inviter not found (existing user)',
+          userId,
+          referralKey,
+          service: this.serviceName,
+        })
+        return
+      }
+
+      const referrals: Array<{
+        level: number
+        inviterId: string
+        referralId: string
+        isPremium: boolean
+      }> = [
+        { level: 1, inviterId: inviterLvl1.id, referralId: userId, isPremium },
+      ]
+
+      for (const lvl2 of inviterLvl1.inviters) {
+        referrals.push({
+          level: 2,
+          inviterId: lvl2.inviter.id,
+          referralId: userId,
+          isPremium,
+        })
+        for (const lvl3 of lvl2.inviter.inviters) {
+          referrals.push({
+            level: 3,
+            inviterId: lvl3.inviterId,
+            referralId: userId,
+            isPremium,
+          })
+        }
+      }
+
+      await this.prisma.referrals.createMany({
+        data: referrals,
+        skipDuplicates: true,
+      })
+
+      this.logger.info({
+        msg: 'Referrals created for existing user',
+        userId,
+        referralKey,
+        levels: referrals.length,
+        service: this.serviceName,
+      })
+    } catch (e) {
+      // Не падаем — реферальная логика не должна блокировать вход
+      this.logger.error({
+        msg: 'Failed to create referrals for existing user',
+        userId,
+        referralKey,
+        e,
+        service: this.serviceName,
+      })
+    }
+  }
+
+  /**
    * Handles Telegram login process.
-   * @param initData - The initialization data from Telegram.
-   * @returns An object containing access token, refresh token, and user data.
    */
   async telegramLogin(
     initData: string,
@@ -90,32 +210,8 @@ export class AuthService {
         telegramId: userData?.user?.id ?? null,
       })
     }
-    const country = this.geoService.getCountry(ip)
 
-    // await this.taddyService.startEvent({
-    //   user: {
-    //     id: Number(userData.user.id),
-    //     firstName: userData.user.first_name,
-    //     lastName: userData.user.last_name,
-    //     username: userData.user.username,
-    //     premium: userData.user.is_premium,
-    //     language: userData.user.language_code,
-    //     ip,
-    //     ...(country && { country: country.toUpperCase() }),
-    //     userAgent: ua,
-    //     // @ts-ignore
-    //     ...(chatInfo &&
-    //       // @ts-ignore
-    //       chatInfo.birthdate &&
-    //       // @ts-ignore
-    //       chatInfo.birthdate.year && {
-    //         // @ts-ignore
-    //         birthDate: `${chatInfo.birthdate.year}-${chatInfo.birthdate.month}-${chatInfo.birthdate.day}`,
-    //       }),
-    //   },
-    //   origin: TaddyOriginEnum.WEB,
-    //   start: userData.start_param,
-    // })
+    const country = this.geoService.getCountry(ip)
 
     const birth = chatInfo &&
       // @ts-ignore
@@ -131,68 +227,85 @@ export class AuthService {
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
 
     const initDataParams = new URLSearchParams(initData)
-    const normalizedStartParamFromClient = startParamFromClient?.trim()
+
+    // [БАГ #1] Пустая строка от фронтенда ("") не должна перекрывать
+    // start_param из initData. Конвертируем пустую строку в undefined,
+    // чтобы оператор ?? корректно переходил к следующему источнику.
+    const normalizedStartParamFromClient =
+      startParamFromClient?.trim() || undefined
+
     let startParam =
       normalizedStartParamFromClient ??
       userData.start_param ??
-      // compatibility: some parsers may expose camelCase fields
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (userData as any).startParam ??
       initDataParams.get('start_param') ??
       initDataParams.get('tgWebAppStartParam') ??
       ''
+
     let refId = extractReferralKey(startParam)
 
     if (!user) {
+      // ── Новый пользователь ────────────────────────────────────────────
       user = await this.userService.createUser({
         telegramId: userData.user.id.toString(),
         initData: userData,
         startParam,
-        ...(refId && {
-          referralKey: refId,
-        }),
+        ...(refId && { referralKey: refId }),
         ...(birth && { birth }),
         ...(country && { country }),
         ua,
         ip,
+        telegramPlatform,
       })
       if (!user) {
         throw new UnauthorizedException(
           'Telegram login failed: unable to create user.',
         )
       }
-    } else if (!refId || !startParam) {
-      const lastSession = await this.prisma.sessions.findFirst({
-        where: {
-          userId: user.id,
-          place: SessionPlaceEnum.TELEGRAM_MINIAPP,
-          OR: [{ referralId: { not: null } }, { startParams: { not: null } }],
-        },
-        select: {
-          referralId: true,
-          startParams: true,
-        },
-        orderBy: {
-          startedAt: 'desc',
-        },
-      })
+    } else {
+      // ── Существующий пользователь ────────────────────────────────────
+      // [БАГ #4] Восстанавливаем отсутствующие данные из последней сессии,
+      // но только если они действительно отсутствуют в текущем запросе.
+      if (!refId || !startParam) {
+        const lastSession = await this.prisma.sessions.findFirst({
+          where: {
+            userId: user.id,
+            place: SessionPlaceEnum.TELEGRAM_MINIAPP,
+            OR: [{ referralId: { not: null } }, { startParams: { not: null } }],
+          },
+          select: {
+            referralId: true,
+            startParams: true,
+          },
+          orderBy: { startedAt: 'desc' },
+        })
 
-      if (!refId && lastSession?.referralId) {
-        refId = lastSession.referralId
+        // Подставляем только то, чего нет — не перезаписываем существующее
+        if (!refId && lastSession?.referralId) {
+          refId = lastSession.referralId
+        }
+
+        if (!startParam && lastSession?.startParams) {
+          startParam = lastSession.startParams
+          this.logger.info({
+            msg: 'Using last known start params for acquisition/session patch',
+            userId: user.id,
+            startParams: lastSession.startParams,
+            service: this.serviceName,
+          })
+        }
       }
 
-      if (!startParam && lastSession?.startParams) {
-        startParam = lastSession.startParams
-        this.logger.info({
-          msg: 'Using last known start params for acquisition/session patch',
-          userId: user.id,
-          startParams: lastSession.startParams,
-          service: this.serviceName,
-        })
+      // [БАГ #3] Создаём реферальные записи для существующего пользователя,
+      // пришедшего по реферальной ссылке (ранее не создавалось никогда).
+      if (refId) {
+        const isPremium = user.telegramData?.isPremium ?? false
+        await this.createReferralsForExistingUser(user.id, refId, isPremium)
       }
     }
 
-    // Update user country registration if it's not set
+    // Обновляем страну регистрации если не была задана
     if (!user.countryRegistration && country) {
       await this.prisma.users.update({
         where: { id: user.id },
@@ -209,9 +322,7 @@ export class AuthService {
     await this.sessionsService.createSession({
       userId: user.id,
       place: SessionPlaceEnum.TELEGRAM_MINIAPP,
-      ...(refId && {
-        referralKey: refId,
-      }),
+      ...(refId && { referralKey: refId }),
       ip,
       ua,
       telegramPlatform,
@@ -221,9 +332,7 @@ export class AuthService {
     await this.acquisitionsService.updateAcquisition({
       userId: user.id,
       startParams: startParam,
-      ...(refId && {
-        referralKey: refId,
-      }),
+      ...(refId && { referralKey: refId }),
     })
 
     this.logger.info({
@@ -247,19 +356,20 @@ export class AuthService {
 
     const resUser = await this.userService.getResUserByTgId(user.telegramId)
 
-    // Check if resUser is defined to prevent errors in AuthController
     if (!resUser) {
       throw new UnauthorizedException(
         'Telegram login failed: User data not found after token generation.',
       )
     }
 
-    return {
-      ...tokens,
-      user: resUser,
-    }
+    return { ...tokens, user: resUser }
   }
 
+  /**
+   * Refreshes token pair.
+   * [БАГ #7] Двойная верификация JWT устранена: rotateTokens сам верифицирует
+   * токен и возвращает payload наружу — повторный verifyAsync не нужен.
+   */
   async refreshTokens(
     refreshToken: string,
     ip?: string,
@@ -270,13 +380,8 @@ export class AuthService {
     user: UserDataInterface
   }> {
     try {
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(
-        refreshToken,
-        { secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET') },
-      )
-
-      const tokens = await this.tokenService.rotateTokens(
-        payload.sub,
+      // rotateTokens верифицирует токен внутри и возвращает payload
+      const { payload, ...tokens } = await this.tokenService.rotateTokens(
         refreshToken,
       )
 
@@ -292,10 +397,7 @@ export class AuthService {
         ua,
       })
 
-      return {
-        ...tokens,
-        user: user,
-      }
+      return { ...tokens, user }
     } catch (e) {
       throw new UnauthorizedException('Invalid refresh token')
     }
