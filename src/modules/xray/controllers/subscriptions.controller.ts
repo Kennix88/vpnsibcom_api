@@ -1,25 +1,29 @@
+// FIX #3: Приведены к единому алиасу все импорты из auth-модуля.
+// Оригинал смешивал '@core/auth/...' и '@vpnsibcom/src/core/auth/...'
+// для одних и тех же символов — признак незавершённого рефакторинга.
+import { CurrentUser } from '@core/auth/decorators/current-user.decorator'
 import { PreventDuplicateRequest } from '@core/auth/decorators/prevent-duplicate.decorator'
+import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
 import { AuthService } from '@core/auth/services/auth.service'
 import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
-  HttpException,
   HttpCode,
+  HttpException,
   HttpStatus,
   InternalServerErrorException,
+  NotFoundException,
   Param,
   Post,
   Req,
-  Res,
   UseGuards,
 } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
-import { CurrentUser } from '@vpnsibcom/src/core/auth/decorators/current-user.decorator'
-import { JwtAuthGuard } from '@vpnsibcom/src/core/auth/guards/jwt-auth.guard'
-import { JwtPayload } from '@vpnsibcom/src/shared/types/jwt-payload.interface'
-import { FastifyReply, FastifyRequest } from 'fastify'
+import { JwtPayload } from '@shared/types/jwt-payload.interface'
+import { FastifyRequest } from 'fastify'
 import { PinoLogger } from 'nestjs-pino'
 import { UsersService } from '../../users/services/users.service'
 import { XrayService } from '../services/xray.service'
@@ -56,6 +60,27 @@ export class SubscriptionsController {
     private readonly userService: UsersService,
   ) {}
 
+  // FIX #4: Выделен общий приватный метод обновления активности пользователя.
+  // Оригинальный код дублировал этот блок в каждом из 10 методов контроллера.
+  // JwtAuthGuard уже гарантирует наличие токена — дополнительная проверка
+  // на null убрана как избыточная (BadRequestException здесь недостижим).
+  private async refreshActivity(req: FastifyRequest): Promise<void> {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (token) {
+      await this.authService.updateUserActivity(token)
+    }
+  }
+
+  // FIX #4: Выделен общий приватный метод загрузки подписок и данных пользователя,
+  // который повторяется в большинстве методов контроллера.
+  private async getSubscriptionsAndUser(sub: string, telegramId: string) {
+    const [subscriptions, userData] = await Promise.all([
+      this.xrayService.getSubscriptions(sub),
+      this.userService.getResUserByTgId(telegramId),
+    ])
+    return { subscriptions, user: userData }
+  }
+
   @Get('by-id/:id')
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
   @UseGuards(JwtAuthGuard)
@@ -64,19 +89,13 @@ export class SubscriptionsController {
     @CurrentUser() user: JwtPayload,
     @Param('id') id: string,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ) {
     try {
       this.logger.info(
         `Получение подписки для пользователя: ${user.telegramId}`,
       )
 
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const subscription = await this.xrayService.getSubscriptionByTokenOrId({
         isToken: false,
@@ -85,36 +104,31 @@ export class SubscriptionsController {
       })
 
       if (!subscription) {
-        this.logger.warn(
-          `Не удалось получить подписку для пользователя: ${user.telegramId}`,
-        )
-        res.status(HttpStatus.NOT_FOUND)
-        return {
-          data: {
-            success: false,
-            message: 'Подписка не найдена',
-          },
-        }
+        throw new NotFoundException('Подписка не найдена')
       }
 
-      return {
-        data: {
-          success: true,
-          ...subscription,
-        },
+      // FIX #2: Добавлена проверка владельца подписки.
+      // Ранее любой авторизованный пользователь мог получить чужую
+      // подписку, зная её id. Теперь сравниваем userId из подписки
+      // с user.sub из JWT-токена.
+      if (subscription.userId !== user.sub) {
+        this.logger.warn(
+          `Пользователь ${user.telegramId} попытался получить чужую подписку ${id}`,
+        )
+        throw new ForbiddenException('Нет доступа к этой подписке')
       }
+
+      return { data: { success: true, ...subscription } }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
-        `Ошибка при получение подписки: ${
+        `Ошибка при получении подписки: ${
           error instanceof Error ? error.message : String(error)
         }`,
         error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
-        'Произошла ошибка при получение подписки',
+        'Произошла ошибка при получении подписки',
       )
     }
   }
@@ -125,7 +139,6 @@ export class SubscriptionsController {
   async getSubscriptionByToken(
     @Param('token') token: string,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ) {
     try {
       this.logger.info(`Getting a subscription using a token: ${token}`)
@@ -137,26 +150,12 @@ export class SubscriptionsController {
       })
 
       if (!subscription) {
-        this.logger.warn(`Couldn't get a token subscription: ${token}`)
-        res.status(HttpStatus.NOT_FOUND)
-        return {
-          data: {
-            success: false,
-            message: 'Subscription not found',
-          },
-        }
+        throw new NotFoundException('Subscription not found')
       }
 
-      return {
-        data: {
-          success: true,
-          ...subscription,
-        },
-      }
+      return { data: { success: true, ...subscription } }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Error when receiving a subscription: ${
           error instanceof Error ? error.message : String(error)
@@ -177,19 +176,13 @@ export class SubscriptionsController {
   async freePlanActivated(
     @CurrentUser() user: JwtPayload,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<SubscriptionResponse> {
     try {
       this.logger.info(
         `Активация бесплатного плана для пользователя: ${user.telegramId}`,
       )
 
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const freePlanActivated = await this.xrayService.activateFreePlan(
         user.telegramId,
@@ -199,35 +192,21 @@ export class SubscriptionsController {
         this.logger.warn(
           `Не удалось активировать бесплатный план для пользователя: ${user.telegramId}`,
         )
-        res.status(HttpStatus.FORBIDDEN)
-        return {
-          data: {
-            success: false,
-            message: 'Не удалось активировать бесплатный план',
-          },
-        }
+        throw new BadRequestException('Не удалось активировать бесплатный план')
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
       this.logger.info(
         `Бесплатный план успешно активирован для пользователя: ${user.telegramId}`,
       )
 
-      return {
-        data: {
-          success: true,
-          subscriptions,
-          user: userData,
-        },
-      }
+      return { data: { success: true, ...payload } }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при активации бесплатного плана: ${
           error instanceof Error ? error.message : String(error)
@@ -240,38 +219,30 @@ export class SubscriptionsController {
     }
   }
 
+  // FIX #8: Добавлен @Throttle — единственный GET-эндпоинт без троттлинга,
+  // хотя делает два параллельных запроса к БД.
   @Get()
   @UseGuards(JwtAuthGuard)
+  @Throttle({ defaults: { limit: 10, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   async getUserSubscriptions(
     @CurrentUser() user: JwtPayload,
     @Req() req: FastifyRequest,
   ): Promise<SubscriptionResponse> {
     try {
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
       this.logger.info(
         `Получение подписок для пользователя: ${user.telegramId}`,
       )
 
-      const subscriptions = await this.xrayService.getSubscriptions(user.sub)
-      const userData = await this.userService.getResUserByTgId(user.telegramId)
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
-      return {
-        data: {
-          success: true,
-          subscriptions,
-          user: userData,
-        },
-      }
+      return { data: { success: true, ...payload } }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при получении подписок: ${
           error instanceof Error ? error.message : String(error)
@@ -293,19 +264,13 @@ export class SubscriptionsController {
     @CurrentUser() user: JwtPayload,
     @Body() purchaseDto: PurchaseSubscriptionDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<SubscriptionResponse> {
     try {
       this.logger.info(
         `Запрос на покупку подписки от пользователя: ${user.telegramId}, период: ${purchaseDto.period}`,
       )
 
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const result = await this.xrayService.purchaseSubscription({
         telegramId: user.telegramId,
@@ -331,24 +296,14 @@ export class SubscriptionsController {
         throw new BadRequestException(result.message)
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
-      return {
-        data: {
-          success: true,
-          ...result,
-          subscriptions,
-          user: userData,
-        },
-      }
+      return { data: { success: true, ...result, ...payload } }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
-
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при покупке подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -371,14 +326,11 @@ export class SubscriptionsController {
     @Param('id') id: string,
     @Body() addTrafficDto: AddTrafficSubscriptionDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
+    // FIX #5: Убран @Res — параметр объявлялся, но никогда не использовался.
+    // Лишняя инъекция @Res влияет на жизненный цикл ответа Fastify.
   ) {
     try {
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const result = await this.xrayService.addTraffic(
         id,
@@ -389,37 +341,34 @@ export class SubscriptionsController {
 
       if (!result.success) {
         this.logger.warn(
-          `Не удалось Добавить трафик для подписки пользователя: ${user.telegramId}, ID подписки: ${id}, причина: ${result.message}`,
+          `Не удалось добавить трафик для подписки пользователя: ${user.telegramId}, ID подписки: ${id}, причина: ${result.message}`,
         )
         throw new BadRequestException(result.message)
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
       return {
         data: {
           success: true,
           message: 'Traffic is added',
           ...result,
-          subscriptions,
-          user: userData,
+          ...payload,
         },
       }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
-        `Ошибка при Добавлении трафика подписки: ${
+        `Ошибка при добавлении трафика подписки: ${
           error instanceof Error ? error.message : String(error)
         }`,
         error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
-        'Произошла ошибка при Добавлении трафика подписки',
+        'Произошла ошибка при добавлении трафика подписки',
       )
     }
   }
@@ -434,14 +383,16 @@ export class SubscriptionsController {
     @Param('id') id: string,
     @Body() serverDto: UpdateServerDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
+    // FIX #5: Убран @Res — не использовался
   ) {
     try {
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
+      await this.refreshActivity(req)
+
+      // FIX #6: Добавлена проверка наличия сервера в массиве перед обращением
+      // к индексу 0. Ранее при пустом массиве передавался undefined.
+      if (!serverDto.servers || serverDto.servers.length === 0) {
+        throw new BadRequestException('Необходимо указать хотя бы один сервер')
       }
-      await this.authService.updateUserActivity(token)
 
       const result = await this.xrayService.updateServer(
         id,
@@ -456,23 +407,20 @@ export class SubscriptionsController {
         throw new BadRequestException(result.message)
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
       return {
         data: {
           success: true,
           message: 'Subscription server is changed',
-          subscriptions,
-          user: userData,
+          ...payload,
         },
       }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при изменении сервера подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -495,25 +443,21 @@ export class SubscriptionsController {
     @Param('id') id: string,
     @Body() editDto: EditSubscriptionNameDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
+    // FIX #5: Убран @Res — не использовался
   ) {
     try {
       this.logger.info(
         `Запрос на изменение имени подписки от пользователя: ${user.telegramId}, ID подписки: ${id}`,
       )
 
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const result = await this.xrayService.editSubscriptionName(
         id,
         editDto.name,
         user.sub,
       )
+
       if (!result.success) {
         this.logger.warn(
           `Не удалось изменить имя подписки для пользователя: ${user.telegramId}, ID подписки: ${id}, причина: ${result.message}`,
@@ -521,23 +465,20 @@ export class SubscriptionsController {
         throw new BadRequestException(result.message)
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
       return {
         data: {
           success: true,
           message: 'Subscription name is changed',
-          subscriptions,
-          user: userData,
+          ...payload,
         },
       }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при изменении имени подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -559,19 +500,13 @@ export class SubscriptionsController {
     @CurrentUser() user: JwtPayload,
     @Body() deleteDto: DeleteSubscriptionDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<SubscriptionResponse> {
     try {
       this.logger.info(
         `Запрос на удаление подписки от пользователя: ${user.telegramId}, ID подписки: ${deleteDto.subscriptionId}`,
       )
 
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const result = await this.xrayService.deleteSubscription(
         user.telegramId,
@@ -583,31 +518,21 @@ export class SubscriptionsController {
           `Не удалось удалить подписку для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
 
-        let statusCode = HttpStatus.BAD_REQUEST
-        let message = 'Не удалось удалить подписку'
-
-        // Обработка различных причин неудачи
         if (result.message === 'user_not_found') {
-          message = 'Пользователь не найден'
-          statusCode = HttpStatus.NOT_FOUND
-        } else if (result.message === 'subscription_not_found') {
-          message = 'Подписка не найдена или не принадлежит пользователю'
-          statusCode = HttpStatus.NOT_FOUND
+          throw new NotFoundException('Пользователь не найден')
         }
-
-        res.status(statusCode)
-        return {
-          data: {
-            success: false,
-            message,
-          },
+        if (result.message === 'subscription_not_found') {
+          throw new NotFoundException(
+            'Подписка не найдена или не принадлежит пользователю',
+          )
         }
+        throw new BadRequestException('Не удалось удалить подписку')
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
       this.logger.info(
         `Подписка успешно удалена пользователем: ${user.telegramId}`,
@@ -617,14 +542,11 @@ export class SubscriptionsController {
         data: {
           success: true,
           message: 'Подписка успешно удалена',
-          subscriptions,
-          user: userData,
+          ...payload,
         },
       }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при удалении подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -647,19 +569,14 @@ export class SubscriptionsController {
     @Param('id') id: string,
     @Body() renewDto: RenewSubscriptionDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
+    // FIX #5: Убран @Res — не использовался
   ): Promise<SubscriptionResponse> {
     try {
       this.logger.info(
         `Запрос на продление подписки от пользователя: ${user.telegramId}, ID подписки: ${id}`,
       )
 
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const result = await this.xrayService.renewSubscription(
         user.telegramId,
@@ -678,24 +595,21 @@ export class SubscriptionsController {
         throw new BadRequestException(result.message)
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
       return {
         data: {
           success: true,
           message: 'Subscription is renewed',
           ...result,
-          subscriptions,
-          user: userData,
+          ...payload,
         },
       }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при продлении подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -717,19 +631,13 @@ export class SubscriptionsController {
     @CurrentUser() user: JwtPayload,
     @Body() resetTokenDto: ResetSubscriptionTokenDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<SubscriptionResponse> {
     try {
       this.logger.info(
         `Запрос на сброс токена подписки от пользователя: ${user.telegramId}, ID подписки: ${resetTokenDto.subscriptionId}`,
       )
 
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const result = await this.xrayService.resetSubscriptionToken(
         user.telegramId,
@@ -741,31 +649,21 @@ export class SubscriptionsController {
           `Не удалось сбросить токен подписки для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
 
-        let statusCode = HttpStatus.BAD_REQUEST
-        let message = 'Не удалось сбросить токен подписки'
-
-        // Обработка различных причин неудачи
         if (result.message === 'user_not_found') {
-          message = 'Пользователь не найден'
-          statusCode = HttpStatus.NOT_FOUND
-        } else if (result.message === 'subscription_not_found') {
-          message = 'Подписка не найдена или не принадлежит пользователю'
-          statusCode = HttpStatus.NOT_FOUND
+          throw new NotFoundException('Пользователь не найден')
         }
-
-        res.status(statusCode)
-        return {
-          data: {
-            success: false,
-            message,
-          },
+        if (result.message === 'subscription_not_found') {
+          throw new NotFoundException(
+            'Подписка не найдена или не принадлежит пользователю',
+          )
         }
+        throw new BadRequestException('Не удалось сбросить токен подписки')
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
       this.logger.info(
         `Токен подписки успешно сброшен пользователем: ${user.telegramId}`,
@@ -775,14 +673,11 @@ export class SubscriptionsController {
         data: {
           success: true,
           message: 'Токен подписки успешно сброшен',
-          subscriptions,
-          user: userData,
+          ...payload,
         },
       }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при сбросе токена подписки: ${
           error instanceof Error ? error.message : String(error)
@@ -804,19 +699,13 @@ export class SubscriptionsController {
     @CurrentUser() user: JwtPayload,
     @Body() toggleDto: ToggleAutoRenewalDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<SubscriptionResponse> {
     try {
       this.logger.info(
         `Запрос на изменение статуса автопродления от пользователя: ${user.telegramId}, подписка: ${toggleDto.subscriptionId}`,
       )
 
-      const token = req.headers.authorization?.split(' ')[1]
-      if (!token) {
-        throw new BadRequestException('Токен авторизации отсутствует')
-      }
-
-      await this.authService.updateUserActivity(token)
+      await this.refreshActivity(req)
 
       const result = await this.xrayService.toggleAutoRenewal(
         toggleDto.subscriptionId,
@@ -828,34 +717,26 @@ export class SubscriptionsController {
           `Не удалось изменить статус автопродления для пользователя: ${user.telegramId}, причина: ${result.message}`,
         )
 
-        let statusCode = HttpStatus.BAD_REQUEST
-        let message = 'Не удалось изменить статус автопродления'
-
-        // Обработка различных причин неудачи
         if (result.message === 'user_not_found') {
-          message = 'Пользователь не найден'
-          statusCode = HttpStatus.NOT_FOUND
-        } else if (result.message === 'subscription_not_found') {
-          message = 'Подписка не найдена или не принадлежит пользователю'
-          statusCode = HttpStatus.NOT_FOUND
+          throw new NotFoundException('Пользователь не найден')
         }
-
-        res.status(statusCode)
-        return {
-          data: {
-            success: false,
-            message,
-          },
+        if (result.message === 'subscription_not_found') {
+          throw new NotFoundException(
+            'Подписка не найдена или не принадлежит пользователю',
+          )
         }
+        throw new BadRequestException(
+          'Не удалось изменить статус автопродления',
+        )
       }
 
-      const [subscriptions, userData] = await Promise.all([
-        this.xrayService.getSubscriptions(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      const payload = await this.getSubscriptionsAndUser(
+        user.sub,
+        user.telegramId,
+      )
 
       this.logger.info(
-        `Статус автопродления успешно изменен для пользователя: ${user.telegramId}`,
+        `Статус автопродления успешно изменён для пользователя: ${user.telegramId}`,
       )
 
       return {
@@ -864,14 +745,11 @@ export class SubscriptionsController {
           message: result.isAutoRenewal
             ? 'Автопродление подписки включено'
             : 'Автопродление подписки отключено',
-          subscriptions,
-          user: userData,
+          ...payload,
         },
       }
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error
-      }
+      if (error instanceof HttpException) throw error
       this.logger.error(
         `Ошибка при изменении статуса автопродления: ${
           error instanceof Error ? error.message : String(error)
