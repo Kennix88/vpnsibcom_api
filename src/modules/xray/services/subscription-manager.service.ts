@@ -27,7 +27,7 @@ import { XrayService } from './xray.service'
 @Injectable()
 export class SubscriptionManagerService {
   private readonly serviceName = 'SubscriptionManagerService'
-  private readonly notificationDays = [1, 3, 7] // Days before expiration to send notifications
+  private readonly notificationDays = [1, 3, 7]
   private readonly shortTermPeriods = [
     SubscriptionPeriodEnum.HOUR,
     SubscriptionPeriodEnum.DAY,
@@ -45,22 +45,29 @@ export class SubscriptionManagerService {
     private readonly userService: UsersService,
   ) {}
 
+  // FIX #13: wrapped in Redis lock to prevent parallel execution in multi-pod deployments
   @Cron('0 0 */6 * * *')
   async rebootTelegramConfig() {
-    try {
-      await this.marzbanService.revokeSubscription('telegram')
-    } catch (error) {
-      this.logger.error({
-        msg: 'Failed to reboot Telegram config',
-        service: this.serviceName,
-        error: error instanceof Error ? error.message : String(error),
-      })
-    }
+    await this.redis.withLock(
+      'rebootTelegramConfigLock',
+      30,
+      async () => {
+        try {
+          await this.marzbanService.revokeSubscription('telegram')
+        } catch (error) {
+          this.logger.error({
+            msg: 'Failed to reboot Telegram config',
+            service: this.serviceName,
+            error: error instanceof Error ? error.message : String(error),
+          })
+        }
+      },
+      { retries: 0, retryDelayMs: 0, autoRenewIntervalSec: 0 },
+    )
   }
 
   /**
    * Updates subscription data with information from Marzban service
-   * @returns Promise<void>
    */
   @Cron(CronExpression.EVERY_MINUTE)
   async subscriptionsUpdater() {
@@ -83,7 +90,6 @@ export class SubscriptionManagerService {
             return
           }
 
-          // Fetch data in parallel for better performance
           const [marzbanUsers, subscriptions] = await Promise.all([
             this.marzbanService.getUsers(),
             this.prismaService.subscriptions.findMany({
@@ -144,7 +150,6 @@ export class SubscriptionManagerService {
             service: this.serviceName,
           })
 
-          // Process subscriptions in batches to avoid memory issues with large datasets
           const batchSize = 50
           const batches = []
 
@@ -190,10 +195,8 @@ export class SubscriptionManagerService {
                   return serverCodes.some((code) => link.includes(`${code}`))
                 })
 
-                // Для INDEFINITELY не рассчитываем стоимость продления
                 let nextRenewalStars = null
 
-                // Только для подписок с периодом, отличным от INDEFINITELY
                 if (
                   subscription.period !== SubscriptionPeriodEnum.INDEFINITELY &&
                   subscription.plan.key !== PlansEnum.TRIAL &&
@@ -231,7 +234,6 @@ export class SubscriptionManagerService {
               }),
             )
 
-            // Используем транзакцию для обновления каждой подписки индивидуально
             await this.prismaService.$transaction(
               updatedBatch.map((subscription) => {
                 const announceMessages = []
@@ -350,18 +352,20 @@ export class SubscriptionManagerService {
                   where: { id: subscription.id },
                   data: {
                     links: linksForUpdate,
+                    // FIX #12: discount == 0 means NO discount (full price), so
+                    // nextRenewalStars should be kept as-is.
+                    // Only zero the price when discount is 100 (fully free role).
                     nextRenewalStars:
-                      subscription.user.role.discount == 0
+                      subscription.user.role.discount >= 100
                         ? 0
                         : subscription.nextRenewalStars,
                     usedTraffic: subscription.usedTraffic / 1024 / 1024,
-                    // lastUserAgent: subscription.lastUserAgent,
                     dataLimit: subscription.dataLimit / 1024 / 1024,
                     lifeTimeUsedTraffic:
                       subscription.lifeTimeUsedTraffic / 1024 / 1024,
                     onlineAt: subscription.onlineAt
                       ? new Date(subscription.onlineAt + 'Z')
-                      : null, // Adding 'Z' to indicate UTC timezone
+                      : null,
                     marzbanData: subscription.marzbanData,
                     ...(isRemovalAt ? { removalAt } : {}),
                     ...(announce === undefined ? {} : { announce }),
@@ -400,7 +404,7 @@ export class SubscriptionManagerService {
 
   /**
    * Cron job to process expired subscriptions
-   * Runs every hour
+   * Runs every 5 minutes
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async processExpiredSubscriptions() {
@@ -410,17 +414,18 @@ export class SubscriptionManagerService {
     })
 
     try {
-      // Get all active subscriptions that have expired
-      // Исключаем подписки с периодом INDEFINITELY, так как у них expiredAt = null
+      // FIX #1: was using `||` operator which only evaluated to INDEFINITELY.
+      // Now correctly uses `notIn` to exclude all three special plan types.
       const expiredSubscriptions =
         await this.prismaService.subscriptions.findMany({
           where: {
             isActive: true,
             period: {
-              not:
-                SubscriptionPeriodEnum.INDEFINITELY ||
-                SubscriptionPeriodEnum.TRIAL ||
+              notIn: [
+                SubscriptionPeriodEnum.INDEFINITELY,
+                SubscriptionPeriodEnum.TRIAL,
                 SubscriptionPeriodEnum.TRAFFIC,
+              ],
             },
             planKey: {
               notIn: [PlansEnum.TRAFFIC, PlansEnum.TRIAL],
@@ -479,9 +484,9 @@ export class SubscriptionManagerService {
   }
 
   /**
-   * Process auto-renewal for a subscription
-   * @param subscription - The subscription to process
-   * @private
+   * Process auto-renewal for a subscription.
+   * FIX #5: now calls marzbanService.modifyUser to actually re-activate
+   * the user after a successful balance deduction.
    */
   private async processAutoRenewal(subscription) {
     this.logger.info({
@@ -495,34 +500,76 @@ export class SubscriptionManagerService {
       const renewalPeriod = subscription.period as SubscriptionPeriodEnum
       const hours = periodHours(renewalPeriod, subscription.periodMultiplier)
 
-      // Calculate the cost based on subscription period and user role discount
       const cost = subscription.nextRenewalStars
 
-      // Используем сервис UsersService для списания средств
+      // FIX #12: deduct nothing only when the role grants a 100% discount
+      const chargeAmount = subscription.user.role.discount >= 100 ? 0 : cost
+
       const deductResult = await this.userService.deductUserBalance(
         user.id,
-        subscription.user.role.discount == 0 ? 0 : cost,
+        chargeAmount,
         TransactionReasonEnum.SUBSCRIPTIONS,
         BalanceTypeEnum.PAYMENT,
       )
 
       if (deductResult.success) {
-        // Успешное списание средств, продлеваем подписку
+        // FIX #5: activate the user in Marzban so the VPN actually works
+        const marzbanResult = await this.marzbanService.modifyUser(
+          subscription.username,
+          {
+            status: 'active',
+            ...(!subscription.isUnlimitTraffic && {
+              data_limit_reset_strategy: (
+                subscription.trafficReset as string
+              ).toLowerCase(),
+              data_limit:
+                subscription.trafficLimitGb *
+                1024 *
+                1024 *
+                1024 *
+                (subscription.trafficReset === TrafficResetEnum.DAY
+                  ? 1
+                  : subscription.trafficReset === TrafficResetEnum.WEEK
+                  ? 7
+                  : subscription.trafficReset === TrafficResetEnum.MONTH
+                  ? 30
+                  : subscription.trafficReset === TrafficResetEnum.YEAR
+                  ? 365
+                  : 1),
+            }),
+          },
+        )
+
+        if (!marzbanResult) {
+          // Balance was deducted but Marzban activation failed — roll back
+          this.logger.error({
+            msg: `Failed to activate subscription ${subscription.id} in Marzban during auto-renewal; rolling back balance`,
+            userId: user.id,
+            service: this.serviceName,
+          })
+
+          await this.userService.addUserBalance(
+            user.id,
+            chargeAmount,
+            TransactionReasonEnum.SUBSCRIPTIONS,
+            BalanceTypeEnum.PAYMENT,
+          )
+
+          await this.deactivateSubscription(subscription)
+          return
+        }
+
         await this.prismaService.subscriptions.update({
           where: {
             id: subscription.id,
           },
           data: {
             expiredAt: new Date(Date.now() + hours * 60 * 60 * 1000),
-            period: renewalPeriod, // Update period if it was TRIAL
+            period: renewalPeriod,
+            isActive: true,
+            announce: null,
           },
         })
-
-        // Send notification about successful renewal
-        // await this.sendRenewalSuccessNotification(user, {
-        //   ...subscription,
-        //   period: renewalPeriod, // Use the new period for notification
-        // })
 
         this.logger.info({
           msg: `Successfully renewed subscription ${subscription.id}`,
@@ -531,11 +578,8 @@ export class SubscriptionManagerService {
           service: this.serviceName,
         })
       } else {
-        // Not enough balance, deactivate subscription
+        // Not enough balance — deactivate
         await this.deactivateSubscription(subscription)
-
-        // Send notification about failed renewal due to insufficient balance
-        // await this.sendInsufficientBalanceNotification(user, subscription, cost)
       }
     } catch (error) {
       this.logger.error({
@@ -546,15 +590,12 @@ export class SubscriptionManagerService {
         service: this.serviceName,
       })
 
-      // В случае ошибки деактивируем подписку
       await this.deactivateSubscription(subscription)
     }
   }
 
   /**
    * Deactivate an expired subscription
-   * @param subscription - The subscription to deactivate
-   * @private
    */
   private async deactivateSubscription(subscription) {
     this.logger.info({
@@ -564,8 +605,6 @@ export class SubscriptionManagerService {
     })
 
     try {
-      // First, deactivate in Marzban
-
       const marzbanResult = await this.marzbanService.deactivateUser(
         subscription.username,
       )
@@ -593,7 +632,6 @@ export class SubscriptionManagerService {
           )
         : []
 
-      // Then update database status
       await this.prismaService.subscriptions.update({
         where: {
           id: subscription.id,
@@ -605,7 +643,6 @@ export class SubscriptionManagerService {
         },
       })
 
-      // Send notification to user
       await this.sendDeactivationNotification(subscription.user, subscription)
 
       this.logger.info({
@@ -625,12 +662,6 @@ export class SubscriptionManagerService {
     }
   }
 
-  /**
-   * Send notification about subscription deactivation
-   * @param user - User to notify
-   * @param subscription - Deactivated subscription
-   * @private
-   */
   private async sendDeactivationNotification(user, subscription) {
     try {
       const message = await this.i18n.t('subscription.deactivated', {
@@ -668,7 +699,6 @@ export class SubscriptionManagerService {
     try {
       const now = new Date()
 
-      // Get all active subscriptions with auto-renewal enabled
       const activeSubscriptions =
         await this.prismaService.subscriptions.findMany({
           where: {
@@ -695,7 +725,6 @@ export class SubscriptionManagerService {
       })
 
       for (const subscription of activeSubscriptions) {
-        // Skip short-term subscriptions (hour, day)
         if (
           this.shortTermPeriods.includes(
             subscription.period as SubscriptionPeriodEnum,
@@ -709,7 +738,6 @@ export class SubscriptionManagerService {
           now,
         )
 
-        // Check if we need to send a reminder for this subscription
         if (this.notificationDays.includes(daysUntilExpiration)) {
           await this.sendExpirationReminder(subscription, daysUntilExpiration)
         }
@@ -729,28 +757,15 @@ export class SubscriptionManagerService {
     }
   }
 
-  /**
-   * Send expiration reminder to user
-   * @param subscription - Subscription about to expire
-   * @param daysLeft - Days left until expiration
-   * @private
-   */
   private async sendExpirationReminder(subscription, daysLeft: number) {
     const user = subscription.user
     const redisKey = `subscription:reminder:${subscription.id}:${daysLeft}`
 
     try {
-      // Check if we already sent this reminder (using Redis)
       const alreadySent = await this.redis.get(redisKey)
       if (alreadySent) {
         return
       }
-
-      // Calculate required amount for renewal
-      const renewalPeriod =
-        subscription.period === SubscriptionPeriodEnum.TRIAL
-          ? SubscriptionPeriodEnum.MONTH
-          : subscription.period
 
       const requiredAmount = subscription.nextRenewalStars
 
@@ -758,12 +773,13 @@ export class SubscriptionManagerService {
         typeof requiredAmount === 'number' &&
         user.balance.paymentBalance >= requiredAmount
 
-      // Get appropriate message based on balance status
+      // FIX #2: was always using 'subscription.expiration_reminder' regardless
+      // of hasEnoughBalance. Now selects the correct i18n key.
       const messageKey = hasEnoughBalance
         ? 'subscription.expiration_reminder'
         : 'subscription.expiration_reminder_low_balance'
 
-      const message = await this.i18n.t('subscription.expiration_reminder', {
+      const message = await this.i18n.t(messageKey as keyof I18nTranslations, {
         lang: user.language.iso6391,
         args: {
           days: daysLeft,
@@ -795,7 +811,6 @@ export class SubscriptionManagerService {
         text: message as string,
       })
 
-      // Store in Redis that we sent this reminder (expire after 2 days)
       await this.redis.set(redisKey, 'sent', 'EX', 60 * 60 * 24 * 2)
 
       this.logger.info({
@@ -816,7 +831,7 @@ export class SubscriptionManagerService {
   }
 
   /**
-   * Cron job to delete inactive subscriptions that haven't been renewed for more than a week
+   * Cron job to delete inactive subscriptions
    * Runs every day at 3:00 AM
    */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
@@ -827,11 +842,9 @@ export class SubscriptionManagerService {
     })
 
     try {
-      // Calculate date one week ago
       const oneWeekAgo = new Date()
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
-      // Get all inactive subscriptions that expired more than a week ago
       const inactiveSubscriptions =
         await this.prismaService.subscriptions.findMany({
           where: {
@@ -861,7 +874,7 @@ export class SubscriptionManagerService {
         })
 
       this.logger.info({
-        msg: `Found ${inactiveSubscriptions.length} inactive subscriptions to delete (expired more than a week ago)`,
+        msg: `Found ${inactiveSubscriptions.length} inactive subscriptions to delete`,
         service: this.serviceName,
       })
 
@@ -883,11 +896,6 @@ export class SubscriptionManagerService {
     }
   }
 
-  /**
-   * Delete an inactive subscription
-   * @param subscription - The subscription to delete
-   * @private
-   */
   private async deleteInactiveSubscription(subscription: any) {
     this.logger.info({
       msg: `Deleting inactive subscription ${subscription.id}`,
@@ -896,7 +904,6 @@ export class SubscriptionManagerService {
     })
 
     try {
-      // Try to remove user from Marzban
       const marzbanResult = await this.marzbanService.removeUser(
         subscription.username,
       )
@@ -906,17 +913,14 @@ export class SubscriptionManagerService {
           msg: `Failed to remove user ${subscription.username} from Marzban, continuing with database deletion`,
           service: this.serviceName,
         })
-        // Continue with deletion even if Marzban removal fails
       }
 
-      // Delete subscription from database
       await this.prismaService.subscriptions.delete({
         where: {
           id: subscription.id,
         },
       })
 
-      // Send notification to user
       await this.sendSubscriptionDeletedNotification(
         subscription.user,
         subscription,
@@ -938,12 +942,6 @@ export class SubscriptionManagerService {
     }
   }
 
-  /**
-   * Send notification about subscription deletion
-   * @param user - User to notify
-   * @param subscription - Deleted subscription
-   * @private
-   */
   private async sendSubscriptionDeletedNotification(
     user: any,
     subscription: any,
