@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_FILTER, Reflector } from '@nestjs/core'
+import { APP_FILTER } from '@nestjs/core'
 import { ScheduleModule } from '@nestjs/schedule'
 import { join } from 'path'
 
@@ -48,6 +48,8 @@ import { TelegramLogWorker } from './logger/telegram-log.worker'
 
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: false,
+      // Load .env only in development; in production variables come from the environment
       // ignoreEnvFile: process.env.NODE_ENV !== 'development',
     }),
 
@@ -55,19 +57,22 @@ import { TelegramLogWorker } from './logger/telegram-log.worker'
 
     ThrottlerModule.forRootAsync({
       useFactory: async (redisService: RedisService) => {
+        const throttlers = [{ ttl: 60 * 1000, limit: 100 }]
         try {
-          // Wait until Redis is ready
           await redisService.waitTillReady()
           return {
-            throttlers: [{ ttl: 60 * 1000, limit: 100 }],
+            throttlers,
             storage: new RedisThrottlerStorage(redisService),
           }
         } catch (e) {
-          // Log and return fallback to avoid blocking
-          console.error('Redis unavailable for throttler:', e)
-          return {
-            throttlers: [{ ttl: 60 * 1000, limit: 100 }],
-          }
+          // Redis is unavailable — falling back to in-memory storage.
+          // NOTE: in-memory throttling is per-instance and does NOT work
+          // correctly with multiple replicas. Investigate Redis connectivity.
+          console.error(
+            '[ThrottlerModule] Redis unavailable, falling back to in-memory throttling:',
+            e,
+          )
+          return { throttlers }
         }
       },
       inject: [RedisService],
@@ -86,7 +91,8 @@ import { TelegramLogWorker } from './logger/telegram-log.worker'
           },
           typesOutputPath: join(process.cwd(), 'src/core/i18n/i18n.type.ts'),
           generateTypes: true,
-          errorHandler: (err) => logger.error('I18n error:', err),
+          // pino convention: logger.error(object|error, message)
+          errorHandler: (err) => logger.error(err, 'I18n error'),
         }
       },
       inject: [Logger],
@@ -102,7 +108,6 @@ import { TelegramLogWorker } from './logger/telegram-log.worker'
     RedisModule,
     PrismaConnectModule,
 
-    // Модули проекта
     AuthModule,
     UsersModule,
     XrayModule,
@@ -118,19 +123,20 @@ import { TelegramLogWorker } from './logger/telegram-log.worker'
   providers: [
     TelegramLogWorker,
     LogRotationService,
+
+    // Explicit provider so that GlobalExceptionFilter and
+    // PreventDuplicateInterceptor can resolve it via DI.
+    // Remove this line only if BullmqModule already exports LoggerTelegramService.
+    LoggerTelegramService,
+
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
     },
-    {
-      provide: PreventDuplicateInterceptor,
-      useFactory: (
-        redis: RedisService,
-        reflector: Reflector,
-        telegramLogger: LoggerTelegramService,
-      ) => new PreventDuplicateInterceptor(redis, reflector, telegramLogger),
-      inject: [RedisService, Reflector, LoggerTelegramService],
-    },
+
+    // @Injectable() + all deps in scope → plain class provider is sufficient.
+    // No need to duplicate the constructor signature in a useFactory.
+    PreventDuplicateInterceptor,
   ],
   exports: [LogRotationService, PreventDuplicateInterceptor],
 })
