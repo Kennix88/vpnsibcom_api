@@ -75,11 +75,13 @@ export class SessionsService {
         Date.now() - SessionsService.DUPLICATE_WINDOW_MS,
       )
 
+      const hasOtherData =
+        Object.keys(parseStartParams.params).length > 0 ||
+        parseStartParams.none.length > 0
+
       await this.prismaService.$transaction(async (tx) => {
         const user = await tx.users.findUnique({
-          where: {
-            id: userId,
-          },
+          where: { id: userId },
           select: { id: true },
         })
 
@@ -95,17 +97,13 @@ export class SessionsService {
             referralId: normalizedReferralKey,
             userAgent: normalizedUa,
             ip: normalizedIp,
-            startedAt: {
-              gte: duplicateSince,
-            },
+            startedAt: { gte: duplicateSince },
           },
           select: { id: true },
           orderBy: { startedAt: 'desc' },
         })
 
-        if (existingSession) {
-          return
-        }
+        if (existingSession) return
 
         await tx.sessions.create({
           data: {
@@ -129,11 +127,14 @@ export class SessionsService {
             ...(parseStartParams.params.record && {
               recordId: parseStartParams.params.record,
             }),
-            ...((Object.keys(parseStartParams.params).length > 0 ||
-              parseStartParams.none.length > 0) && {
+            // [БАГ #6] Единый формат none[]: храним как поле `none`,
+            // а не спредим с числовыми ключами.
+            ...(hasOtherData && {
               otherData: {
                 ...parseStartParams.params,
-                none: parseStartParams.none,
+                ...(parseStartParams.none.length > 0 && {
+                  none: parseStartParams.none,
+                }),
               } as Prisma.InputJsonValue,
             }),
           },
