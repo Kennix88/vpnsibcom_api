@@ -12,6 +12,8 @@ import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { ParseMode } from 'telegraf/types'
 
+const MAX_RETRY_DEPTH = 3
+
 type TelegramLogJob = {
   type: 'log'
   level: string
@@ -52,10 +54,7 @@ export class TelegramLogWorker implements OnModuleInit, OnModuleDestroy {
           port: Number(this.config.get('REDIS_PORT')),
           password: this.config.get('REDIS_PASSWORD') || undefined,
         },
-
         concurrency: 1,
-
-        // 🔥 Rate limit теперь здесь
         limiter: {
           max: 25,
           duration: 1000,
@@ -96,16 +95,23 @@ export class TelegramLogWorker implements OnModuleInit, OnModuleDestroy {
     if (!lock) return
 
     const message = `*${data.level.toUpperCase()}*: ${this.escape(data.text)}`
-    const threadId = Number(
-      process.env[`TELEGRAM_THREAD_ID_${data.level.toUpperCase()}`],
+
+    // Use ConfigService consistently instead of process.env
+    const chatId = Number(this.config.get('TELEGRAM_LOG_CHAT_ID'))
+    const threadIdRaw = this.config.get<string>(
+      `TELEGRAM_THREAD_ID_${data.level.toUpperCase()}`,
     )
+    const threadId = threadIdRaw ? Number(threadIdRaw) : undefined
 
     try {
       await this.sendWithRetry({
-        chatId: Number(process.env.TELEGRAM_LOG_CHAT_ID),
+        chatId,
         text: message,
         parseMode: 'MarkdownV2',
-        threadId: Number.isNaN(threadId) ? undefined : threadId,
+        threadId:
+          threadId !== undefined && !Number.isNaN(threadId)
+            ? threadId
+            : undefined,
       })
     } catch (err: any) {
       this.handleSendError(err)
@@ -146,7 +152,14 @@ export class TelegramLogWorker implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private async sendWithRetry(payload: SendPayload) {
+  // depth param prevents infinite recursion on persistent 429s
+  private async sendWithRetry(payload: SendPayload, depth = 0): Promise<void> {
+    if (depth >= MAX_RETRY_DEPTH) {
+      throw new Error(
+        `sendWithRetry: max retry depth (${MAX_RETRY_DEPTH}) reached for chat ${payload.chatId}`,
+      )
+    }
+
     try {
       await this.bot.telegram.sendMessage(payload.chatId, payload.text, {
         parse_mode: payload.parseMode,
@@ -163,7 +176,7 @@ export class TelegramLogWorker implements OnModuleInit, OnModuleDestroy {
         await new Promise((r) =>
           setTimeout(r, Number(retryAfter) * 1000 + 1000),
         )
-        await this.sendWithRetry(payload)
+        await this.sendWithRetry(payload, depth + 1)
         return
       }
 
@@ -185,7 +198,11 @@ export class TelegramLogWorker implements OnModuleInit, OnModuleDestroy {
     this.logger.error('Non-retriable Telegram error', err)
   }
 
-  private escape(text: string) {
-    return text.replace(/([_\-*[\]()~`>#+=|{}.!])/g, '\\$1')
+  private escape(text: string): string {
+    // MarkdownV2 requires escaping: \ _ * [ ] ( ) ~ ` > # + - = | { } . !
+    // Backslash must be escaped first to avoid double-escaping
+    return text
+      .replace(/\\/g, '\\\\')
+      .replace(/([_*[\]()~`>#+=|{}.!-])/g, '\\$1')
   }
 }
