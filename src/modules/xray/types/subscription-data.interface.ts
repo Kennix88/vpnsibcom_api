@@ -6,6 +6,7 @@ import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { ServerDataInterface } from './servers-data.interface'
 
 export interface GetSubscriptionConfigResponseInterface {
+  userId: string
   subscription: SubscriptionDataInterface
   marzbanSubRes?: MarzbanResponseInterface
   routing?: string
