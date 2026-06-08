@@ -14,10 +14,15 @@ import { JwtModule, JwtService } from '@nestjs/jwt'
 @Module({
   imports: [
     JwtModule.registerAsync({
-      useFactory: (config: ConfigService) => ({
-        secret: config.getOrThrow('JWT_ACCESS_SECRET'),
-        signOptions: { expiresIn: '15m' },
-      }),
+      useFactory: (config: ConfigService) => {
+        console.log('JWT_ACCESS_SECRET=', config.get('JWT_ACCESS_SECRET'))
+        console.log('NODE_ENV=', process.env.NODE_ENV)
+
+        return {
+          secret: config.getOrThrow('JWT_ACCESS_SECRET'),
+          signOptions: { expiresIn: '15m' },
+        }
+      },
       inject: [ConfigService],
     }),
     forwardRef(() => AdsModule),
