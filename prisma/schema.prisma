@@ -108,6 +108,7 @@ model UserTelegramData {
  birthMonth            Int?     @map("birth_month")
  birthYear             Int?     @map("birth_year")
  updatedAt             DateTime @updatedAt @map("updated_at")
+ bio String?
 
  user Users?
 
