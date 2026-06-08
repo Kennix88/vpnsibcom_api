@@ -11,11 +11,12 @@ import { Reflector } from '@nestjs/core'
 import * as crypto from 'crypto'
 import { Observable, from, of, throwError } from 'rxjs'
 import { catchError, switchMap, tap } from 'rxjs/operators'
+import { PREVENT_DUPLICATE_META } from '../decorators/prevent-duplicate.decorator'
 
-const PREVENT_DUPLICATE_META = 'prevent_duplicate_ttl'
+// Import from the decorator to avoid duplication
+
 const CACHE_PREFIX = 'dup:req:'
 const LOCK_PREFIX = 'dup:lock:'
-const META_PREFIX = 'dup:meta:'
 const DEFAULT_TTL = 60
 const MAX_RETRIES = 10
 const RETRY_DELAY = 300
@@ -61,9 +62,8 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
 
       const cacheKey = `${CACHE_PREFIX}${hash}`
       const lockKey = `${LOCK_PREFIX}${hash}`
-      const metaKey = `${META_PREFIX}${hash}`
 
-      // Проверка кэша
+      // Check cache
       const cached = await this.safeRedisOperation(() =>
         this.redis.getObject(cacheKey),
       )
@@ -79,7 +79,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
         return of(cached)
       }
 
-      // Установка блокировки
+      // Try to acquire lock
       const locked = await this.safeRedisOperation(() =>
         this.redis.setWithExpiryNx(lockKey, '1', ttl),
       )
@@ -94,8 +94,6 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
         })
       }
 
-      // Запись метаданных
-      await this.recordRequestMetadata(metaKey, realIp, user, ttl)
       this.logRequest({
         type: 'lock-acquired',
         method,
@@ -105,7 +103,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
         details: { ttl },
       })
 
-      // Обработка основного запроса
+      // Process and cache
       return next.handle().pipe(
         tap(async (response) => {
           await this.cacheResponse(cacheKey, response, ttl, lockKey)
@@ -119,13 +117,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
           })
         }),
         catchError((err) =>
-          this.handleError(err, {
-            method,
-            path,
-            user,
-            realIp,
-            lockKey,
-          }),
+          this.handleError(err, { method, path, user, realIp, lockKey }),
         ),
       )
     } catch (err) {
@@ -178,7 +170,6 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
 
   private sanitizeBody(body: any): any {
     const sanitized = { ...body }
-    // Удаляем чувствительные/изменчивые данные
     delete sanitized.password
     delete sanitized.token
     delete sanitized.timestamp
@@ -203,28 +194,6 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
       })
       return null
     }
-  }
-
-  private async recordRequestMetadata(
-    metaKey: string,
-    realIp: string,
-    user: any,
-    ttl: number,
-  ): Promise<void> {
-    await this.safeRedisOperation(
-      () =>
-        this.redis.hsetWithExpiry(
-          metaKey,
-          {
-            startedAt: Date.now().toString(),
-            ip: realIp,
-            sub: user?.sub ?? '',
-            telegramId: user?.telegramId ?? '',
-          },
-          ttl,
-        ),
-      { method: 'META', path: metaKey },
-    )
   }
 
   private async cacheResponse(
@@ -253,7 +222,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
     cacheKey: string
     lockKey: string
   }): Observable<any> {
-    const { method, path, user, realIp, cacheKey, lockKey } = params
+    const { method, path, user, realIp, cacheKey } = params
 
     this.logRequest({
       type: 'concurrent',
@@ -274,10 +243,8 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
         await new Promise((r) => setTimeout(r, RETRY_DELAY))
       }
 
-      await this.safeRedisOperation(() => this.redis.del(lockKey), {
-        method,
-        path,
-      })
+      // Do NOT delete the lock here — the original request still owns it.
+      // Let the timeout surface as an error and allow the original to complete.
       throw new Error(`Request processing timeout after ${MAX_RETRIES} retries`)
     }
 
@@ -308,12 +275,10 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
   ): Observable<never> {
     const { method, path, user, realIp, lockKey } = context
 
-    // Создаем Observable из Promise
     const releaseLock$ = from(
       this.safeRedisOperation(() => this.redis.del(lockKey), { method, path }),
     )
 
-    // Обрабатываем цепочку
     return releaseLock$.pipe(
       tap((result) => {
         this.logRequest({
@@ -342,7 +307,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
   }): void {
     const { type, method, path, user, realIp, details = {} } = params
 
-    const logLevels = {
+    const logLevels: Record<string, string> = {
       'cache-hit': 'info',
       'lock-acquired': 'info',
       'cache-set': 'info',
@@ -351,7 +316,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
       error: 'error',
     }
 
-    const emojiMap = {
+    const emojiMap: Record<string, string> = {
       'cache-hit': '✅',
       'lock-acquired': '🔒',
       'cache-set': '💾',
@@ -360,7 +325,7 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
       error: '⚠️',
     }
 
-    const messageTemplates = {
+    const messageTemplates: Record<string, string> = {
       'cache-hit': `Кэшированный ответ возвращен`,
       'lock-acquired': `Блокировка установлена на ${details.ttl || 'N/A'} сек`,
       'cache-set': `Результат закеширован на ${details.ttl || 'N/A'} сек`,
@@ -390,11 +355,9 @@ export class PreventDuplicateInterceptor implements NestInterceptor {
 
     const fullMessage = [baseMessage, additionalInfo].filter(Boolean).join('\n')
 
-    // Отправка в соответствующий уровень логирования
     const level = logLevels[type] || 'info'
     this.telegramLogger[level](fullMessage)
 
-    // Дополнительно логируем ошибки в консоль
     if (type === 'error' && details.stack) {
       console.error(details.stack)
     }
