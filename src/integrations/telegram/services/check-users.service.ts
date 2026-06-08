@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { DefaultEnum } from '@shared/enums/default.enum'
+import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import { Client } from 'pg'
 
 @Injectable()
@@ -110,6 +111,7 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
         graspilUser.personal_channel_id === undefined
           ? null
           : String(graspilUser.personal_channel_id),
+      bio: graspilUser.bio,
     }
   }
 
@@ -175,6 +177,7 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
         },
         ...(country && { country }),
         ...(birth && { birth }),
+        telegramPlatform: TelegramPlatformEnum.BOT,
       })
 
       const createdUser = await this.prisma.users.findUnique({
