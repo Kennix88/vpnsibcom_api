@@ -2397,7 +2397,8 @@ export const UserTelegramDataScalarFieldEnum = {
   birthDay: 'birthDay',
   birthMonth: 'birthMonth',
   birthYear: 'birthYear',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  bio: 'bio'
 } as const
 
 export type UserTelegramDataScalarFieldEnum = (typeof UserTelegramDataScalarFieldEnum)[keyof typeof UserTelegramDataScalarFieldEnum]

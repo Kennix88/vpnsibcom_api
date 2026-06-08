@@ -65,6 +65,7 @@ export type UserTelegramDataMinAggregateOutputType = {
   birthMonth: number | null
   birthYear: number | null
   updatedAt: Date | null
+  bio: string | null
 }
 
 export type UserTelegramDataMaxAggregateOutputType = {
@@ -90,6 +91,7 @@ export type UserTelegramDataMaxAggregateOutputType = {
   birthMonth: number | null
   birthYear: number | null
   updatedAt: Date | null
+  bio: string | null
 }
 
 export type UserTelegramDataCountAggregateOutputType = {
@@ -115,6 +117,7 @@ export type UserTelegramDataCountAggregateOutputType = {
   birthMonth: number
   birthYear: number
   updatedAt: number
+  bio: number
   _all: number
 }
 
@@ -158,6 +161,7 @@ export type UserTelegramDataMinAggregateInputType = {
   birthMonth?: true
   birthYear?: true
   updatedAt?: true
+  bio?: true
 }
 
 export type UserTelegramDataMaxAggregateInputType = {
@@ -183,6 +187,7 @@ export type UserTelegramDataMaxAggregateInputType = {
   birthMonth?: true
   birthYear?: true
   updatedAt?: true
+  bio?: true
 }
 
 export type UserTelegramDataCountAggregateInputType = {
@@ -208,6 +213,7 @@ export type UserTelegramDataCountAggregateInputType = {
   birthMonth?: true
   birthYear?: true
   updatedAt?: true
+  bio?: true
   _all?: true
 }
 
@@ -320,6 +326,7 @@ export type UserTelegramDataGroupByOutputType = {
   birthMonth: number | null
   birthYear: number | null
   updatedAt: Date
+  bio: string | null
   _count: UserTelegramDataCountAggregateOutputType | null
   _avg: UserTelegramDataAvgAggregateOutputType | null
   _sum: UserTelegramDataSumAggregateOutputType | null
@@ -368,6 +375,7 @@ export type UserTelegramDataWhereInput = {
   birthMonth?: Prisma.IntNullableFilter<"UserTelegramData"> | number | null
   birthYear?: Prisma.IntNullableFilter<"UserTelegramData"> | number | null
   updatedAt?: Prisma.DateTimeFilter<"UserTelegramData"> | Date | string
+  bio?: Prisma.StringNullableFilter<"UserTelegramData"> | string | null
   user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
 }
 
@@ -394,6 +402,7 @@ export type UserTelegramDataOrderByWithRelationInput = {
   birthMonth?: Prisma.SortOrderInput | Prisma.SortOrder
   birthYear?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  bio?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UsersOrderByWithRelationInput
 }
 
@@ -423,6 +432,7 @@ export type UserTelegramDataWhereUniqueInput = Prisma.AtLeast<{
   birthMonth?: Prisma.IntNullableFilter<"UserTelegramData"> | number | null
   birthYear?: Prisma.IntNullableFilter<"UserTelegramData"> | number | null
   updatedAt?: Prisma.DateTimeFilter<"UserTelegramData"> | Date | string
+  bio?: Prisma.StringNullableFilter<"UserTelegramData"> | string | null
   user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
 }, "id">
 
@@ -449,6 +459,7 @@ export type UserTelegramDataOrderByWithAggregationInput = {
   birthMonth?: Prisma.SortOrderInput | Prisma.SortOrder
   birthYear?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  bio?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserTelegramDataCountOrderByAggregateInput
   _avg?: Prisma.UserTelegramDataAvgOrderByAggregateInput
   _max?: Prisma.UserTelegramDataMaxOrderByAggregateInput
@@ -482,6 +493,7 @@ export type UserTelegramDataScalarWhereWithAggregatesInput = {
   birthMonth?: Prisma.IntNullableWithAggregatesFilter<"UserTelegramData"> | number | null
   birthYear?: Prisma.IntNullableWithAggregatesFilter<"UserTelegramData"> | number | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserTelegramData"> | Date | string
+  bio?: Prisma.StringNullableWithAggregatesFilter<"UserTelegramData"> | string | null
 }
 
 export type UserTelegramDataCreateInput = {
@@ -507,6 +519,7 @@ export type UserTelegramDataCreateInput = {
   birthMonth?: number | null
   birthYear?: number | null
   updatedAt?: Date | string
+  bio?: string | null
   user?: Prisma.UsersCreateNestedOneWithoutTelegramDataInput
 }
 
@@ -533,6 +546,7 @@ export type UserTelegramDataUncheckedCreateInput = {
   birthMonth?: number | null
   birthYear?: number | null
   updatedAt?: Date | string
+  bio?: string | null
   user?: Prisma.UsersUncheckedCreateNestedOneWithoutTelegramDataInput
 }
 
@@ -559,6 +573,7 @@ export type UserTelegramDataUpdateInput = {
   birthMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   birthYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UsersUpdateOneWithoutTelegramDataNestedInput
 }
 
@@ -585,6 +600,7 @@ export type UserTelegramDataUncheckedUpdateInput = {
   birthMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   birthYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UsersUncheckedUpdateOneWithoutTelegramDataNestedInput
 }
 
@@ -611,6 +627,7 @@ export type UserTelegramDataCreateManyInput = {
   birthMonth?: number | null
   birthYear?: number | null
   updatedAt?: Date | string
+  bio?: string | null
 }
 
 export type UserTelegramDataUpdateManyMutationInput = {
@@ -636,6 +653,7 @@ export type UserTelegramDataUpdateManyMutationInput = {
   birthMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   birthYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserTelegramDataUncheckedUpdateManyInput = {
@@ -661,6 +679,7 @@ export type UserTelegramDataUncheckedUpdateManyInput = {
   birthMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   birthYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserTelegramDataCountOrderByAggregateInput = {
@@ -686,6 +705,7 @@ export type UserTelegramDataCountOrderByAggregateInput = {
   birthMonth?: Prisma.SortOrder
   birthYear?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  bio?: Prisma.SortOrder
 }
 
 export type UserTelegramDataAvgOrderByAggregateInput = {
@@ -719,6 +739,7 @@ export type UserTelegramDataMaxOrderByAggregateInput = {
   birthMonth?: Prisma.SortOrder
   birthYear?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  bio?: Prisma.SortOrder
 }
 
 export type UserTelegramDataMinOrderByAggregateInput = {
@@ -744,6 +765,7 @@ export type UserTelegramDataMinOrderByAggregateInput = {
   birthMonth?: Prisma.SortOrder
   birthYear?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  bio?: Prisma.SortOrder
 }
 
 export type UserTelegramDataSumOrderByAggregateInput = {
@@ -806,6 +828,7 @@ export type UserTelegramDataCreateWithoutUserInput = {
   birthMonth?: number | null
   birthYear?: number | null
   updatedAt?: Date | string
+  bio?: string | null
 }
 
 export type UserTelegramDataUncheckedCreateWithoutUserInput = {
@@ -831,6 +854,7 @@ export type UserTelegramDataUncheckedCreateWithoutUserInput = {
   birthMonth?: number | null
   birthYear?: number | null
   updatedAt?: Date | string
+  bio?: string | null
 }
 
 export type UserTelegramDataCreateOrConnectWithoutUserInput = {
@@ -872,6 +896,7 @@ export type UserTelegramDataUpdateWithoutUserInput = {
   birthMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   birthYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserTelegramDataUncheckedUpdateWithoutUserInput = {
@@ -897,6 +922,7 @@ export type UserTelegramDataUncheckedUpdateWithoutUserInput = {
   birthMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   birthYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -924,6 +950,7 @@ export type UserTelegramDataSelect<ExtArgs extends runtime.Types.Extensions.Inte
   birthMonth?: boolean
   birthYear?: boolean
   updatedAt?: boolean
+  bio?: boolean
   user?: boolean | Prisma.UserTelegramData$userArgs<ExtArgs>
 }, ExtArgs["result"]["userTelegramData"]>
 
@@ -950,6 +977,7 @@ export type UserTelegramDataSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   birthMonth?: boolean
   birthYear?: boolean
   updatedAt?: boolean
+  bio?: boolean
 }, ExtArgs["result"]["userTelegramData"]>
 
 export type UserTelegramDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -975,6 +1003,7 @@ export type UserTelegramDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   birthMonth?: boolean
   birthYear?: boolean
   updatedAt?: boolean
+  bio?: boolean
 }, ExtArgs["result"]["userTelegramData"]>
 
 export type UserTelegramDataSelectScalar = {
@@ -1000,9 +1029,10 @@ export type UserTelegramDataSelectScalar = {
   birthMonth?: boolean
   birthYear?: boolean
   updatedAt?: boolean
+  bio?: boolean
 }
 
-export type UserTelegramDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "isLive" | "isRtl" | "isPremium" | "isBot" | "gender" | "verified" | "scam" | "fake" | "stargiftsCount" | "personalChannelId" | "firstName" | "lastName" | "username" | "languageCode" | "photoUrl" | "addedToAttachmentMenu" | "allowsWriteToPm" | "birthDay" | "birthMonth" | "birthYear" | "updatedAt", ExtArgs["result"]["userTelegramData"]>
+export type UserTelegramDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "isLive" | "isRtl" | "isPremium" | "isBot" | "gender" | "verified" | "scam" | "fake" | "stargiftsCount" | "personalChannelId" | "firstName" | "lastName" | "username" | "languageCode" | "photoUrl" | "addedToAttachmentMenu" | "allowsWriteToPm" | "birthDay" | "birthMonth" | "birthYear" | "updatedAt" | "bio", ExtArgs["result"]["userTelegramData"]>
 export type UserTelegramDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserTelegramData$userArgs<ExtArgs>
 }
@@ -1037,6 +1067,7 @@ export type $UserTelegramDataPayload<ExtArgs extends runtime.Types.Extensions.In
     birthMonth: number | null
     birthYear: number | null
     updatedAt: Date
+    bio: string | null
   }, ExtArgs["result"]["userTelegramData"]>
   composites: {}
 }
@@ -1483,6 +1514,7 @@ export interface UserTelegramDataFieldRefs {
   readonly birthMonth: Prisma.FieldRef<"UserTelegramData", 'Int'>
   readonly birthYear: Prisma.FieldRef<"UserTelegramData", 'Int'>
   readonly updatedAt: Prisma.FieldRef<"UserTelegramData", 'DateTime'>
+  readonly bio: Prisma.FieldRef<"UserTelegramData", 'String'>
 }
     
 
