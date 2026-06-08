@@ -8,7 +8,6 @@ import { AdsService } from './ads.service'
 import { RichAdsService } from './richads.service'
 import { AdsgramService } from './services/adsgram.service'
 import { GraspilService } from './services/graspil.service'
-import { YandexAdsService } from './services/yandex-ads.service'
 import { TaddyService } from './taddy.service'
 
 @Global()
@@ -30,7 +29,6 @@ import { TaddyService } from './taddy.service'
     TaddyService,
     AdsgramService,
     GraspilService,
-    YandexAdsService,
     RichAdsService,
   ],
   exports: [
@@ -38,7 +36,6 @@ import { TaddyService } from './taddy.service'
     TaddyService,
     AdsgramService,
     GraspilService,
-    YandexAdsService,
     RichAdsService,
   ],
 })
