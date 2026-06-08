@@ -52,7 +52,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const { status, message, errorName, errorDetails } =
       this.parseException(exception)
 
-    // --- handle 404s separately: no telegram, minimal log ---
     if (status === 404) {
       this.logger.log(
         `404: ${request.method} ${request.url} (ip: ${getClientIp(request)})`,
@@ -67,7 +66,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       return
     }
 
-    // Telegram only for >=500
     if (status >= 500) {
       const sanitizedRequest = this.sanitizeFastifyRequest(request)
       await this.logErrorToTelegram({
@@ -85,7 +83,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       )
     }
 
-    // Response
     this.sendFastifyResponse(reply, {
       status,
       message,
@@ -116,23 +113,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-      const prismaError = exception as Prisma.PrismaClientKnownRequestError
       return {
         status: 400,
-        message: this.getPrismaErrorMessage(prismaError),
-        errorName: prismaError.name,
-        errorDetails: prismaError.meta,
+        message: this.getPrismaErrorMessage(exception),
+        errorName: exception.name,
+        errorDetails: exception.meta,
       }
     }
 
     if (exception instanceof Prisma.PrismaClientValidationError) {
-      const prismaValidationError =
-        exception as Prisma.PrismaClientValidationError
       return {
         status: 422,
         message: 'Database validation error',
-        errorName: prismaValidationError.name,
-        errorDetails: prismaValidationError.message,
+        errorName: exception.name,
+        errorDetails: exception.message,
       }
     }
 
@@ -155,17 +149,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const sanitize = (obj: any): any => {
       if (!obj || typeof obj !== 'object') return obj
 
-      if (Array.isArray(obj)) {
-        return obj.map(sanitize)
-      }
+      if (Array.isArray(obj)) return obj.map(sanitize)
 
       return Object.keys(obj).reduce((acc, key) => {
         const lowerKey = key.toLowerCase()
-        if (this.SENSITIVE_KEYS.some((sk) => lowerKey.includes(sk))) {
-          acc[key] = '*****'
-        } else {
-          acc[key] = sanitize(obj[key])
-        }
+        acc[key] = this.SENSITIVE_KEYS.some((sk) => lowerKey.includes(sk))
+          ? '*****'
+          : sanitize(obj[key])
         return acc
       }, {} as any)
     }
@@ -233,20 +223,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private logErrorToConsole(exception: unknown, request: any) {
     const error =
       exception instanceof Error ? exception : new Error(String(exception))
+
+    // NestJS logger.error(message, stack) — second arg must be a string stack trace
     this.logger.error(
-      `Request failed: ${request.method} ${request.url} (ID: ${request.id})`,
-      {
-        error: {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-          ...(error instanceof Prisma.PrismaClientKnownRequestError && {
-            code: (error as Prisma.PrismaClientKnownRequestError).code,
-            meta: (error as Prisma.PrismaClientKnownRequestError).meta,
-          }),
-        },
-        request,
-      },
+      `Request failed: ${request.method} ${request.url} (ID: ${request.id}) — ${error.name}: ${error.message}`,
+      error.stack ?? '',
     )
   }
 
