@@ -1,10 +1,9 @@
 import { LoggerTelegramService } from '@core/logger/logger-telegram.service'
-import { DefaultEnum, TelegramPlatformEnum } from '@core/prisma/generated/enums'
+import { DefaultEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { Context } from '@integrations/telegram/types/telegrafContext.interface'
 import { AdsService } from '@modules/ads/ads.service'
 import { RichAdsService } from '@modules/ads/richads.service'
-import { YandexAdsService } from '@modules/ads/services/yandex-ads.service'
 import { TaddyService } from '@modules/ads/taddy.service'
 import { TaddyOriginEnum } from '@modules/ads/types/taddy.interface'
 import { TonPaymentsService } from '@modules/payments/services/ton-payments.service'
@@ -15,6 +14,7 @@ import { SessionsService } from '@modules/users/services/sessions.service'
 import { UsersService } from '@modules/users/services/users.service'
 import { SessionPlaceEnum } from '@modules/users/types/session-place.enum'
 import { ConfigService } from '@nestjs/config'
+import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import { extractReferralKey } from '@shared/utils/parse-start-param.util'
 import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
@@ -46,7 +46,6 @@ export class StartUpdate {
     private readonly acquisitionsService: AcquisitionsService,
     private readonly richAdsService: RichAdsService,
     private readonly prisma: PrismaService,
-    private readonly yandex: YandexAdsService,
     private readonly adsService: AdsService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
@@ -176,6 +175,7 @@ export class StartUpdate {
           isTelegramPartner,
           startParam,
           ...(birth && { birth }),
+          telegramPlatform: TelegramPlatformEnum.BOT,
         })
       }
 
