@@ -1,7 +1,9 @@
 import { RedisService } from '@core/redis/redis.service'
+import { Injectable } from '@nestjs/common'
 import { ThrottlerStorage } from '@nestjs/throttler'
 import { ThrottlerStorageRecord } from '@nestjs/throttler/dist/throttler-storage-record.interface'
 
+@Injectable()
 export class RedisThrottlerStorage implements ThrottlerStorage {
   constructor(
     private readonly redis: RedisService,
@@ -29,9 +31,7 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
     const ttl = record.isBlocked
       ? Math.max(record.timeToBlockExpire - now, 0)
       : Math.max(record.timeToExpire - now, 0)
-
-    if (ttl <= 0) return // защита от мусора
-
+    if (ttl <= 0) return
     await this.redis.set(this.key(key), JSON.stringify(record), 'PX', ttl)
   }
 
@@ -45,18 +45,18 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
     const now = Date.now()
     const record = await this.getRecord(key)
 
-    // Блокировка всё ещё активна
+    // Block still active
     if (record.isBlocked && record.timeToBlockExpire > now) {
       return record
     }
 
-    // Блокировка истекла
+    // Block expired — reset
     if (record.isBlocked && record.timeToBlockExpire <= now) {
       record.isBlocked = false
       record.totalHits = 1
       record.timeToExpire = now + ttl
     } else {
-      // TTL истёк — сброс счётчика
+      // Window expired — reset counter
       if (record.timeToExpire <= now) {
         record.totalHits = 1
         record.timeToExpire = now + ttl
@@ -65,7 +65,7 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
       }
     }
 
-    // Превышен лимит — блокировка
+    // Exceeded limit — block
     if (record.totalHits > limit) {
       record.isBlocked = true
       record.timeToBlockExpire = now + blockDuration
