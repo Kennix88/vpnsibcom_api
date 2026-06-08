@@ -27,15 +27,12 @@ export class PaymentsUpdate {
 
   /**
    * Обработка pre_checkout_query
-   * @param ctx - Контекст Telegram
    */
   @On('pre_checkout_query')
   async handlePreCheckout(@Ctx() ctx: Context) {
     try {
       const query = ctx.preCheckoutQuery
       this.logger.info(`PreCheckoutQuery received: ${JSON.stringify(query)}`)
-
-      // Обязательно отвечаем в течение 10 секунд
       await ctx.answerPreCheckoutQuery(true)
     } catch (err) {
       this.logger.error({
@@ -43,8 +40,6 @@ export class PaymentsUpdate {
         error: err instanceof Error ? err.message : String(err),
         stack: err instanceof Error ? err.stack : undefined,
       })
-
-      // Отправляем уведомление об ошибке в Telegram-логгер
       await this.telegramLogger.error(
         `Error in pre_checkout_query handler: ${
           err instanceof Error ? err.message : String(err)
@@ -54,10 +49,16 @@ export class PaymentsUpdate {
   }
 
   /**
-   * Обработка успешной оплаты
-   * @param ctx - Контекст Telegram
+   * Обработка успешной оплаты.
+   *
+   * FIX #11: заменён @On('message') на @On('successful_payment').
+   * В оригинале оба файла — StartUpdate и PaymentsUpdate — слушали @On('message'),
+   * что приводило к конфликту: при получении сообщения об успешной оплате
+   * StartUpdate тоже реагировал и мог отправить приветственный экран.
+   * Telegraf поддерживает фильтр по подтипу сообщения 'successful_payment',
+   * поэтому здесь теперь используется точечный обработчик.
    */
-  @On('message')
+  @On('successful_payment')
   async handleSuccessfulPayment(@Ctx() ctx: Context) {
     try {
       const msg = ctx.message
@@ -73,7 +74,6 @@ export class PaymentsUpdate {
         userId,
       })
 
-      // Получаем язык пользователя
       let userLang = 'ru'
       if (userId) {
         const user = await this.usersService.getUserByTgId(userId)
@@ -100,25 +100,15 @@ export class PaymentsUpdate {
             lang: userLang,
           },
         )
-
         await ctx.reply(errorMessage)
         return
       }
-
-      // const successMessage = await this.i18n.translate('payments.payment_success', {
-      //   args: { amount: updatePayment.amountStars },
-      //   lang: userLang
-      // })
-
-      // await ctx.reply(successMessage)
     } catch (err) {
       this.logger.error({
         msg: 'Error in successful_payment handler',
         error: err instanceof Error ? err.message : String(err),
         stack: err instanceof Error ? err.stack : undefined,
       })
-
-      // Отправляем уведомление об ошибке в Telegram-логгер
       await this.telegramLogger.error(
         `Error in successful_payment handler: ${
           err instanceof Error ? err.message : String(err)
