@@ -1,20 +1,28 @@
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import axios from 'axios'
 import { PinoLogger } from 'nestjs-pino'
 import { FindTonPaymentsResponse } from '../types/ton-payments.type'
 import { TonUtimeService } from './ton-uptime.service'
 
+// FIX #4: Максимальное количество страниц пагинации во избежание бесконечного цикла
+const MAX_PAGES = 50
+
 @Injectable()
 export class TonPaymentsService {
-  private readonly apiKey = process.env.TONAPI_KEY
+  private readonly apiKey: string
   private readonly wallet: string
   private readonly baseUrl = 'https://tonapi.io/v2'
 
   constructor(
     private readonly logger: PinoLogger,
     private readonly tonUtimeService: TonUtimeService,
+    // FIX #5: ConfigService вместо прямого process.env — переменные
+    // валидируются при старте приложения, а не в момент первого вызова.
+    private readonly configService: ConfigService,
   ) {
-    this.wallet = process.env.TON_WALLET
+    this.apiKey = this.configService.getOrThrow<string>('TONAPI_KEY')
+    this.wallet = this.configService.getOrThrow<string>('TON_WALLET')
   }
 
   /**
@@ -27,14 +35,30 @@ export class TonPaymentsService {
     let beforeLt = 0
     const limit = 100
 
+    // FIX #4: добавлен счётчик страниц — при достижении MAX_PAGES
+    // цикл прерывается с предупреждением, чтобы исключить бесконечное выполнение
+    // (например, если API постоянно возвращает полные пачки с одними данными).
+    let page = 0
+
     try {
       while (true) {
+        if (page >= MAX_PAGES) {
+          this.logger.warn({
+            msg: `getTransactions: reached MAX_PAGES limit (${MAX_PAGES}), stopping pagination`,
+            wallet: this.wallet,
+            fromUtime,
+            totalLoaded: allTransactions.length,
+          })
+          break
+        }
+
+        page++
+
         const params: Record<string, string | number> = { limit }
         if (fromUtime) params['from_utime'] = fromUtime
         if (beforeLt > 0) params['before_lt'] = beforeLt
 
         const url = `${this.baseUrl}/blockchain/accounts/${this.wallet}/transactions`
-
         const { data } = await axios.get(url, {
           headers: { Authorization: `Bearer ${this.apiKey}` },
           params,
@@ -45,21 +69,31 @@ export class TonPaymentsService {
 
         allTransactions.push(...transactions)
 
-        // Если получили меньше лимита, значит это последняя страница
+        // Если получили меньше лимита — это последняя страница
         if (transactions.length < limit) break
 
-        // Устанавливаем before_lt для следующей страницы
         const lastTx = transactions[transactions.length - 1]
-        beforeLt = lastTx.lt
 
-        // Если последняя транзакция в пачке уже старее или равна fromUtime,
-        // то дальше искать нет смысла (хотя TonAPI фильтрует по from_utime, это страховка)
+        // FIX #4: дополнительная защита — если before_lt не изменился
+        // (API вернул те же данные), прерываем цикл во избежание зависания.
+        const nextBeforeLt = lastTx.lt
+        if (nextBeforeLt === beforeLt) {
+          this.logger.warn({
+            msg: 'getTransactions: before_lt did not change, breaking to avoid infinite loop',
+            beforeLt,
+            wallet: this.wallet,
+          })
+          break
+        }
+
+        beforeLt = nextBeforeLt
+
         if (fromUtime && lastTx.utime <= fromUtime) break
       }
     } catch (e) {
       this.logger.error({
         msg: 'Error fetching transactions from TonAPI',
-        error: e.message,
+        error: e instanceof Error ? e.message : String(e),
         wallet: this.wallet,
       })
       throw e
@@ -74,7 +108,6 @@ export class TonPaymentsService {
    * @returns Объект с найденными платежами и максимальным utime
    */
   async findPayments(paymentIds: string[]): Promise<FindTonPaymentsResponse> {
-    // получаем lastUtime из Redis
     const lastUtime = await this.tonUtimeService.getLastUtime(this.wallet)
 
     this.logger.info({
@@ -82,7 +115,6 @@ export class TonPaymentsService {
       count: paymentIds.length,
     })
 
-    // получаем транзакции с момента lastUtime
     const txs = await this.getTransactions(lastUtime)
 
     const payments: Record<string, any> = {}
@@ -109,7 +141,6 @@ export class TonPaymentsService {
           hash: tx.hash,
           utime: tx.utime,
         }
-
         this.logger.info({
           msg: `Found TON payment for token ${comment}`,
           hash: tx.hash,
