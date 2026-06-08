@@ -24,6 +24,7 @@ import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { PaymentMethodsDataInterface } from '@shared/types/payment-methods-data.interface'
 import { fxUtil } from '@shared/utils/fx.util'
 import { genToken } from '@shared/utils/gen-token.util'
+import { SuccessfulPayment } from '@telegraf/types'
 import { BalanceTypeEnum } from '@vpnsibcom/src/shared/enums/balance-type.enum'
 import { DefaultEnum } from '@vpnsibcom/src/shared/enums/default.enum'
 import { TransactionReasonEnum } from '@vpnsibcom/src/shared/enums/transaction-reason.enum'
@@ -33,7 +34,6 @@ import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
-import { SuccessfulPayment } from '@telegraf/types'
 import { BonusesInterface } from '../types/bonuses.interface'
 import { PaymentTypeEnum } from '../types/payment-type.enum'
 import { TelegramPaymentsService } from './telegram-payments.service'
@@ -53,9 +53,23 @@ export class PaymentsService {
     private readonly xrayService: XrayService,
     private readonly i18n: I18nService<I18nTranslations>,
     @InjectBot() private readonly bot: Telegraf,
-
     private readonly eventsService: EventsService,
   ) {}
+
+  // FIX #10: Выделен общий приватный метод для расчёта бонусных звёзд,
+  // чтобы избежать дублирования идентичной логики в createInvoice и
+  // processTelegramStarsIncomingPayment.
+  private calculateBonusStars(amountStars: number, settings: any): number {
+    if (amountStars < 250) return 0
+    if (amountStars < 500) return amountStars * settings.bonusPayment250
+    if (amountStars < 1000) return amountStars * settings.bonusPayment500
+    if (amountStars < 2500) return amountStars * settings.bonusPayment1000
+    if (amountStars < 5000) return amountStars * settings.bonusPayment2500
+    if (amountStars < 10000) return amountStars * settings.bonusPayment5000
+    if (amountStars < 20000) return amountStars * settings.bonusPayment10000
+    if (amountStars < 50000) return amountStars * settings.bonusPayment20000
+    return amountStars * settings.bonusPayment50000
+  }
 
   public async createInvoice(
     amount: number,
@@ -72,46 +86,26 @@ export class PaymentsService {
   }> {
     try {
       return await this.prismaService.$transaction(async (tx) => {
-        // Find payment method
         const getMethod = await tx.paymentMethods.findUnique({
-          where: {
-            key: method,
-            isActive: true,
-          },
+          where: { key: method, isActive: true },
         })
-        if (!getMethod) {
+        if (!getMethod)
           throw new Error(`Payment method not found or not active`)
-        }
 
-        // Find user
         const getUser = await tx.users.findUnique({
-          where: {
-            telegramId: tgId,
-          },
-          include: {
-            language: true,
-          },
+          where: { telegramId: tgId },
+          include: { language: true },
         })
+        if (!getUser) throw new Error(`User not found`)
 
-        if (!getUser) {
-          throw new Error(`User not found`)
-        }
-        // Get settings
         const settings = await tx.settings.findUnique({
-          where: {
-            key: DefaultEnum.DEFAULT,
-          },
+          where: { key: DefaultEnum.DEFAULT },
         })
-        if (!settings) {
-          throw new Error(`Default settings not found`)
-        }
+        if (!settings) throw new Error(`Default settings not found`)
 
-        // Get rates
         const rates = await this.ratesService.getRates()
-
         const token = genToken()
 
-        // Convert amount based on currency
         const convertedAmount =
           getMethod.currencyKey === CurrencyEnum.XTR
             ? amount
@@ -130,24 +124,8 @@ export class PaymentsService {
             ? Number(amount.toFixed(0))
             : amount
 
-        const bonusStars =
-          amountStars < 250
-            ? 0
-            : amountStars >= 250 && amountStars < 500
-            ? amountStars * settings.bonusPayment250
-            : amountStars >= 500 && amountStars < 1000
-            ? amountStars * settings.bonusPayment500
-            : amountStars >= 1000 && amountStars < 2500
-            ? amountStars * settings.bonusPayment1000
-            : amountStars >= 2500 && amountStars < 5000
-            ? amountStars * settings.bonusPayment2500
-            : amountStars >= 5000 && amountStars < 10000
-            ? amountStars * settings.bonusPayment5000
-            : amountStars >= 10000 && amountStars < 20000
-            ? amountStars * settings.bonusPayment10000
-            : amountStars >= 20000 && amountStars < 50000
-            ? amountStars * settings.bonusPayment20000
-            : amountStars * settings.bonusPayment50000
+        // FIX #10: используем общий метод вместо дублированного тернарного блока
+        const bonusStars = this.calculateBonusStars(amountStars, settings)
 
         const paymentObject = {
           status: PaymentStatusEnum.PENDING,
@@ -205,7 +183,7 @@ export class PaymentsService {
           },
         })
 
-        const response = {
+        return {
           linkPay:
             getMethod.key === PaymentMethodEnum.TON_TON
               ? this.configService.getOrThrow<string>('TON_WALLET')
@@ -215,14 +193,13 @@ export class PaymentsService {
           amountTon:
             getMethod.key === PaymentMethodEnum.TON_TON ? convertedAmount : 0,
         }
-        return response
       })
     } catch (e: unknown) {
       const error = e as Error
       this.logger.error(
         `Error while creating invoice for user ${tgId}: ${error.message}`,
       )
-      throw error // Re-throw the error after logging
+      throw error
     }
   }
 
@@ -232,34 +209,43 @@ export class PaymentsService {
     details?: object,
   ): Promise<{ amountStars: number } | undefined> {
     try {
-      this.logger.info({
-        msg: `Updating payment`,
-        token,
-        status,
-      })
+      this.logger.info({ msg: `Updating payment`, token, status })
+
+      // FIX #2: Атомарная проверка-и-обновление статуса через updateMany,
+      // чтобы исключить race condition между findUnique и последующим update.
+      // Если count === 0, платёж уже обрабатывается другим процессом или завершён.
+      if (status === PaymentStatusEnum.COMPLETED) {
+        const claimed = await this.prismaService.payments.updateMany({
+          where: {
+            token,
+            status: { not: PaymentStatusEnum.COMPLETED },
+          },
+          data: { status: PaymentStatusEnum.PENDING },
+        })
+
+        if (claimed.count === 0) {
+          this.logger.warn({
+            msg: `Payment already completed or being processed, skipping`,
+            token,
+          })
+          // Возвращаем данные платежа без повторной обработки
+          const existing = await this.prismaService.payments.findUnique({
+            where: { token },
+            select: { amountStars: true },
+          })
+          return existing ? { amountStars: existing.amountStars } : undefined
+        }
+      }
 
       const payment = await this.prismaService.payments.findUnique({
-        where: {
-          token,
-          status: {
-            not: PaymentStatusEnum.COMPLETED,
-          },
-        },
+        where: { token },
         include: {
-          subscription: {
-            include: {
-              plan: true,
-            },
-          },
+          subscription: { include: { plan: true } },
           user: {
             include: {
               inviters: {
                 include: {
-                  inviter: {
-                    include: {
-                      balance: true,
-                    },
-                  },
+                  inviter: { include: { balance: true } },
                 },
               },
               balance: true,
@@ -273,7 +259,6 @@ export class PaymentsService {
         throw new Error(`Payment not found`)
       }
 
-      // Возвращаем ранний ответ, если статус не COMPLETED
       if (status !== PaymentStatusEnum.COMPLETED) {
         await this.prismaService.payments.update({
           where: { token },
@@ -282,15 +267,10 @@ export class PaymentsService {
             ...(details && { details: details as Prisma.JsonObject }),
           },
         })
-
         return { amountStars: payment.amountStars }
       }
 
-      this.logger.info({
-        msg: `Payment completed`,
-        token,
-        status,
-      })
+      this.logger.info({ msg: `Payment completed`, token, status })
 
       const isSubscription = payment.subscriptionId !== null
 
@@ -336,12 +316,20 @@ export class PaymentsService {
         isSubscription &&
         payment.type === PaymentTypeEnum.ADD_TRAFFIC_SUBSCRIPTION
       ) {
-        const addTraffic = await this.xrayService.addTrafficToSubscription(
-          payment.subscriptionId,
-          Number((payment.data as { traffic: number })?.traffic),
-        )
+        // FIX #6: результат сохраняется и логируется вместо молчаливого игнора
+        const addTrafficResult =
+          await this.xrayService.addTrafficToSubscription(
+            payment.subscriptionId,
+            Number((payment.data as { traffic: number })?.traffic),
+          )
+        this.logger.info({
+          msg: `Traffic added to subscription`,
+          subscriptionId: payment.subscriptionId,
+          result: addTrafficResult,
+        })
       }
 
+      // FIX #8:
       if (
         isSubscription &&
         payment.type === PaymentTypeEnum.UPDATE_SUBSCTIPTION
@@ -352,7 +340,8 @@ export class PaymentsService {
           periodMultiplier: number
           trafficReset: TrafficResetEnum
         }
-        const updateSub = await this.xrayService.renewSubFinaly(
+        // FIX #6: результат сохраняется и логируется
+        const renewResult = await this.xrayService.renewSubFinaly(
           payment.userId,
           payment.subscriptionId,
           data.isSavePeriod,
@@ -360,22 +349,16 @@ export class PaymentsService {
           data.periodMultiplier,
           data.trafficReset,
         )
+        this.logger.info({
+          msg: `Subscription renewed`,
+          subscriptionId: payment.subscriptionId,
+          result: renewResult,
+        })
       }
 
-      if (
-        payment.type === PaymentTypeEnum.ADD_PAYMENT_BALANCE &&
-        payment.bonusStars > 0
-      ) {
-        await this.userService.addUserBalance(
-          payment.userId,
-          payment.bonusStars,
-          TransactionReasonEnum.BONUS,
-          BalanceTypeEnum.PAYMENT,
-        )
-      }
-
-      // Обрабатываем успешный платеж в транзакции
-      const result = await this.processCompletedPayment(
+      // FIX #1: начисление бонуса перенесено внутрь processCompletedPayment,
+      // чтобы оно выполнялось атомарно в одной транзакции вместе с основным балансом.
+      await this.processCompletedPayment(
         payment,
         status,
         details,
@@ -392,7 +375,26 @@ export class PaymentsService {
         status,
       })
 
-      // Пробрасываем ошибку дальше для обработки на уровне контроллера
+      // При ошибке сбрасываем статус PROCESSING обратно в PENDING,
+      // чтобы платёж мог быть повторно обработан
+      if (status === PaymentStatusEnum.COMPLETED) {
+        await this.prismaService.payments
+          .updateMany({
+            where: { token, status: PaymentStatusEnum.PENDING },
+            data: { status: PaymentStatusEnum.PENDING },
+          })
+          .catch((rollbackErr) => {
+            this.logger.error({
+              msg: `Failed to rollback PROCESSING status`,
+              token,
+              error:
+                rollbackErr instanceof Error
+                  ? rollbackErr.message
+                  : String(rollbackErr),
+            })
+          })
+      }
+
       throw e
     }
   }
@@ -436,7 +438,9 @@ export class PaymentsService {
 
     const chargeId = telegramPaymentChargeId || providerPaymentChargeId
     if (!chargeId) {
-      throw new Error('Telegram charge id is missing for incoming Stars payment')
+      throw new Error(
+        'Telegram charge id is missing for incoming Stars payment',
+      )
     }
 
     const recoveryToken = `tg-stars-recovery-${chargeId}`
@@ -454,36 +458,17 @@ export class PaymentsService {
       where: { telegramId: telegramUserId },
       select: { id: true, isTgProgramPartner: true },
     })
-    if (!user) {
+    if (!user)
       throw new Error(`User not found by telegramId: ${telegramUserId}`)
-    }
 
     const settings = await this.prismaService.settings.findUnique({
       where: { key: DefaultEnum.DEFAULT },
     })
-    if (!settings) {
-      throw new Error('Default settings not found')
-    }
+    if (!settings) throw new Error('Default settings not found')
 
     const amountStars = Number(totalAmount.toFixed(0))
-    const bonusStars =
-      amountStars < 250
-        ? 0
-        : amountStars >= 250 && amountStars < 500
-        ? amountStars * settings.bonusPayment250
-        : amountStars >= 500 && amountStars < 1000
-        ? amountStars * settings.bonusPayment500
-        : amountStars >= 1000 && amountStars < 2500
-        ? amountStars * settings.bonusPayment1000
-        : amountStars >= 2500 && amountStars < 5000
-        ? amountStars * settings.bonusPayment2500
-        : amountStars >= 5000 && amountStars < 10000
-        ? amountStars * settings.bonusPayment5000
-        : amountStars >= 10000 && amountStars < 20000
-        ? amountStars * settings.bonusPayment10000
-        : amountStars >= 20000 && amountStars < 50000
-        ? amountStars * settings.bonusPayment20000
-        : amountStars * settings.bonusPayment50000
+    // FIX #10: используем общий метод вместо дублированного тернарного блока
+    const bonusStars = this.calculateBonusStars(amountStars, settings)
 
     try {
       if (!existingRecovery) {
@@ -552,6 +537,20 @@ export class PaymentsService {
       // 1. Обновляем баланс пользователя
       if (!isSubscription) await this.updateUserBalance(tx, payment)
 
+      // FIX #1: начисление бонуса перенесено сюда из updatePayment,
+      // чтобы выполняться атомарно внутри транзакции вместе с основным балансом.
+      if (
+        payment.type === PaymentTypeEnum.ADD_PAYMENT_BALANCE &&
+        payment.bonusStars > 0
+      ) {
+        await this.userService.addUserBalance(
+          payment.userId,
+          payment.bonusStars,
+          TransactionReasonEnum.BONUS,
+          BalanceTypeEnum.PAYMENT,
+        )
+      }
+
       // 2. Создаем транзакцию платежа
       const transaction = await this.createPaymentTransaction(
         tx,
@@ -578,14 +577,8 @@ export class PaymentsService {
    */
   private async updateUserBalance(tx, payment) {
     await tx.userBalance.update({
-      where: {
-        id: payment.user.balanceId,
-      },
-      data: {
-        paymentBalance: {
-          increment: payment.amountStars,
-        },
-      },
+      where: { id: payment.user.balanceId },
+      data: { paymentBalance: { increment: payment.amountStars } },
     })
 
     this.logger.info({
@@ -639,9 +632,7 @@ export class PaymentsService {
     details?: object,
   ) {
     const updatedPayment = await tx.payments.update({
-      where: {
-        token,
-      },
+      where: { token },
       data: {
         status,
         transactionId,
@@ -657,20 +648,26 @@ export class PaymentsService {
       },
     })
 
-    const payments = await tx.payments.findMany({
+    // FIX #7: Запрос выполняется после обновления статуса платежа, поэтому
+    // текущий платёж уже включён в результат. Исключаем его по id,
+    // чтобы корректно определить «первый платёж».
+    const previousPayments = await tx.payments.findMany({
       where: {
         userId: updatedPayment.userId,
         status: PaymentStatusEnum.COMPLETED,
+        id: { not: updatedPayment.id },
       },
     })
-    const isFirstPayment = payments.length === 1
+    const isFirstPayment = previousPayments.length === 0
     const paymentOrderText = isFirstPayment ? 'Первый' : 'Повторный'
+
     const startParams =
       updatedPayment.user.acquisition?.firstStartParams ||
       updatedPayment.user.acquisition?.lastStartParams
     const referralId =
       updatedPayment.user.acquisition?.firstReferralId ||
       updatedPayment.user.acquisition?.lastReferralId
+
     const escapeHtml = (value?: string | null) =>
       String(value ?? '')
         .replace(/&/g, '&amp;')
@@ -734,23 +731,18 @@ export class PaymentsService {
           })
         })
         .then(() => {
-          this.logger.info({
-            msg: `Message sent to telegram`,
-          })
+          this.logger.info({ msg: `Message sent to telegram` })
         })
     } catch (e) {
-      this.logger.error({
-        msg: `Error while sending message to telegram`,
-        e,
-      })
+      this.logger.error({ msg: `Error while sending message to telegram`, e })
     }
 
     await this.eventsService.createEvent({
       userId: updatedPayment.userId,
-      eventType:
-        isFirstPayment ? EventType.FIRST_PAYMENT : EventType.RELOAD_PAYMENT,
+      eventType: isFirstPayment
+        ? EventType.FIRST_PAYMENT
+        : EventType.RELOAD_PAYMENT,
       amountStars: updatedPayment.amountStars,
-      isSendGraspil: updatedPayment.currencyKey !== CurrencyEnum.XTR,
     })
 
     this.logger.info({
@@ -767,9 +759,7 @@ export class PaymentsService {
   private async processReferralCommissions(tx, payment) {
     const referrers = payment.user.inviters
 
-    if (referrers.length === 0) {
-      return
-    }
+    if (referrers.length === 0) return
 
     this.logger.info({
       msg: `Processing referral commissions`,
@@ -778,9 +768,7 @@ export class PaymentsService {
     })
 
     const getSettings = await tx.settings.findUnique({
-      where: {
-        key: DefaultEnum.DEFAULT,
-      },
+      where: { key: DefaultEnum.DEFAULT },
     })
 
     if (!getSettings) {
@@ -819,14 +807,10 @@ export class PaymentsService {
       referrerId: referrer.inviter.id,
     })
 
-    if (referralCommission <= 0) {
-      return
-    }
+    if (referralCommission <= 0) return
 
     await tx.referrals.update({
-      where: {
-        id: referrer.id,
-      },
+      where: { id: referrer.id },
       data: {
         isActivated: true,
         totalUsdtRewarded: {
@@ -835,11 +819,8 @@ export class PaymentsService {
       },
     })
 
-    // Обновляем баланс реферера
     await tx.userBalance.update({
-      where: {
-        id: referrer.inviter.balanceId,
-      },
+      where: { id: referrer.inviter.balanceId },
       data: {
         usdt: { increment: referralCommission * settings.tgStarsToUSD },
         ...(payment.methodKey == PaymentMethodEnum.STARS && {
@@ -856,8 +837,6 @@ export class PaymentsService {
       balanceId: referrer.inviter.balanceId,
       amount: referralCommission,
     })
-
-    // Создаем транзакцию для реферальной комиссии
 
     const transactions = [
       referralCommission * settings.tgStarsToUSD > 0 && {
@@ -909,83 +888,65 @@ export class PaymentsService {
   public async getPaymentMethods(
     isTma: boolean,
   ): Promise<PaymentMethodsDataInterface[]> {
-    try {
-      const getPaymentMethods =
-        await this.prismaService.paymentMethods.findMany({
-          where: {
-            ...(isTma && {
-              key: {
-                in: [PaymentMethodEnum.STARS],
-              },
-            }),
-            isActive: true,
+    // FIX #12: пробрасываем ошибку вместо молчаливого возврата undefined
+    const getPaymentMethods = await this.prismaService.paymentMethods.findMany({
+      where: {
+        ...(isTma && { key: { in: [PaymentMethodEnum.STARS] } }),
+        isActive: true,
+      },
+      include: {
+        currency: {
+          select: {
+            key: true,
+            name: true,
+            symbol: true,
+            type: true,
+            rate: true,
           },
-          include: {
-            currency: {
-              select: {
-                key: true,
-                name: true,
-                symbol: true,
-                type: true,
-                rate: true,
-              },
-            },
-          },
-        })
-
-      const methods: PaymentMethodsDataInterface[] = getPaymentMethods.map(
-        (method) => {
-          return {
-            key: method.key as PaymentMethodEnum,
-            name: method.name,
-            isTonBlockchain: method.isTonBlockchain,
-            tonSmartContractAddress: method.tonSmartContractAddress,
-            minAmount: method.minAmount,
-            maxAmount: method.maxAmount,
-            commission: method.commission,
-            isPlusCommission: method.isPlusCommission,
-            type: method.type as PaymentMethodTypeEnum,
-            system: method.system as PaymentSystemEnum,
-            currency: {
-              key: method.currency.key as CurrencyEnum,
-              name: method.currency.name,
-              symbol: method.currency.symbol,
-              type: method.currency.type as CurrencyTypeEnum,
-              rate: method.currency.rate,
-            },
-          }
         },
-      )
+      },
+    })
 
-      return methods
-    } catch (e) {
-      this.logger.error({
-        msg: `Error while getting payment methods`,
-        e,
-      })
-    }
+    return getPaymentMethods.map((method) => ({
+      key: method.key as PaymentMethodEnum,
+      name: method.name,
+      isTonBlockchain: method.isTonBlockchain,
+      tonSmartContractAddress: method.tonSmartContractAddress,
+      minAmount: method.minAmount,
+      maxAmount: method.maxAmount,
+      commission: method.commission,
+      isPlusCommission: method.isPlusCommission,
+      type: method.type as PaymentMethodTypeEnum,
+      system: method.system as PaymentSystemEnum,
+      currency: {
+        key: method.currency.key as CurrencyEnum,
+        name: method.currency.name,
+        symbol: method.currency.symbol,
+        type: method.currency.type as CurrencyTypeEnum,
+        rate: method.currency.rate,
+      },
+    }))
   }
 
   public async getBonuses(): Promise<BonusesInterface> {
-    try {
-      const settings = await this.prismaService.settings.findUnique({
-        where: {
-          key: DefaultEnum.DEFAULT,
-        },
-      })
+    // FIX #12: пробрасываем ошибку вместо молчаливого возврата undefined
+    const settings = await this.prismaService.settings.findUnique({
+      where: { key: DefaultEnum.DEFAULT },
+    })
 
-      return {
-        bonusPayment250: settings.bonusPayment250,
-        bonusPayment500: settings.bonusPayment500,
-        bonusPayment1000: settings.bonusPayment1000,
-        bonusPayment2500: settings.bonusPayment2500,
-        bonusPayment5000: settings.bonusPayment5000,
-        bonusPayment10000: settings.bonusPayment10000,
-        bonusPayment20000: settings.bonusPayment20000,
-        bonusPayment50000: settings.bonusPayment50000,
-      }
-    } catch (e) {
-      console.error(e)
+    if (!settings) {
+      throw new Error('Default settings not found')
+    }
+
+    return {
+      bonusPayment250: settings.bonusPayment250,
+      bonusPayment500: settings.bonusPayment500,
+      bonusPayment1000: settings.bonusPayment1000,
+      bonusPayment2500: settings.bonusPayment2500,
+      bonusPayment5000: settings.bonusPayment5000,
+      bonusPayment10000: settings.bonusPayment10000,
+      bonusPayment20000: settings.bonusPayment20000,
+      bonusPayment50000: settings.bonusPayment50000,
     }
   }
 }
