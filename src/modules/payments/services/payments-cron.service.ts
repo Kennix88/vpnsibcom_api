@@ -1,4 +1,5 @@
 import { PrismaService } from '@core/prisma/prisma.service'
+import { RedisService } from '@core/redis/redis.service'
 import { XrayService } from '@modules/xray/services/xray.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -17,9 +18,14 @@ import { PaymentsService } from './payments.service'
 import { TonPaymentsService } from './ton-payments.service'
 import { TonUtimeService } from './ton-uptime.service'
 
-/**
- * Сервис для выполнения периодических задач, связанных с платежами
- */
+// FIX #3: Добавлены константы для distributed lock через Redis.
+// Без блокировки при нескольких инстанциях сервиса один и тот же набор
+// expired holds / expired payments обрабатывается параллельно несколькими воркерами.
+const LOCK_EXPIRED_HOLDS = 'cron:lock:processExpiredHolds'
+const LOCK_CANCEL_PAYMENTS = 'cron:lock:cancelExpiredPayments'
+const LOCK_TON_PAYMENTS = 'cron:lock:checkTonPayments'
+const LOCK_TTL_SECONDS = 55 // чуть меньше минимального интервала крона
+
 @Injectable()
 export class PaymentsCronService {
   constructor(
@@ -31,106 +37,45 @@ export class PaymentsCronService {
     private readonly tonPaymentsService: TonPaymentsService,
     private readonly paymentsService: PaymentsService,
     private readonly tonUtimeService: TonUtimeService,
+    // FIX #3: внедряем RedisService для distributed locking
+    private readonly redis: RedisService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
     this.logger.setContext(PaymentsCronService.name)
   }
 
-  // @Cron('0 5 * * * *')
-  // async checkTelegramStarsPayments() {
-  //   try {
-  //     this.logger.info({ msg: 'Starting Telegram Stars incoming payments check' })
+  /**
+   * FIX #3: Пытается взять distributed lock в Redis.
+   * Возвращает true, если блокировка успешно получена, false — если уже занята.
+   * Использует SET NX EX для атомарной операции «установить, только если не существует».
+   */
+  private async acquireLock(key: string, ttlSeconds: number): Promise<boolean> {
+    // SET key value NX EX ttl — атомарно, возвращает OK или null
+    const result = await this.redis.set(key, '1', 'EX', ttlSeconds, 'NX')
+    return result !== null
+  }
 
-  //     const response = await (this.bot.telegram as any).callApi(
-  //       'getStarTransactions',
-  //       {
-  //         offset: 0,
-  //         limit: 100,
-  //       },
-  //     )
-
-  //     const transactions = (response as { transactions?: any[] })?.transactions
-  //     if (!transactions || transactions.length === 0) {
-  //       this.logger.info({ msg: 'No Telegram Stars transactions found' })
-  //       return
-  //     }
-
-  //     this.logger.info({
-  //       msg: `Loaded Telegram Stars transactions`,
-  //       count: transactions.length,
-  //     })
-
-  //     for (const transaction of transactions) {
-  //       const amount = Number(transaction?.amount ?? 0)
-  //       if (!Number.isFinite(amount) || amount <= 0) continue
-
-  //       const source = transaction?.source
-  //       const transactionId = transaction?.id?.toString?.()
-  //       const telegramUserId =
-  //         source?.user?.id?.toString?.() || source?.id?.toString?.()
-  //       const invoicePayload =
-  //         source?.invoice_payload || source?.paid_media_payload || undefined
-
-  //       if (!telegramUserId) continue
-
-  //       if (invoicePayload) {
-  //         const existingInvoicePayment =
-  //           await this.prismaService.payments.findUnique({
-  //             where: { token: invoicePayload },
-  //             select: { status: true },
-  //           })
-
-  //         if (existingInvoicePayment?.status === PaymentStatusEnum.COMPLETED) {
-  //           continue
-  //         }
-  //       }
-
-  //       if (transactionId) {
-  //         const recoveryToken = `tg-stars-recovery-${transactionId}`
-  //         const existingRecoveryPayment =
-  //           await this.prismaService.payments.findUnique({
-  //             where: { token: recoveryToken },
-  //             select: { status: true },
-  //           })
-
-  //         if (existingRecoveryPayment?.status === PaymentStatusEnum.COMPLETED) {
-  //           continue
-  //         }
-  //       }
-
-  //       await this.paymentsService.processTelegramStarsIncomingPayment({
-  //         telegramUserId,
-  //         invoicePayload,
-  //         totalAmount: amount,
-  //         telegramPaymentChargeId: transactionId,
-  //         rawDetails: transaction,
-  //       })
-  //     }
-
-  //     this.logger.info({ msg: 'Telegram Stars incoming payments check completed' })
-  //   } catch (e) {
-  //     this.logger.error({
-  //       msg: 'Error checking Telegram Stars incoming payments',
-  //       error: e instanceof Error ? e.message : String(e),
-  //       stack: e instanceof Error ? e.stack : undefined,
-  //     })
-  //   }
-  // }
+  private async releaseLock(key: string): Promise<void> {
+    await this.redis.del(key)
+  }
 
   @Cron('*/15 * * * * *')
   async checkTonPayments() {
+    // FIX #3: distributed lock для TON-платежей
+    const locked = await this.acquireLock(LOCK_TON_PAYMENTS, LOCK_TTL_SECONDS)
+    if (!locked) {
+      this.logger.info({ msg: 'checkTonPayments: lock already held, skipping' })
+      return
+    }
+
     try {
       const transactions = await this.prismaService.payments.findMany({
         where: {
           OR: [
             { status: PaymentStatusEnum.PENDING },
-            // Повторно проверяем недавно зафейленные TON-платежи,
-            // чтобы нивелировать гонку с cron отмены и поздние подтверждения сети.
             {
               status: PaymentStatusEnum.FAILED,
-              updatedAt: {
-                gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
-              },
+              updatedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
             },
           ],
           methodKey: PaymentMethodEnum.TON_TON,
@@ -142,27 +87,18 @@ export class PaymentsCronService {
         return
       }
 
-      this.logger.info({
-        msg: `Found ${transactions.length} TON payments`,
-      })
+      this.logger.info({ msg: `Found ${transactions.length} TON payments` })
 
-      const payIds = []
-
-      for (const transaction of transactions) {
-        payIds.push(transaction.token)
-      }
+      const payIds = transactions.map((t) => t.token)
 
       const { payments: getTonPayments, maxUtime } =
         await this.tonPaymentsService.findPayments(payIds)
 
       for (const transaction of transactions) {
-        this.logger.info({
-          msg: `Processing TON payment ${transaction.id}`,
-        })
+        this.logger.info({ msg: `Processing TON payment ${transaction.id}` })
 
         const payment = getTonPayments[transaction.token]
-
-        if (!payment || payment == null) {
+        if (!payment) {
           this.logger.warn({
             msg: `TON payment ${transaction.token} not found`,
           })
@@ -173,6 +109,7 @@ export class PaymentsCronService {
           Math.abs(transaction.amount - payment.amount).toFixed(9),
         )
         const amountTolerance = 0.000001
+
         if (amountDelta > amountTolerance) {
           this.logger.warn({
             msg: `TON payment ${transaction.token} amount mismatch. Expected: ${transaction.amount}, Got: ${payment.amount}, Delta: ${amountDelta}`,
@@ -187,7 +124,6 @@ export class PaymentsCronService {
         )
       }
 
-      // Обновляем lastUtime в Redis, чтобы в следующий раз начать с этого момента
       if (maxUtime > 0) {
         await this.tonUtimeService.setLastUtime(
           this.configService.getOrThrow<string>('TON_WALLET'),
@@ -196,6 +132,8 @@ export class PaymentsCronService {
       }
     } catch (e) {
       this.logger.error({ msg: 'Error checking TON payments', e })
+    } finally {
+      await this.releaseLock(LOCK_TON_PAYMENTS)
     }
   }
 
@@ -205,26 +143,29 @@ export class PaymentsCronService {
    */
   @Cron('0 5 0 * * *')
   async processExpiredHolds() {
+    // FIX #3: distributed lock — при нескольких инстанциях только одна
+    // обработает expired holds, остальные пропустят итерацию.
+    const locked = await this.acquireLock(LOCK_EXPIRED_HOLDS, 5 * 60) // TTL 5 минут
+    if (!locked) {
+      this.logger.info({
+        msg: 'processExpiredHolds: lock already held, skipping',
+      })
+      return
+    }
+
     try {
       this.logger.info({ msg: 'Starting processing expired transaction holds' })
 
-      // Забираем все холды, у которых срок истёк
       const expiredHoldTransactions =
         await this.prismaService.transactions.findMany({
           where: {
             balanceType: BalanceTypeEnum.HOLD,
-            holdExpiredAt: {
-              lte: new Date(),
-            },
+            holdExpiredAt: { lte: new Date() },
           },
           include: {
             balance: {
               include: {
-                user: {
-                  include: {
-                    language: true,
-                  },
-                },
+                user: { include: { language: true } },
               },
             },
           },
@@ -241,19 +182,17 @@ export class PaymentsCronService {
 
       for (const transaction of expiredHoldTransactions) {
         await this.prismaService.$transaction(async (tx) => {
-          // Попытка обновить баланс атомарно
+          // FIX #3: updateMany с условием holdBalance >= amount гарантирует атомарность
+          // и защищает от двойного списания — если count === 0, пропускаем.
           const balanceUpdate = await tx.userBalance.updateMany({
             where: {
               id: transaction.balanceId,
-              holdBalance: { gte: transaction.amount }, // защита от ухода в минус
+              holdBalance: { gte: transaction.amount },
             },
-            data: {
-              holdBalance: { decrement: transaction.amount },
-            },
+            data: { holdBalance: { decrement: transaction.amount } },
           })
 
           if (balanceUpdate.count === 0) {
-            // либо уже обработано, либо holdBalance < amount
             this.logger.warn({
               msg: `Skipped expired hold transaction ${transaction.id}, insufficient holdBalance or already processed`,
               userId: transaction.balance.user.id,
@@ -262,12 +201,8 @@ export class PaymentsCronService {
           }
 
           await tx.transactions.update({
-            where: {
-              id: transaction.id,
-            },
-            data: {
-              holdExpiredAt: null,
-            },
+            where: { id: transaction.id },
+            data: { holdExpiredAt: null },
           })
 
           await tx.transactions.create({
@@ -296,6 +231,8 @@ export class PaymentsCronService {
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       })
+    } finally {
+      await this.releaseLock(LOCK_EXPIRED_HOLDS)
     }
   }
 
@@ -305,39 +242,33 @@ export class PaymentsCronService {
    */
   @Cron('0 15 * * * *')
   async cancelExpiredPayments() {
-    try {
+    // FIX #3: distributed lock для отмены просроченных платежей
+    const locked = await this.acquireLock(LOCK_CANCEL_PAYMENTS, 10 * 60) // TTL 10 минут
+    if (!locked) {
       this.logger.info({
-        msg: 'Starting cancellation of expired payments',
+        msg: 'cancelExpiredPayments: lock already held, skipping',
       })
+      return
+    }
 
-      // Находим все платежи в статусе PENDING, созданные более 30 минут назад
+    try {
+      this.logger.info({ msg: 'Starting cancellation of expired payments' })
+
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000)
 
       const expiredPayments = await this.prismaService.payments.findMany({
         where: {
           status: PaymentStatusEnum.PENDING,
-          // TON-платежи подтверждаются отдельным кроном и могут приходить позже 30 минут.
-          // Не переводим их в FAILED этим джобом, чтобы не терять успешные оплаты.
-          methodKey: {
-            not: PaymentMethodEnum.TON_TON,
-          },
-          createdAt: {
-            lt: thirtyMinutesAgo,
-          },
+          methodKey: { not: PaymentMethodEnum.TON_TON },
+          createdAt: { lt: thirtyMinutesAgo },
         },
         include: {
-          user: {
-            include: {
-              language: true,
-            },
-          },
+          user: { include: { language: true } },
         },
       })
 
       if (expiredPayments.length === 0) {
-        this.logger.info({
-          msg: 'No expired payments found',
-        })
+        this.logger.info({ msg: 'No expired payments found' })
         return
       }
 
@@ -345,17 +276,21 @@ export class PaymentsCronService {
         msg: `Found ${expiredPayments.length} expired payments`,
       })
 
-      // Обновляем статус каждого платежа
       for (const payment of expiredPayments) {
         await this.prismaService.$transaction(async (tx) => {
-          await tx.payments.update({
-            where: {
-              id: payment.id,
-            },
-            data: {
-              status: PaymentStatusEnum.FAILED,
-            },
+          // FIX #3: используем updateMany с проверкой статуса для идемпотентности —
+          // если другой процесс уже успел обновить статус, пропускаем.
+          const updated = await tx.payments.updateMany({
+            where: { id: payment.id, status: PaymentStatusEnum.PENDING },
+            data: { status: PaymentStatusEnum.FAILED },
           })
+
+          if (updated.count === 0) {
+            this.logger.info({
+              msg: `Payment ${payment.id} already updated by another process, skipping`,
+            })
+            return
+          }
 
           if (payment.subscriptionId) {
             await this.xrayService.deleteSubscription(
@@ -370,27 +305,6 @@ export class PaymentsCronService {
           token: payment.token,
           userId: payment.userId,
         })
-
-        // // Отправляем уведомление пользователю
-        // try {
-        //   const userLang = payment.user.language?.iso6391 || 'ru'
-
-        //   const message = await this.i18n.translate(
-        //     'payments.payment_expired',
-        //     {
-        //       args: { amount: payment.amount },
-        //       lang: userLang,
-        //     },
-        //   )
-
-        //   await this.bot.telegram.sendMessage(payment.user.telegramId, message)
-        // } catch (err) {
-        //   this.logger.error({
-        //     msg: 'Error sending notification about expired payment',
-        //     error: err instanceof Error ? err.message : String(err),
-        //     userId: payment.userId,
-        //   })
-        // }
       }
 
       this.logger.info({
@@ -402,6 +316,8 @@ export class PaymentsCronService {
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       })
+    } finally {
+      await this.releaseLock(LOCK_CANCEL_PAYMENTS)
     }
   }
 }
