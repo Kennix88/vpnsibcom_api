@@ -22,11 +22,21 @@ export class TokenService {
     const tokenKey = this.getRefreshTokenKey(refreshToken)
     const userSetKey = this.getUserRefreshTokensSetKey(userId)
 
-    await this.redis.multi()
+    await this.redis
+      .multi()
       .set(tokenKey, userId, 'EX', ttlSeconds)
       .sadd(userSetKey, refreshToken)
-      .expire(userSetKey, ttlSeconds)
+      // [БАГ #5] Не перезаписываем TTL всего set фиксированным значением.
+      // Используем EXPIREAT с максимальным из текущего и нового TTL, чтобы
+      // не срезать живые токены других устройств.
+      // Простой компромисс: обновляем TTL только если новое значение больше текущего.
       .exec()
+
+    // Продлеваем TTL set только если новый TTL больше текущего
+    const currentTtl = await this.redis.ttl(userSetKey)
+    if (currentTtl < ttlSeconds) {
+      await this.redis.expire(userSetKey, ttlSeconds)
+    }
   }
 
   private async revokeRefreshToken(refreshToken: string): Promise<void> {
@@ -59,9 +69,6 @@ export class TokenService {
 
   /**
    * Parses an expiry string (e.g., "7d", "1h", "30m") into seconds.
-   * @param expiryString - The expiry string to parse.
-   * @returns The expiry in seconds.
-   * @throws Error if the expiry string format is invalid.
    */
   private parseExpiryToSeconds(expiryString: string): number {
     const value = parseInt(expiryString.slice(0, -1))
@@ -91,8 +98,6 @@ export class TokenService {
 
   /**
    * Generates access and refresh tokens for a given payload.
-   * @param payload - The JWT payload containing user information.
-   * @returns An object with accessToken and refreshToken.
    */
   async generateTokens(
     payload: JwtPayload,
@@ -107,7 +112,6 @@ export class TokenService {
       expiresIn: this.configService.getOrThrow<string>('REFRESH_TOKEN_EXPIRY'),
     })
 
-    // Store refresh token in Redis
     const refreshTokenExpiry = this.configService.getOrThrow<string>(
       'REFRESH_TOKEN_EXPIRY',
     )
@@ -127,18 +131,24 @@ export class TokenService {
   }
 
   /**
-   * Rotates refresh tokens, invalidating the old one and issuing a new pair.
-   * @param userId - The ID of the user.
-   * @param oldRefreshToken - The old refresh token to be rotated.
-   * @returns An object with new accessToken and refreshToken.
-   * @throws Error if the refresh token is invalid.
+   * Rotates refresh tokens: верифицирует старый токен, выпускает новую пару и
+   * возвращает payload — чтобы вызывающий код не делал повторную верификацию
+   * (БАГ #7 — двойной verifyAsync устранён).
+   *
+   * [БАГ #4] Компенсирующий откат: если генерация новых токенов упала после
+   * того, как старый токен уже попал в блэклист, откатываем блэклист, чтобы
+   * пользователь не оказался заперт.
+   *
+   * [БАГ #5] Отрицательный/нулевой TTL: блэклистим только живые токены.
    */
-  async rotateTokens(
-    userId: string,
-    oldRefreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async rotateTokens(oldRefreshToken: string): Promise<{
+    accessToken: string
+    refreshToken: string
+    payload: JwtPayload
+  }> {
+    let blacklisted = false
+
     try {
-      // Verify old refresh token
       const payload = await this.jwtService.verifyAsync<JwtPayload>(
         oldRefreshToken,
         {
@@ -146,59 +156,67 @@ export class TokenService {
         },
       )
 
-      // Check token ownership in Redis by token value
+      // Проверяем владельца токена в Redis
       const tokenOwner = await this.redis.get(
         this.getRefreshTokenKey(oldRefreshToken),
       )
-      if (!tokenOwner || tokenOwner !== userId) {
+      if (!tokenOwner || tokenOwner !== payload.sub) {
         throw new Error('Invalid refresh token')
       }
 
-      // Blacklist old token
+      // [БАГ #5] Блэклистим только если TTL > 0
       const expiresIn = Math.floor(payload.exp - Date.now() / 1000)
-      await this.redis.set(
-        `blacklist:${oldRefreshToken}`,
-        'true',
-        'EX',
-        expiresIn,
-      )
+      if (expiresIn > 0) {
+        await this.redis.set(
+          `blacklist:${oldRefreshToken}`,
+          'true',
+          'EX',
+          expiresIn,
+        )
+        blacklisted = true
+      }
 
-      // Generate new tokens
       const newPayload: JwtPayload = {
         sub: payload.sub,
         telegramId: payload.telegramId,
         role: payload.role,
       }
 
+      // [БАГ #4] Если generateTokens упадёт — откатим блэклист в catch
       const newTokens = await this.generateTokens(newPayload)
       await this.revokeRefreshToken(oldRefreshToken)
-      return newTokens
+
+      return { ...newTokens, payload }
     } catch (error) {
+      // [БАГ #4] Компенсирующий откат: удаляем из блэклиста, чтобы пользователь
+      // мог повторить запрос со старым токеном
+      if (blacklisted) {
+        await this.redis.del(`blacklist:${oldRefreshToken}`).catch(() => {})
+      }
       throw new Error(
-        `Failed to rotate refresh token for user ID: ${userId}. Error: ${
-          (error as Error).message
-        }`,
+        `Failed to rotate refresh token. Error: ${(error as Error).message}`,
       )
     }
   }
 
   /**
-   * Invalidates access and refresh tokens for a given user.
-   * @param userId - The ID of the user.
-   * @param token - The access token to be blacklisted.
+   * Invalidates access and refresh tokens for a given user (logout).
+   * [БАГ #5] Блэклистим access-токен только если он ещё не истёк.
    */
   async invalidateTokens(userId: string, token: string): Promise<void> {
     try {
-      // Add to blacklist
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
         ignoreExpiration: true,
       })
 
+      // [БАГ #5] Гард на отрицательный/нулевой TTL
       const expiresIn = Math.floor(payload.exp - Date.now() / 1000)
-      await this.redis.set(`blacklist:${token}`, 'true', 'EX', expiresIn)
+      if (expiresIn > 0) {
+        await this.redis.set(`blacklist:${token}`, 'true', 'EX', expiresIn)
+      }
+      // Если токен уже истёк — блэклистить не нужно, он и так невалиден
 
-      // Remove all refresh tokens for this user
       await this.revokeAllRefreshTokensByUser(userId)
     } catch (error) {
       throw new Error(
@@ -211,8 +229,6 @@ export class TokenService {
 
   /**
    * Checks if a given token is blacklisted.
-   * @param token - The token to check.
-   * @returns True if the token is blacklisted, false otherwise.
    */
   async isTokenBlacklisted(token: string | null): Promise<boolean> {
     if (!token) {
