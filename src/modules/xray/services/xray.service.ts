@@ -314,9 +314,9 @@ export class XrayService {
         }
       }
 
-      if (this.configService.getOrThrow<string>('NODE_ENV') === 'production') {
-        await this.marzbanService.restartCore()
-      }
+      // if (this.configService.getOrThrow<string>('NODE_ENV') === 'production') {
+      //   await this.marzbanService.restartCore()
+      // }
 
       const updateSub = await this.prismaService.subscriptions.update({
         where: {
