@@ -48,16 +48,6 @@ export class PaymentsUpdate {
     }
   }
 
-  /**
-   * Обработка успешной оплаты.
-   *
-   * FIX #11: заменён @On('message') на @On('successful_payment').
-   * В оригинале оба файла — StartUpdate и PaymentsUpdate — слушали @On('message'),
-   * что приводило к конфликту: при получении сообщения об успешной оплате
-   * StartUpdate тоже реагировал и мог отправить приветственный экран.
-   * Telegraf поддерживает фильтр по подтипу сообщения 'successful_payment',
-   * поэтому здесь теперь используется точечный обработчик.
-   */
   @On('successful_payment')
   async handleSuccessfulPayment(@Ctx() ctx: Context) {
     try {
