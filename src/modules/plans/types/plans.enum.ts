@@ -8,4 +8,5 @@ export enum PlansEnum {
   PREMIUM = 'PREMIUM',
   ULTIMATE = 'ULTIMATE',
   CUSTOM = 'CUSTOM',
+  NEW_ERA = 'NEW_ERA',
 }
