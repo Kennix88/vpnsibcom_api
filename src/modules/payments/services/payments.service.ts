@@ -7,7 +7,6 @@ import { XrayService } from '@modules/xray/services/xray.service'
 
 import { Prisma } from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
-import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { EventsService } from '@modules/users/services/events.service'
 import { EventType } from '@modules/users/types/event-type.enum'
 import { roundUp } from '@modules/xray/utils/calculate-subscription-cost.util'
@@ -19,8 +18,6 @@ import { PaymentMethodTypeEnum } from '@shared/enums/payment-method-type.enum'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { PaymentSystemEnum } from '@shared/enums/payment-system.enum'
-import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
-import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { PaymentMethodsDataInterface } from '@shared/types/payment-methods-data.interface'
 import { fxUtil } from '@shared/utils/fx.util'
 import { genToken } from '@shared/utils/gen-token.util'
@@ -274,87 +271,87 @@ export class PaymentsService {
 
       const isSubscription = payment.subscriptionId !== null
 
-      if (payment.type === PaymentTypeEnum.PAY_SUBSCRIPTION) {
-        const data = payment.data as {
-          telegramId: string
-          name: string
-          planKey: PlansEnum
-          period: SubscriptionPeriodEnum
-          periodMultiplier: number
-          isPremium: boolean
-          trafficReset: TrafficResetEnum
-          nextRenewalStars?: number
-          devicesCount: number
-          isAllBaseServers: boolean
-          isAllPremiumServers: boolean
-          trafficLimitGb?: number
-          isUnlimitTraffic: boolean
-          servers: string[]
-          isAutoRenewal?: boolean
-        }
+      // if (payment.type === PaymentTypeEnum.PAY_SUBSCRIPTION) {
+      //   const data = payment.data as {
+      //     telegramId: string
+      //     name: string
+      //     planKey: PlansEnum
+      //     period: SubscriptionPeriodEnum
+      //     periodMultiplier: number
+      //     isPremium: boolean
+      //     trafficReset: TrafficResetEnum
+      //     nextRenewalStars?: number
+      //     devicesCount: number
+      //     isAllBaseServers: boolean
+      //     isAllPremiumServers: boolean
+      //     trafficLimitGb?: number
+      //     isUnlimitTraffic: boolean
+      //     servers: string[]
+      //     isAutoRenewal?: boolean
+      //   }
 
-        await this.xrayService.createSubscription({
-          isPremium: data.isPremium,
-          name: data.name,
-          planKey: data.planKey as PlansEnum,
-          period: data.period,
-          periodMultiplier: data.periodMultiplier,
-          nextRenewalStars: data.nextRenewalStars,
-          devicesCount: data.devicesCount,
-          isAllBaseServers: data.isAllBaseServers,
-          isAllPremiumServers: data.isAllPremiumServers,
-          trafficReset: data.trafficReset,
-          trafficLimitGb: data.trafficLimitGb,
-          isUnlimitTraffic: data.isUnlimitTraffic,
-          servers: data.servers,
-          isAutoRenewal: data.isAutoRenewal,
-          telegramId: data.telegramId,
-        })
-      }
+      //   await this.xrayService.createSubscription({
+      //     isPremium: data.isPremium,
+      //     name: data.name,
+      //     planKey: data.planKey as PlansEnum,
+      //     period: data.period,
+      //     periodMultiplier: data.periodMultiplier,
+      //     nextRenewalStars: data.nextRenewalStars,
+      //     devicesCount: data.devicesCount,
+      //     isAllBaseServers: data.isAllBaseServers,
+      //     isAllPremiumServers: data.isAllPremiumServers,
+      //     trafficReset: data.trafficReset,
+      //     trafficLimitGb: data.trafficLimitGb,
+      //     isUnlimitTraffic: data.isUnlimitTraffic,
+      //     servers: data.servers,
+      //     isAutoRenewal: data.isAutoRenewal,
+      //     telegramId: data.telegramId,
+      //   })
+      // }
 
-      if (
-        isSubscription &&
-        payment.type === PaymentTypeEnum.ADD_TRAFFIC_SUBSCRIPTION
-      ) {
-        // FIX #6: результат сохраняется и логируется вместо молчаливого игнора
-        const addTrafficResult =
-          await this.xrayService.addTrafficToSubscription(
-            payment.subscriptionId,
-            Number((payment.data as { traffic: number })?.traffic),
-          )
-        this.logger.info({
-          msg: `Traffic added to subscription`,
-          subscriptionId: payment.subscriptionId,
-          result: addTrafficResult,
-        })
-      }
+      // if (
+      //   isSubscription &&
+      //   payment.type === PaymentTypeEnum.ADD_TRAFFIC_SUBSCRIPTION
+      // ) {
+      //   // FIX #6: результат сохраняется и логируется вместо молчаливого игнора
+      //   const addTrafficResult =
+      //     await this.xrayService.addTrafficToSubscription(
+      //       payment.subscriptionId,
+      //       Number((payment.data as { traffic: number })?.traffic),
+      //     )
+      //   this.logger.info({
+      //     msg: `Traffic added to subscription`,
+      //     subscriptionId: payment.subscriptionId,
+      //     result: addTrafficResult,
+      //   })
+      // }
 
-      // FIX #8:
-      if (
-        isSubscription &&
-        payment.type === PaymentTypeEnum.UPDATE_SUBSCTIPTION
-      ) {
-        const data = payment.data as {
-          isSavePeriod: boolean
-          period: SubscriptionPeriodEnum
-          periodMultiplier: number
-          trafficReset: TrafficResetEnum
-        }
-        // FIX #6: результат сохраняется и логируется
-        const renewResult = await this.xrayService.renewSubFinaly(
-          payment.userId,
-          payment.subscriptionId,
-          data.isSavePeriod,
-          data.period,
-          data.periodMultiplier,
-          data.trafficReset,
-        )
-        this.logger.info({
-          msg: `Subscription renewed`,
-          subscriptionId: payment.subscriptionId,
-          result: renewResult,
-        })
-      }
+      // // FIX #8:
+      // if (
+      //   isSubscription &&
+      //   payment.type === PaymentTypeEnum.UPDATE_SUBSCTIPTION
+      // ) {
+      //   const data = payment.data as {
+      //     isSavePeriod: boolean
+      //     period: SubscriptionPeriodEnum
+      //     periodMultiplier: number
+      //     trafficReset: TrafficResetEnum
+      //   }
+      //   // FIX #6: результат сохраняется и логируется
+      //   const renewResult = await this.xrayService.renewSubFinaly(
+      //     payment.userId,
+      //     payment.subscriptionId,
+      //     data.isSavePeriod,
+      //     data.period,
+      //     data.periodMultiplier,
+      //     data.trafficReset,
+      //   )
+      //   this.logger.info({
+      //     msg: `Subscription renewed`,
+      //     subscriptionId: payment.subscriptionId,
+      //     result: renewResult,
+      //   })
+      // }
 
       // FIX #1: начисление бонуса перенесено внутрь processCompletedPayment,
       // чтобы оно выполнялось атомарно в одной транзакции вместе с основным балансом.
