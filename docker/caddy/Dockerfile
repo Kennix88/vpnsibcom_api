@@ -1,5 +1,6 @@
 FROM caddy:builder AS builder
-
+ENV GOPROXY=https://goproxy.io,direct
+ENV GONOSUMDB=*
 RUN xcaddy build \
     --with github.com/caddy-dns/cloudflare \
     --with github.com/mholt/caddy-l4
