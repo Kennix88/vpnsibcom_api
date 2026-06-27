@@ -88,33 +88,24 @@ export class ServersController {
   }
 
   @Get('green-check')
-  @PreventDuplicateRequest(120)
-  @Throttle({ defaults: { limit: 5, ttl: 60 } })
+  @Throttle({ defaults: { limit: 20, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   async greenCheck(
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
+    @Res({ passthrough: true }) _res: FastifyReply,
   ) {
-    try {
-      const ip = getClientIp(req) ?? 'unknown'
-      const isGreen = await this.serversService.greenCheck(ip)
+    const ip = getClientIp(req)
 
-      return {
-        data: {
-          success: true,
-          isGreen,
-          ip,
-        },
-      }
+    if (!ip) {
+      return { data: { success: false, isGreen: false, ip: 'unknown' } }
+    }
+
+    try {
+      const isGreen = await this.serversService.greenCheck(ip)
+      return { data: { success: true, isGreen, ip } }
     } catch (error) {
       this.logger.error(error, 'GreenCheckError')
-      return {
-        data: {
-          success: false,
-          isGreen: false,
-          ip: 'unknown',
-        },
-      }
+      return { data: { success: false, isGreen: false, ip } }
     }
   }
 }
