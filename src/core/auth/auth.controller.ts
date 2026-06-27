@@ -4,7 +4,10 @@ import { Public } from '@core/auth/decorators/public.decorator'
 import { RefreshDto } from '@core/auth/dto/refresh.dto'
 import { TelegramAuthDto } from '@core/auth/dto/telegram-auth.dto'
 import { JwtAuthGuard } from '@core/auth/guards/jwt-auth.guard'
-import { getClientIp } from '@modules/xray/utils/get-client-ip.util'
+import {
+  getClientIp,
+  normalizeIp,
+} from '@modules/xray/utils/get-client-ip.util'
 import {
   BadRequestException,
   Body,
@@ -45,40 +48,53 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
     @Platform() platform: DetectedPlatform,
   ) {
+    // Флаг — клиент ушёл
+    let clientDisconnected = false
+    req.raw.on('close', () => {
+      clientDisconnected = true
+    })
+
     try {
       const ip = getClientIp(req) ?? 'unknown'
       const userAgentHeader = req.headers['user-agent']
       const ua =
         typeof userAgentHeader === 'string' ? userAgentHeader : undefined
+
       const auth = await this.authService.telegramLogin(
         dto.initData,
-        ip,
+        normalizeIp(ip),
         ua,
         platform.platform,
         dto.startParam,
       )
 
-      // Check if auth and auth.user are defined to prevent "Cannot read properties of undefined (reading 'id')" error.
-      if (!auth || !auth.user) {
-        throw new BadRequestException(
-          'Ошибка авторизации через Telegram: Пользователь не найден или данные авторизации некорректны',
+      // Клиент ушёл — молча выходим, не трогаем стрим
+      if (clientDisconnected) {
+        this.logger.debug(
+          'Client disconnected before auth response (ADSgram bot?)',
         )
+        return
+      }
+
+      if (!auth || !auth.user) {
+        throw new BadRequestException('Ошибка авторизации через Telegram')
       }
 
       res.cookie('refreshToken', auth.refreshToken, COOKIE_OPTIONS)
-
       await this.authService.updateUserActivity(auth.accessToken)
 
       this.logger.log(`Telegram login for user ${auth.user.id}`)
       return { data: { accessToken: auth.accessToken, user: auth.user } }
     } catch (error) {
+      // Если клиент ушёл — не пробрасываем ошибку, иначе Fastify попытается писать в закрытый стрим
+      if (clientDisconnected) {
+        this.logger.debug(`Auth aborted by client: ${(error as Error).message}`)
+        return
+      }
+
       this.logger.warn(`Telegram login failed: ${(error as Error).message}`)
-      if (error instanceof UnauthorizedException) {
-        throw error
-      }
-      if (error instanceof BadRequestException) {
-        throw error
-      }
+      if (error instanceof UnauthorizedException) throw error
+      if (error instanceof BadRequestException) throw error
       throw new BadRequestException('Ошибка авторизации через Telegram')
     }
   }
@@ -106,7 +122,11 @@ export class AuthController {
       const ua =
         typeof userAgentHeader === 'string' ? userAgentHeader : undefined
 
-      const tokens = await this.authService.refreshTokens(refreshToken, ip, ua)
+      const tokens = await this.authService.refreshTokens(
+        refreshToken,
+        normalizeIp(ip),
+        ua,
+      )
       res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS)
       await this.authService.updateUserActivity(tokens.accessToken)
 
