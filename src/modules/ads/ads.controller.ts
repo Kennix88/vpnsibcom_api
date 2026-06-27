@@ -53,6 +53,7 @@ export class AdsController {
       reason: result.reason ?? null,
       redirectUrl: result.redirectUrl,
       rewardStars: result.rewardStars,
+      isClaimed: result.isClaimed,
     }
   }
 
