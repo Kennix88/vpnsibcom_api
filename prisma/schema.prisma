@@ -1,949 +1,1026 @@
 generator client {
- provider = "prisma-client"
- output   = "../src/core/prisma/generated"
+  provider = "prisma-client"
+  output   = "../src/core/prisma/generated"
 }
 
 datasource db {
- provider = "postgresql"
- // url       = env("POSTGRES_URL")
- // directUrl = env("POSTGRES_URL")
+  provider = "postgresql"
+  // url       = env("POSTGRES_URL")
+  // directUrl = env("POSTGRES_URL")
 }
 
 enum DefaultEnum {
- DEFAULT
+  DEFAULT
 }
 
 /// Модель настроек приложения
 model Settings {
- key                         DefaultEnum @id @default(DEFAULT)
- tgStarsToUSD                Float       @default(0.013) @map("tg_stars_to_usd")
+  key          DefaultEnum @id @default(DEFAULT)
+  tgStarsToUSD Float       @default(0.013) @map("tg_stars_to_usd")
 
- telegramPremiumRatio        Float       @default(1.5) @map("telegram_premium_ratio")
- devicesPriceStars           Float       @default(50) @map("devices_price_stars")
- serversPriceStars           Float       @default(20) @map("servers_price_stars")
- premiumServersPriceStars    Float       @default(50) @map("premium_servers_price_stars")
- allBaseServersPriceStars    Float       @default(17) @map("all_base_servers_price_stars")
- allPremiumServersPriceStars Float       @default(40) @map("all_premium_servers_price_stars")
- trafficGbPriceStars         Float       @default(60) @map("traffic_gb_price_stars")
- unlimitTrafficPriceStars    Float       @default(100) @map("unlimit_traffic_price_stars")
- // Коэффициенты оплаты для разных периодов подписки
- hourRatioPayment            Float       @default(1.39) @map("hour_ratio_payment")
- dayRatioPayment             Float       @default(1.31) @map("day_ratio_payment")
- weekRatioPayment            Float       @default(1.25) @map("week_ratio_payment")
- threeMouthesRatioPayment    Float       @default(0.97) @map("three_mouthes_ratio_payment")
- sixMouthesRatioPayment      Float       @default(0.94) @map("six_mouthes_ratio_payment")
- oneYearRatioPayment         Float       @default(0.88) @map("one_year_ratio_payment")
- twoYearRatioPayment         Float       @default(0.76) @map("two_year_ratio_payment")
- threeYearRatioPayment       Float       @default(0.64) @map("three_year_ratio_payment")
- indefinitelyRatio           Float       @default(120) @map("indefinitely_ratio")
+  telegramPremiumRatio        Float @default(1.5) @map("telegram_premium_ratio")
+  devicesPriceStars           Float @default(50) @map("devices_price_stars")
+  serversPriceStars           Float @default(20) @map("servers_price_stars")
+  premiumServersPriceStars    Float @default(50) @map("premium_servers_price_stars")
+  allBaseServersPriceStars    Float @default(17) @map("all_base_servers_price_stars")
+  allPremiumServersPriceStars Float @default(40) @map("all_premium_servers_price_stars")
+  trafficGbPriceStars         Float @default(60) @map("traffic_gb_price_stars")
+  unlimitTrafficPriceStars    Float @default(100) @map("unlimit_traffic_price_stars")
+  // Коэффициенты оплаты для разных периодов подписки
+  hourRatioPayment            Float @default(1.39) @map("hour_ratio_payment")
+  dayRatioPayment             Float @default(1.31) @map("day_ratio_payment")
+  weekRatioPayment            Float @default(1.25) @map("week_ratio_payment")
+  threeMouthesRatioPayment    Float @default(0.97) @map("three_mouthes_ratio_payment")
+  sixMouthesRatioPayment      Float @default(0.94) @map("six_mouthes_ratio_payment")
+  oneYearRatioPayment         Float @default(0.88) @map("one_year_ratio_payment")
+  twoYearRatioPayment         Float @default(0.76) @map("two_year_ratio_payment")
+  threeYearRatioPayment       Float @default(0.64) @map("three_year_ratio_payment")
+  indefinitelyRatio           Float @default(120) @map("indefinitely_ratio")
 
- minWithdrawalUsdt Float @default(10) @map("min_withdrawal_usdt")
+  minWithdrawalUsdt Float @default(10) @map("min_withdrawal_usdt")
 
- // Настройки реферальной программы
- referralOneLevelPercent       Float @default(0.1) @map("referral_one_level_percent")
- referralTwoLevelPercent       Float @default(0.05) @map("referral_two_level_percent")
- referralThreeLevelPercent     Float @default(0.01) @map("referral_three_level_percent")
+  // Настройки реферальной программы
+  referralOneLevelPercent   Float @default(0.1) @map("referral_one_level_percent")
+  referralTwoLevelPercent   Float @default(0.05) @map("referral_two_level_percent")
+  referralThreeLevelPercent Float @default(0.01) @map("referral_three_level_percent")
 
- isActiveTgPartnerProgram        Boolean @default(true) @map("is_active_tg_partner_program")
- commissionRatioTgPartnerProgram Float   @default(0.30) @map("commission_ratio_tg_partner_program")
- mouthesCountTgPartnerProgram    Int?    @map("mouthes_count_tg_partner_program")
- telegramPartnerProgramRatio     Float   @default(1.3) @map("telegram_partner_program_ratio")
+  isActiveTgPartnerProgram        Boolean @default(true) @map("is_active_tg_partner_program")
+  commissionRatioTgPartnerProgram Float   @default(0.30) @map("commission_ratio_tg_partner_program")
+  mouthesCountTgPartnerProgram    Int?    @map("mouthes_count_tg_partner_program")
+  telegramPartnerProgramRatio     Float   @default(1.3) @map("telegram_partner_program_ratio")
 
- adsRewardNextCompletionInMinute   Float @default(1) @map("ads_reward_next_completion_in_minute")
- adsgramTaskNextCompletionInMinute Float @default(360) @map("adsgram_task_next_completion_in_minute")
+  adsRewardNextCompletionInMinute   Float @default(1) @map("ads_reward_next_completion_in_minute")
+  adsgramTaskNextCompletionInMinute Float @default(360) @map("adsgram_task_next_completion_in_minute")
 
- bonusPayment250   Float @default(0.01) @map("bonus_payment_250")
- bonusPayment500   Float @default(0.03) @map("bonus_payment_500")
- bonusPayment1000  Float @default(0.05) @map("bonus_payment_1000")
- bonusPayment2500  Float @default(0.07) @map("bonus_payment_2500")
- bonusPayment5000  Float @default(0.10) @map("bonus_payment_5000")
- bonusPayment10000 Float @default(0.15) @map("bonus_payment_10000")
- bonusPayment20000 Float @default(0.20) @map("bonus_payment_20000")
- bonusPayment50000 Float @default(0.25) @map("bonus_payment_50000")
+  bonusPayment250   Float @default(0.01) @map("bonus_payment_250")
+  bonusPayment500   Float @default(0.03) @map("bonus_payment_500")
+  bonusPayment1000  Float @default(0.05) @map("bonus_payment_1000")
+  bonusPayment2500  Float @default(0.07) @map("bonus_payment_2500")
+  bonusPayment5000  Float @default(0.10) @map("bonus_payment_5000")
+  bonusPayment10000 Float @default(0.15) @map("bonus_payment_10000")
+  bonusPayment20000 Float @default(0.20) @map("bonus_payment_20000")
+  bonusPayment50000 Float @default(0.25) @map("bonus_payment_50000")
 
- isActiveSendAdsMessages Boolean @default(false) @map("is_active_send_ads_messages")
- nextAdsHours        Int      @default(12) @map("next_ads_hours")
- isActiveFakeAds    Boolean  @default(false) @map("is_active_fake_ads")
- nextFakeAdsHours   Int      @default(6) @map("next_fake_ads_hours")
- lastFakeAdsSend    DateTime @default(now()) @map("last_fake_ads_send")
- proxyPartnerLink    String?  @map("proxy_partner_link") @default("https://t.me/tonplay_proxybot?start=hUWchdxNIh6oeO")
- partnerBotLink      String?  @map("partner_bot_link") @default("https://t.me/tonplay?start=hUWcg19SE6EZ5e")
- partnerMiniAppLink  String?  @map("partner_mini_app_link") @default("https://t.me/tonplay/dapp?startapp=hUWcg19SE6EZ5e")
- partnerSiteLink     String?  @map("partner_site_link") @default("https://tonplay.fo/hUWcg1950zMXOm")
+  isActiveSendAdsMessages Boolean  @default(false) @map("is_active_send_ads_messages")
+  nextAdsHours            Int      @default(12) @map("next_ads_hours")
+  isActiveFakeAds         Boolean  @default(false) @map("is_active_fake_ads")
+  nextFakeAdsHours        Int      @default(6) @map("next_fake_ads_hours")
+  lastFakeAdsSend         DateTime @default(now()) @map("last_fake_ads_send")
+  proxyPartnerLink        String?  @default("https://t.me/tonplay_proxybot?start=hUWchdxNIh6oeO") @map("proxy_partner_link")
+  partnerBotLink          String?  @default("https://t.me/tonplay?start=hUWcg19SE6EZ5e") @map("partner_bot_link")
+  partnerMiniAppLink      String?  @default("https://t.me/tonplay/dapp?startapp=hUWcg19SE6EZ5e") @map("partner_mini_app_link")
+  partnerSiteLink         String?  @default("https://tonplay.fo/hUWcg1950zMXOm") @map("partner_site_link")
 
- importUsersUrl      String?  @map("import_users_url") @default("https://kennix88.github.io/vpnsib-tonconnect-manifest/users.txt")
- isActiveImportUsers Boolean  @default(false) @map("is_active_import_users")
+  importUsersUrl      String? @default("https://kennix88.github.io/vpnsib-tonconnect-manifest/users.txt") @map("import_users_url")
+  isActiveImportUsers Boolean @default(false) @map("is_active_import_users")
 
- isActiveCheckUsers  Boolean  @default(false) @map("is_active_check_users")
+  isActiveCheckUsers Boolean @default(false) @map("is_active_check_users")
 
- defaultAnnounce String? @default("(🇳🇱⏪🇷🇺) - Double Tunnel, 🆓 - Free Server, ⭐️ - Premium Server") @map("default_announce")
+  defaultAnnounce String? @default("(🇳🇱⏪🇷🇺) - Double Tunnel, 🆓 - Free Server, ⭐️ - Premium Server") @map("default_announce")
 
- telegramConfigLinks               Json?            @map("telegram_config_links") @db.JsonB
+  telegramConfigLinks Json? @map("telegram_config_links") @db.JsonB
 
- routingUrl String? @map("routing_url") @default("happ://routing/onadd/eyJOYW1lIjoiVlBOc2liUlUiLCJHbG9iYWxQcm94eSI6InRydWUiLCJSb3V0ZU9yZGVyIjoiYmxvY2stcHJveHktZGlyZWN0IiwiUmVtb3RlRE5TVHlwZSI6IkRvSCIsIlJlbW90ZUROU0RvbWFpbiI6Imh0dHBzOi8vZG5zLmFkZ3VhcmQtZG5zLmNvbS9kbnMtcXVlcnkiLCJSZW1vdGVETlNJUCI6Ijk0LjE0MC4xNC4xNCIsIkRvbWVzdGljRE5TVHlwZSI6IkRvSCIsIkRvbWVzdGljRE5TRG9tYWluIjoiaHR0cHM6Ly9jb21tb24uZG90LmRucy55YW5kZXgubmV0L2Rucy1xdWVyeSIsIkRvbWVzdGljRE5TSVAiOiI3Ny44OC44LjgiLCJHZW9pcHVybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9mcmF5WlYvc2ltcGxlLXJ1LWdlb2lwL3JlbGVhc2VzL2xhdGVzdC9kb3dubG9hZC9nZW9pcC5kYXQiLCJHZW9zaXRldXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL2ZyYXlaVi9zaW1wbGUtcnUtZ2Vvc2l0ZS9yZWxlYXNlcy9sYXRlc3QvZG93bmxvYWQvZ2Vvc2l0ZS5kYXQiLCJMYXN0VXBkYXRlZCI6IjE3ODA2NTgzNzgiLCJEbnNIb3N0cyI6eyJjbG91ZGZsYXJlLWRucy5jb20iOiIxLjEuMS4xIiwiZG5zLmdvb2dsZSI6IjguOC44LjgifSwiRGlyZWN0U2l0ZXMiOlsiZ2Vvc2l0ZTpydSJdLCJEaXJlY3RJcCI6WyJnZW9pcDpydSIsImdlb2lwOnByaXZhdGUiXSwiUHJveHlTaXRlcyI6WyJnZW9zaXRlOnJvc2tvbW5hZHpvciJdLCJQcm94eUlwIjpbXSwiQmxvY2tTaXRlcyI6W10sIkJsb2NrSXAiOltdLCJEb21haW5TdHJhdGVneSI6IklQSWZOb25NYXRjaCIsIkZha2VETlMiOiJmYWxzZSIsIlVzZUNodW5rRmlsZXMiOiJmYWxzZSJ9")
+  routingUrl String? @default("happ://routing/onadd/eyJOYW1lIjoiVlBOc2liUlUiLCJHbG9iYWxQcm94eSI6InRydWUiLCJSb3V0ZU9yZGVyIjoiYmxvY2stcHJveHktZGlyZWN0IiwiUmVtb3RlRE5TVHlwZSI6IkRvSCIsIlJlbW90ZUROU0RvbWFpbiI6Imh0dHBzOi8vZG5zLmFkZ3VhcmQtZG5zLmNvbS9kbnMtcXVlcnkiLCJSZW1vdGVETlNJUCI6Ijk0LjE0MC4xNC4xNCIsIkRvbWVzdGljRE5TVHlwZSI6IkRvSCIsIkRvbWVzdGljRE5TRG9tYWluIjoiaHR0cHM6Ly9jb21tb24uZG90LmRucy55YW5kZXgubmV0L2Rucy1xdWVyeSIsIkRvbWVzdGljRE5TSVAiOiI3Ny44OC44LjgiLCJHZW9pcHVybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9mcmF5WlYvc2ltcGxlLXJ1LWdlb2lwL3JlbGVhc2VzL2xhdGVzdC9kb3dubG9hZC9nZW9pcC5kYXQiLCJHZW9zaXRldXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL2ZyYXlaVi9zaW1wbGUtcnUtZ2Vvc2l0ZS9yZWxlYXNlcy9sYXRlc3QvZG93bmxvYWQvZ2Vvc2l0ZS5kYXQiLCJMYXN0VXBkYXRlZCI6IjE3ODA2NTgzNzgiLCJEbnNIb3N0cyI6eyJjbG91ZGZsYXJlLWRucy5jb20iOiIxLjEuMS4xIiwiZG5zLmdvb2dsZSI6IjguOC44LjgifSwiRGlyZWN0U2l0ZXMiOlsiZ2Vvc2l0ZTpydSJdLCJEaXJlY3RJcCI6WyJnZW9pcDpydSIsImdlb2lwOnByaXZhdGUiXSwiUHJveHlTaXRlcyI6WyJnZW9zaXRlOnJvc2tvbW5hZHpvciJdLCJQcm94eUlwIjpbXSwiQmxvY2tTaXRlcyI6W10sIkJsb2NrSXAiOltdLCJEb21haW5TdHJhdGVneSI6IklQSWZOb25NYXRjaCIsIkZha2VETlMiOiJmYWxzZSIsIlVzZUNodW5rRmlsZXMiOiJmYWxzZSJ9") @map("routing_url")
 
- @@map("settings")
+  premiumStatusPriceStars    Float @default(1499) @map("premium_status_price_stars")
+  premiumStatusDiscountRatio Float @default(0.8) @map("premium_status_discount_ratio")
+
+    subscriptionRemovalAfterInactiveDays Int @default(30) @map("subscription_removal_after_inactive_days")
+    removeOldSubscriptionsAfter DateTime? @map("remove_old_subscriptions_after")
+
+    chatId String @default("-1001670520580") @map("chat_id")
+    channelId String @default("-1001695733492") @map("channel_id")
+
+  @@map("settings")
 }
 
 model UserTelegramData {
- id                    String   @id @default(uuid())
- isLive                Boolean  @default(false) @map("is_live")
- isRtl                 Boolean  @default(false) @map("is_rtl")
- isPremium             Boolean  @default(false) @map("is_premium")
- isBot                 Boolean  @default(false) @map("is_bot")
- gender                Int?
- verified              Boolean?
- scam                  Boolean?
- fake                  Boolean?
- stargiftsCount        Int?     @map("stargifts_count")
- personalChannelId     String?  @map("personal_channel_id")
- firstName             String   @map("first_name")
- lastName              String?  @map("last_name")
- username              String?
- languageCode          String   @map("language_code")
- photoUrl              String?  @map("photo_url")
- addedToAttachmentMenu Boolean  @default(false) @map("added_to_attachment_menu")
- allowsWriteToPm       Boolean  @default(false) @map("allows_write_to_pm")
- birthDay              Int?     @map("birth_day")
- birthMonth            Int?     @map("birth_month")
- birthYear             Int?     @map("birth_year")
- updatedAt             DateTime @updatedAt @map("updated_at")
- bio String?
+  id                    String   @id @default(uuid())
+  isLive                Boolean  @default(false) @map("is_live")
+  isRtl                 Boolean  @default(false) @map("is_rtl")
+  isPremium             Boolean  @default(false) @map("is_premium")
+  isBot                 Boolean  @default(false) @map("is_bot")
+  gender                Int?
+  verified              Boolean?
+  scam                  Boolean?
+  fake                  Boolean?
+  stargiftsCount        Int?     @map("stargifts_count")
+  personalChannelId     String?  @map("personal_channel_id")
+  firstName             String   @map("first_name")
+  lastName              String?  @map("last_name")
+  username              String?
+  languageCode          String   @map("language_code")
+  photoUrl              String?  @map("photo_url")
+  addedToAttachmentMenu Boolean  @default(false) @map("added_to_attachment_menu")
+  allowsWriteToPm       Boolean  @default(false) @map("allows_write_to_pm")
+  birthDay              Int?     @map("birth_day")
+  birthMonth            Int?     @map("birth_month")
+  birthYear             Int?     @map("birth_year")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  bio                   String?
 
- user Users?
+  user Users?
 
- @@map("user_telegram_data")
+  @@map("user_telegram_data")
 }
 
 /// Модель для хранения реферальных отношений
 model Referrals {
- id         String @id @default(uuid())
- level      Int    @default(1)
- inviter    Users  @relation("inviter", fields: [inviterId], references: [id])
- inviterId  String @map("inviter_id")
- referral   Users  @relation("referral", fields: [referralId], references: [id])
- referralId String @map("referral_id")
+  id         String @id @default(uuid())
+  level      Int    @default(1)
+  inviter    Users  @relation("inviter", fields: [inviterId], references: [id])
+  inviterId  String @map("inviter_id")
+  referral   Users  @relation("referral", fields: [referralId], references: [id])
+  referralId String @map("referral_id")
 
- totalUsdtRewarded Decimal @default(0) @db.Decimal(18, 6)
- isActivated           Boolean @default(false)
- isPremium             Boolean @default(false)
+  totalUsdtRewarded Decimal @default(0) @db.Decimal(18, 6)
+  isActivated       Boolean @default(false)
+  isPremium         Boolean @default(false)
 
- createdAt DateTime @default(now()) @map("created_at")
- updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
- @@unique([inviterId, referralId, level])
- @@index([inviterId])
- @@index([referralId])
- @@map("referrals")
+  @@unique([inviterId, referralId, level])
+  @@index([inviterId])
+  @@index([referralId])
+  @@map("referrals")
 }
 
 /// Основная модель пользователя
 model Users {
- id                  String  @id @default(uuid())
- telegramId          String  @unique @map("telegram_id")
- isTgProgramPartner  Boolean @default(false) @map("is_tg_program_partner")
- isFreePlanAvailable Boolean @default(true) @map("is_free_plan_available")
- isBanned            Boolean @default(false) @map("is_banned")
- isDeleted           Boolean @default(false) @map("is_deleted")
+  id                  String  @id @default(uuid())
+  telegramId          String  @unique @map("telegram_id")
+  isTgProgramPartner  Boolean @default(false) @map("is_tg_program_partner")
+  isFreePlanAvailable Boolean @default(true) @map("is_free_plan_available")
+  isBanned            Boolean @default(false) @map("is_banned")
+  isDeleted           Boolean @default(false) @map("is_deleted")
+  isChannel           Boolean @default(false) @map("is_channel")
+  isChat              Boolean @default(false) @map("is_chat")
 
- createdAt                 DateTime  @default(now()) @map("created_at")
- updatedAt                 DateTime  @updatedAt @map("updated_at")
- lastStartedAt             DateTime? @map("last_started_at")
- banExpiredAt              DateTime? @map("banned_expired_at")
- deletedAt                 DateTime? @map("deleted_at")
- tgProgramPartnerExpiredAt DateTime? @map("tg_program_partner_expired_at")
- nextAdsRewardAt           DateTime? @map("next_ads_reward_at")
- nextAdsgramTaskAt         DateTime? @map("next_adsgram_task_at")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+  lastStartedAt             DateTime? @map("last_started_at")
+  banExpiredAt              DateTime? @map("banned_expired_at")
+  deletedAt                 DateTime? @map("deleted_at")
+  tgProgramPartnerExpiredAt DateTime? @map("tg_program_partner_expired_at")
+  nextAdsRewardAt           DateTime? @map("next_ads_reward_at")
+  nextAdsgramTaskAt         DateTime? @map("next_adsgram_task_at")
+  premiumExpiredAt          DateTime? @map("premium_expired_at")
 
- countryRegistration String? @map("country_registration")
+  countryRegistration String? @map("country_registration")
 
- role           Roles             @relation(fields: [roleId], references: [key])
- roleId         UserRoleEnum      @default(USER) @map("role_id")
- payments       Payments[]
- referrals      Referrals[]       @relation("inviter")
- inviters       Referrals[]       @relation("referral")
- telegramData   UserTelegramData? @relation(fields: [telegramDataId], references: [id])
- telegramDataId String?           @unique @map("telegram_data_id")
- balance        UserBalance?      @relation(fields: [balanceId], references: [id])
- balanceId      String?           @unique @map("balance_id")
- language       Language          @relation(fields: [languageId], references: [id])
- languageId     String            @map("language_id")
- currency       Currency          @relation(fields: [currencyKey], references: [key])
- currencyKey    CurrencyEnum      @default(USD) @map("currency_key")
- subscriptions  Subscriptions[]
- withdrawals    Withdrawals[]
- adsViews       AdsViews[]
- adsData        UserAdsData?      @relation(fields: [adsDataId], references: [id])
- adsDataId      String?           @unique @map("ads_data_id")
- sessions       Sessions[]
- acquisition    Acquisition?      @relation(fields: [acquisitionId], references: [id])
- acquisitionId  String?           @unique @map("acquisition_id")
- events         Events[]
+  role           Roles             @relation(fields: [roleId], references: [key])
+  roleId         UserRoleEnum      @default(USER) @map("role_id")
+  payments       Payments[]
+  referrals      Referrals[]       @relation("inviter")
+  inviters       Referrals[]       @relation("referral")
+  telegramData   UserTelegramData? @relation(fields: [telegramDataId], references: [id])
+  telegramDataId String?           @unique @map("telegram_data_id")
+  balance        UserBalance?      @relation(fields: [balanceId], references: [id])
+  balanceId      String?           @unique @map("balance_id")
+  language       Language          @relation(fields: [languageId], references: [id])
+  languageId     String            @map("language_id")
+  currency       Currency          @relation(fields: [currencyKey], references: [key])
+  currencyKey    CurrencyEnum      @default(USD) @map("currency_key")
+  subscriptions  Subscriptions[]
+  withdrawals    Withdrawals[]
+  adsViews       AdsViews[]
+  adsData        UserAdsData?      @relation(fields: [adsDataId], references: [id])
+  adsDataId      String?           @unique @map("ads_data_id")
+  sessions       Sessions[]
+  acquisition    Acquisition?      @relation(fields: [acquisitionId], references: [id])
+  acquisitionId  String?           @unique @map("acquisition_id")
+  events         Events[]
 
- @@index([telegramId])
- @@index([roleId])
- @@index([languageId])
- @@index([currencyKey])
- @@map("users")
+  @@index([telegramId])
+  @@index([roleId])
+  @@index([languageId])
+  @@index([currencyKey])
+  @@map("users")
 }
 
 model Events {
-  id          String        @id @default(uuid())
-  eventType   EventTypeEnum @map("event_type")
-  amountStars Decimal       @default(0) @map("amount_stars") @db.Decimal(18, 6)
-  source      String?       @map("source")
-  referralId  String?       @map("referral_id")
-  startParams String?       @map("start_params")
-  compaingId  String?       @map("compaing_id")
-  recordId    String?       @map("record_id")
-  otherData   Json?         @map("other_data") @db.JsonB
-  adsgramRegistrationSentAt DateTime? @map("adsgram_registration_sent_at")
-  createdAt   DateTime      @default(now()) @map("created_at")
+  id                        String        @id @default(uuid())
+  eventType                 EventTypeEnum @map("event_type")
+  amountStars               Decimal       @default(0) @map("amount_stars") @db.Decimal(18, 6)
+  source                    String?       @map("source")
+  referralId                String?       @map("referral_id")
+  startParams               String?       @map("start_params")
+  compaingId                String?       @map("compaing_id")
+  recordId                  String?       @map("record_id")
+  otherData                 Json?         @map("other_data") @db.JsonB
+  adsgramRegistrationSentAt DateTime?     @map("adsgram_registration_sent_at")
+  createdAt                 DateTime      @default(now()) @map("created_at")
 
- user   Users  @relation(fields: [userId], references: [id])
- userId String @map("user_id")
 
- @@index([userId])
- @@map("events")
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  @@index([userId])
+  @@map("events")
 }
 
 enum EventTypeEnum {
- REGISTRATION
- ACTIVATION
- FIRST_PAYMENT
- RELOAD_PAYMENT
+  REGISTRATION
+  ACTIVATION
+  FIRST_PAYMENT
+  RELOAD_PAYMENT
 }
 
+
 model Acquisition {
- id               String   @id @default(uuid())
- firstSource      String?  @map("first_source")
- firstReferralId  String?  @map("first_referral_id")
- firstStartParams String?  @map("first_start_params")
- firstCompaingId  String?  @map("first_compaing_id")
- firstRecordId    String?  @map("first_record_id")
- firstOtherData   Json?    @map("first_other_data") @db.JsonB
- firstAt          DateTime @default(now()) @map("first_at")
+  id               String   @id @default(uuid())
+  firstSource      String?  @map("first_source")
+  firstReferralId  String?  @map("first_referral_id")
+  firstStartParams String?  @map("first_start_params")
+  firstCompaingId  String?  @map("first_compaing_id")
+  firstRecordId    String?  @map("first_record_id")
+  firstOtherData   Json?    @map("first_other_data") @db.JsonB
+  firstAt          DateTime @default(now()) @map("first_at")
 
- lastSource      String?  @map("last_source")
- lastReferralId  String?  @map("last_referral_id")
- lastStartParams String?  @map("last_start_params")
- lastCompaingId  String?  @map("last_compaing_id")
- lastRecordId    String?  @map("last_record_id")
- lastOtherData   Json?    @map("last_other_data") @db.JsonB
- lastAt          DateTime @updatedAt @map("last_at")
+  lastSource      String?  @map("last_source")
+  lastReferralId  String?  @map("last_referral_id")
+  lastStartParams String?  @map("last_start_params")
+  lastCompaingId  String?  @map("last_compaing_id")
+  lastRecordId    String?  @map("last_record_id")
+  lastOtherData   Json?    @map("last_other_data") @db.JsonB
+  lastAt          DateTime @updatedAt @map("last_at")
+  lastIp               String?               @map("last_ip")
+  lastUserAgent        String?               @map("last_user_agent")
+  lastTelegramPlatform TelegramPlatformEnum? @map("last_telegram_platform")
 
- user Users?
+  user Users?
 
- @@map("acquisitions")
+  @@map("acquisitions")
 }
 
 model Sessions {
- id          String           @id @default(uuid())
- place       SessionPlaceEnum @default(WEB) @map("place")
- ip          String?          @map("ip")
- userAgent   String?          @map("user_agent")
- browser     Json?            @map("browser") @db.JsonB
- device      Json?            @map("device") @db.JsonB
- os          Json?            @map("os") @db.JsonB
- country     String?          @map("country")
- source      String?          @map("source")
- referralId  String?          @map("referral_id")
- startParams String?          @map("start_params")
- compaingId  String?          @map("compaing_id")
- recordId    String?          @map("record_id")
- telegramPlatform TelegramPlatformEnum? @map("telegram_platform")
- otherData   Json?            @map("other_data") @db.JsonB
- startedAt   DateTime         @default(now()) @map("started_at")
+  id               String                @id @default(uuid())
+  place            SessionPlaceEnum      @default(WEB) @map("place")
+  ip               String?               @map("ip")
+  userAgent        String?               @map("user_agent")
+  browser          Json?                 @map("browser") @db.JsonB
+  device           Json?                 @map("device") @db.JsonB
+  os               Json?                 @map("os") @db.JsonB
+  country          String?               @map("country")
+  source           String?               @map("source")
+  referralId       String?               @map("referral_id")
+  startParams      String?               @map("start_params")
+  compaingId       String?               @map("compaing_id")
+  recordId         String?               @map("record_id")
+  telegramPlatform TelegramPlatformEnum? @map("telegram_platform")
+  otherData        Json?                 @map("other_data") @db.JsonB
+  startedAt        DateTime              @default(now()) @map("started_at")
 
- user   Users  @relation(fields: [userId], references: [id])
- userId String @map("user_id")
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
 
- @@index([userId])
- @@map("sessions")
+  @@index([userId])
+  @@map("sessions")
 }
 
 enum TelegramPlatformEnum {
-    DESKTOP
-    IOS
-    ANDROID
-    WEB
-    BOT
+  DESKTOP
+  IOS
+  ANDROID
+  WEB
+  BOT
 }
 
 enum SessionPlaceEnum {
- WEB
- BOT
- TELEGRAM_MINIAPP
+  WEB
+  BOT
+  TELEGRAM_MINIAPP
 }
 
 model UserAdsData {
- id                     String          @id @default(uuid())
- lastFullscreenViewedAt DateTime?       @map("last_fullscreen_viewed_at")
- lastViewedNetwork      AdsNetworkEnum? @map("last_viewed_network")
- lastMessageAt          DateTime?       @map("last_message_at")
- lastMessageNetwork     AdsNetworkEnum? @map("last_message_network")
+  id                     String          @id @default(uuid())
+  lastFullscreenViewedAt DateTime?       @map("last_fullscreen_viewed_at")
+  lastViewedNetwork      AdsNetworkEnum? @map("last_viewed_network")
+  lastMessageAt          DateTime?       @map("last_message_at")
+  lastMessageNetwork     AdsNetworkEnum? @map("last_message_network")
 
- updatedAt DateTime @updatedAt @map("updated_at")
- user      Users?
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      Users?
 
- @@map("user_ads_data")
+  @@map("user_ads_data")
 }
 
 model AdsRewards {
- key        DefaultEnum          @id @default(DEFAULT)
- taskView Decimal @default(1) @map("task_view") @db.Decimal(18, 6)
- taskAdsgram Decimal @default(2) @map("task_adsgram") @db.Decimal(18, 6)
- botMessage Decimal @default(2) @map("bot_message") @db.Decimal(18, 6)
- updatedAt DateTime @updatedAt @map("updated_at")
+  key         DefaultEnum @id @default(DEFAULT)
+  taskView    Decimal     @default(1) @map("task_view") @db.Decimal(18, 6)
+  taskAdsgram Decimal     @default(2) @map("task_adsgram") @db.Decimal(18, 6)
+  botMessage  Decimal     @default(2) @map("bot_message") @db.Decimal(18, 6)
+  updatedAt   DateTime    @updatedAt @map("updated_at")
 
- @@map("ads_rewards")
+  @@map("ads_rewards")
 }
 
 /// Модель для просмотров рекламы
 model AdsViews {
- id            String          @id @default(uuid())
- network       AdsNetworks     @relation(fields: [networkKey], references: [key])
- networkKey    AdsNetworkEnum  @default(ADSGRAM) @map("network_key")
- type          AdsViewTypeEnum @default(REWARD)
- rewardStars   Float           @default(0) @map("reward_stars")
- duration      Int             @default(0) @map("duration")
- ip            String?
- ua            String?
+  id          String          @id @default(uuid())
+  network     AdsNetworks     @relation(fields: [networkKey], references: [key])
+  networkKey  AdsNetworkEnum  @default(ADSGRAM) @map("network_key")
+  type        AdsViewTypeEnum @default(REWARD)
+  rewardStars Float           @default(0) @map("reward_stars")
+  duration    Int             @default(0) @map("duration")
+  ip          String?
+  ua          String?
 
- createdAt DateTime  @default(now()) @map("created_at")
- claimedAt DateTime? @map("claimed_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  claimedAt DateTime? @map("claimed_at")
 
- verifyKey String @unique @map("verify_key")
+  verifyKey String @unique @map("verify_key")
 
- user    Users     @relation(fields: [userId], references: [id])
- userId  String    @map("user_id")
- block   AdsBlocks @relation(fields: [blockId], references: [id])
- blockId String    @map("block_id")
+  user    Users     @relation(fields: [userId], references: [id])
+  userId  String    @map("user_id")
+  block   AdsBlocks @relation(fields: [blockId], references: [id])
+  blockId String    @map("block_id")
 
- redirectUrl String? @map("redirect_url")
+  redirectUrl String? @map("redirect_url")
 
- @@index([userId])
- @@index([networkKey])
- @@index([blockId])
- @@index([userId, createdAt])
- @@index([userId, claimedAt])
- @@map("ads_views")
+  @@index([userId])
+  @@index([networkKey])
+  @@index([blockId])
+  @@index([userId, createdAt])
+  @@index([userId, claimedAt])
+  @@map("ads_views")
 }
 
 /// Перечисление типов просмотра рекламы
 enum AdsViewTypeEnum {
- REWARD
- TASK
- VIEW
- MESSAGE
- FEED
+  REWARD
+  TASK
+  VIEW
+  MESSAGE
+  FEED
 }
 
 model AdsBlocks {
- id            String            @id @default(uuid())
- key           String            @default("KEY")
- name          String
- place         AdsBlockPlaceEnum
- isActive      Boolean           @default(true) @map("is_active")
- showAndroid   Boolean           @default(true) @map("show_android")
- showIos       Boolean           @default(true) @map("show_ios")
- showDesktop     Boolean           @default(true) @map("show_desktop")
- showBot       Boolean           @default(true) @map("show_bot")
- showWeb       Boolean           @default(false) @map("show_web")
- duration      Int               @default(0) @map("duration")
- limit         Int               @default(0) @map("limit")
+  id          String            @id @default(uuid())
+  key         String            @default("KEY")
+  name        String
+  place       AdsBlockPlaceEnum
+  isActive    Boolean           @default(true) @map("is_active")
+  showAndroid Boolean           @default(true) @map("show_android")
+  showIos     Boolean           @default(true) @map("show_ios")
+  showDesktop Boolean           @default(true) @map("show_desktop")
+  showBot     Boolean           @default(true) @map("show_bot")
+  showWeb     Boolean           @default(false) @map("show_web")
+  duration    Int               @default(0) @map("duration")
+  limit       Int               @default(0) @map("limit")
 
- createdAt DateTime @default(now()) @map("created_at")
- updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
- network    AdsNetworks    @relation(fields: [networkKey], references: [key])
- networkKey AdsNetworkEnum @default(ADSGRAM) @map("network_key")
- views      AdsViews[]
+  network    AdsNetworks    @relation(fields: [networkKey], references: [key])
+  networkKey AdsNetworkEnum @default(ADSGRAM) @map("network_key")
+  views      AdsViews[]
 
- @@unique([id, place])
- @@index([networkKey])
- @@map("ads_blocks")
+  @@unique([id, place])
+  @@index([networkKey])
+  @@map("ads_blocks")
 }
 
 enum AdsBlockPlaceEnum {
- TASK
- REWARD_TASK
- BANNER
- FULLSCREEN
- MESSAGE
- FEED
+  TASK
+  REWARD_TASK
+  BANNER
+  FULLSCREEN
+  MESSAGE
+  FEED
 }
 
 /// Модель для рекламных сетей
 model AdsNetworks {
- key       AdsNetworkEnum @id
- isActive  Boolean        @map("is_active")
- name      String
- priority  Int            @default(100)
- adsViews  AdsViews[]
- adsBlocks AdsBlocks[]
+  key       AdsNetworkEnum @id
+  isActive  Boolean        @map("is_active")
+  name      String
+  priority  Int            @default(100)
+  adsViews  AdsViews[]
+  adsBlocks AdsBlocks[]
 
- @@map("ads_networks")
+  @@map("ads_networks")
 }
 
 /// Перечисление рекламных сетей
 enum AdsNetworkEnum {
- YANDEX
- ADSGRAM
- ONCLICKA
- ADSONAR
- GIGA
- MONETAG
- TADDY
- RICHADS
+  YANDEX
+  ADSGRAM
+  ONCLICKA
+  ADSONAR
+  GIGA
+  MONETAG
+  TADDY
+  RICHADS
 }
 
 /// Модель баланса пользователя
 model UserBalance {
- id             String @id @default(uuid())
- /// Баланс для оплаты
- paymentBalance Decimal  @db.Decimal(18, 6) @default(0) @map("payment_balance")
- holdBalance    Decimal  @db.Decimal(18, 6) @default(0) @map("hold_balance")
- usdt        Decimal   @default(0) @db.Decimal(18, 6)
+  id             String  @id @default(uuid())
+  /// Баланс для оплаты
+  paymentBalance Decimal @default(0) @map("payment_balance") @db.Decimal(18, 6)
+  holdBalance    Decimal @default(0) @map("hold_balance") @db.Decimal(18, 6)
+  usdt           Decimal @default(0) @db.Decimal(18, 6)
 
- updatedAt    DateTime       @updatedAt @map("updated_at")
- user         Users?
- transactions Transactions[]
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  user         Users?
+  transactions Transactions[]
 
- @@map("user_balance")
+  @@map("user_balance")
 }
 
 /// Модель для белого списка
 model GreenList {
- green     String  @id
- isActive  Boolean @default(true) @map("is_active")
- isPremium Boolean @default(false) @map("is_premium")
- code      String  @unique
- flagKey   String  @map("flag_key")
- flagEmoji String  @map("flag_emoji")
- name      String
- network   Float   @default(2)
+  green     String  @id
+  isActive  Boolean @default(true) @map("is_active")
+  isPremium Boolean @default(false) @map("is_premium")
+  code      String  @unique
+  flagKey   String  @map("flag_key")
+  flagEmoji String  @map("flag_emoji")
+  name      String
+  network   Float   @default(2)
 
- createdAt DateTime @default(now()) @map("created_at")
- updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
- subscriptions SubscriptionToGreenList[]
+  subscriptions SubscriptionToGreenList[]
 
- @@map("green_list")
+  @@map("green_list")
 }
 
 model Plans {
- key                 PlansEnum                  @id
- isActive            Boolean                    @default(true) @map("is_active")
- name                String
- priceStars          Float?                     @default(0) @map("price_stars")
- isCustom            Boolean                    @default(false) @map("is_custom")
- devicesCount        Int                        @default(1) @map("devices_count")
- isAllBaseServers    Boolean                    @default(false) @map("is_all_base_servers")
- isAllPremiumServers Boolean                    @default(false) @map("is_all_premium_servers")
- trafficLimitGb      Float?                     @map("traffic_limit_gb")
- isUnlimitTraffic    Boolean                    @default(false) @map("is_unlimit_traffic")
- serversSelectType   PlansServersSelectTypeEnum @default(NOT_SELECTED) @map("servers_select_type")
+  key                 PlansEnum                  @id
+  isActive            Boolean                    @default(true) @map("is_active")
+  name                String
+  priceStars          Float?                     @default(0) @map("price_stars")
+  isCustom            Boolean                    @default(false) @map("is_custom")
+  devicesCount        Int                        @default(1) @map("devices_count")
+  isAllBaseServers    Boolean                    @default(false) @map("is_all_base_servers")
+  isAllPremiumServers Boolean                    @default(false) @map("is_all_premium_servers")
+  trafficLimitGb      Float?                     @map("traffic_limit_gb")
+  isUnlimitTraffic    Boolean                    @default(false) @map("is_unlimit_traffic")
+  serversSelectType   PlansServersSelectTypeEnum @default(NOT_SELECTED) @map("servers_select_type")
+  days                Int?
+  isNoAds Boolean @default(false) @map("is_no_ads")
+  isRoleChat Boolean @default(false) @map("is_role_chat")
 
- createdAt     DateTime        @default(now()) @map("created_at")
- updatedAt     DateTime        @updatedAt @map("updated_at")
- Subscriptions Subscriptions[]
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  Subscriptions Subscriptions[]
 
- @@map("plans")
+  @@map("plans")
 }
 
 enum PlansServersSelectTypeEnum {
- ONE_BASE
- ONE_BASE_OR_PREMIUM
- CUSTOM
- NOT_SELECTED
+  ONE_BASE
+  ONE_BASE_OR_PREMIUM
+  CUSTOM
+  NOT_SELECTED
 }
 
 enum PlansEnum {
- TRIAL
- START
- BASE
- PLUS
- PRO
- PREMIUM
- ULTIMATE
- CUSTOM
- TRAFFIC
+  TRIAL
+  START
+  BASE
+  PLUS
+  PRO
+  PREMIUM
+  ULTIMATE
+  CUSTOM
+  TRAFFIC
+  NEW_ERA
 }
 
 /// Модель подписок
 model Subscriptions {
- id               String                 @id @default(uuid())
- username         String                 @unique
- name             String                 @default("Subscription")
- plan             Plans                  @relation(fields: [planKey], references: [key])
- planKey          PlansEnum              @default(CUSTOM) @map("plan_key")
- isActive         Boolean                @default(false) @map("is_active")
- isAutoRenewal    Boolean                @default(true) @map("is_auto_renewal")
- token            String                 @unique @map("token")
- period           SubscriptionPeriodEnum @default(MONTH)
- periodMultiplier Int                    @default(1) @map("period_multiplier")
+  id               String                 @id @default(uuid())
+  username         String                 @unique
+  name             String                 @default("Subscription")
+  plan             Plans                  @relation(fields: [planKey], references: [key])
+  planKey          PlansEnum              @default(CUSTOM) @map("plan_key")
+  isActive         Boolean                @default(false) @map("is_active")
+  isAutoRenewal    Boolean                @default(true) @map("is_auto_renewal")
+  token            String                 @unique @map("token")
+  period           SubscriptionPeriodEnum @default(MONTH)
+  periodMultiplier Int                    @default(1) @map("period_multiplier")
 
- announce String?
+  announce String?
 
- nextRenewalStars    Float?           @map("next_renewal_stars")
- isPremium           Boolean          @default(false) @map("is_premium")
- devicesCount        Int              @default(1) @map("devices_count")
- isAllBaseServers    Boolean          @default(false) @map("is_all_base_servers")
- isAllPremiumServers Boolean          @default(false) @map("is_all_premium_servers")
- trafficLimitGb      Float?           @map("traffic_limit_gb")
- isUnlimitTraffic    Boolean          @default(false) @map("is_unlimit_traffic")
- links               Json?            @map("links") @db.JsonB
- lastUserAgent       String?          @map("last_user_agent")
- dataLimit           Int              @default(0) @map("data_limit")
- usedTraffic         Int              @default(0) @map("used_traffic")
- lifeTimeUsedTraffic Int              @default(0) @map("life_time_used_traffic")
- trafficReset        TrafficResetEnum @default(DAY) @map("traffic_reset")
- marzbanData         Json?            @map("marzban_data") @db.JsonB
+  nextRenewalStars    Float?           @map("next_renewal_stars")
+  isPremium           Boolean          @default(false) @map("is_premium")
+  devicesCount        Int              @default(1) @map("devices_count")
+  isAllBaseServers    Boolean          @default(false) @map("is_all_base_servers")
+  isAllPremiumServers Boolean          @default(false) @map("is_all_premium_servers")
+  trafficLimitGb      Float?           @map("traffic_limit_gb")
+  isUnlimitTraffic    Boolean          @default(false) @map("is_unlimit_traffic")
+  links               Json?            @map("links") @db.JsonB
+  lastUserAgent       String?          @map("last_user_agent")
+  dataLimit           Int              @default(0) @map("data_limit")
+  usedTraffic         Int              @default(0) @map("used_traffic")
+  lifeTimeUsedTraffic Int              @default(0) @map("life_time_used_traffic")
+  trafficReset        TrafficResetEnum @default(DAY) @map("traffic_reset")
+  marzbanData         Json?            @map("marzban_data") @db.JsonB
+  happCryptoUrl String? @map("happ_crypto_url")
+  days Int @default(0)
 
- servers SubscriptionToGreenList[]
+  servers SubscriptionToGreenList[]
 
- createdAt DateTime  @default(now()) @map("created_at")
- updatedAt DateTime  @updatedAt @map("updated_at")
- expiredAt DateTime? @map("expired_at")
- removalAt DateTime? @map("removal_at")
- onlineAt  DateTime? @map("online_at")
- deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  expiredAt DateTime? @map("expired_at")
+  removalAt DateTime? @map("removal_at")
+  onlineAt  DateTime? @map("online_at")
+  deletedAt DateTime? @map("deleted_at")
 
- user    Users      @relation(fields: [userId], references: [id])
- userId  String     @map("user_id")
- payment Payments[]
+  user    Users      @relation(fields: [userId], references: [id])
+  userId  String     @map("user_id")
+  payment Payments[]
+  devices Devices[]
 
- @@index([userId])
- @@index([token])
- @@index([username])
- @@map("subscriptions")
+  @@index([userId])
+  @@index([token])
+  @@index([username])
+  @@map("subscriptions")
 }
 
 enum TrafficResetEnum {
- NO_RESET
- DAY
- WEEK
- MONTH
- YEAR
+  NO_RESET
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+model SubscriptionExtensions {
+  key              SubscriptionExtensionsEnum @id
+  days             Int @default(0)
+  devicesCount     Int                        @default(0) @map("devices_count")
+  trafficLimitGb   Float                      @default(0) @map("traffic_limit_gb")
+  isUnlimitTraffic Boolean                    @default(false) @map("is_unlimit_traffic")
+  isPremiumServers Boolean @default(false) @map("is_premium_servers")
+  isNoAds Boolean @default(false) @map("is_no_ads")
+  isRoleChat Boolean @default(false) @map("is_role_chat")
+
+  @@map("subscription_extensions")
+}
+
+enum SubscriptionExtensionsEnum {
+  PREMIUM
+  CHANNEL
+  CHAT
+  BIO
+  NAME
+}
+
+model Devices {
+  id            String @id @default(uuid())
+  model         String?
+  hwid          String
+  osVersion     String? @map("os_version")
+  os            String?
+  locale        String?
+  happVersion   String @map("happ_version")
+  userAgent     String @map("user_agent")
+  token         String @unique @map("token")
+  happCryptoUrl String @map("happ_crypto_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  subscription   Subscriptions @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  subscriptionId String        @map("subscription_id")
+
+  @@unique([subscriptionId, hwid])
+  @@index([token])
+  @@index([hwid])
+  @@map("devices")
 }
 
 model SubscriptionToGreenList {
- subscription   Subscriptions @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
- subscriptionId String        @map("subscription_id")
+  subscription   Subscriptions @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  subscriptionId String        @map("subscription_id")
 
- greenList   GreenList @relation(fields: [greenListId], references: [green])
- greenListId String    @map("green_list_id")
+  greenList   GreenList @relation(fields: [greenListId], references: [green])
+  greenListId String    @map("green_list_id")
 
- /// Дата добавления сервера в подписку
- assignedAt DateTime @default(now()) @map("assigned_at")
+  /// Дата добавления сервера в подписку
+  assignedAt DateTime @default(now()) @map("assigned_at")
 
- @@id([subscriptionId, greenListId])
- @@index([subscriptionId])
- @@index([greenListId])
- @@map("subscription_to_green_list")
+  @@id([subscriptionId, greenListId])
+  @@index([subscriptionId])
+  @@index([greenListId])
+  @@map("subscription_to_green_list")
 }
 
 /// Перечисление периодов подписки
 enum SubscriptionPeriodEnum {
- TRIAL
- TRAFFIC
- HOUR
- DAY
- WEEK
- MONTH
- THREE_MONTH
- SIX_MONTH
- YEAR
- TWO_YEAR
- THREE_YEAR
- INDEFINITELY
+  TRIAL
+  TRAFFIC
+  HOUR
+  DAY
+  WEEK
+  MONTH
+  THREE_MONTH
+  SIX_MONTH
+  YEAR
+  TWO_YEAR
+  THREE_YEAR
+  INDEFINITELY
+  NEW_ERA
 }
 
 model XrayInbounds {
- inboundTag String              @id @map("inbound_tag")
- type       XrayInboundTypeEnum @default(VLESS) @map("type")
+  inboundTag String              @id @map("inbound_tag")
+  type       XrayInboundTypeEnum @default(VLESS) @map("type")
 
- @@map("xray_inbounds")
+  @@map("xray_inbounds")
 }
 
 enum XrayInboundTypeEnum {
- VLESS
- TROJAN
- SHADOWSOCKS
+  VLESS
+  TROJAN
+  SHADOWSOCKS
 }
 
 /// Модель ролей пользователей
 model Roles {
- key                UserRoleEnum @id
- name               String
- discount           Float        @default(1)
- limitSubscriptions Int          @default(10) @map("limit_subscriptions")
- minPayStars        Int          @default(50) @map("min_pay_stars")
+  key                UserRoleEnum @id
+  name               String
+  discount           Float        @default(1)
+  limitSubscriptions Int          @default(10) @map("limit_subscriptions")
+  minPayStars        Int          @default(50) @map("min_pay_stars")
+  days               Int          @default(0)
+  devicesCount       Int          @default(0) @map("devices_count")
+  trafficLimitGb     Float        @default(0) @map("traffic_limit_gb")
+  isUnlimitTraffic   Boolean      @default(false) @map("is_unlimit_traffic")
+  isPremiumServers Boolean @default(false) @map("is_premium_servers")
+  isNoAds Boolean @default(false) @map("is_no_ads")
+  isRoleChat Boolean @default(false) @map("is_role_chat")
 
- users Users[]
+  users Users[]
 
- @@map("roles")
+  @@map("roles")
 }
 
 /// Перечисление ролей пользователей
 enum UserRoleEnum {
- SUPER_ADMIN
- ADMIN
- FRIEND
- OLD_USER
- USER
+  SUPER_ADMIN
+  ADMIN
+  FRIEND
+  OLD_USER
+  USER
 }
 
 /// Модель языков
 model Language {
- id         String @id @default(uuid())
- /// Название языка
- name       String
- /// Нативное название языка
- nativeName String @map("native_name")
- /// ISO 639-1 код
- iso6391    String @unique @map("iso_639_1")
- /// ISO 639-2 код
- iso6392    String @unique @map("iso_639_2")
- /// ISO 639-3 код
- iso6393    String @unique @map("iso_639_3")
+  id         String @id @default(uuid())
+  /// Название языка
+  name       String
+  /// Нативное название языка
+  nativeName String @map("native_name")
+  /// ISO 639-1 код
+  iso6391    String @unique @map("iso_639_1")
+  /// ISO 639-2 код
+  iso6392    String @unique @map("iso_639_2")
+  /// ISO 639-3 код
+  iso6393    String @unique @map("iso_639_3")
 
- /// Связь с пользователями
- users Users[]
+  /// Связь с пользователями
+  users Users[]
 
- @@map("language")
+  @@map("language")
 }
 
 /// Модель валют
 model Currency {
- key               CurrencyEnum     @id
- /// Название валюты
- name              String
- /// Символ валюты
- symbol            String
- /// Тип валюты
- type              CurrencyTypeEnum @default(FIAT)
- /// Курс обмена
- rate              Float            @default(1)
- /// ID валюты в Coinmarketcap
- coinmarketcapUCID String?          @unique @map("coinmarketcap_ucid")
- /// Дата обновления
- updatedAt         DateTime         @updatedAt @map("updated_at")
+  key               CurrencyEnum     @id
+  /// Название валюты
+  name              String
+  /// Символ валюты
+  symbol            String
+  /// Тип валюты
+  type              CurrencyTypeEnum @default(FIAT)
+  /// Курс обмена
+  rate              Float            @default(1)
+  /// ID валюты в Coinmarketcap
+  coinmarketcapUCID String?          @unique @map("coinmarketcap_ucid")
+  /// Дата обновления
+  updatedAt         DateTime         @updatedAt @map("updated_at")
 
- /// Связь с платежами
- payments       Payments[]
- /// Связь с методами оплаты
- paymentMethods PaymentMethods[]
- /// Связь с пользователями
- users          Users[]
+  /// Связь с платежами
+  payments       Payments[]
+  /// Связь с методами оплаты
+  paymentMethods PaymentMethods[]
+  /// Связь с пользователями
+  users          Users[]
 
- @@map("currency")
+  @@map("currency")
 }
 
 /// Перечисление типов валют
 enum CurrencyTypeEnum {
- FIAT
- CRYPTO
- TELEGRAM
+  FIAT
+  CRYPTO
+  TELEGRAM
 }
 
 /// Перечисление валют
 enum CurrencyEnum {
- RUB
- USD
- EUR
- KZT
- AED
- ARS
- AUD
- AZN
- AMD
- BDT
- BYN
- BGN
- BHD
- BOB
- BRL
- CAD
- CHF
- CNY
- COP
- CZK
- DKK
- EGP
- GBP
- HKD
- HUF
- INR
- IDR
- JPY
- KES
- KWD
- MAD
- MNT
- MXN
- NGN
- NZD
- OMR
- PEN
- PHP
- PKR
- PLN
- QAR
- RON
- SAR
- SEK
- THB
- TRY
- TWD
- UAH
- UGX
- VND
- ZAR
- GEL
- KGS
- MDL
- NOK
- XDR
- SGD
- TJS
- TMT
- UZS
- RSD
- KRW
- TON
- MAJOR
- NOT
- HMSTR
- DOGS
- CATI
- USDT
- XTR
- JETTON
- PX
- GRAM
- CATS
+  RUB
+  USD
+  EUR
+  KZT
+  AED
+  ARS
+  AUD
+  AZN
+  AMD
+  BDT
+  BYN
+  BGN
+  BHD
+  BOB
+  BRL
+  CAD
+  CHF
+  CNY
+  COP
+  CZK
+  DKK
+  EGP
+  GBP
+  HKD
+  HUF
+  INR
+  IDR
+  JPY
+  KES
+  KWD
+  MAD
+  MNT
+  MXN
+  NGN
+  NZD
+  OMR
+  PEN
+  PHP
+  PKR
+  PLN
+  QAR
+  RON
+  SAR
+  SEK
+  THB
+  TRY
+  TWD
+  UAH
+  UGX
+  VND
+  ZAR
+  GEL
+  KGS
+  MDL
+  NOK
+  XDR
+  SGD
+  TJS
+  TMT
+  UZS
+  RSD
+  KRW
+  TON
+  MAJOR
+  NOT
+  HMSTR
+  DOGS
+  CATI
+  USDT
+  XTR
+  JETTON
+  PX
+  GRAM
+  CATS
 }
 
 /// Модель транзакций
 model Transactions {
- id          String                @id @default(uuid())
- amount      Float                 @default(0)
- type        TransactionTypeEnum   @default(PLUS)
- reason      TransactionReasonEnum @default(PAYMENT)
- balanceType BalanceTypeEnum       @default(PAYMENT) @map("balance_type")
+  id          String                @id @default(uuid())
+  amount      Float                 @default(0)
+  type        TransactionTypeEnum   @default(PLUS)
+  reason      TransactionReasonEnum @default(PAYMENT)
+  balanceType BalanceTypeEnum       @default(PAYMENT) @map("balance_type")
 
- createdAt     DateTime  @default(now()) @map("created_at")
- updatedAt     DateTime  @updatedAt @map("updated_at")
- holdExpiredAt DateTime? @map("hold_expired_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  holdExpiredAt DateTime? @map("hold_expired_at")
 
- balance    UserBalance? @relation(fields: [balanceId], references: [id])
- balanceId  String?      @map("balance_id")
- withdrawal Withdrawals?
- payment    Payments?
+  balance    UserBalance? @relation(fields: [balanceId], references: [id])
+  balanceId  String?      @map("balance_id")
+  withdrawal Withdrawals?
+  payment    Payments?
 
- @@index([balanceId])
- @@map("transactions")
+  @@index([balanceId])
+  @@map("transactions")
 }
 
 /// Перечисление типов транзакций
 enum TransactionTypeEnum {
- PLUS
- MINUS
- SUBSCRIPTIONS
+  PLUS
+  MINUS
+  SUBSCRIPTIONS
 }
 
 /// Перечисление типов баланса
 enum BalanceTypeEnum {
- PAYMENT
- WITHDRAWAL
- TICKETS
- WAGER
- HOLD
- TRAFFIC
- NOT_BALANCE
- AD
- USDT
+  PAYMENT
+  WITHDRAWAL
+  TICKETS
+  WAGER
+  HOLD
+  TRAFFIC
+  NOT_BALANCE
+  AD
+  USDT
 }
 
 /// Перечисление причин транзакций
 enum TransactionReasonEnum {
- WITHDRAWAL
- SYSTEM
- SUBSCRIPTIONS
- PAYMENT
- REWARD
- REFERRAL
- FINE
- EXCHANGE
- GAME
- BONUS
+  WITHDRAWAL
+  SYSTEM
+  SUBSCRIPTIONS
+  PAYMENT
+  REWARD
+  REFERRAL
+  FINE
+  EXCHANGE
+  GAME
+  BONUS
 }
 
 /// Модель выводов средств
 model Withdrawals {
- id          String               @id @default(uuid())
- status      WithdrawalStatusEnum @default(CONSIDERATION)
- amountStars Decimal                @default(0) @map("amount_stars") @db.Decimal(16, 8)
- amountUsdt  Decimal              @default(0) @map("amount_usdt") @db.Decimal(16, 8)
- commission  Float                @default(1)
- address     String
+  id          String               @id @default(uuid())
+  status      WithdrawalStatusEnum @default(CONSIDERATION)
+  amountStars Decimal              @default(0) @map("amount_stars") @db.Decimal(16, 8)
+  amountUsdt  Decimal              @default(0) @map("amount_usdt") @db.Decimal(16, 8)
+  commission  Float                @default(1)
+  address     String
 
- createdAt DateTime @default(now()) @map("created_at")
- updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
- user          Users        @relation(fields: [userId], references: [id])
- userId        String       @map("user_id")
- transacrion   Transactions @relation(fields: [transactionId], references: [id])
- transactionId String       @unique @map("transaction_id")
+  user          Users        @relation(fields: [userId], references: [id])
+  userId        String       @map("user_id")
+  transacrion   Transactions @relation(fields: [transactionId], references: [id])
+  transactionId String       @unique @map("transaction_id")
 
- @@index([userId])
- @@index([status])
- @@map("withdrawals")
+  @@index([userId])
+  @@index([status])
+  @@map("withdrawals")
 }
 
 /// Перечисление статусов вывода средств
 enum WithdrawalStatusEnum {
- CONSIDERATION
- REJECTED
- SENT
- EXPIRED
+  CONSIDERATION
+  REJECTED
+  SENT
+  EXPIRED
 }
 
 /// Модель платежей
 model Payments {
- id                      String            @id @default(uuid())
- status                  PaymentStatusEnum @default(PENDING)
- type                    PaymentTypeEnum   @default(ADD_PAYMENT_BALANCE)
- amount                  Float             @default(0)
- amountStars             Float             @default(0) @map("amount_stars")
- bonusStars              Float             @default(0) @map("bonus_stars")
- exchangeRate            Float             @default(0) @map("exchange_rate")
- commission              Float             @default(1)
- isTgPartnerProgram      Boolean           @default(false) @map("is_tg_partner_program")
- amountStarsFeeTgPartner Float             @default(0) @map("amount_stars_fee_tg_partner")
- token                   String            @unique
- linkPay                 String?           @map("link_pay")
- details                 Json?             @db.JsonB
- data                    Json?             @db.JsonB
+  id                      String            @id @default(uuid())
+  status                  PaymentStatusEnum @default(PENDING)
+  type                    PaymentTypeEnum   @default(ADD_PAYMENT_BALANCE)
+  amount                  Float             @default(0)
+  amountStars             Float             @default(0) @map("amount_stars")
+  bonusStars              Float             @default(0) @map("bonus_stars")
+  exchangeRate            Float             @default(0) @map("exchange_rate")
+  commission              Float             @default(1)
+  isTgPartnerProgram      Boolean           @default(false) @map("is_tg_partner_program")
+  amountStarsFeeTgPartner Float             @default(0) @map("amount_stars_fee_tg_partner")
+  token                   String            @unique
+  linkPay                 String?           @map("link_pay")
+  details                 Json?             @db.JsonB
+  data                    Json?             @db.JsonB
 
- createdAt DateTime @default(now()) @map("created_at")
- updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
- user           Users             @relation(fields: [userId], references: [id])
- userId         String            @map("user_id")
- currency       Currency          @relation(fields: [currencyKey], references: [key])
- currencyKey    CurrencyEnum      @map("currency_key")
- method         PaymentMethods    @relation(fields: [methodKey], references: [key])
- methodKey      PaymentMethodEnum @map("method_key")
- transacrion    Transactions?     @relation(fields: [transactionId], references: [id])
- transactionId  String?           @unique @map("transaction_id")
- subscription   Subscriptions?    @relation(fields: [subscriptionId], references: [id])
- subscriptionId String?           @map("subscription_id")
+  user           Users             @relation(fields: [userId], references: [id])
+  userId         String            @map("user_id")
+  currency       Currency          @relation(fields: [currencyKey], references: [key])
+  currencyKey    CurrencyEnum      @map("currency_key")
+  method         PaymentMethods    @relation(fields: [methodKey], references: [key])
+  methodKey      PaymentMethodEnum @map("method_key")
+  transacrion    Transactions?     @relation(fields: [transactionId], references: [id])
+  transactionId  String?           @unique @map("transaction_id")
+  subscription   Subscriptions?    @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String?           @map("subscription_id")
 
- @@index([userId])
- @@index([status])
- @@index([token])
- @@index([currencyKey])
- @@index([methodKey])
- @@map("payments")
+  @@index([userId])
+  @@index([status])
+  @@index([token])
+  @@index([currencyKey])
+  @@index([methodKey])
+  @@map("payments")
 }
 
 enum PaymentTypeEnum {
- PAY_SUBSCRIPTION
- UPDATE_SUBSCTIPTION
- ADD_TRAFFIC_SUBSCRIPTION
- ADD_PAYMENT_BALANCE
+  PAY_SUBSCRIPTION
+  UPDATE_SUBSCTIPTION
+  ADD_TRAFFIC_SUBSCRIPTION
+  ADD_PAYMENT_BALANCE
 }
 
 /// Перечисление статусов платежа
 enum PaymentStatusEnum {
- PENDING
- COMPLETED
- CANCELED
- FAILED
+  PENDING
+  COMPLETED
+  CANCELED
+  FAILED
 }
 
 /// Модель методов оплаты
 model PaymentMethods {
- key                     PaymentMethodEnum     @id
- name                    String
- isActive                Boolean               @default(false) @map("is_active")
- isTonBlockchain         Boolean               @default(false) @map("is_ton_blockchain")
- tonSmartContractAddress String?               @unique @map("ton_smart_contract_address")
- minAmount               Float                 @default(0) @map("min_amount")
- maxAmount               Float                 @default(10000) @map("max_amount")
- commission              Float                 @default(1)
- isPlusCommission        Boolean               @default(false) @map("is_plus_commission")
- type                    PaymentMethodTypeEnum @default(CARD)
- system                  PaymentSystemEnum     @default(TELEGRAM)
- payments                Payments[]
- currency                Currency              @relation(fields: [currencyKey], references: [key])
- currencyKey             CurrencyEnum          @map("currency_key")
+  key                     PaymentMethodEnum     @id
+  name                    String
+  isActive                Boolean               @default(false) @map("is_active")
+  isTonBlockchain         Boolean               @default(false) @map("is_ton_blockchain")
+  tonSmartContractAddress String?               @unique @map("ton_smart_contract_address")
+  minAmount               Float                 @default(0) @map("min_amount")
+  maxAmount               Float                 @default(10000) @map("max_amount")
+  commission              Float                 @default(1)
+  isPlusCommission        Boolean               @default(false) @map("is_plus_commission")
+  type                    PaymentMethodTypeEnum @default(CARD)
+  system                  PaymentSystemEnum     @default(TELEGRAM)
+  payments                Payments[]
+  currency                Currency              @relation(fields: [currencyKey], references: [key])
+  currencyKey             CurrencyEnum          @map("currency_key")
 
- @@index([isActive])
- @@index([currencyKey])
- @@index([type])
- @@index([system])
- @@map("payment_methods")
+  @@index([isActive])
+  @@index([currencyKey])
+  @@index([type])
+  @@index([system])
+  @@map("payment_methods")
 }
 
 /// Перечисление платежных систем
 enum PaymentSystemEnum {
- PAYEER
- VOLET
- WATA
- TOME
- TELEGRAM
- CRYPTOMUS
- CRYPTOBOT
- TON_BLOCKCHAIN
- PAYPALYCH
- SKINSBACK
+  PAYEER
+  VOLET
+  WATA
+  TOME
+  TELEGRAM
+  CRYPTOMUS
+  CRYPTOBOT
+  TON_BLOCKCHAIN
+  PAYPALYCH
+  SKINSBACK
 }
 
 /// Перечисление типов методов оплаты
 enum PaymentMethodTypeEnum {
- CRYPTOCURRENCY
- CARD
- SBP
- STARS
- WALLET
- SKINS
+  CRYPTOCURRENCY
+  CARD
+  SBP
+  STARS
+  WALLET
+  SKINS
 }
 
 /// Перечисление методов оплаты
 enum PaymentMethodEnum {
- STARS
- TOME_CARD
- TOME_SBP
- PAYPALYCH_RUB
- PAYPALYCH_SBP
- PAYPALYCH_USD
- PAYPALYCH_EUR
- WATA_RUB
- WATA_USD
- WATA_EUR
- PAYEER_RUB
- PAYEER_USD
- PAYEER_EUR
- VOLET_RUB
- VOLET_USD
- VOLET_EUR
- CRYPTOMUS
- CRYPTOBOT
- XROCKET
- TON_TON
- USDT_TON
- NOT_TON
- MAJOR_TON
- HMSTR_TON
- DOGS_TON
- CATI_TON
- JETTON_TON
- PX_TON
- GRAM_TON
- CATS_TON
- SKINSBACK
+  STARS
+  TOME_CARD
+  TOME_SBP
+  PAYPALYCH_RUB
+  PAYPALYCH_SBP
+  PAYPALYCH_USD
+  PAYPALYCH_EUR
+  WATA_RUB
+  WATA_USD
+  WATA_EUR
+  PAYEER_RUB
+  PAYEER_USD
+  PAYEER_EUR
+  VOLET_RUB
+  VOLET_USD
+  VOLET_EUR
+  CRYPTOMUS
+  CRYPTOBOT
+  XROCKET
+  TON_TON
+  USDT_TON
+  NOT_TON
+  MAJOR_TON
+  HMSTR_TON
+  DOGS_TON
+  CATI_TON
+  JETTON_TON
+  PX_TON
+  GRAM_TON
+  CATS_TON
+  SKINSBACK
 }
