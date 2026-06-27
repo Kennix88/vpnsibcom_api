@@ -224,6 +224,9 @@ export class AuthService {
         day: chatInfo.birthdate.day ?? null,
       }
 
+    // @ts-ignore
+    const bio = (chatInfo && chatInfo.bio) ?? undefined
+
     let user = await this.userService.getUserByTgId(userData.user.id.toString())
 
     const initDataParams = new URLSearchParams(initData)
@@ -257,6 +260,7 @@ export class AuthService {
         ua,
         ip,
         telegramPlatform,
+        bio,
       })
       if (!user) {
         throw new UnauthorizedException(
@@ -317,6 +321,7 @@ export class AuthService {
       userData.user.id.toString(),
       userData,
       birth,
+      bio,
     )
 
     await this.sessionsService.createSession({
@@ -333,6 +338,15 @@ export class AuthService {
       userId: user.id,
       startParams: startParam,
       ...(refId && { referralKey: refId }),
+      ...(ip && {
+        lastIp: ip,
+      }),
+      ...(ua && {
+        lastUserAgent: ua,
+      }),
+      ...(telegramPlatform && {
+        lastTelegramPlatform: telegramPlatform,
+      }),
     })
 
     this.logger.info({
