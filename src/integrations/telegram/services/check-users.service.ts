@@ -11,7 +11,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common'
-import { Cron } from '@nestjs/schedule'
+import { Cron, CronExpression } from '@nestjs/schedule'
 import { DefaultEnum } from '@shared/enums/default.enum'
 import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import { Client } from 'pg'
@@ -178,6 +178,11 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
         ...(country && { country }),
         ...(birth && { birth }),
         telegramPlatform: TelegramPlatformEnum.BOT,
+        ...(graspilUser.utm &&
+          graspilUser.utm.referral_id && {
+            startParam: `r-${graspilUser.utm.referral_id}`,
+            referralKey: graspilUser.utm.referral_id.toString(),
+          }),
       })
 
       const createdUser = await this.prisma.users.findUnique({
@@ -203,7 +208,7 @@ export class CheckUsersService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  @Cron('0 0 0 * * *')
+  @Cron(CronExpression.EVERY_3_HOURS)
   private async check() {
     if (this.checkInProgress) {
       this.logger.debug('Check users skipped: previous run still in progress')
