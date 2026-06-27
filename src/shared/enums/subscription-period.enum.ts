@@ -11,4 +11,5 @@ export enum SubscriptionPeriodEnum {
   TWO_YEAR = 'TWO_YEAR',
   THREE_YEAR = 'THREE_YEAR',
   INDEFINITELY = 'INDEFINITELY',
+  NEW_ERA = 'NEW_ERA',
 }
