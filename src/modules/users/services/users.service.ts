@@ -5,7 +5,6 @@ import { RedisService } from '@core/redis/redis.service'
 import { UserInBotInterface } from '@integrations/telegram/types/user-in-bot.interface'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Cron } from '@nestjs/schedule'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
@@ -75,55 +74,6 @@ export class UsersService {
         userId,
         e,
       })
-    }
-  }
-
-  @Cron('*/5 * * * *')
-  public async syncActivities() {
-    const now = Math.floor(Date.now() / 1000)
-    const FIVE_MIN_AGO = now - 300
-    const ONE_HOUR_AGO = now - 3600
-
-    const inactiveUsers = await this.redis.zrangebyscore(
-      'recent_activities',
-      '-inf',
-      FIVE_MIN_AGO,
-    )
-
-    if (inactiveUsers.length === 0) return
-
-    const pipeline = this.redis.pipeline()
-    inactiveUsers.forEach((userId) =>
-      pipeline.get(`${this.USER_ACTIVITY_PREFIX}${userId}`),
-    )
-    const results = await pipeline.exec()
-
-    const updates = inactiveUsers
-      .map((userId, i) => ({
-        userId,
-        lastActive: parseInt(<string>results[i][1]) * 1000,
-      }))
-      .filter((u) => u.lastActive <= Date.now() - 300000)
-
-    if (updates.length > 0) {
-      await this.prismaService.$transaction(
-        updates.map((user) =>
-          this.prismaService.users.update({
-            where: { id: user.userId },
-            data: { lastStartedAt: new Date(user.lastActive) },
-          }),
-        ),
-      )
-    }
-
-    await this.redis.zremrangebyscore('recent_activities', '-inf', ONE_HOUR_AGO)
-
-    const hourOldKeys = updates
-      .filter((u) => u.lastActive <= Date.now() - 3600000)
-      .map((u) => `${this.USER_ACTIVITY_PREFIX}${u.userId}`)
-
-    if (hourOldKeys.length > 0) {
-      await this.redis.del(hourOldKeys)
     }
   }
 
@@ -283,6 +233,7 @@ export class UsersService {
     telegramId: string,
     initData: TelegramInitDataInterface,
     birth?: { year?: number; month: number; day: number },
+    bio?: string,
   ) {
     try {
       const user = await this.prismaService.users.findUnique({
@@ -314,6 +265,9 @@ export class UsersService {
             birthMonth: birth?.month ?? null,
             birthYear: birth?.year ?? null,
           }),
+          ...(bio && {
+            bio,
+          }),
         },
       })
     } catch (e) {
@@ -336,6 +290,7 @@ export class UsersService {
     ua,
     ip,
     telegramPlatform,
+    bio,
   }: {
     telegramId: string
     referralKey?: string
@@ -348,8 +303,17 @@ export class UsersService {
     ua?: string
     ip?: string
     telegramPlatform?: TelegramPlatformEnum
+    bio?: string
   }) {
     try {
+      // Исключаем пользователей с отрицательным Telegram ID (боты, каналы и т.д.)
+      if (Number(telegramId) < 0) {
+        this.logger.warn({
+          msg: 'Registration rejected: negative Telegram ID',
+          telegramId,
+        })
+        return null
+      }
       const user = await this.prismaService.$transaction(async (tx) => {
         const parseStartParams = parseStartParamUtil(startParam ?? '')
         const balance = await tx.userBalance.create({ data: {} })
@@ -388,6 +352,9 @@ export class UsersService {
             addedToAttachmentMenu: initData.user.added_to_attachment_menu,
             allowsWriteToPm: initData.user.allows_write_to_pm,
             ...birthData,
+            ...(bio && {
+              bio,
+            }),
           }
         } else if (userInBotData && !initData) {
           telegramDataPayload = {
@@ -401,6 +368,9 @@ export class UsersService {
             isBot: userInBotData.is_bot,
             addedToAttachmentMenu: userInBotData.added_to_attachment_menu,
             ...birthData,
+            ...(bio && {
+              bio,
+            }),
           }
         }
 
@@ -465,6 +435,15 @@ export class UsersService {
             ...(otherDataValue && {
               firstOtherData: otherDataValue,
               lastOtherData: otherDataValue,
+            }),
+            ...(ip && {
+              lastIp: ip,
+            }),
+            ...(ua && {
+              lastUserAgent: ua,
+            }),
+            ...(telegramPlatform && {
+              lastTelegramPlatform: telegramPlatform,
             }),
           },
         })
@@ -677,6 +656,8 @@ export class UsersService {
               ? { usdt: { decrement: amount } }
               : balanceType === BalanceTypeEnum.PAYMENT
               ? { paymentBalance: { decrement: amount } }
+              : balanceType === BalanceTypeEnum.HOLD
+              ? { holdBalance: { increment: amount } }
               : {}),
           },
         })
@@ -748,6 +729,8 @@ export class UsersService {
               ? { usdt: { increment: amount } }
               : balanceType === BalanceTypeEnum.PAYMENT
               ? { paymentBalance: { increment: amount } }
+              : balanceType === BalanceTypeEnum.HOLD
+              ? { holdBalance: { increment: amount } }
               : {}),
           },
         })
