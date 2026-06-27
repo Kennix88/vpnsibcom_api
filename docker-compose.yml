@@ -238,26 +238,6 @@ services:
       retries: 5
     logging: *default-logging
 
-  promtail:
-    container_name: promtail
-    image: grafana/promtail:3.0.0
-    restart: unless-stopped
-    command: -config.file=/etc/promtail/config.yml
-    volumes:
-      - ./docker/promtail/config.yml:/etc/promtail/config.yml:ro
-      - api_logs:/var/log/api:ro
-      - ./caddy_logs:/var/log/caddy:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    depends_on:
-      loki:
-        condition: service_healthy
-      api:
-        condition: service_healthy
-    networks:
-      - token-backend
-    logging: *default-logging
-
   caddy:
     container_name: caddy
     build:
