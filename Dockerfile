@@ -11,7 +11,8 @@ RUN apk add --no-cache libc6-compat openssl build-base python3 make g++ git
 COPY package*.json ./
 RUN npm ci --no-audit --prefer-offline
 COPY . .
-RUN npx prisma generate --schema=./prisma/schema.prisma
+RUN POSTGRES_URL="postgresql://x:x@localhost:5432/x" \
+    npx prisma generate --schema=./prisma/schema.prisma
 RUN npm run build 2>&1 | tee /tmp/build.log \
     && find /app/dist -type f -name '*.js' -print -quit | grep -q . \
     || (tail -n 200 /tmp/build.log && exit 1)
