@@ -1,5 +1,6 @@
 import { PrismaService } from '@core/prisma/prisma.service'
 import { Injectable } from '@nestjs/common'
+import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
 import { PinoLogger } from 'nestjs-pino'
 import { EventType } from '../types/event-type.enum'
@@ -17,10 +18,16 @@ export class AcquisitionsService {
     userId,
     startParams,
     referralKey,
+    ua,
+    ip,
+    telegramPlatform,
   }: {
     userId: string
     startParams?: string
     referralKey?: string
+    ua?: string
+    ip?: string
+    telegramPlatform?: TelegramPlatformEnum
   }) {
     try {
       const hasInputData = Boolean(startParams || referralKey)
@@ -122,6 +129,15 @@ export class AcquisitionsService {
                     }),
                   },
                 }),
+                ...(ip && {
+                  lastIp: ip,
+                }),
+                ...(ua && {
+                  lastUserAgent: ua,
+                }),
+                ...(telegramPlatform && {
+                  lastTelegramPlatform: telegramPlatform,
+                }),
               },
             })
 
@@ -215,6 +231,15 @@ export class AcquisitionsService {
                 none: parseStartParams.none,
               }),
             },
+          }),
+          ...(ip && {
+            lastIp: ip,
+          }),
+          ...(ua && {
+            lastUserAgent: ua,
+          }),
+          ...(telegramPlatform && {
+            lastTelegramPlatform: telegramPlatform,
           }),
         },
       })
