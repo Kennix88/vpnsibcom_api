@@ -26,7 +26,7 @@ ENV NODE_ENV=production PORT=4000
 RUN mkdir -p /app/data/geo /app/logs /app/src/core/i18n \
     && chown -R node:node /app
 
-COPY --from=deps    --chown=node:node /app/node_modules   ./node_modules
+COPY --from=builder --chown=node:node /app/node_modules   ./node_modules
 COPY --from=builder --chown=node:node /app/dist           ./dist
 COPY --from=builder --chown=node:node /app/package*.json  ./
 COPY --from=builder --chown=node:node /app/assets         ./assets
