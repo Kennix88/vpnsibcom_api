@@ -1,33 +1,58 @@
 import { FastifyRequest } from 'fastify'
 
-export function getClientIp(req: FastifyRequest): string {
-  const headers = req.headers
+/**
+ * Нормализует IP-адрес к чистому IPv4 или IPv6 без порта.
+ * Обрабатывает: ::ffff:x.x.x.x, [::1]:port, 1.2.3.4:port
+ */
+export function normalizeIp(raw: string): string {
+  if (!raw) return ''
+  let ip = raw.trim()
 
-  // Cloudflare IP
-  const cfConnectingIp = headers['cf-connecting-ip']
-  if (cfConnectingIp) return cleanIp(cfConnectingIp.toString())
+  // [::1]:port или [::ffff:x.x.x.x]:port → убираем скобки и порт
+  const bracketMatch = ip.match(/^\[([^\]]+)](?::\d+)?$/)
+  if (bracketMatch) ip = bracketMatch[1]
 
-  // x-forwarded-for (первый IP из списка)
-  const xForwardedFor = headers['x-forwarded-for']
-  if (xForwardedFor) return cleanIp(xForwardedFor.toString().split(',')[0])
+  // ::ffff:1.2.3.4 или ::FFFF:1.2.3.4 → 1.2.3.4
+  // (Docker/Linux возвращает IPv4-mapped IPv6 когда слушаем на 0.0.0.0)
+  const ipv4MappedMatch = ip.match(
+    /^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i,
+  )
+  if (ipv4MappedMatch) return ipv4MappedMatch[1]
 
-  // Fallback
-  return cleanIp(req.ip)
-}
-
-function cleanIp(ip: string): string {
-  ip = ip.trim()
-
-  // IPv6 в формате [::1]:port
-  const ipv6Match = ip.match(/^\[([^\]]+)](?::\d+)?$/)
-  if (ipv6Match) return ipv6Match[1]
-
-  // IPv4 с портом: 192.168.0.1:12345 -> 192.168.0.1
+  // 1.2.3.4:port → 1.2.3.4 (только для IPv4, у IPv6 двоеточия — часть адреса)
   if (ip.includes('.') && ip.includes(':')) {
-    const lastColon = ip.lastIndexOf(':')
-    return ip.slice(0, lastColon)
+    const candidate = ip.slice(0, ip.lastIndexOf(':'))
+    if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(candidate)) return candidate
   }
 
-  // Обычный IPv4 или IPv6 без порта
   return ip
+}
+
+/**
+ * Извлекает реальный IP клиента с учётом Caddy → Docker → Fastify цепочки.
+ *
+ * Порядок приоритетов:
+ * 1. CF-Connecting-IP (если трафик идёт через Cloudflare)
+ * 2. req.ip — Fastify с trustProxy:true уже корректно разворачивает XFF
+ * 3. X-Forwarded-For первый элемент как fallback
+ */
+export function getClientIp(req: FastifyRequest): string {
+  const { headers } = req
+
+  // 1. Cloudflare (если когда-нибудь появится перед Caddy)
+  const cfIp = headers['cf-connecting-ip']
+  if (cfIp) return normalizeIp(String(cfIp))
+
+  // 2. Fastify с trustProxy:true сам разворачивает XFF → req.ip = реальный клиент
+  //    Это самый надёжный источник при наличии trustProxy
+  if (req.ip) {
+    const normalized = normalizeIp(req.ip)
+    if (normalized) return normalized
+  }
+
+  // 3. Fallback: ручной XFF (на случай если trustProxy не отработал)
+  const xff = headers['x-forwarded-for']
+  if (xff) return normalizeIp(String(xff).split(',')[0])
+
+  return ''
 }
