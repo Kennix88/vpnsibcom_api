@@ -17,7 +17,6 @@ import {
   NodeSettings,
   NodesUsageResponse,
   ServerSettings,
-  SetOwnerRequest,
   SubscriptionUserResponse,
   SystemStats,
   Token,
@@ -28,7 +27,6 @@ import {
   UserResponse,
   UsersResponse,
   UsersUsagesResponse,
-  UserUsageResponse,
   UserUsagesResponse,
 } from '../types/marzban.types'
 import { XrayConfigFromatType } from '../types/xray-config-format.type'
@@ -38,6 +36,17 @@ export class MarzbanService {
   private client: AxiosInstance
   private token: string | null = null
   private readonly serviceName = 'MarzbanService'
+
+  // ─── dev-mode guard ────────────────────────────────────────────────────────
+  // Возвращает true и кастует к нужному типу, чтобы не ломать типы вызывающего кода.
+  // Использование: if (this.devSkip()) return this.devSkip<T>()
+  private get isDev(): boolean {
+    return process.env.NODE_ENV === 'development'
+  }
+
+  private devReturn<T>(value: T = {} as T): T {
+    return value
+  }
 
   constructor(
     private readonly baseURL: string,
@@ -53,47 +62,35 @@ export class MarzbanService {
 
     this.client = axios.create({
       baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      timeout: 15_000, // 15 сек — запросы не будут висеть вечно
+      headers: { 'Content-Type': 'application/json' },
     })
 
-    // Apply axios-retry to the client instance
     axiosRetry(this.client, {
-      retries: 3, // Number of retries
-      retryDelay: axiosRetry.exponentialDelay, // Exponential backoff retry delay
-      retryCondition: (error) => {
-        // Retry on network errors or 5xx errors
-        return (
-          axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error)
-        )
-      },
+      retries: 3,
+      retryDelay: axiosRetry.exponentialDelay,
+      // Не ретраить клиентские ошибки (4xx), только сетевые и 5xx
+      retryCondition: (error) =>
+        axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error),
       onRetry: (retryCount, error, requestConfig) => {
         this.logger.warn({
-          msg: `Retry attempt ${retryCount} for ${requestConfig.method?.toUpperCase()} ${
+          msg: `Retry #${retryCount}: ${requestConfig.method?.toUpperCase()} ${
             requestConfig.url
-          }: ${error.message}`,
+          } — ${error.message}`,
           service: this.serviceName,
         })
       },
     })
 
-    // Добавляем интерцептор для автоматического добавления токена
+    // ── Request interceptor: добавляем токен ──────────────────────────────
     this.client.interceptors.request.use(
       async (config) => {
         this.logger.debug({
-          msg: `Отправка запроса: ${config.method?.toUpperCase()} ${
-            config.url
-          }`,
+          msg: `→ ${config.method?.toUpperCase()} ${config.url}`,
           service: this.serviceName,
         })
 
-        // Если токен отсутствует или истек, получаем новый
         if (!this.token) {
-          this.logger.info({
-            msg: 'Токен отсутствует, выполняем аутентификацию',
-            service: this.serviceName,
-          })
           await this.authenticate()
         }
 
@@ -107,684 +104,578 @@ export class MarzbanService {
         this.logger.error({
           msg: `Ошибка при подготовке запроса: ${error.message}`,
           error,
-          stack: error instanceof Error ? error.stack : undefined,
           service: this.serviceName,
         })
         return Promise.reject(error)
       },
     )
 
-    // Добавляем интерцептор для обработки ответов
+    // ── Response interceptor: логирование + авторетрай на 401 ────────────
     this.client.interceptors.response.use(
       (response) => {
         this.logger.debug({
-          msg: `Получен ответ: ${
-            response.status
-          } ${response.config.method?.toUpperCase()} ${response.config.url}`,
+          msg: `← ${response.status} ${response.config.method?.toUpperCase()} ${
+            response.config.url
+          }`,
           service: this.serviceName,
         })
         return response
       },
       async (error: AxiosError) => {
-        if (error.response) {
+        if (!error.response) {
+          // Сетевая ошибка — нет HTTP-ответа
           this.logger.error({
-            msg: `Ошибка API: ${
-              error.response.status
-            } ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
-            error: error.response.data,
+            msg: `Сетевая ошибка: ${error.message}`,
+            url: error.config?.url,
             service: this.serviceName,
           })
+          return Promise.reject(error)
+        }
 
-          // Если ошибка 401 (Unauthorized), пробуем переаутентифицироваться
-          if (error.response.status === 401) {
-            this.logger.warn({
-              msg: 'Получена ошибка 401, пробуем переаутентифицироваться',
+        const { status, config: reqConfig } = error.response
+
+        // 401 — пробуем переаутентифицироваться (логируем warn, не error)
+        if (status === 401 && reqConfig?.url !== '/api/admin/token') {
+          this.logger.warn({
+            msg: `401 на ${reqConfig?.method?.toUpperCase()} ${
+              reqConfig?.url
+            }, переаутентификация`,
+            service: this.serviceName,
+          })
+          this.token = null
+
+          try {
+            await this.authenticate()
+            const retryConfig = {
+              ...reqConfig,
+              headers: {
+                ...reqConfig?.headers,
+                Authorization: `Bearer ${this.token}`,
+              },
+            }
+            this.logger.debug({
+              msg: `Повторный запрос после реаутентификации: ${retryConfig.method?.toUpperCase()} ${
+                retryConfig.url
+              }`,
               service: this.serviceName,
             })
-            this.token = null
-
-            // Если это не запрос на аутентификацию, пробуем повторить запрос
-            if (error.config?.url !== '/api/admin/token') {
-              try {
-                await this.authenticate()
-
-                // Создаем новый запрос без интерцепторов, чтобы избежать бесконечного цикла
-                const newConfig = { ...error.config }
-                if (this.token) {
-                  // @ts-ignore
-                  newConfig.headers = {
-                    ...newConfig.headers,
-                    Authorization: `Bearer ${this.token}`,
-                  }
-                }
-
-                this.logger.info({
-                  msg: `Повторная отправка запроса после переаутентификации: ${newConfig.method?.toUpperCase()} ${
-                    newConfig.url
-                  }`,
-                  service: this.serviceName,
-                })
-                return axios(newConfig)
-              } catch (authError) {
-                this.logger.error({
-                  msg: 'Не удалось переаутентифицироваться',
-                  error: authError,
-                  stack:
-                    authError instanceof Error ? authError.stack : undefined,
-                  service: this.serviceName,
-                })
-                return Promise.reject(authError)
-              }
-            }
+            return axios(retryConfig)
+          } catch (authError) {
+            this.logger.error({
+              msg: 'Не удалось переаутентифицироваться',
+              error: authError,
+              service: this.serviceName,
+            })
+            return Promise.reject(authError)
           }
-        } else if (error.request) {
-          this.logger.error({
-            msg: `Ошибка сети: запрос отправлен, но ответ не получен`,
-            error: error.message,
-            stack: error instanceof Error ? error.stack : undefined,
-            service: this.serviceName,
-          })
-        } else {
-          this.logger.error({
-            msg: `Ошибка при настройке запроса: ${error.message}`,
-            error,
-            stack: error instanceof Error ? error.stack : undefined,
-            service: this.serviceName,
-          })
         }
+
+        // Все остальные HTTP-ошибки логируем здесь один раз
+        this.logger.error({
+          msg: `← ${status} ${reqConfig?.method?.toUpperCase()} ${
+            reqConfig?.url
+          }`,
+          responseData: error.response.data,
+          service: this.serviceName,
+        })
 
         return Promise.reject(error)
       },
     )
   }
 
-  /**
-   * Аутентификация в API Marzban
-   */
-  private async authenticate(): Promise<void> {
-    try {
-      this.logger.info({
-        msg: `Выполняем аутентификацию в Marzban API: ${this.baseURL}`,
-        service: this.serviceName,
-      })
+  // ─── Аутентификация ────────────────────────────────────────────────────────
 
+  private async authenticate(): Promise<void> {
+    this.logger.info({
+      msg: `Аутентификация в Marzban: ${this.baseURL}`,
+      service: this.serviceName,
+    })
+
+    try {
       const response = await axios.post<Token>(
         `${this.baseURL}/api/admin/token`,
         new URLSearchParams({
           username: this.username,
           password: this.password,
         }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        },
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
       )
-
       this.token = response.data.access_token
-      this.logger.info({
-        msg: 'Аутентификация успешна, токен получен',
-        service: this.serviceName,
-      })
+      this.logger.info({ msg: 'Токен получен', service: this.serviceName })
     } catch (error) {
       const axiosError = error as AxiosError
       this.logger.error({
-        msg: `Ошибка аутентификации в Marzban: ${axiosError.message}`,
-        error,
-        stack: error instanceof Error ? error.stack : undefined,
+        msg: `Ошибка аутентификации: ${axiosError.message}`,
+        status: axiosError.response?.status,
+        error: axiosError.response?.data ?? axiosError.message,
         service: this.serviceName,
       })
-
-      if (axiosError.response) {
-        this.logger.error({
-          msg: `Статус ошибки: ${axiosError.response.status}`,
-          error: axiosError.response.data,
-          service: this.serviceName,
-        })
-      } else if (axiosError.request) {
-        this.logger.error({
-          msg: 'Ошибка сети: запрос отправлен, но ответ не получен',
-          service: this.serviceName,
-        })
-      }
-
       throw new Error('Не удалось аутентифицироваться в Marzban API')
     }
   }
 
-  /**
-   * Обертка для логирования запросов API
-   * @param method Название метода API
-   * @param apiCall Функция вызова API
-   * @returns Результат вызова API
-   */
-  private async logApiCall<T>(
-    method: string,
-    apiCall: () => Promise<AxiosResponse<T>>,
-  ): Promise<AxiosResponse<T>> {
-    try {
-      this.logger.debug({
-        msg: `Вызов метода API: ${method}`,
-        service: this.serviceName,
-      })
-      const startTime = Date.now()
-      const response = await apiCall()
-      const duration = Date.now() - startTime
+  // ─── Обёртка для вызовов API с таймингом ──────────────────────────────────
+  // Логируем только время выполнения (debug). Ошибки — в response interceptor.
 
-      this.logger.debug({
-        msg: `Успешный ответ от ${method}: статус ${response.status}`,
-        duration: `${duration}ms`,
-        service: this.serviceName,
-      })
-      return response
-    } catch (error) {
-      const axiosError = error as AxiosError
-      this.logger.error({
-        msg: `Ошибка при вызове ${method}: ${axiosError.message}`,
-        error,
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
-      throw error
-    }
+  private async call<T>(
+    method: string,
+    fn: () => Promise<AxiosResponse<T>>,
+  ): Promise<AxiosResponse<T>> {
+    this.logger.debug({ msg: `call: ${method}`, service: this.serviceName })
+    const t = Date.now()
+    const response = await fn()
+    this.logger.debug({
+      msg: `call: ${method} — ${Date.now() - t}ms`,
+      service: this.serviceName,
+    })
+    return response
   }
 
-  /**
-   * Получение информации о текущем администраторе
-   */
+  // ─── Admin ─────────────────────────────────────────────────────────────────
+
   async getCurrentAdmin(): Promise<Admin> {
-    const response = await this.logApiCall('getCurrentAdmin', () =>
+    const res = await this.call('getCurrentAdmin', () =>
       this.client.get<Admin>('/api/admin'),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Получение списка администраторов
-   */
   async getAdmins(): Promise<Admin[]> {
-    const response = await this.logApiCall('getAdmins', () =>
-      this.client.get<Admin[]>('/api/admin/list'),
+    const res = await this.call('getAdmins', () =>
+      this.client.get<Admin[]>('/api/admins'),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Создание нового администратора
-   */
   async createAdmin(adminData: AdminCreate): Promise<Admin> {
     this.logger.info({
-      msg: `Создание нового администратора: ${adminData.username}`,
+      msg: `Создание администратора: ${adminData.username}`,
       service: this.serviceName,
     })
-    const response = await this.logApiCall('createAdmin', () =>
+    const res = await this.call('createAdmin', () =>
       this.client.post<Admin>('/api/admin', adminData),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Изменение данных администратора
-   */
   async modifyAdmin(username: string, adminData: AdminModify): Promise<Admin> {
     this.logger.info({
-      msg: `Изменение данных администратора: ${username}`,
+      msg: `Изменение администратора: ${username}`,
       service: this.serviceName,
     })
-    const response = await this.logApiCall('modifyAdmin', () =>
+    const res = await this.call('modifyAdmin', () =>
       this.client.put<Admin>(`/api/admin/${username}`, adminData),
     )
-    return response.data
+    return res.data
   }
 
   /**
-   * Удаление администратора
+   * Удаляет администратора. 404 считается успехом (идемпотентно).
    */
-  async removeAdmin(username: string): Promise<void> {
-    if (process.env.NODE_ENV === 'development') return
+  async removeAdmin(username: string): Promise<boolean> {
+    if (this.isDev) return true
+
     this.logger.info({
       msg: `Удаление администратора: ${username}`,
       service: this.serviceName,
     })
-    await this.logApiCall('removeAdmin', () =>
-      this.client.delete(`/api/admin/${username}`),
-    )
-  }
 
-  /**
-   * Получение списка пользователей
-   */
-  async getUsers(): Promise<UsersResponse> {
-    const response = await this.logApiCall('getUsers', () =>
-      this.client.get<UsersResponse>('/api/users'),
-    )
-    return response.data
-  }
-
-  /**
-   * Добавление нового пользователя
-   */
-  async addUser(userData: UserCreate): Promise<UserResponse> {
-    this.logger.info({
-      msg: `Добавление нового пользователя: ${userData.username}`,
-      service: this.serviceName,
-    })
-    const response = await this.logApiCall('addUser', () =>
-      this.client.post<UserResponse>('/api/user', userData),
-    )
-    return response.data
-  }
-
-  /**
-   * Получение информации о пользователе
-   */
-  async getUser(username: string): Promise<UserResponse> {
-    const response = await this.logApiCall('getUser', () =>
-      this.client.get<UserResponse>(`/api/user/${username}`),
-    )
-    return response.data
-  }
-
-  /**
-   * Изменение данных пользователя
-   */
-  async modifyUser(
-    username: string,
-    userData: UserModify,
-  ): Promise<UserResponse> {
-    if (process.env.NODE_ENV === 'development') return
-    this.logger.info({
-      msg: `Изменение данных пользователя: ${username}`,
-      service: this.serviceName,
-    })
-    const response = await this.logApiCall('modifyUser', () =>
-      this.client.put<UserResponse>(`/api/user/${username}`, userData),
-    )
-    return response.data
-  }
-
-  /**
-   * Удаляет пользователя из Marzban
-   * @param username - Имя пользователя для удаления
-   * @returns true в случае успеха, false в случае ошибки
-   */
-  async removeUser(username: string): Promise<boolean> {
-    if (process.env.NODE_ENV === 'development') return
     try {
+      await this.client.delete(`/api/admin/${username}`)
       this.logger.info({
-        msg: `Удаление пользователя ${username} из Marzban`,
+        msg: `Администратор ${username} удалён`,
         service: this.serviceName,
       })
-
-      await this.client.delete(`/api/user/${username}`)
-
-      this.logger.info({
-        msg: `Пользователь ${username} успешно удален из Marzban`,
-        service: this.serviceName,
-      })
-
       return true
     } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при удалении пользователя ${username} из Marzban`,
-        error,
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        this.logger.warn({
+          msg: `Администратор ${username} не найден — считается удалённым`,
+          service: this.serviceName,
+        })
+        return true
+      }
+      // Ошибка уже залогирована в response interceptor
       return false
     }
   }
 
-  /**
-   * Получение статистики использования пользователя
-   */
-  async getUserUsage(username: string): Promise<UserUsageResponse> {
-    const response = await this.logApiCall('getUserUsage', () =>
-      this.client.get<UserUsageResponse>(`/api/user/${username}/usage`),
+  // ─── Users ─────────────────────────────────────────────────────────────────
+
+  async getUsers(params?: {
+    offset?: number
+    limit?: number
+    username?: string[]
+    search?: string
+    status?: string
+    sort?: string
+  }): Promise<UsersResponse> {
+    const res = await this.call('getUsers', () =>
+      this.client.get<UsersResponse>('/api/users', { params }),
     )
-    return response.data
+    return res.data
+  }
+
+  async addUser(userData: UserCreate): Promise<UserResponse> {
+    this.logger.info({
+      msg: `Добавление пользователя: ${userData.username}`,
+      service: this.serviceName,
+    })
+    const res = await this.call('addUser', () =>
+      this.client.post<UserResponse>('/api/user', userData),
+    )
+    return res.data
+  }
+
+  async getUser(username: string): Promise<UserResponse | null> {
+    try {
+      const res = await this.call('getUser', () =>
+        this.client.get<UserResponse>(`/api/user/${username}`),
+      )
+      return res.data
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null
+      }
+      throw error
+    }
+  }
+
+  async modifyUser(
+    username: string,
+    userData: UserModify,
+  ): Promise<UserResponse> {
+    if (this.isDev) return this.devReturn<UserResponse>()
+    this.logger.info({
+      msg: `Изменение пользователя: ${username}`,
+      service: this.serviceName,
+    })
+    const res = await this.call('modifyUser', () =>
+      this.client.put<UserResponse>(`/api/user/${username}`, userData),
+    )
+    return res.data
   }
 
   /**
-   * Получение конфигурации подписки
-   * @param token Токен подписки
-   * @param format Формат конфигурации
-   * @param userAgent User-Agent клиента
-   * @returns Ответ с конфигурацией
+   * Удаляет пользователя. 200 и 404 считаются успехом.
    */
+  async removeUser(username: string): Promise<boolean> {
+    if (this.isDev) return true
+
+    this.logger.info({
+      msg: `Удаление пользователя ${username} из Marzban`,
+      service: this.serviceName,
+    })
+
+    try {
+      await this.client.delete(`/api/user/${username}`)
+      this.logger.info({
+        msg: `Пользователь ${username} удалён из Marzban`,
+        service: this.serviceName,
+      })
+      return true
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        this.logger.warn({
+          msg: `Пользователь ${username} не найден в Marzban — считается удалённым`,
+          service: this.serviceName,
+        })
+        return true
+      }
+      // Ошибка уже залогирована в response interceptor
+      return false
+    }
+  }
+
+  async resetUserUsage(username: string): Promise<void> {
+    if (this.isDev) return
+    this.logger.info({
+      msg: `Сброс трафика пользователя: ${username}`,
+      service: this.serviceName,
+    })
+    await this.call('resetUserUsage', () =>
+      this.client.post(`/api/user/${username}/reset`),
+    )
+  }
+
+  // FIX: правильный тип возврата — UserUsagesResponse, не UserUsageResponse
+  async getUserUsage(
+    username: string,
+    start?: string,
+    end?: string,
+  ): Promise<UserUsagesResponse> {
+    const res = await this.call('getUserUsage', () =>
+      this.client.get<UserUsagesResponse>(`/api/user/${username}/usage`, {
+        params: { start, end },
+      }),
+    )
+    return res.data
+  }
+
+  async getUserSubscription(
+    username: string,
+  ): Promise<SubscriptionUserResponse> {
+    const res = await this.call('getUserSubscription', () =>
+      this.client.get<SubscriptionUserResponse>(
+        `/api/user/${username}/subscription`,
+      ),
+    )
+    return res.data
+  }
+
+  async bulkCreateUsers(usersData: UserBulkCreate): Promise<UserBulkResponse> {
+    this.logger.info({
+      msg: `Массовое создание: ${usersData.users.length} пользователей`,
+      service: this.serviceName,
+    })
+    const res = await this.call('bulkCreateUsers', () =>
+      this.client.post<UserBulkResponse>('/api/user/bulk', usersData),
+    )
+    return res.data
+  }
+
+  async getUsersUsages(
+    start?: string,
+    end?: string,
+  ): Promise<UsersUsagesResponse> {
+    const res = await this.call('getUsersUsages', () =>
+      this.client.get<UsersUsagesResponse>('/api/users/usage', {
+        params: { start, end },
+      }),
+    )
+    return res.data
+  }
+
+  async getExpiredUsers(
+    expiredAfter?: string,
+    expiredBefore?: string,
+  ): Promise<string[]> {
+    const res = await this.call('getExpiredUsers', () =>
+      this.client.get<string[]>('/api/users/expired', {
+        params: { expired_after: expiredAfter, expired_before: expiredBefore },
+      }),
+    )
+    return res.data
+  }
+
+  async deleteExpiredUsers(
+    expiredAfter?: string,
+    expiredBefore?: string,
+  ): Promise<string[]> {
+    if (this.isDev) return []
+    const res = await this.call('deleteExpiredUsers', () =>
+      this.client.delete<string[]>('/api/users/expired', {
+        params: { expired_after: expiredAfter, expired_before: expiredBefore },
+      }),
+    )
+    return res.data
+  }
+
+  async deactivateUser(username: string): Promise<UserResponse> {
+    if (this.isDev) return this.devReturn<UserResponse>()
+    this.logger.info({
+      msg: `Деактивация пользователя: ${username}`,
+      service: this.serviceName,
+    })
+    return this.modifyUser(username, { status: 'disabled' })
+  }
+
+  async revokeSubscription(username: string): Promise<UserResponse> {
+    if (this.isDev) return this.devReturn<UserResponse>()
+    this.logger.info({
+      msg: `Отзыв подписки: ${username}`,
+      service: this.serviceName,
+    })
+    const res = await this.call('revokeSubscription', () =>
+      this.client.post<UserResponse>(`/api/user/${username}/revoke_sub`),
+    )
+    return res.data
+  }
+
+  // FIX: по OpenAPI это query param, не тело запроса
+  async setOwner(
+    username: string,
+    adminUsername: string,
+  ): Promise<UserResponse> {
+    this.logger.info({
+      msg: `Смена владельца ${username} → ${adminUsername}`,
+      service: this.serviceName,
+    })
+    const res = await this.call('setOwner', () =>
+      this.client.put<UserResponse>(`/api/user/${username}/set-owner`, null, {
+        params: { admin_username: adminUsername },
+      }),
+    )
+    return res.data
+  }
+
+  // ─── Subscription ──────────────────────────────────────────────────────────
+
   async getSubscriptionConfig(
     token: string,
     format: XrayConfigFromatType,
     userAgent: string,
   ): Promise<AxiosResponse> {
-    try {
-      this.logger.info({
-        msg: `Requesting subscription config with token: ${token}, format: ${format}`,
+    const cleanToken = token.trim().replace(/[`"'\s]+/g, '')
+    if (cleanToken !== token) {
+      this.logger.warn({
+        msg: `Token sanitized: '${token}' → '${cleanToken}'`,
         service: this.serviceName,
       })
-
-      // Очищаем токен от возможных лишних символов
-      const cleanToken = token.trim().replace(/[`"'\s]+/g, '')
-
-      if (cleanToken !== token) {
-        this.logger.warn({
-          msg: `Token was cleaned from extra characters: '${token}' -> '${cleanToken}'`,
-          service: this.serviceName,
-        })
-      }
-
-      const response: AxiosResponse = await this.logApiCall(
-        'getSubscriptionConfig',
-        () =>
-          this.client.get(`/sub/${cleanToken}/${format}`, {
-            headers: {
-              'User-Agent': userAgent,
-            },
-          }),
-      )
-      return response
-    } catch (error) {
-      const axiosError = error as AxiosError
-      this.logger.error({
-        msg: `Ошибка при вызове getSubscriptionConfig: ${axiosError.message}`,
-        req: {
-          token,
-          format,
-          userAgent,
-          baseURL: this.baseURL,
-        },
-        service: this.serviceName,
-        error,
-      })
-      throw error
     }
-  }
-
-  /**
-   * Получение истории использования пользователя
-   */
-  async getUserUsages(username: string): Promise<UserUsagesResponse> {
-    const response = await this.logApiCall('getUserUsages', () =>
-      this.client.get<UserUsagesResponse>(`/api/user/${username}/usages`),
-    )
-    return response.data
-  }
-
-  /**
-   * Сброс статистики использования пользователя
-   */
-  async resetUserUsage(username: string): Promise<void> {
-    if (process.env.NODE_ENV === 'development') return
-    this.logger.info({
-      msg: `Сброс статистики использования пользователя: ${username}`,
-      service: this.serviceName,
-    })
-    await this.logApiCall('resetUserUsage', () =>
-      this.client.post(`/api/user/${username}/reset`),
+    return this.call('getSubscriptionConfig', () =>
+      this.client.get(`/sub/${cleanToken}/${format}`, {
+        headers: { 'User-Agent': userAgent },
+      }),
     )
   }
 
-  /**
-   * Получение ссылки на подписку пользователя
-   */
-  async getUserSubscription(
-    username: string,
-  ): Promise<SubscriptionUserResponse> {
-    const response = await this.logApiCall('getUserSubscription', () =>
-      this.client.get<SubscriptionUserResponse>(
-        `/api/user/${username}/subscription`,
-      ),
-    )
-    return response.data
-  }
+  // ─── System ────────────────────────────────────────────────────────────────
 
-  /**
-   * Массовое создание пользователей
-   */
-  async bulkCreateUsers(usersData: UserBulkCreate): Promise<UserBulkResponse> {
-    this.logger.info({
-      msg: `Массовое создание пользователей: ${usersData.users.length} пользователей`,
-      service: this.serviceName,
-    })
-    const response = await this.logApiCall('bulkCreateUsers', () =>
-      this.client.post<UserBulkResponse>('/api/user/bulk', usersData),
-    )
-    return response.data
-  }
-
-  /**
-   * Получение статистики использования всех пользователей
-   */
-  async getUsersUsages(): Promise<UsersUsagesResponse> {
-    const response = await this.logApiCall('getUsersUsages', () =>
-      this.client.get<UsersUsagesResponse>('/api/user/usages'),
-    )
-    return response.data
-  }
-
-  /**
-   * Получение статистики системы
-   */
   async getSystemStats(): Promise<SystemStats> {
-    const response = await this.logApiCall('getSystemStats', () =>
+    const res = await this.call('getSystemStats', () =>
       this.client.get<SystemStats>('/api/system'),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Получение статистики ядра
-   */
   async getCoreStats(): Promise<CoreStats> {
-    const response = await this.logApiCall('getCoreStats', () =>
-      this.client.get<CoreStats>('/api/core/stats'),
+    const res = await this.call('getCoreStats', () =>
+      this.client.get<CoreStats>('/api/core'),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Получение конфигурации ядра
-   */
   async getCoreConfig(): Promise<CoreConfig> {
-    const response = await this.logApiCall('getCoreConfig', () =>
+    const res = await this.call('getCoreConfig', () =>
       this.client.get<CoreConfig>('/api/core/config'),
     )
-    return response.data
-  }
-
-  /**
-   * Получение списка входящих соединений
-   */
-  async getInbounds(): Promise<InboundsResponse> {
-    const response = await this.logApiCall('getInbounds', () =>
-      this.client.get<InboundsResponse>('/api/inbound'),
-    )
-    return response.data
+    return res.data
   }
 
   async restartCore(): Promise<void> {
-    await this.logApiCall('restartCore', () =>
-      this.client.post('/api/core/restart'),
-    )
+    await this.call('restartCore', () => this.client.post('/api/core/restart'))
   }
 
-  /**
-   * Получение версии API
-   */
   async getApiVersion(): Promise<ApiVersionResponse> {
-    const response = await this.logApiCall('getApiVersion', () =>
+    const res = await this.call('getApiVersion', () =>
       this.client.get<ApiVersionResponse>('/api/version'),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Получение настроек сервера
-   */
   async getServerSettings(): Promise<ServerSettings> {
-    const response = await this.logApiCall('getServerSettings', () =>
+    const res = await this.call('getServerSettings', () =>
       this.client.get<ServerSettings>('/api/setting'),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Обновление настроек сервера
-   */
   async updateServerSettings(
     settings: ServerSettings,
   ): Promise<ServerSettings> {
-    if (process.env.NODE_ENV === 'development') return
+    if (this.isDev) return this.devReturn<ServerSettings>()
     this.logger.info({
-      msg: `Обновление настроек сервера`,
+      msg: 'Обновление настроек сервера',
       service: this.serviceName,
     })
-    const response = await this.logApiCall('updateServerSettings', () =>
+    const res = await this.call('updateServerSettings', () =>
       this.client.put<ServerSettings>('/api/setting', settings),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Получение списка хостов
-   */
+  async getInbounds(): Promise<InboundsResponse> {
+    const res = await this.call('getInbounds', () =>
+      this.client.get<InboundsResponse>('/api/inbounds'),
+    )
+    return res.data
+  }
+
   async getHosts(): Promise<HostsResponse> {
-    const response = await this.logApiCall('getHosts', () =>
-      this.client.get<HostsResponse>('/api/host'),
+    const res = await this.call('getHosts', () =>
+      this.client.get<HostsResponse>('/api/hosts'),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Получение списка нод
-   */
+  // ─── Nodes ─────────────────────────────────────────────────────────────────
+
   async getNodes(): Promise<NodeResponse[]> {
-    const response = await this.logApiCall('getNodes', () =>
-      this.client.get<NodeResponse[]>('/api/node'),
+    const res = await this.call('getNodes', () =>
+      this.client.get<NodeResponse[]>('/api/nodes'),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Добавление новой ноды
-   */
   async addNode(nodeData: NodeCreate): Promise<NodeResponse> {
     this.logger.info({
-      msg: `Добавление новой ноды: ${nodeData.name}`,
+      msg: `Добавление ноды: ${nodeData.name}`,
       service: this.serviceName,
     })
-    const response = await this.logApiCall('addNode', () =>
+    const res = await this.call('addNode', () =>
       this.client.post<NodeResponse>('/api/node', nodeData),
     )
-    return response.data
+    return res.data
   }
 
-  /**
-   * Изменение данных ноды
-   */
   async modifyNode(id: number, nodeData: NodeModify): Promise<NodeResponse> {
-    if (process.env.NODE_ENV === 'development') return
+    if (this.isDev) return this.devReturn<NodeResponse>()
     this.logger.info({
-      msg: `Изменение данных ноды с ID: ${id}`,
+      msg: `Изменение ноды #${id}`,
       service: this.serviceName,
     })
-    const response = await this.logApiCall('modifyNode', () =>
+    const res = await this.call('modifyNode', () =>
       this.client.put<NodeResponse>(`/api/node/${id}`, nodeData),
     )
-    return response.data
+    return res.data
   }
 
   /**
-   * Удаление ноды
+   * Удаляет ноду. 404 считается успехом (идемпотентно).
    */
-  async removeNode(id: number): Promise<void> {
-    if (process.env.NODE_ENV === 'development') return
-    this.logger.info({
-      msg: `Удаление ноды с ID: ${id}`,
-      service: this.serviceName,
-    })
-    await this.logApiCall('removeNode', () =>
-      this.client.delete(`/api/node/${id}`),
-    )
-  }
+  async removeNode(id: number): Promise<boolean> {
+    if (this.isDev) return true
 
-  /**
-   * Получение статистики использования нод
-   */
-  async getNodesUsage(): Promise<NodesUsageResponse> {
-    const response = await this.logApiCall('getNodesUsage', () =>
-      this.client.get<NodesUsageResponse>('/api/node/usage'),
-    )
-    return response.data
-  }
+    this.logger.info({ msg: `Удаление ноды #${id}`, service: this.serviceName })
 
-  /**
-   * Получение настроек ноды
-   */
-  async getNodeSettings(id: number): Promise<NodeSettings> {
-    const response = await this.logApiCall('getNodeSettings', () =>
-      this.client.get<NodeSettings>(`/api/node/${id}/settings`),
-    )
-    return response.data
-  }
-
-  /**
-   * Установка владельца для пользователя
-   */
-  async setOwner(username: string, ownerData: SetOwnerRequest): Promise<void> {
-    this.logger.info({
-      msg: `Установка владельца для пользователя: ${username}`,
-      service: this.serviceName,
-    })
-    await this.logApiCall('setOwner', () =>
-      this.client.put(`/api/user/${username}/owner`, ownerData),
-    )
-  }
-
-  /**
-   * Деактивация пользователя
-   * @param username - Имя пользователя
-   * @returns Результат операции
-   */
-  async deactivateUser(username: string): Promise<UserResponse> {
-    if (process.env.NODE_ENV === 'development') return
-    this.logger.info({
-      msg: `Деактивация пользователя: ${username}`,
-      service: this.serviceName,
-    })
-    return await this.modifyUser(username, { status: 'disabled' })
-  }
-
-  /**
-   * Revokes subscription for a user
-   * @param username - Username of the user
-   * @returns True if successful, false otherwise
-   */
-  public async revokeSubscription(username: string): Promise<UserResponse> {
-    if (process.env.NODE_ENV === 'development') return
     try {
+      await this.client.delete(`/api/node/${id}`)
       this.logger.info({
-        msg: `Отзыв подписки для пользователя ${username}`,
+        msg: `Нода #${id} удалена`,
         service: this.serviceName,
       })
-      const response = await this.logApiCall('revokeSubscription', () =>
-        this.client.post<UserResponse>(`/api/user/${username}/revoke_sub`),
-      )
-
-      this.logger.info({
-        msg: `Подписка успешно отозвана для пользователя ${username}`,
-        service: this.serviceName,
-      })
-
-      return response.data
+      return true
     } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при отзыве подписки для пользователя ${username}`,
-        error,
-        stack: error instanceof Error ? error.stack : undefined,
-        service: this.serviceName,
-      })
-      return
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        this.logger.warn({
+          msg: `Нода #${id} не найдена — считается удалённой`,
+          service: this.serviceName,
+        })
+        return true
+      }
+      return false
     }
+  }
+
+  async getNodesUsage(
+    start?: string,
+    end?: string,
+  ): Promise<NodesUsageResponse> {
+    const res = await this.call('getNodesUsage', () =>
+      this.client.get<NodesUsageResponse>('/api/nodes/usage', {
+        params: { start, end },
+      }),
+    )
+    return res.data
+  }
+
+  // FIX: по OpenAPI это GET /api/node/settings без id
+  async getNodeSettings(): Promise<NodeSettings> {
+    const res = await this.call('getNodeSettings', () =>
+      this.client.get<NodeSettings>('/api/node/settings'),
+    )
+    return res.data
   }
 }
