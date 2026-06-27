@@ -34,6 +34,7 @@ export type SubscriptionsAvgAggregateOutputType = {
   dataLimit: number | null
   usedTraffic: number | null
   lifeTimeUsedTraffic: number | null
+  days: number | null
 }
 
 export type SubscriptionsSumAggregateOutputType = {
@@ -44,6 +45,7 @@ export type SubscriptionsSumAggregateOutputType = {
   dataLimit: number | null
   usedTraffic: number | null
   lifeTimeUsedTraffic: number | null
+  days: number | null
 }
 
 export type SubscriptionsMinAggregateOutputType = {
@@ -69,6 +71,8 @@ export type SubscriptionsMinAggregateOutputType = {
   usedTraffic: number | null
   lifeTimeUsedTraffic: number | null
   trafficReset: $Enums.TrafficResetEnum | null
+  happCryptoUrl: string | null
+  days: number | null
   createdAt: Date | null
   updatedAt: Date | null
   expiredAt: Date | null
@@ -101,6 +105,8 @@ export type SubscriptionsMaxAggregateOutputType = {
   usedTraffic: number | null
   lifeTimeUsedTraffic: number | null
   trafficReset: $Enums.TrafficResetEnum | null
+  happCryptoUrl: string | null
+  days: number | null
   createdAt: Date | null
   updatedAt: Date | null
   expiredAt: Date | null
@@ -135,6 +141,8 @@ export type SubscriptionsCountAggregateOutputType = {
   lifeTimeUsedTraffic: number
   trafficReset: number
   marzbanData: number
+  happCryptoUrl: number
+  days: number
   createdAt: number
   updatedAt: number
   expiredAt: number
@@ -154,6 +162,7 @@ export type SubscriptionsAvgAggregateInputType = {
   dataLimit?: true
   usedTraffic?: true
   lifeTimeUsedTraffic?: true
+  days?: true
 }
 
 export type SubscriptionsSumAggregateInputType = {
@@ -164,6 +173,7 @@ export type SubscriptionsSumAggregateInputType = {
   dataLimit?: true
   usedTraffic?: true
   lifeTimeUsedTraffic?: true
+  days?: true
 }
 
 export type SubscriptionsMinAggregateInputType = {
@@ -189,6 +199,8 @@ export type SubscriptionsMinAggregateInputType = {
   usedTraffic?: true
   lifeTimeUsedTraffic?: true
   trafficReset?: true
+  happCryptoUrl?: true
+  days?: true
   createdAt?: true
   updatedAt?: true
   expiredAt?: true
@@ -221,6 +233,8 @@ export type SubscriptionsMaxAggregateInputType = {
   usedTraffic?: true
   lifeTimeUsedTraffic?: true
   trafficReset?: true
+  happCryptoUrl?: true
+  days?: true
   createdAt?: true
   updatedAt?: true
   expiredAt?: true
@@ -255,6 +269,8 @@ export type SubscriptionsCountAggregateInputType = {
   lifeTimeUsedTraffic?: true
   trafficReset?: true
   marzbanData?: true
+  happCryptoUrl?: true
+  days?: true
   createdAt?: true
   updatedAt?: true
   expiredAt?: true
@@ -376,6 +392,8 @@ export type SubscriptionsGroupByOutputType = {
   lifeTimeUsedTraffic: number
   trafficReset: $Enums.TrafficResetEnum
   marzbanData: runtime.JsonValue | null
+  happCryptoUrl: string | null
+  days: number
   createdAt: Date
   updatedAt: Date
   expiredAt: Date | null
@@ -433,6 +451,8 @@ export type SubscriptionsWhereInput = {
   lifeTimeUsedTraffic?: Prisma.IntFilter<"Subscriptions"> | number
   trafficReset?: Prisma.EnumTrafficResetEnumFilter<"Subscriptions"> | $Enums.TrafficResetEnum
   marzbanData?: Prisma.JsonNullableFilter<"Subscriptions">
+  happCryptoUrl?: Prisma.StringNullableFilter<"Subscriptions"> | string | null
+  days?: Prisma.IntFilter<"Subscriptions"> | number
   createdAt?: Prisma.DateTimeFilter<"Subscriptions"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subscriptions"> | Date | string
   expiredAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
@@ -444,6 +464,7 @@ export type SubscriptionsWhereInput = {
   servers?: Prisma.SubscriptionToGreenListListRelationFilter
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   payment?: Prisma.PaymentsListRelationFilter
+  devices?: Prisma.DevicesListRelationFilter
 }
 
 export type SubscriptionsOrderByWithRelationInput = {
@@ -471,6 +492,8 @@ export type SubscriptionsOrderByWithRelationInput = {
   lifeTimeUsedTraffic?: Prisma.SortOrder
   trafficReset?: Prisma.SortOrder
   marzbanData?: Prisma.SortOrderInput | Prisma.SortOrder
+  happCryptoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  days?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   expiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -482,6 +505,7 @@ export type SubscriptionsOrderByWithRelationInput = {
   servers?: Prisma.SubscriptionToGreenListOrderByRelationAggregateInput
   user?: Prisma.UsersOrderByWithRelationInput
   payment?: Prisma.PaymentsOrderByRelationAggregateInput
+  devices?: Prisma.DevicesOrderByRelationAggregateInput
 }
 
 export type SubscriptionsWhereUniqueInput = Prisma.AtLeast<{
@@ -512,6 +536,8 @@ export type SubscriptionsWhereUniqueInput = Prisma.AtLeast<{
   lifeTimeUsedTraffic?: Prisma.IntFilter<"Subscriptions"> | number
   trafficReset?: Prisma.EnumTrafficResetEnumFilter<"Subscriptions"> | $Enums.TrafficResetEnum
   marzbanData?: Prisma.JsonNullableFilter<"Subscriptions">
+  happCryptoUrl?: Prisma.StringNullableFilter<"Subscriptions"> | string | null
+  days?: Prisma.IntFilter<"Subscriptions"> | number
   createdAt?: Prisma.DateTimeFilter<"Subscriptions"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subscriptions"> | Date | string
   expiredAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
@@ -523,6 +549,7 @@ export type SubscriptionsWhereUniqueInput = Prisma.AtLeast<{
   servers?: Prisma.SubscriptionToGreenListListRelationFilter
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   payment?: Prisma.PaymentsListRelationFilter
+  devices?: Prisma.DevicesListRelationFilter
 }, "id" | "username" | "token">
 
 export type SubscriptionsOrderByWithAggregationInput = {
@@ -550,6 +577,8 @@ export type SubscriptionsOrderByWithAggregationInput = {
   lifeTimeUsedTraffic?: Prisma.SortOrder
   trafficReset?: Prisma.SortOrder
   marzbanData?: Prisma.SortOrderInput | Prisma.SortOrder
+  happCryptoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  days?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   expiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -592,6 +621,8 @@ export type SubscriptionsScalarWhereWithAggregatesInput = {
   lifeTimeUsedTraffic?: Prisma.IntWithAggregatesFilter<"Subscriptions"> | number
   trafficReset?: Prisma.EnumTrafficResetEnumWithAggregatesFilter<"Subscriptions"> | $Enums.TrafficResetEnum
   marzbanData?: Prisma.JsonNullableWithAggregatesFilter<"Subscriptions">
+  happCryptoUrl?: Prisma.StringNullableWithAggregatesFilter<"Subscriptions"> | string | null
+  days?: Prisma.IntWithAggregatesFilter<"Subscriptions"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Subscriptions"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Subscriptions"> | Date | string
   expiredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscriptions"> | Date | string | null
@@ -625,6 +656,8 @@ export type SubscriptionsCreateInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -635,6 +668,7 @@ export type SubscriptionsCreateInput = {
   servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
   user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
   payment?: Prisma.PaymentsCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsUncheckedCreateInput = {
@@ -662,6 +696,8 @@ export type SubscriptionsUncheckedCreateInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -671,6 +707,7 @@ export type SubscriptionsUncheckedCreateInput = {
   userId: string
   servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
   payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesUncheckedCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsUpdateInput = {
@@ -697,6 +734,8 @@ export type SubscriptionsUpdateInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -707,6 +746,7 @@ export type SubscriptionsUpdateInput = {
   servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
   payment?: Prisma.PaymentsUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsUncheckedUpdateInput = {
@@ -734,6 +774,8 @@ export type SubscriptionsUncheckedUpdateInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -743,6 +785,7 @@ export type SubscriptionsUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
   payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUncheckedUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsCreateManyInput = {
@@ -770,6 +813,8 @@ export type SubscriptionsCreateManyInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -803,6 +848,8 @@ export type SubscriptionsUpdateManyMutationInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -836,6 +883,8 @@ export type SubscriptionsUncheckedUpdateManyInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -880,6 +929,8 @@ export type SubscriptionsCountOrderByAggregateInput = {
   lifeTimeUsedTraffic?: Prisma.SortOrder
   trafficReset?: Prisma.SortOrder
   marzbanData?: Prisma.SortOrder
+  happCryptoUrl?: Prisma.SortOrder
+  days?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   expiredAt?: Prisma.SortOrder
@@ -897,6 +948,7 @@ export type SubscriptionsAvgOrderByAggregateInput = {
   dataLimit?: Prisma.SortOrder
   usedTraffic?: Prisma.SortOrder
   lifeTimeUsedTraffic?: Prisma.SortOrder
+  days?: Prisma.SortOrder
 }
 
 export type SubscriptionsMaxOrderByAggregateInput = {
@@ -922,6 +974,8 @@ export type SubscriptionsMaxOrderByAggregateInput = {
   usedTraffic?: Prisma.SortOrder
   lifeTimeUsedTraffic?: Prisma.SortOrder
   trafficReset?: Prisma.SortOrder
+  happCryptoUrl?: Prisma.SortOrder
+  days?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   expiredAt?: Prisma.SortOrder
@@ -954,6 +1008,8 @@ export type SubscriptionsMinOrderByAggregateInput = {
   usedTraffic?: Prisma.SortOrder
   lifeTimeUsedTraffic?: Prisma.SortOrder
   trafficReset?: Prisma.SortOrder
+  happCryptoUrl?: Prisma.SortOrder
+  days?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   expiredAt?: Prisma.SortOrder
@@ -971,6 +1027,7 @@ export type SubscriptionsSumOrderByAggregateInput = {
   dataLimit?: Prisma.SortOrder
   usedTraffic?: Prisma.SortOrder
   lifeTimeUsedTraffic?: Prisma.SortOrder
+  days?: Prisma.SortOrder
 }
 
 export type SubscriptionsScalarRelationFilter = {
@@ -1075,6 +1132,20 @@ export type EnumTrafficResetEnumFieldUpdateOperationsInput = {
   set?: $Enums.TrafficResetEnum
 }
 
+export type SubscriptionsCreateNestedOneWithoutDevicesInput = {
+  create?: Prisma.XOR<Prisma.SubscriptionsCreateWithoutDevicesInput, Prisma.SubscriptionsUncheckedCreateWithoutDevicesInput>
+  connectOrCreate?: Prisma.SubscriptionsCreateOrConnectWithoutDevicesInput
+  connect?: Prisma.SubscriptionsWhereUniqueInput
+}
+
+export type SubscriptionsUpdateOneRequiredWithoutDevicesNestedInput = {
+  create?: Prisma.XOR<Prisma.SubscriptionsCreateWithoutDevicesInput, Prisma.SubscriptionsUncheckedCreateWithoutDevicesInput>
+  connectOrCreate?: Prisma.SubscriptionsCreateOrConnectWithoutDevicesInput
+  upsert?: Prisma.SubscriptionsUpsertWithoutDevicesInput
+  connect?: Prisma.SubscriptionsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SubscriptionsUpdateToOneWithWhereWithoutDevicesInput, Prisma.SubscriptionsUpdateWithoutDevicesInput>, Prisma.SubscriptionsUncheckedUpdateWithoutDevicesInput>
+}
+
 export type SubscriptionsCreateNestedOneWithoutServersInput = {
   create?: Prisma.XOR<Prisma.SubscriptionsCreateWithoutServersInput, Prisma.SubscriptionsUncheckedCreateWithoutServersInput>
   connectOrCreate?: Prisma.SubscriptionsCreateOrConnectWithoutServersInput
@@ -1129,6 +1200,8 @@ export type SubscriptionsCreateWithoutUserInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1138,6 +1211,7 @@ export type SubscriptionsCreateWithoutUserInput = {
   plan?: Prisma.PlansCreateNestedOneWithoutSubscriptionsInput
   servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
   payment?: Prisma.PaymentsCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsUncheckedCreateWithoutUserInput = {
@@ -1165,6 +1239,8 @@ export type SubscriptionsUncheckedCreateWithoutUserInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1173,6 +1249,7 @@ export type SubscriptionsUncheckedCreateWithoutUserInput = {
   deletedAt?: Date | string | null
   servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
   payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesUncheckedCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsCreateOrConnectWithoutUserInput = {
@@ -1229,6 +1306,8 @@ export type SubscriptionsScalarWhereInput = {
   lifeTimeUsedTraffic?: Prisma.IntFilter<"Subscriptions"> | number
   trafficReset?: Prisma.EnumTrafficResetEnumFilter<"Subscriptions"> | $Enums.TrafficResetEnum
   marzbanData?: Prisma.JsonNullableFilter<"Subscriptions">
+  happCryptoUrl?: Prisma.StringNullableFilter<"Subscriptions"> | string | null
+  days?: Prisma.IntFilter<"Subscriptions"> | number
   createdAt?: Prisma.DateTimeFilter<"Subscriptions"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subscriptions"> | Date | string
   expiredAt?: Prisma.DateTimeNullableFilter<"Subscriptions"> | Date | string | null
@@ -1262,6 +1341,8 @@ export type SubscriptionsCreateWithoutPlanInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1271,6 +1352,7 @@ export type SubscriptionsCreateWithoutPlanInput = {
   servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
   user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
   payment?: Prisma.PaymentsCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsUncheckedCreateWithoutPlanInput = {
@@ -1297,6 +1379,8 @@ export type SubscriptionsUncheckedCreateWithoutPlanInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1306,6 +1390,7 @@ export type SubscriptionsUncheckedCreateWithoutPlanInput = {
   userId: string
   servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
   payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesUncheckedCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsCreateOrConnectWithoutPlanInput = {
@@ -1334,6 +1419,174 @@ export type SubscriptionsUpdateManyWithWhereWithoutPlanInput = {
   data: Prisma.XOR<Prisma.SubscriptionsUpdateManyMutationInput, Prisma.SubscriptionsUncheckedUpdateManyWithoutPlanInput>
 }
 
+export type SubscriptionsCreateWithoutDevicesInput = {
+  id?: string
+  username: string
+  name?: string
+  isActive?: boolean
+  isAutoRenewal?: boolean
+  token: string
+  period?: $Enums.SubscriptionPeriodEnum
+  periodMultiplier?: number
+  announce?: string | null
+  nextRenewalStars?: number | null
+  isPremium?: boolean
+  devicesCount?: number
+  isAllBaseServers?: boolean
+  isAllPremiumServers?: boolean
+  trafficLimitGb?: number | null
+  isUnlimitTraffic?: boolean
+  links?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastUserAgent?: string | null
+  dataLimit?: number
+  usedTraffic?: number
+  lifeTimeUsedTraffic?: number
+  trafficReset?: $Enums.TrafficResetEnum
+  marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  expiredAt?: Date | string | null
+  removalAt?: Date | string | null
+  onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
+  plan?: Prisma.PlansCreateNestedOneWithoutSubscriptionsInput
+  servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
+  user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
+  payment?: Prisma.PaymentsCreateNestedManyWithoutSubscriptionInput
+}
+
+export type SubscriptionsUncheckedCreateWithoutDevicesInput = {
+  id?: string
+  username: string
+  name?: string
+  planKey?: $Enums.PlansEnum
+  isActive?: boolean
+  isAutoRenewal?: boolean
+  token: string
+  period?: $Enums.SubscriptionPeriodEnum
+  periodMultiplier?: number
+  announce?: string | null
+  nextRenewalStars?: number | null
+  isPremium?: boolean
+  devicesCount?: number
+  isAllBaseServers?: boolean
+  isAllPremiumServers?: boolean
+  trafficLimitGb?: number | null
+  isUnlimitTraffic?: boolean
+  links?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastUserAgent?: string | null
+  dataLimit?: number
+  usedTraffic?: number
+  lifeTimeUsedTraffic?: number
+  trafficReset?: $Enums.TrafficResetEnum
+  marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  expiredAt?: Date | string | null
+  removalAt?: Date | string | null
+  onlineAt?: Date | string | null
+  deletedAt?: Date | string | null
+  userId: string
+  servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
+  payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
+}
+
+export type SubscriptionsCreateOrConnectWithoutDevicesInput = {
+  where: Prisma.SubscriptionsWhereUniqueInput
+  create: Prisma.XOR<Prisma.SubscriptionsCreateWithoutDevicesInput, Prisma.SubscriptionsUncheckedCreateWithoutDevicesInput>
+}
+
+export type SubscriptionsUpsertWithoutDevicesInput = {
+  update: Prisma.XOR<Prisma.SubscriptionsUpdateWithoutDevicesInput, Prisma.SubscriptionsUncheckedUpdateWithoutDevicesInput>
+  create: Prisma.XOR<Prisma.SubscriptionsCreateWithoutDevicesInput, Prisma.SubscriptionsUncheckedCreateWithoutDevicesInput>
+  where?: Prisma.SubscriptionsWhereInput
+}
+
+export type SubscriptionsUpdateToOneWithWhereWithoutDevicesInput = {
+  where?: Prisma.SubscriptionsWhereInput
+  data: Prisma.XOR<Prisma.SubscriptionsUpdateWithoutDevicesInput, Prisma.SubscriptionsUncheckedUpdateWithoutDevicesInput>
+}
+
+export type SubscriptionsUpdateWithoutDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  period?: Prisma.EnumSubscriptionPeriodEnumFieldUpdateOperationsInput | $Enums.SubscriptionPeriodEnum
+  periodMultiplier?: Prisma.IntFieldUpdateOperationsInput | number
+  announce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextRenewalStars?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isAllBaseServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAllPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  trafficLimitGb?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  links?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataLimit?: Prisma.IntFieldUpdateOperationsInput | number
+  usedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
+  lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
+  trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
+  marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plan?: Prisma.PlansUpdateOneRequiredWithoutSubscriptionsNestedInput
+  servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
+  user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
+  payment?: Prisma.PaymentsUpdateManyWithoutSubscriptionNestedInput
+}
+
+export type SubscriptionsUncheckedUpdateWithoutDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  planKey?: Prisma.EnumPlansEnumFieldUpdateOperationsInput | $Enums.PlansEnum
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  period?: Prisma.EnumSubscriptionPeriodEnumFieldUpdateOperationsInput | $Enums.SubscriptionPeriodEnum
+  periodMultiplier?: Prisma.IntFieldUpdateOperationsInput | number
+  announce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextRenewalStars?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isAllBaseServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAllPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  trafficLimitGb?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  links?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataLimit?: Prisma.IntFieldUpdateOperationsInput | number
+  usedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
+  lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
+  trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
+  marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  removalAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
+  payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
+}
+
 export type SubscriptionsCreateWithoutServersInput = {
   id?: string
   username: string
@@ -1358,6 +1611,8 @@ export type SubscriptionsCreateWithoutServersInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1367,6 +1622,7 @@ export type SubscriptionsCreateWithoutServersInput = {
   plan?: Prisma.PlansCreateNestedOneWithoutSubscriptionsInput
   user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
   payment?: Prisma.PaymentsCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsUncheckedCreateWithoutServersInput = {
@@ -1394,6 +1650,8 @@ export type SubscriptionsUncheckedCreateWithoutServersInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1402,6 +1660,7 @@ export type SubscriptionsUncheckedCreateWithoutServersInput = {
   deletedAt?: Date | string | null
   userId: string
   payment?: Prisma.PaymentsUncheckedCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesUncheckedCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsCreateOrConnectWithoutServersInput = {
@@ -1444,6 +1703,8 @@ export type SubscriptionsUpdateWithoutServersInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1453,6 +1714,7 @@ export type SubscriptionsUpdateWithoutServersInput = {
   plan?: Prisma.PlansUpdateOneRequiredWithoutSubscriptionsNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
   payment?: Prisma.PaymentsUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsUncheckedUpdateWithoutServersInput = {
@@ -1480,6 +1742,8 @@ export type SubscriptionsUncheckedUpdateWithoutServersInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1488,6 +1752,7 @@ export type SubscriptionsUncheckedUpdateWithoutServersInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUncheckedUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsCreateWithoutPaymentInput = {
@@ -1514,6 +1779,8 @@ export type SubscriptionsCreateWithoutPaymentInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1523,6 +1790,7 @@ export type SubscriptionsCreateWithoutPaymentInput = {
   plan?: Prisma.PlansCreateNestedOneWithoutSubscriptionsInput
   servers?: Prisma.SubscriptionToGreenListCreateNestedManyWithoutSubscriptionInput
   user: Prisma.UsersCreateNestedOneWithoutSubscriptionsInput
+  devices?: Prisma.DevicesCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsUncheckedCreateWithoutPaymentInput = {
@@ -1550,6 +1818,8 @@ export type SubscriptionsUncheckedCreateWithoutPaymentInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1558,6 +1828,7 @@ export type SubscriptionsUncheckedCreateWithoutPaymentInput = {
   deletedAt?: Date | string | null
   userId: string
   servers?: Prisma.SubscriptionToGreenListUncheckedCreateNestedManyWithoutSubscriptionInput
+  devices?: Prisma.DevicesUncheckedCreateNestedManyWithoutSubscriptionInput
 }
 
 export type SubscriptionsCreateOrConnectWithoutPaymentInput = {
@@ -1600,6 +1871,8 @@ export type SubscriptionsUpdateWithoutPaymentInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1609,6 +1882,7 @@ export type SubscriptionsUpdateWithoutPaymentInput = {
   plan?: Prisma.PlansUpdateOneRequiredWithoutSubscriptionsNestedInput
   servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
+  devices?: Prisma.DevicesUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsUncheckedUpdateWithoutPaymentInput = {
@@ -1636,6 +1910,8 @@ export type SubscriptionsUncheckedUpdateWithoutPaymentInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1644,6 +1920,7 @@ export type SubscriptionsUncheckedUpdateWithoutPaymentInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUncheckedUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsCreateManyUserInput = {
@@ -1671,6 +1948,8 @@ export type SubscriptionsCreateManyUserInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1703,6 +1982,8 @@ export type SubscriptionsUpdateWithoutUserInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1712,6 +1993,7 @@ export type SubscriptionsUpdateWithoutUserInput = {
   plan?: Prisma.PlansUpdateOneRequiredWithoutSubscriptionsNestedInput
   servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
   payment?: Prisma.PaymentsUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsUncheckedUpdateWithoutUserInput = {
@@ -1739,6 +2021,8 @@ export type SubscriptionsUncheckedUpdateWithoutUserInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1747,6 +2031,7 @@ export type SubscriptionsUncheckedUpdateWithoutUserInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
   payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUncheckedUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsUncheckedUpdateManyWithoutUserInput = {
@@ -1774,6 +2059,8 @@ export type SubscriptionsUncheckedUpdateManyWithoutUserInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1806,6 +2093,8 @@ export type SubscriptionsCreateManyPlanInput = {
   lifeTimeUsedTraffic?: number
   trafficReset?: $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: string | null
+  days?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   expiredAt?: Date | string | null
@@ -1839,6 +2128,8 @@ export type SubscriptionsUpdateWithoutPlanInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1848,6 +2139,7 @@ export type SubscriptionsUpdateWithoutPlanInput = {
   servers?: Prisma.SubscriptionToGreenListUpdateManyWithoutSubscriptionNestedInput
   user?: Prisma.UsersUpdateOneRequiredWithoutSubscriptionsNestedInput
   payment?: Prisma.PaymentsUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsUncheckedUpdateWithoutPlanInput = {
@@ -1874,6 +2166,8 @@ export type SubscriptionsUncheckedUpdateWithoutPlanInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1883,6 +2177,7 @@ export type SubscriptionsUncheckedUpdateWithoutPlanInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   servers?: Prisma.SubscriptionToGreenListUncheckedUpdateManyWithoutSubscriptionNestedInput
   payment?: Prisma.PaymentsUncheckedUpdateManyWithoutSubscriptionNestedInput
+  devices?: Prisma.DevicesUncheckedUpdateManyWithoutSubscriptionNestedInput
 }
 
 export type SubscriptionsUncheckedUpdateManyWithoutPlanInput = {
@@ -1909,6 +2204,8 @@ export type SubscriptionsUncheckedUpdateManyWithoutPlanInput = {
   lifeTimeUsedTraffic?: Prisma.IntFieldUpdateOperationsInput | number
   trafficReset?: Prisma.EnumTrafficResetEnumFieldUpdateOperationsInput | $Enums.TrafficResetEnum
   marzbanData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  days?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1926,11 +2223,13 @@ export type SubscriptionsUncheckedUpdateManyWithoutPlanInput = {
 export type SubscriptionsCountOutputType = {
   servers: number
   payment: number
+  devices: number
 }
 
 export type SubscriptionsCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   servers?: boolean | SubscriptionsCountOutputTypeCountServersArgs
   payment?: boolean | SubscriptionsCountOutputTypeCountPaymentArgs
+  devices?: boolean | SubscriptionsCountOutputTypeCountDevicesArgs
 }
 
 /**
@@ -1955,6 +2254,13 @@ export type SubscriptionsCountOutputTypeCountServersArgs<ExtArgs extends runtime
  */
 export type SubscriptionsCountOutputTypeCountPaymentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PaymentsWhereInput
+}
+
+/**
+ * SubscriptionsCountOutputType without action
+ */
+export type SubscriptionsCountOutputTypeCountDevicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DevicesWhereInput
 }
 
 
@@ -1983,6 +2289,8 @@ export type SubscriptionsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   lifeTimeUsedTraffic?: boolean
   trafficReset?: boolean
   marzbanData?: boolean
+  happCryptoUrl?: boolean
+  days?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   expiredAt?: boolean
@@ -1994,6 +2302,7 @@ export type SubscriptionsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   servers?: boolean | Prisma.Subscriptions$serversArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   payment?: boolean | Prisma.Subscriptions$paymentArgs<ExtArgs>
+  devices?: boolean | Prisma.Subscriptions$devicesArgs<ExtArgs>
   _count?: boolean | Prisma.SubscriptionsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["subscriptions"]>
 
@@ -2022,6 +2331,8 @@ export type SubscriptionsSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   lifeTimeUsedTraffic?: boolean
   trafficReset?: boolean
   marzbanData?: boolean
+  happCryptoUrl?: boolean
+  days?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   expiredAt?: boolean
@@ -2058,6 +2369,8 @@ export type SubscriptionsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   lifeTimeUsedTraffic?: boolean
   trafficReset?: boolean
   marzbanData?: boolean
+  happCryptoUrl?: boolean
+  days?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   expiredAt?: boolean
@@ -2094,6 +2407,8 @@ export type SubscriptionsSelectScalar = {
   lifeTimeUsedTraffic?: boolean
   trafficReset?: boolean
   marzbanData?: boolean
+  happCryptoUrl?: boolean
+  days?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   expiredAt?: boolean
@@ -2103,12 +2418,13 @@ export type SubscriptionsSelectScalar = {
   userId?: boolean
 }
 
-export type SubscriptionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "name" | "planKey" | "isActive" | "isAutoRenewal" | "token" | "period" | "periodMultiplier" | "announce" | "nextRenewalStars" | "isPremium" | "devicesCount" | "isAllBaseServers" | "isAllPremiumServers" | "trafficLimitGb" | "isUnlimitTraffic" | "links" | "lastUserAgent" | "dataLimit" | "usedTraffic" | "lifeTimeUsedTraffic" | "trafficReset" | "marzbanData" | "createdAt" | "updatedAt" | "expiredAt" | "removalAt" | "onlineAt" | "deletedAt" | "userId", ExtArgs["result"]["subscriptions"]>
+export type SubscriptionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "name" | "planKey" | "isActive" | "isAutoRenewal" | "token" | "period" | "periodMultiplier" | "announce" | "nextRenewalStars" | "isPremium" | "devicesCount" | "isAllBaseServers" | "isAllPremiumServers" | "trafficLimitGb" | "isUnlimitTraffic" | "links" | "lastUserAgent" | "dataLimit" | "usedTraffic" | "lifeTimeUsedTraffic" | "trafficReset" | "marzbanData" | "happCryptoUrl" | "days" | "createdAt" | "updatedAt" | "expiredAt" | "removalAt" | "onlineAt" | "deletedAt" | "userId", ExtArgs["result"]["subscriptions"]>
 export type SubscriptionsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   plan?: boolean | Prisma.PlansDefaultArgs<ExtArgs>
   servers?: boolean | Prisma.Subscriptions$serversArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   payment?: boolean | Prisma.Subscriptions$paymentArgs<ExtArgs>
+  devices?: boolean | Prisma.Subscriptions$devicesArgs<ExtArgs>
   _count?: boolean | Prisma.SubscriptionsCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SubscriptionsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2127,6 +2443,7 @@ export type $SubscriptionsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     servers: Prisma.$SubscriptionToGreenListPayload<ExtArgs>[]
     user: Prisma.$UsersPayload<ExtArgs>
     payment: Prisma.$PaymentsPayload<ExtArgs>[]
+    devices: Prisma.$DevicesPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2153,6 +2470,8 @@ export type $SubscriptionsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     lifeTimeUsedTraffic: number
     trafficReset: $Enums.TrafficResetEnum
     marzbanData: runtime.JsonValue | null
+    happCryptoUrl: string | null
+    days: number
     createdAt: Date
     updatedAt: Date
     expiredAt: Date | null
@@ -2558,6 +2877,7 @@ export interface Prisma__SubscriptionsClient<T, Null = never, ExtArgs extends ru
   servers<T extends Prisma.Subscriptions$serversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Subscriptions$serversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionToGreenListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   user<T extends Prisma.UsersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UsersDefaultArgs<ExtArgs>>): Prisma.Prisma__UsersClient<runtime.Types.Result.GetResult<Prisma.$UsersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   payment<T extends Prisma.Subscriptions$paymentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Subscriptions$paymentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  devices<T extends Prisma.Subscriptions$devicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Subscriptions$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DevicesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2611,6 +2931,8 @@ export interface SubscriptionsFieldRefs {
   readonly lifeTimeUsedTraffic: Prisma.FieldRef<"Subscriptions", 'Int'>
   readonly trafficReset: Prisma.FieldRef<"Subscriptions", 'TrafficResetEnum'>
   readonly marzbanData: Prisma.FieldRef<"Subscriptions", 'Json'>
+  readonly happCryptoUrl: Prisma.FieldRef<"Subscriptions", 'String'>
+  readonly days: Prisma.FieldRef<"Subscriptions", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Subscriptions", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Subscriptions", 'DateTime'>
   readonly expiredAt: Prisma.FieldRef<"Subscriptions", 'DateTime'>
@@ -3059,6 +3381,30 @@ export type Subscriptions$paymentArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.PaymentsScalarFieldEnum | Prisma.PaymentsScalarFieldEnum[]
+}
+
+/**
+ * Subscriptions.devices
+ */
+export type Subscriptions$devicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Devices
+   */
+  select?: Prisma.DevicesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Devices
+   */
+  omit?: Prisma.DevicesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DevicesInclude<ExtArgs> | null
+  where?: Prisma.DevicesWhereInput
+  orderBy?: Prisma.DevicesOrderByWithRelationInput | Prisma.DevicesOrderByWithRelationInput[]
+  cursor?: Prisma.DevicesWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DevicesScalarFieldEnum | Prisma.DevicesScalarFieldEnum[]
 }
 
 /**

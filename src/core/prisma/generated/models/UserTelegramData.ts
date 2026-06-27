@@ -781,10 +781,6 @@ export type UserTelegramDataNullableScalarRelationFilter = {
   isNot?: Prisma.UserTelegramDataWhereInput | null
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
 export type NullableBoolFieldUpdateOperationsInput = {
   set?: boolean | null
 }

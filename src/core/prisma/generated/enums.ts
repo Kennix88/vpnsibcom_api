@@ -102,7 +102,8 @@ export const PlansEnum = {
   PREMIUM: 'PREMIUM',
   ULTIMATE: 'ULTIMATE',
   CUSTOM: 'CUSTOM',
-  TRAFFIC: 'TRAFFIC'
+  TRAFFIC: 'TRAFFIC',
+  NEW_ERA: 'NEW_ERA'
 } as const
 
 export type PlansEnum = (typeof PlansEnum)[keyof typeof PlansEnum]
@@ -119,6 +120,17 @@ export const TrafficResetEnum = {
 export type TrafficResetEnum = (typeof TrafficResetEnum)[keyof typeof TrafficResetEnum]
 
 
+export const SubscriptionExtensionsEnum = {
+  PREMIUM: 'PREMIUM',
+  CHANNEL: 'CHANNEL',
+  CHAT: 'CHAT',
+  BIO: 'BIO',
+  NAME: 'NAME'
+} as const
+
+export type SubscriptionExtensionsEnum = (typeof SubscriptionExtensionsEnum)[keyof typeof SubscriptionExtensionsEnum]
+
+
 export const SubscriptionPeriodEnum = {
   TRIAL: 'TRIAL',
   TRAFFIC: 'TRAFFIC',
@@ -131,7 +143,8 @@ export const SubscriptionPeriodEnum = {
   YEAR: 'YEAR',
   TWO_YEAR: 'TWO_YEAR',
   THREE_YEAR: 'THREE_YEAR',
-  INDEFINITELY: 'INDEFINITELY'
+  INDEFINITELY: 'INDEFINITELY',
+  NEW_ERA: 'NEW_ERA'
 } as const
 
 export type SubscriptionPeriodEnum = (typeof SubscriptionPeriodEnum)[keyof typeof SubscriptionPeriodEnum]

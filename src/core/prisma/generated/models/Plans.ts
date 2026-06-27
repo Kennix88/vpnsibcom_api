@@ -30,12 +30,14 @@ export type PlansAvgAggregateOutputType = {
   priceStars: number | null
   devicesCount: number | null
   trafficLimitGb: number | null
+  days: number | null
 }
 
 export type PlansSumAggregateOutputType = {
   priceStars: number | null
   devicesCount: number | null
   trafficLimitGb: number | null
+  days: number | null
 }
 
 export type PlansMinAggregateOutputType = {
@@ -50,6 +52,9 @@ export type PlansMinAggregateOutputType = {
   trafficLimitGb: number | null
   isUnlimitTraffic: boolean | null
   serversSelectType: $Enums.PlansServersSelectTypeEnum | null
+  days: number | null
+  isNoAds: boolean | null
+  isRoleChat: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +71,9 @@ export type PlansMaxAggregateOutputType = {
   trafficLimitGb: number | null
   isUnlimitTraffic: boolean | null
   serversSelectType: $Enums.PlansServersSelectTypeEnum | null
+  days: number | null
+  isNoAds: boolean | null
+  isRoleChat: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -82,6 +90,9 @@ export type PlansCountAggregateOutputType = {
   trafficLimitGb: number
   isUnlimitTraffic: number
   serversSelectType: number
+  days: number
+  isNoAds: number
+  isRoleChat: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,12 +103,14 @@ export type PlansAvgAggregateInputType = {
   priceStars?: true
   devicesCount?: true
   trafficLimitGb?: true
+  days?: true
 }
 
 export type PlansSumAggregateInputType = {
   priceStars?: true
   devicesCount?: true
   trafficLimitGb?: true
+  days?: true
 }
 
 export type PlansMinAggregateInputType = {
@@ -112,6 +125,9 @@ export type PlansMinAggregateInputType = {
   trafficLimitGb?: true
   isUnlimitTraffic?: true
   serversSelectType?: true
+  days?: true
+  isNoAds?: true
+  isRoleChat?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -128,6 +144,9 @@ export type PlansMaxAggregateInputType = {
   trafficLimitGb?: true
   isUnlimitTraffic?: true
   serversSelectType?: true
+  days?: true
+  isNoAds?: true
+  isRoleChat?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -144,6 +163,9 @@ export type PlansCountAggregateInputType = {
   trafficLimitGb?: true
   isUnlimitTraffic?: true
   serversSelectType?: true
+  days?: true
+  isNoAds?: true
+  isRoleChat?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -247,6 +269,9 @@ export type PlansGroupByOutputType = {
   trafficLimitGb: number | null
   isUnlimitTraffic: boolean
   serversSelectType: $Enums.PlansServersSelectTypeEnum
+  days: number | null
+  isNoAds: boolean
+  isRoleChat: boolean
   createdAt: Date
   updatedAt: Date
   _count: PlansCountAggregateOutputType | null
@@ -286,6 +311,9 @@ export type PlansWhereInput = {
   trafficLimitGb?: Prisma.FloatNullableFilter<"Plans"> | number | null
   isUnlimitTraffic?: Prisma.BoolFilter<"Plans"> | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumFilter<"Plans"> | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.IntNullableFilter<"Plans"> | number | null
+  isNoAds?: Prisma.BoolFilter<"Plans"> | boolean
+  isRoleChat?: Prisma.BoolFilter<"Plans"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Plans"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plans"> | Date | string
   Subscriptions?: Prisma.SubscriptionsListRelationFilter
@@ -303,6 +331,9 @@ export type PlansOrderByWithRelationInput = {
   trafficLimitGb?: Prisma.SortOrderInput | Prisma.SortOrder
   isUnlimitTraffic?: Prisma.SortOrder
   serversSelectType?: Prisma.SortOrder
+  days?: Prisma.SortOrderInput | Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   Subscriptions?: Prisma.SubscriptionsOrderByRelationAggregateInput
@@ -323,6 +354,9 @@ export type PlansWhereUniqueInput = Prisma.AtLeast<{
   trafficLimitGb?: Prisma.FloatNullableFilter<"Plans"> | number | null
   isUnlimitTraffic?: Prisma.BoolFilter<"Plans"> | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumFilter<"Plans"> | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.IntNullableFilter<"Plans"> | number | null
+  isNoAds?: Prisma.BoolFilter<"Plans"> | boolean
+  isRoleChat?: Prisma.BoolFilter<"Plans"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Plans"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plans"> | Date | string
   Subscriptions?: Prisma.SubscriptionsListRelationFilter
@@ -340,6 +374,9 @@ export type PlansOrderByWithAggregationInput = {
   trafficLimitGb?: Prisma.SortOrderInput | Prisma.SortOrder
   isUnlimitTraffic?: Prisma.SortOrder
   serversSelectType?: Prisma.SortOrder
+  days?: Prisma.SortOrderInput | Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PlansCountOrderByAggregateInput
@@ -364,6 +401,9 @@ export type PlansScalarWhereWithAggregatesInput = {
   trafficLimitGb?: Prisma.FloatNullableWithAggregatesFilter<"Plans"> | number | null
   isUnlimitTraffic?: Prisma.BoolWithAggregatesFilter<"Plans"> | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumWithAggregatesFilter<"Plans"> | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.IntNullableWithAggregatesFilter<"Plans"> | number | null
+  isNoAds?: Prisma.BoolWithAggregatesFilter<"Plans"> | boolean
+  isRoleChat?: Prisma.BoolWithAggregatesFilter<"Plans"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Plans"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Plans"> | Date | string
 }
@@ -380,6 +420,9 @@ export type PlansCreateInput = {
   trafficLimitGb?: number | null
   isUnlimitTraffic?: boolean
   serversSelectType?: $Enums.PlansServersSelectTypeEnum
+  days?: number | null
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   Subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutPlanInput
@@ -397,6 +440,9 @@ export type PlansUncheckedCreateInput = {
   trafficLimitGb?: number | null
   isUnlimitTraffic?: boolean
   serversSelectType?: $Enums.PlansServersSelectTypeEnum
+  days?: number | null
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   Subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutPlanInput
@@ -414,6 +460,9 @@ export type PlansUpdateInput = {
   trafficLimitGb?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumFieldUpdateOperationsInput | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Subscriptions?: Prisma.SubscriptionsUpdateManyWithoutPlanNestedInput
@@ -431,6 +480,9 @@ export type PlansUncheckedUpdateInput = {
   trafficLimitGb?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumFieldUpdateOperationsInput | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutPlanNestedInput
@@ -448,6 +500,9 @@ export type PlansCreateManyInput = {
   trafficLimitGb?: number | null
   isUnlimitTraffic?: boolean
   serversSelectType?: $Enums.PlansServersSelectTypeEnum
+  days?: number | null
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -464,6 +519,9 @@ export type PlansUpdateManyMutationInput = {
   trafficLimitGb?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumFieldUpdateOperationsInput | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -480,6 +538,9 @@ export type PlansUncheckedUpdateManyInput = {
   trafficLimitGb?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumFieldUpdateOperationsInput | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -496,6 +557,9 @@ export type PlansCountOrderByAggregateInput = {
   trafficLimitGb?: Prisma.SortOrder
   isUnlimitTraffic?: Prisma.SortOrder
   serversSelectType?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -504,6 +568,7 @@ export type PlansAvgOrderByAggregateInput = {
   priceStars?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
   trafficLimitGb?: Prisma.SortOrder
+  days?: Prisma.SortOrder
 }
 
 export type PlansMaxOrderByAggregateInput = {
@@ -518,6 +583,9 @@ export type PlansMaxOrderByAggregateInput = {
   trafficLimitGb?: Prisma.SortOrder
   isUnlimitTraffic?: Prisma.SortOrder
   serversSelectType?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -534,6 +602,9 @@ export type PlansMinOrderByAggregateInput = {
   trafficLimitGb?: Prisma.SortOrder
   isUnlimitTraffic?: Prisma.SortOrder
   serversSelectType?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -542,6 +613,7 @@ export type PlansSumOrderByAggregateInput = {
   priceStars?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
   trafficLimitGb?: Prisma.SortOrder
+  days?: Prisma.SortOrder
 }
 
 export type PlansScalarRelationFilter = {
@@ -591,6 +663,9 @@ export type PlansCreateWithoutSubscriptionsInput = {
   trafficLimitGb?: number | null
   isUnlimitTraffic?: boolean
   serversSelectType?: $Enums.PlansServersSelectTypeEnum
+  days?: number | null
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -607,6 +682,9 @@ export type PlansUncheckedCreateWithoutSubscriptionsInput = {
   trafficLimitGb?: number | null
   isUnlimitTraffic?: boolean
   serversSelectType?: $Enums.PlansServersSelectTypeEnum
+  days?: number | null
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -639,6 +717,9 @@ export type PlansUpdateWithoutSubscriptionsInput = {
   trafficLimitGb?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumFieldUpdateOperationsInput | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -655,6 +736,9 @@ export type PlansUncheckedUpdateWithoutSubscriptionsInput = {
   trafficLimitGb?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serversSelectType?: Prisma.EnumPlansServersSelectTypeEnumFieldUpdateOperationsInput | $Enums.PlansServersSelectTypeEnum
+  days?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -702,6 +786,9 @@ export type PlansSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   trafficLimitGb?: boolean
   isUnlimitTraffic?: boolean
   serversSelectType?: boolean
+  days?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Subscriptions?: boolean | Prisma.Plans$SubscriptionsArgs<ExtArgs>
@@ -720,6 +807,9 @@ export type PlansSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   trafficLimitGb?: boolean
   isUnlimitTraffic?: boolean
   serversSelectType?: boolean
+  days?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["plans"]>
@@ -736,6 +826,9 @@ export type PlansSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   trafficLimitGb?: boolean
   isUnlimitTraffic?: boolean
   serversSelectType?: boolean
+  days?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["plans"]>
@@ -752,11 +845,14 @@ export type PlansSelectScalar = {
   trafficLimitGb?: boolean
   isUnlimitTraffic?: boolean
   serversSelectType?: boolean
+  days?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PlansOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "isActive" | "name" | "priceStars" | "isCustom" | "devicesCount" | "isAllBaseServers" | "isAllPremiumServers" | "trafficLimitGb" | "isUnlimitTraffic" | "serversSelectType" | "createdAt" | "updatedAt", ExtArgs["result"]["plans"]>
+export type PlansOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "isActive" | "name" | "priceStars" | "isCustom" | "devicesCount" | "isAllBaseServers" | "isAllPremiumServers" | "trafficLimitGb" | "isUnlimitTraffic" | "serversSelectType" | "days" | "isNoAds" | "isRoleChat" | "createdAt" | "updatedAt", ExtArgs["result"]["plans"]>
 export type PlansInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Subscriptions?: boolean | Prisma.Plans$SubscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.PlansCountOutputTypeDefaultArgs<ExtArgs>
@@ -781,6 +877,9 @@ export type $PlansPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     trafficLimitGb: number | null
     isUnlimitTraffic: boolean
     serversSelectType: $Enums.PlansServersSelectTypeEnum
+    days: number | null
+    isNoAds: boolean
+    isRoleChat: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["plans"]>
@@ -1218,6 +1317,9 @@ export interface PlansFieldRefs {
   readonly trafficLimitGb: Prisma.FieldRef<"Plans", 'Float'>
   readonly isUnlimitTraffic: Prisma.FieldRef<"Plans", 'Boolean'>
   readonly serversSelectType: Prisma.FieldRef<"Plans", 'PlansServersSelectTypeEnum'>
+  readonly days: Prisma.FieldRef<"Plans", 'Int'>
+  readonly isNoAds: Prisma.FieldRef<"Plans", 'Boolean'>
+  readonly isRoleChat: Prisma.FieldRef<"Plans", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Plans", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Plans", 'DateTime'>
 }

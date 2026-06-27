@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.0.1
- * Query Engine version: f09f2815f091dbba658cdcd2264306d88bb5bda6
+ * Prisma Client JS version: 7.0.0
+ * Query Engine version: 0c19ccc313cf9911a90d99d2ac2eb0280c76c513
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.0.1",
-  engine: "f09f2815f091dbba658cdcd2264306d88bb5bda6"
+  client: "7.0.0",
+  engine: "0c19ccc313cf9911a90d99d2ac2eb0280c76c513"
 }
 
 /**
@@ -400,6 +400,8 @@ export const ModelName = {
   GreenList: 'GreenList',
   Plans: 'Plans',
   Subscriptions: 'Subscriptions',
+  SubscriptionExtensions: 'SubscriptionExtensions',
+  Devices: 'Devices',
   SubscriptionToGreenList: 'SubscriptionToGreenList',
   XrayInbounds: 'XrayInbounds',
   Roles: 'Roles',
@@ -424,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "settings" | "userTelegramData" | "referrals" | "users" | "events" | "acquisition" | "sessions" | "userAdsData" | "adsRewards" | "adsViews" | "adsBlocks" | "adsNetworks" | "userBalance" | "greenList" | "plans" | "subscriptions" | "subscriptionToGreenList" | "xrayInbounds" | "roles" | "language" | "currency" | "transactions" | "withdrawals" | "payments" | "paymentMethods"
+    modelProps: "settings" | "userTelegramData" | "referrals" | "users" | "events" | "acquisition" | "sessions" | "userAdsData" | "adsRewards" | "adsViews" | "adsBlocks" | "adsNetworks" | "userBalance" | "greenList" | "plans" | "subscriptions" | "subscriptionExtensions" | "devices" | "subscriptionToGreenList" | "xrayInbounds" | "roles" | "language" | "currency" | "transactions" | "withdrawals" | "payments" | "paymentMethods"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1612,6 +1614,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SubscriptionExtensions: {
+      payload: Prisma.$SubscriptionExtensionsPayload<ExtArgs>
+      fields: Prisma.SubscriptionExtensionsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SubscriptionExtensionsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SubscriptionExtensionsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>
+        }
+        findFirst: {
+          args: Prisma.SubscriptionExtensionsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SubscriptionExtensionsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>
+        }
+        findMany: {
+          args: Prisma.SubscriptionExtensionsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>[]
+        }
+        create: {
+          args: Prisma.SubscriptionExtensionsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>
+        }
+        createMany: {
+          args: Prisma.SubscriptionExtensionsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SubscriptionExtensionsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>[]
+        }
+        delete: {
+          args: Prisma.SubscriptionExtensionsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>
+        }
+        update: {
+          args: Prisma.SubscriptionExtensionsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>
+        }
+        deleteMany: {
+          args: Prisma.SubscriptionExtensionsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SubscriptionExtensionsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SubscriptionExtensionsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>[]
+        }
+        upsert: {
+          args: Prisma.SubscriptionExtensionsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionExtensionsPayload>
+        }
+        aggregate: {
+          args: Prisma.SubscriptionExtensionsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSubscriptionExtensions>
+        }
+        groupBy: {
+          args: Prisma.SubscriptionExtensionsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionExtensionsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SubscriptionExtensionsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionExtensionsCountAggregateOutputType> | number
+        }
+      }
+    }
+    Devices: {
+      payload: Prisma.$DevicesPayload<ExtArgs>
+      fields: Prisma.DevicesFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DevicesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DevicesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
+        }
+        findFirst: {
+          args: Prisma.DevicesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DevicesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
+        }
+        findMany: {
+          args: Prisma.DevicesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>[]
+        }
+        create: {
+          args: Prisma.DevicesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
+        }
+        createMany: {
+          args: Prisma.DevicesCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DevicesCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>[]
+        }
+        delete: {
+          args: Prisma.DevicesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
+        }
+        update: {
+          args: Prisma.DevicesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
+        }
+        deleteMany: {
+          args: Prisma.DevicesDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DevicesUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DevicesUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>[]
+        }
+        upsert: {
+          args: Prisma.DevicesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
+        }
+        aggregate: {
+          args: Prisma.DevicesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDevices>
+        }
+        groupBy: {
+          args: Prisma.DevicesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DevicesGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DevicesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DevicesCountAggregateOutputType> | number
+        }
+      }
+    }
     SubscriptionToGreenList: {
       payload: Prisma.$SubscriptionToGreenListPayload<ExtArgs>
       fields: Prisma.SubscriptionToGreenListFieldRefs
@@ -2369,7 +2519,13 @@ export const SettingsScalarFieldEnum = {
   isActiveCheckUsers: 'isActiveCheckUsers',
   defaultAnnounce: 'defaultAnnounce',
   telegramConfigLinks: 'telegramConfigLinks',
-  routingUrl: 'routingUrl'
+  routingUrl: 'routingUrl',
+  premiumStatusPriceStars: 'premiumStatusPriceStars',
+  premiumStatusDiscountRatio: 'premiumStatusDiscountRatio',
+  subscriptionRemovalAfterInactiveDays: 'subscriptionRemovalAfterInactiveDays',
+  removeOldSubscriptionsAfter: 'removeOldSubscriptionsAfter',
+  chatId: 'chatId',
+  channelId: 'channelId'
 } as const
 
 export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -2426,6 +2582,8 @@ export const UsersScalarFieldEnum = {
   isFreePlanAvailable: 'isFreePlanAvailable',
   isBanned: 'isBanned',
   isDeleted: 'isDeleted',
+  isChannel: 'isChannel',
+  isChat: 'isChat',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   lastStartedAt: 'lastStartedAt',
@@ -2434,6 +2592,7 @@ export const UsersScalarFieldEnum = {
   tgProgramPartnerExpiredAt: 'tgProgramPartnerExpiredAt',
   nextAdsRewardAt: 'nextAdsRewardAt',
   nextAdsgramTaskAt: 'nextAdsgramTaskAt',
+  premiumExpiredAt: 'premiumExpiredAt',
   countryRegistration: 'countryRegistration',
   roleId: 'roleId',
   telegramDataId: 'telegramDataId',
@@ -2480,7 +2639,10 @@ export const AcquisitionScalarFieldEnum = {
   lastCompaingId: 'lastCompaingId',
   lastRecordId: 'lastRecordId',
   lastOtherData: 'lastOtherData',
-  lastAt: 'lastAt'
+  lastAt: 'lastAt',
+  lastIp: 'lastIp',
+  lastUserAgent: 'lastUserAgent',
+  lastTelegramPlatform: 'lastTelegramPlatform'
 } as const
 
 export type AcquisitionScalarFieldEnum = (typeof AcquisitionScalarFieldEnum)[keyof typeof AcquisitionScalarFieldEnum]
@@ -2621,6 +2783,9 @@ export const PlansScalarFieldEnum = {
   trafficLimitGb: 'trafficLimitGb',
   isUnlimitTraffic: 'isUnlimitTraffic',
   serversSelectType: 'serversSelectType',
+  days: 'days',
+  isNoAds: 'isNoAds',
+  isRoleChat: 'isRoleChat',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2653,6 +2818,8 @@ export const SubscriptionsScalarFieldEnum = {
   lifeTimeUsedTraffic: 'lifeTimeUsedTraffic',
   trafficReset: 'trafficReset',
   marzbanData: 'marzbanData',
+  happCryptoUrl: 'happCryptoUrl',
+  days: 'days',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   expiredAt: 'expiredAt',
@@ -2663,6 +2830,39 @@ export const SubscriptionsScalarFieldEnum = {
 } as const
 
 export type SubscriptionsScalarFieldEnum = (typeof SubscriptionsScalarFieldEnum)[keyof typeof SubscriptionsScalarFieldEnum]
+
+
+export const SubscriptionExtensionsScalarFieldEnum = {
+  key: 'key',
+  days: 'days',
+  devicesCount: 'devicesCount',
+  trafficLimitGb: 'trafficLimitGb',
+  isUnlimitTraffic: 'isUnlimitTraffic',
+  isPremiumServers: 'isPremiumServers',
+  isNoAds: 'isNoAds',
+  isRoleChat: 'isRoleChat'
+} as const
+
+export type SubscriptionExtensionsScalarFieldEnum = (typeof SubscriptionExtensionsScalarFieldEnum)[keyof typeof SubscriptionExtensionsScalarFieldEnum]
+
+
+export const DevicesScalarFieldEnum = {
+  id: 'id',
+  model: 'model',
+  hwid: 'hwid',
+  osVersion: 'osVersion',
+  os: 'os',
+  locale: 'locale',
+  happVersion: 'happVersion',
+  userAgent: 'userAgent',
+  token: 'token',
+  happCryptoUrl: 'happCryptoUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  subscriptionId: 'subscriptionId'
+} as const
+
+export type DevicesScalarFieldEnum = (typeof DevicesScalarFieldEnum)[keyof typeof DevicesScalarFieldEnum]
 
 
 export const SubscriptionToGreenListScalarFieldEnum = {
@@ -2687,7 +2887,14 @@ export const RolesScalarFieldEnum = {
   name: 'name',
   discount: 'discount',
   limitSubscriptions: 'limitSubscriptions',
-  minPayStars: 'minPayStars'
+  minPayStars: 'minPayStars',
+  days: 'days',
+  devicesCount: 'devicesCount',
+  trafficLimitGb: 'trafficLimitGb',
+  isUnlimitTraffic: 'isUnlimitTraffic',
+  isPremiumServers: 'isPremiumServers',
+  isNoAds: 'isNoAds',
+  isRoleChat: 'isRoleChat'
 } as const
 
 export type RolesScalarFieldEnum = (typeof RolesScalarFieldEnum)[keyof typeof RolesScalarFieldEnum]
@@ -2989,20 +3196,6 @@ export type ListEnumEventTypeEnumFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
- * Reference to a field of type 'SessionPlaceEnum'
- */
-export type EnumSessionPlaceEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SessionPlaceEnum'>
-    
-
-
-/**
- * Reference to a field of type 'SessionPlaceEnum[]'
- */
-export type ListEnumSessionPlaceEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SessionPlaceEnum[]'>
-    
-
-
-/**
  * Reference to a field of type 'TelegramPlatformEnum'
  */
 export type EnumTelegramPlatformEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TelegramPlatformEnum'>
@@ -3013,6 +3206,20 @@ export type EnumTelegramPlatformEnumFieldRefInput<$PrismaModel> = FieldRefInputT
  * Reference to a field of type 'TelegramPlatformEnum[]'
  */
 export type ListEnumTelegramPlatformEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TelegramPlatformEnum[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SessionPlaceEnum'
+ */
+export type EnumSessionPlaceEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SessionPlaceEnum'>
+    
+
+
+/**
+ * Reference to a field of type 'SessionPlaceEnum[]'
+ */
+export type ListEnumSessionPlaceEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SessionPlaceEnum[]'>
     
 
 
@@ -3111,6 +3318,20 @@ export type EnumTrafficResetEnumFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'TrafficResetEnum[]'
  */
 export type ListEnumTrafficResetEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrafficResetEnum[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionExtensionsEnum'
+ */
+export type EnumSubscriptionExtensionsEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionExtensionsEnum'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionExtensionsEnum[]'
+ */
+export type ListEnumSubscriptionExtensionsEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionExtensionsEnum[]'>
     
 
 
@@ -3362,6 +3583,8 @@ export type GlobalOmitConfig = {
   greenList?: Prisma.GreenListOmit
   plans?: Prisma.PlansOmit
   subscriptions?: Prisma.SubscriptionsOmit
+  subscriptionExtensions?: Prisma.SubscriptionExtensionsOmit
+  devices?: Prisma.DevicesOmit
   subscriptionToGreenList?: Prisma.SubscriptionToGreenListOmit
   xrayInbounds?: Prisma.XrayInboundsOmit
   roles?: Prisma.RolesOmit

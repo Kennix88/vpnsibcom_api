@@ -30,12 +30,18 @@ export type RolesAvgAggregateOutputType = {
   discount: number | null
   limitSubscriptions: number | null
   minPayStars: number | null
+  days: number | null
+  devicesCount: number | null
+  trafficLimitGb: number | null
 }
 
 export type RolesSumAggregateOutputType = {
   discount: number | null
   limitSubscriptions: number | null
   minPayStars: number | null
+  days: number | null
+  devicesCount: number | null
+  trafficLimitGb: number | null
 }
 
 export type RolesMinAggregateOutputType = {
@@ -44,6 +50,13 @@ export type RolesMinAggregateOutputType = {
   discount: number | null
   limitSubscriptions: number | null
   minPayStars: number | null
+  days: number | null
+  devicesCount: number | null
+  trafficLimitGb: number | null
+  isUnlimitTraffic: boolean | null
+  isPremiumServers: boolean | null
+  isNoAds: boolean | null
+  isRoleChat: boolean | null
 }
 
 export type RolesMaxAggregateOutputType = {
@@ -52,6 +65,13 @@ export type RolesMaxAggregateOutputType = {
   discount: number | null
   limitSubscriptions: number | null
   minPayStars: number | null
+  days: number | null
+  devicesCount: number | null
+  trafficLimitGb: number | null
+  isUnlimitTraffic: boolean | null
+  isPremiumServers: boolean | null
+  isNoAds: boolean | null
+  isRoleChat: boolean | null
 }
 
 export type RolesCountAggregateOutputType = {
@@ -60,6 +80,13 @@ export type RolesCountAggregateOutputType = {
   discount: number
   limitSubscriptions: number
   minPayStars: number
+  days: number
+  devicesCount: number
+  trafficLimitGb: number
+  isUnlimitTraffic: number
+  isPremiumServers: number
+  isNoAds: number
+  isRoleChat: number
   _all: number
 }
 
@@ -68,12 +95,18 @@ export type RolesAvgAggregateInputType = {
   discount?: true
   limitSubscriptions?: true
   minPayStars?: true
+  days?: true
+  devicesCount?: true
+  trafficLimitGb?: true
 }
 
 export type RolesSumAggregateInputType = {
   discount?: true
   limitSubscriptions?: true
   minPayStars?: true
+  days?: true
+  devicesCount?: true
+  trafficLimitGb?: true
 }
 
 export type RolesMinAggregateInputType = {
@@ -82,6 +115,13 @@ export type RolesMinAggregateInputType = {
   discount?: true
   limitSubscriptions?: true
   minPayStars?: true
+  days?: true
+  devicesCount?: true
+  trafficLimitGb?: true
+  isUnlimitTraffic?: true
+  isPremiumServers?: true
+  isNoAds?: true
+  isRoleChat?: true
 }
 
 export type RolesMaxAggregateInputType = {
@@ -90,6 +130,13 @@ export type RolesMaxAggregateInputType = {
   discount?: true
   limitSubscriptions?: true
   minPayStars?: true
+  days?: true
+  devicesCount?: true
+  trafficLimitGb?: true
+  isUnlimitTraffic?: true
+  isPremiumServers?: true
+  isNoAds?: true
+  isRoleChat?: true
 }
 
 export type RolesCountAggregateInputType = {
@@ -98,6 +145,13 @@ export type RolesCountAggregateInputType = {
   discount?: true
   limitSubscriptions?: true
   minPayStars?: true
+  days?: true
+  devicesCount?: true
+  trafficLimitGb?: true
+  isUnlimitTraffic?: true
+  isPremiumServers?: true
+  isNoAds?: true
+  isRoleChat?: true
   _all?: true
 }
 
@@ -193,6 +247,13 @@ export type RolesGroupByOutputType = {
   discount: number
   limitSubscriptions: number
   minPayStars: number
+  days: number
+  devicesCount: number
+  trafficLimitGb: number
+  isUnlimitTraffic: boolean
+  isPremiumServers: boolean
+  isNoAds: boolean
+  isRoleChat: boolean
   _count: RolesCountAggregateOutputType | null
   _avg: RolesAvgAggregateOutputType | null
   _sum: RolesSumAggregateOutputType | null
@@ -224,6 +285,13 @@ export type RolesWhereInput = {
   discount?: Prisma.FloatFilter<"Roles"> | number
   limitSubscriptions?: Prisma.IntFilter<"Roles"> | number
   minPayStars?: Prisma.IntFilter<"Roles"> | number
+  days?: Prisma.IntFilter<"Roles"> | number
+  devicesCount?: Prisma.IntFilter<"Roles"> | number
+  trafficLimitGb?: Prisma.FloatFilter<"Roles"> | number
+  isUnlimitTraffic?: Prisma.BoolFilter<"Roles"> | boolean
+  isPremiumServers?: Prisma.BoolFilter<"Roles"> | boolean
+  isNoAds?: Prisma.BoolFilter<"Roles"> | boolean
+  isRoleChat?: Prisma.BoolFilter<"Roles"> | boolean
   users?: Prisma.UsersListRelationFilter
 }
 
@@ -233,6 +301,13 @@ export type RolesOrderByWithRelationInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  devicesCount?: Prisma.SortOrder
+  trafficLimitGb?: Prisma.SortOrder
+  isUnlimitTraffic?: Prisma.SortOrder
+  isPremiumServers?: Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
   users?: Prisma.UsersOrderByRelationAggregateInput
 }
 
@@ -245,6 +320,13 @@ export type RolesWhereUniqueInput = Prisma.AtLeast<{
   discount?: Prisma.FloatFilter<"Roles"> | number
   limitSubscriptions?: Prisma.IntFilter<"Roles"> | number
   minPayStars?: Prisma.IntFilter<"Roles"> | number
+  days?: Prisma.IntFilter<"Roles"> | number
+  devicesCount?: Prisma.IntFilter<"Roles"> | number
+  trafficLimitGb?: Prisma.FloatFilter<"Roles"> | number
+  isUnlimitTraffic?: Prisma.BoolFilter<"Roles"> | boolean
+  isPremiumServers?: Prisma.BoolFilter<"Roles"> | boolean
+  isNoAds?: Prisma.BoolFilter<"Roles"> | boolean
+  isRoleChat?: Prisma.BoolFilter<"Roles"> | boolean
   users?: Prisma.UsersListRelationFilter
 }, "key">
 
@@ -254,6 +336,13 @@ export type RolesOrderByWithAggregationInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  devicesCount?: Prisma.SortOrder
+  trafficLimitGb?: Prisma.SortOrder
+  isUnlimitTraffic?: Prisma.SortOrder
+  isPremiumServers?: Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
   _count?: Prisma.RolesCountOrderByAggregateInput
   _avg?: Prisma.RolesAvgOrderByAggregateInput
   _max?: Prisma.RolesMaxOrderByAggregateInput
@@ -270,6 +359,13 @@ export type RolesScalarWhereWithAggregatesInput = {
   discount?: Prisma.FloatWithAggregatesFilter<"Roles"> | number
   limitSubscriptions?: Prisma.IntWithAggregatesFilter<"Roles"> | number
   minPayStars?: Prisma.IntWithAggregatesFilter<"Roles"> | number
+  days?: Prisma.IntWithAggregatesFilter<"Roles"> | number
+  devicesCount?: Prisma.IntWithAggregatesFilter<"Roles"> | number
+  trafficLimitGb?: Prisma.FloatWithAggregatesFilter<"Roles"> | number
+  isUnlimitTraffic?: Prisma.BoolWithAggregatesFilter<"Roles"> | boolean
+  isPremiumServers?: Prisma.BoolWithAggregatesFilter<"Roles"> | boolean
+  isNoAds?: Prisma.BoolWithAggregatesFilter<"Roles"> | boolean
+  isRoleChat?: Prisma.BoolWithAggregatesFilter<"Roles"> | boolean
 }
 
 export type RolesCreateInput = {
@@ -278,6 +374,13 @@ export type RolesCreateInput = {
   discount?: number
   limitSubscriptions?: number
   minPayStars?: number
+  days?: number
+  devicesCount?: number
+  trafficLimitGb?: number
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
   users?: Prisma.UsersCreateNestedManyWithoutRoleInput
 }
 
@@ -287,6 +390,13 @@ export type RolesUncheckedCreateInput = {
   discount?: number
   limitSubscriptions?: number
   minPayStars?: number
+  days?: number
+  devicesCount?: number
+  trafficLimitGb?: number
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
   users?: Prisma.UsersUncheckedCreateNestedManyWithoutRoleInput
 }
 
@@ -296,6 +406,13 @@ export type RolesUpdateInput = {
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
+  days?: Prisma.IntFieldUpdateOperationsInput | number
+  devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  trafficLimitGb?: Prisma.FloatFieldUpdateOperationsInput | number
+  isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   users?: Prisma.UsersUpdateManyWithoutRoleNestedInput
 }
 
@@ -305,6 +422,13 @@ export type RolesUncheckedUpdateInput = {
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
+  days?: Prisma.IntFieldUpdateOperationsInput | number
+  devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  trafficLimitGb?: Prisma.FloatFieldUpdateOperationsInput | number
+  isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   users?: Prisma.UsersUncheckedUpdateManyWithoutRoleNestedInput
 }
 
@@ -314,6 +438,13 @@ export type RolesCreateManyInput = {
   discount?: number
   limitSubscriptions?: number
   minPayStars?: number
+  days?: number
+  devicesCount?: number
+  trafficLimitGb?: number
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
 }
 
 export type RolesUpdateManyMutationInput = {
@@ -322,6 +453,13 @@ export type RolesUpdateManyMutationInput = {
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
+  days?: Prisma.IntFieldUpdateOperationsInput | number
+  devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  trafficLimitGb?: Prisma.FloatFieldUpdateOperationsInput | number
+  isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type RolesUncheckedUpdateManyInput = {
@@ -330,6 +468,13 @@ export type RolesUncheckedUpdateManyInput = {
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
+  days?: Prisma.IntFieldUpdateOperationsInput | number
+  devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  trafficLimitGb?: Prisma.FloatFieldUpdateOperationsInput | number
+  isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type RolesScalarRelationFilter = {
@@ -343,12 +488,22 @@ export type RolesCountOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  devicesCount?: Prisma.SortOrder
+  trafficLimitGb?: Prisma.SortOrder
+  isUnlimitTraffic?: Prisma.SortOrder
+  isPremiumServers?: Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
 }
 
 export type RolesAvgOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  devicesCount?: Prisma.SortOrder
+  trafficLimitGb?: Prisma.SortOrder
 }
 
 export type RolesMaxOrderByAggregateInput = {
@@ -357,6 +512,13 @@ export type RolesMaxOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  devicesCount?: Prisma.SortOrder
+  trafficLimitGb?: Prisma.SortOrder
+  isUnlimitTraffic?: Prisma.SortOrder
+  isPremiumServers?: Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
 }
 
 export type RolesMinOrderByAggregateInput = {
@@ -365,12 +527,22 @@ export type RolesMinOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  devicesCount?: Prisma.SortOrder
+  trafficLimitGb?: Prisma.SortOrder
+  isUnlimitTraffic?: Prisma.SortOrder
+  isPremiumServers?: Prisma.SortOrder
+  isNoAds?: Prisma.SortOrder
+  isRoleChat?: Prisma.SortOrder
 }
 
 export type RolesSumOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
+  days?: Prisma.SortOrder
+  devicesCount?: Prisma.SortOrder
+  trafficLimitGb?: Prisma.SortOrder
 }
 
 export type RolesCreateNestedOneWithoutUsersInput = {
@@ -393,6 +565,13 @@ export type RolesCreateWithoutUsersInput = {
   discount?: number
   limitSubscriptions?: number
   minPayStars?: number
+  days?: number
+  devicesCount?: number
+  trafficLimitGb?: number
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
 }
 
 export type RolesUncheckedCreateWithoutUsersInput = {
@@ -401,6 +580,13 @@ export type RolesUncheckedCreateWithoutUsersInput = {
   discount?: number
   limitSubscriptions?: number
   minPayStars?: number
+  days?: number
+  devicesCount?: number
+  trafficLimitGb?: number
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
 }
 
 export type RolesCreateOrConnectWithoutUsersInput = {
@@ -425,6 +611,13 @@ export type RolesUpdateWithoutUsersInput = {
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
+  days?: Prisma.IntFieldUpdateOperationsInput | number
+  devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  trafficLimitGb?: Prisma.FloatFieldUpdateOperationsInput | number
+  isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type RolesUncheckedUpdateWithoutUsersInput = {
@@ -433,6 +626,13 @@ export type RolesUncheckedUpdateWithoutUsersInput = {
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
+  days?: Prisma.IntFieldUpdateOperationsInput | number
+  devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  trafficLimitGb?: Prisma.FloatFieldUpdateOperationsInput | number
+  isUnlimitTraffic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -472,6 +672,13 @@ export type RolesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   discount?: boolean
   limitSubscriptions?: boolean
   minPayStars?: boolean
+  days?: boolean
+  devicesCount?: boolean
+  trafficLimitGb?: boolean
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
   users?: boolean | Prisma.Roles$usersArgs<ExtArgs>
   _count?: boolean | Prisma.RolesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["roles"]>
@@ -482,6 +689,13 @@ export type RolesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   discount?: boolean
   limitSubscriptions?: boolean
   minPayStars?: boolean
+  days?: boolean
+  devicesCount?: boolean
+  trafficLimitGb?: boolean
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
 }, ExtArgs["result"]["roles"]>
 
 export type RolesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -490,6 +704,13 @@ export type RolesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   discount?: boolean
   limitSubscriptions?: boolean
   minPayStars?: boolean
+  days?: boolean
+  devicesCount?: boolean
+  trafficLimitGb?: boolean
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
 }, ExtArgs["result"]["roles"]>
 
 export type RolesSelectScalar = {
@@ -498,9 +719,16 @@ export type RolesSelectScalar = {
   discount?: boolean
   limitSubscriptions?: boolean
   minPayStars?: boolean
+  days?: boolean
+  devicesCount?: boolean
+  trafficLimitGb?: boolean
+  isUnlimitTraffic?: boolean
+  isPremiumServers?: boolean
+  isNoAds?: boolean
+  isRoleChat?: boolean
 }
 
-export type RolesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "name" | "discount" | "limitSubscriptions" | "minPayStars", ExtArgs["result"]["roles"]>
+export type RolesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "name" | "discount" | "limitSubscriptions" | "minPayStars" | "days" | "devicesCount" | "trafficLimitGb" | "isUnlimitTraffic" | "isPremiumServers" | "isNoAds" | "isRoleChat", ExtArgs["result"]["roles"]>
 export type RolesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Roles$usersArgs<ExtArgs>
   _count?: boolean | Prisma.RolesCountOutputTypeDefaultArgs<ExtArgs>
@@ -519,6 +747,13 @@ export type $RolesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     discount: number
     limitSubscriptions: number
     minPayStars: number
+    days: number
+    devicesCount: number
+    trafficLimitGb: number
+    isUnlimitTraffic: boolean
+    isPremiumServers: boolean
+    isNoAds: boolean
+    isRoleChat: boolean
   }, ExtArgs["result"]["roles"]>
   composites: {}
 }
@@ -948,6 +1183,13 @@ export interface RolesFieldRefs {
   readonly discount: Prisma.FieldRef<"Roles", 'Float'>
   readonly limitSubscriptions: Prisma.FieldRef<"Roles", 'Int'>
   readonly minPayStars: Prisma.FieldRef<"Roles", 'Int'>
+  readonly days: Prisma.FieldRef<"Roles", 'Int'>
+  readonly devicesCount: Prisma.FieldRef<"Roles", 'Int'>
+  readonly trafficLimitGb: Prisma.FieldRef<"Roles", 'Float'>
+  readonly isUnlimitTraffic: Prisma.FieldRef<"Roles", 'Boolean'>
+  readonly isPremiumServers: Prisma.FieldRef<"Roles", 'Boolean'>
+  readonly isNoAds: Prisma.FieldRef<"Roles", 'Boolean'>
+  readonly isRoleChat: Prisma.FieldRef<"Roles", 'Boolean'>
 }
     
 

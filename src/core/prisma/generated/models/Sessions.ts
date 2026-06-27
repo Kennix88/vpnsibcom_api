@@ -603,10 +603,6 @@ export type EnumSessionPlaceEnumFieldUpdateOperationsInput = {
   set?: $Enums.SessionPlaceEnum
 }
 
-export type NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput = {
-  set?: $Enums.TelegramPlatformEnum | null
-}
-
 export type SessionsCreateWithoutUserInput = {
   id?: string
   place?: $Enums.SessionPlaceEnum

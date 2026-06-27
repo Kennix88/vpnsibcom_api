@@ -38,6 +38,9 @@ export type AcquisitionMinAggregateOutputType = {
   lastCompaingId: string | null
   lastRecordId: string | null
   lastAt: Date | null
+  lastIp: string | null
+  lastUserAgent: string | null
+  lastTelegramPlatform: $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionMaxAggregateOutputType = {
@@ -54,6 +57,9 @@ export type AcquisitionMaxAggregateOutputType = {
   lastCompaingId: string | null
   lastRecordId: string | null
   lastAt: Date | null
+  lastIp: string | null
+  lastUserAgent: string | null
+  lastTelegramPlatform: $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionCountAggregateOutputType = {
@@ -72,6 +78,9 @@ export type AcquisitionCountAggregateOutputType = {
   lastRecordId: number
   lastOtherData: number
   lastAt: number
+  lastIp: number
+  lastUserAgent: number
+  lastTelegramPlatform: number
   _all: number
 }
 
@@ -90,6 +99,9 @@ export type AcquisitionMinAggregateInputType = {
   lastCompaingId?: true
   lastRecordId?: true
   lastAt?: true
+  lastIp?: true
+  lastUserAgent?: true
+  lastTelegramPlatform?: true
 }
 
 export type AcquisitionMaxAggregateInputType = {
@@ -106,6 +118,9 @@ export type AcquisitionMaxAggregateInputType = {
   lastCompaingId?: true
   lastRecordId?: true
   lastAt?: true
+  lastIp?: true
+  lastUserAgent?: true
+  lastTelegramPlatform?: true
 }
 
 export type AcquisitionCountAggregateInputType = {
@@ -124,6 +139,9 @@ export type AcquisitionCountAggregateInputType = {
   lastRecordId?: true
   lastOtherData?: true
   lastAt?: true
+  lastIp?: true
+  lastUserAgent?: true
+  lastTelegramPlatform?: true
   _all?: true
 }
 
@@ -215,6 +233,9 @@ export type AcquisitionGroupByOutputType = {
   lastRecordId: string | null
   lastOtherData: runtime.JsonValue | null
   lastAt: Date
+  lastIp: string | null
+  lastUserAgent: string | null
+  lastTelegramPlatform: $Enums.TelegramPlatformEnum | null
   _count: AcquisitionCountAggregateOutputType | null
   _min: AcquisitionMinAggregateOutputType | null
   _max: AcquisitionMaxAggregateOutputType | null
@@ -254,6 +275,9 @@ export type AcquisitionWhereInput = {
   lastRecordId?: Prisma.StringNullableFilter<"Acquisition"> | string | null
   lastOtherData?: Prisma.JsonNullableFilter<"Acquisition">
   lastAt?: Prisma.DateTimeFilter<"Acquisition"> | Date | string
+  lastIp?: Prisma.StringNullableFilter<"Acquisition"> | string | null
+  lastUserAgent?: Prisma.StringNullableFilter<"Acquisition"> | string | null
+  lastTelegramPlatform?: Prisma.EnumTelegramPlatformEnumNullableFilter<"Acquisition"> | $Enums.TelegramPlatformEnum | null
   user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
 }
 
@@ -273,6 +297,9 @@ export type AcquisitionOrderByWithRelationInput = {
   lastRecordId?: Prisma.SortOrderInput | Prisma.SortOrder
   lastOtherData?: Prisma.SortOrderInput | Prisma.SortOrder
   lastAt?: Prisma.SortOrder
+  lastIp?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastUserAgent?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastTelegramPlatform?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UsersOrderByWithRelationInput
 }
 
@@ -295,6 +322,9 @@ export type AcquisitionWhereUniqueInput = Prisma.AtLeast<{
   lastRecordId?: Prisma.StringNullableFilter<"Acquisition"> | string | null
   lastOtherData?: Prisma.JsonNullableFilter<"Acquisition">
   lastAt?: Prisma.DateTimeFilter<"Acquisition"> | Date | string
+  lastIp?: Prisma.StringNullableFilter<"Acquisition"> | string | null
+  lastUserAgent?: Prisma.StringNullableFilter<"Acquisition"> | string | null
+  lastTelegramPlatform?: Prisma.EnumTelegramPlatformEnumNullableFilter<"Acquisition"> | $Enums.TelegramPlatformEnum | null
   user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
 }, "id">
 
@@ -314,6 +344,9 @@ export type AcquisitionOrderByWithAggregationInput = {
   lastRecordId?: Prisma.SortOrderInput | Prisma.SortOrder
   lastOtherData?: Prisma.SortOrderInput | Prisma.SortOrder
   lastAt?: Prisma.SortOrder
+  lastIp?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastUserAgent?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastTelegramPlatform?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AcquisitionCountOrderByAggregateInput
   _max?: Prisma.AcquisitionMaxOrderByAggregateInput
   _min?: Prisma.AcquisitionMinOrderByAggregateInput
@@ -338,6 +371,9 @@ export type AcquisitionScalarWhereWithAggregatesInput = {
   lastRecordId?: Prisma.StringNullableWithAggregatesFilter<"Acquisition"> | string | null
   lastOtherData?: Prisma.JsonNullableWithAggregatesFilter<"Acquisition">
   lastAt?: Prisma.DateTimeWithAggregatesFilter<"Acquisition"> | Date | string
+  lastIp?: Prisma.StringNullableWithAggregatesFilter<"Acquisition"> | string | null
+  lastUserAgent?: Prisma.StringNullableWithAggregatesFilter<"Acquisition"> | string | null
+  lastTelegramPlatform?: Prisma.EnumTelegramPlatformEnumNullableWithAggregatesFilter<"Acquisition"> | $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionCreateInput = {
@@ -356,6 +392,9 @@ export type AcquisitionCreateInput = {
   lastRecordId?: string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Date | string
+  lastIp?: string | null
+  lastUserAgent?: string | null
+  lastTelegramPlatform?: $Enums.TelegramPlatformEnum | null
   user?: Prisma.UsersCreateNestedOneWithoutAcquisitionInput
 }
 
@@ -375,6 +414,9 @@ export type AcquisitionUncheckedCreateInput = {
   lastRecordId?: string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Date | string
+  lastIp?: string | null
+  lastUserAgent?: string | null
+  lastTelegramPlatform?: $Enums.TelegramPlatformEnum | null
   user?: Prisma.UsersUncheckedCreateNestedOneWithoutAcquisitionInput
 }
 
@@ -394,6 +436,9 @@ export type AcquisitionUpdateInput = {
   lastRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastIp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastTelegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   user?: Prisma.UsersUpdateOneWithoutAcquisitionNestedInput
 }
 
@@ -413,6 +458,9 @@ export type AcquisitionUncheckedUpdateInput = {
   lastRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastIp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastTelegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
   user?: Prisma.UsersUncheckedUpdateOneWithoutAcquisitionNestedInput
 }
 
@@ -432,6 +480,9 @@ export type AcquisitionCreateManyInput = {
   lastRecordId?: string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Date | string
+  lastIp?: string | null
+  lastUserAgent?: string | null
+  lastTelegramPlatform?: $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionUpdateManyMutationInput = {
@@ -450,6 +501,9 @@ export type AcquisitionUpdateManyMutationInput = {
   lastRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastIp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastTelegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionUncheckedUpdateManyInput = {
@@ -468,6 +522,9 @@ export type AcquisitionUncheckedUpdateManyInput = {
   lastRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastIp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastTelegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionNullableScalarRelationFilter = {
@@ -491,6 +548,9 @@ export type AcquisitionCountOrderByAggregateInput = {
   lastRecordId?: Prisma.SortOrder
   lastOtherData?: Prisma.SortOrder
   lastAt?: Prisma.SortOrder
+  lastIp?: Prisma.SortOrder
+  lastUserAgent?: Prisma.SortOrder
+  lastTelegramPlatform?: Prisma.SortOrder
 }
 
 export type AcquisitionMaxOrderByAggregateInput = {
@@ -507,6 +567,9 @@ export type AcquisitionMaxOrderByAggregateInput = {
   lastCompaingId?: Prisma.SortOrder
   lastRecordId?: Prisma.SortOrder
   lastAt?: Prisma.SortOrder
+  lastIp?: Prisma.SortOrder
+  lastUserAgent?: Prisma.SortOrder
+  lastTelegramPlatform?: Prisma.SortOrder
 }
 
 export type AcquisitionMinOrderByAggregateInput = {
@@ -523,6 +586,9 @@ export type AcquisitionMinOrderByAggregateInput = {
   lastCompaingId?: Prisma.SortOrder
   lastRecordId?: Prisma.SortOrder
   lastAt?: Prisma.SortOrder
+  lastIp?: Prisma.SortOrder
+  lastUserAgent?: Prisma.SortOrder
+  lastTelegramPlatform?: Prisma.SortOrder
 }
 
 export type AcquisitionCreateNestedOneWithoutUserInput = {
@@ -541,6 +607,10 @@ export type AcquisitionUpdateOneWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AcquisitionUpdateToOneWithWhereWithoutUserInput, Prisma.AcquisitionUpdateWithoutUserInput>, Prisma.AcquisitionUncheckedUpdateWithoutUserInput>
 }
 
+export type NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput = {
+  set?: $Enums.TelegramPlatformEnum | null
+}
+
 export type AcquisitionCreateWithoutUserInput = {
   id?: string
   firstSource?: string | null
@@ -557,6 +627,9 @@ export type AcquisitionCreateWithoutUserInput = {
   lastRecordId?: string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Date | string
+  lastIp?: string | null
+  lastUserAgent?: string | null
+  lastTelegramPlatform?: $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionUncheckedCreateWithoutUserInput = {
@@ -575,6 +648,9 @@ export type AcquisitionUncheckedCreateWithoutUserInput = {
   lastRecordId?: string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Date | string
+  lastIp?: string | null
+  lastUserAgent?: string | null
+  lastTelegramPlatform?: $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionCreateOrConnectWithoutUserInput = {
@@ -609,6 +685,9 @@ export type AcquisitionUpdateWithoutUserInput = {
   lastRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastIp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastTelegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
 }
 
 export type AcquisitionUncheckedUpdateWithoutUserInput = {
@@ -627,6 +706,9 @@ export type AcquisitionUncheckedUpdateWithoutUserInput = {
   lastRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastOtherData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastIp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastTelegramPlatform?: Prisma.NullableEnumTelegramPlatformEnumFieldUpdateOperationsInput | $Enums.TelegramPlatformEnum | null
 }
 
 
@@ -647,6 +729,9 @@ export type AcquisitionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   lastRecordId?: boolean
   lastOtherData?: boolean
   lastAt?: boolean
+  lastIp?: boolean
+  lastUserAgent?: boolean
+  lastTelegramPlatform?: boolean
   user?: boolean | Prisma.Acquisition$userArgs<ExtArgs>
 }, ExtArgs["result"]["acquisition"]>
 
@@ -666,6 +751,9 @@ export type AcquisitionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   lastRecordId?: boolean
   lastOtherData?: boolean
   lastAt?: boolean
+  lastIp?: boolean
+  lastUserAgent?: boolean
+  lastTelegramPlatform?: boolean
 }, ExtArgs["result"]["acquisition"]>
 
 export type AcquisitionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -684,6 +772,9 @@ export type AcquisitionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   lastRecordId?: boolean
   lastOtherData?: boolean
   lastAt?: boolean
+  lastIp?: boolean
+  lastUserAgent?: boolean
+  lastTelegramPlatform?: boolean
 }, ExtArgs["result"]["acquisition"]>
 
 export type AcquisitionSelectScalar = {
@@ -702,9 +793,12 @@ export type AcquisitionSelectScalar = {
   lastRecordId?: boolean
   lastOtherData?: boolean
   lastAt?: boolean
+  lastIp?: boolean
+  lastUserAgent?: boolean
+  lastTelegramPlatform?: boolean
 }
 
-export type AcquisitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstSource" | "firstReferralId" | "firstStartParams" | "firstCompaingId" | "firstRecordId" | "firstOtherData" | "firstAt" | "lastSource" | "lastReferralId" | "lastStartParams" | "lastCompaingId" | "lastRecordId" | "lastOtherData" | "lastAt", ExtArgs["result"]["acquisition"]>
+export type AcquisitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstSource" | "firstReferralId" | "firstStartParams" | "firstCompaingId" | "firstRecordId" | "firstOtherData" | "firstAt" | "lastSource" | "lastReferralId" | "lastStartParams" | "lastCompaingId" | "lastRecordId" | "lastOtherData" | "lastAt" | "lastIp" | "lastUserAgent" | "lastTelegramPlatform", ExtArgs["result"]["acquisition"]>
 export type AcquisitionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Acquisition$userArgs<ExtArgs>
 }
@@ -732,6 +826,9 @@ export type $AcquisitionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     lastRecordId: string | null
     lastOtherData: runtime.JsonValue | null
     lastAt: Date
+    lastIp: string | null
+    lastUserAgent: string | null
+    lastTelegramPlatform: $Enums.TelegramPlatformEnum | null
   }, ExtArgs["result"]["acquisition"]>
   composites: {}
 }
@@ -1171,6 +1268,9 @@ export interface AcquisitionFieldRefs {
   readonly lastRecordId: Prisma.FieldRef<"Acquisition", 'String'>
   readonly lastOtherData: Prisma.FieldRef<"Acquisition", 'Json'>
   readonly lastAt: Prisma.FieldRef<"Acquisition", 'DateTime'>
+  readonly lastIp: Prisma.FieldRef<"Acquisition", 'String'>
+  readonly lastUserAgent: Prisma.FieldRef<"Acquisition", 'String'>
+  readonly lastTelegramPlatform: Prisma.FieldRef<"Acquisition", 'TelegramPlatformEnum'>
 }
     
 

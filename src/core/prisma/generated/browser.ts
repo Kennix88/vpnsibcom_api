@@ -98,6 +98,16 @@ export type Plans = Prisma.PlansModel
  */
 export type Subscriptions = Prisma.SubscriptionsModel
 /**
+ * Model SubscriptionExtensions
+ * 
+ */
+export type SubscriptionExtensions = Prisma.SubscriptionExtensionsModel
+/**
+ * Model Devices
+ * 
+ */
+export type Devices = Prisma.DevicesModel
+/**
  * Model SubscriptionToGreenList
  * 
  */

@@ -31,6 +31,8 @@ export type UsersMinAggregateOutputType = {
   isFreePlanAvailable: boolean | null
   isBanned: boolean | null
   isDeleted: boolean | null
+  isChannel: boolean | null
+  isChat: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
   lastStartedAt: Date | null
@@ -39,6 +41,7 @@ export type UsersMinAggregateOutputType = {
   tgProgramPartnerExpiredAt: Date | null
   nextAdsRewardAt: Date | null
   nextAdsgramTaskAt: Date | null
+  premiumExpiredAt: Date | null
   countryRegistration: string | null
   roleId: $Enums.UserRoleEnum | null
   telegramDataId: string | null
@@ -56,6 +59,8 @@ export type UsersMaxAggregateOutputType = {
   isFreePlanAvailable: boolean | null
   isBanned: boolean | null
   isDeleted: boolean | null
+  isChannel: boolean | null
+  isChat: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
   lastStartedAt: Date | null
@@ -64,6 +69,7 @@ export type UsersMaxAggregateOutputType = {
   tgProgramPartnerExpiredAt: Date | null
   nextAdsRewardAt: Date | null
   nextAdsgramTaskAt: Date | null
+  premiumExpiredAt: Date | null
   countryRegistration: string | null
   roleId: $Enums.UserRoleEnum | null
   telegramDataId: string | null
@@ -81,6 +87,8 @@ export type UsersCountAggregateOutputType = {
   isFreePlanAvailable: number
   isBanned: number
   isDeleted: number
+  isChannel: number
+  isChat: number
   createdAt: number
   updatedAt: number
   lastStartedAt: number
@@ -89,6 +97,7 @@ export type UsersCountAggregateOutputType = {
   tgProgramPartnerExpiredAt: number
   nextAdsRewardAt: number
   nextAdsgramTaskAt: number
+  premiumExpiredAt: number
   countryRegistration: number
   roleId: number
   telegramDataId: number
@@ -108,6 +117,8 @@ export type UsersMinAggregateInputType = {
   isFreePlanAvailable?: true
   isBanned?: true
   isDeleted?: true
+  isChannel?: true
+  isChat?: true
   createdAt?: true
   updatedAt?: true
   lastStartedAt?: true
@@ -116,6 +127,7 @@ export type UsersMinAggregateInputType = {
   tgProgramPartnerExpiredAt?: true
   nextAdsRewardAt?: true
   nextAdsgramTaskAt?: true
+  premiumExpiredAt?: true
   countryRegistration?: true
   roleId?: true
   telegramDataId?: true
@@ -133,6 +145,8 @@ export type UsersMaxAggregateInputType = {
   isFreePlanAvailable?: true
   isBanned?: true
   isDeleted?: true
+  isChannel?: true
+  isChat?: true
   createdAt?: true
   updatedAt?: true
   lastStartedAt?: true
@@ -141,6 +155,7 @@ export type UsersMaxAggregateInputType = {
   tgProgramPartnerExpiredAt?: true
   nextAdsRewardAt?: true
   nextAdsgramTaskAt?: true
+  premiumExpiredAt?: true
   countryRegistration?: true
   roleId?: true
   telegramDataId?: true
@@ -158,6 +173,8 @@ export type UsersCountAggregateInputType = {
   isFreePlanAvailable?: true
   isBanned?: true
   isDeleted?: true
+  isChannel?: true
+  isChat?: true
   createdAt?: true
   updatedAt?: true
   lastStartedAt?: true
@@ -166,6 +183,7 @@ export type UsersCountAggregateInputType = {
   tgProgramPartnerExpiredAt?: true
   nextAdsRewardAt?: true
   nextAdsgramTaskAt?: true
+  premiumExpiredAt?: true
   countryRegistration?: true
   roleId?: true
   telegramDataId?: true
@@ -256,6 +274,8 @@ export type UsersGroupByOutputType = {
   isFreePlanAvailable: boolean
   isBanned: boolean
   isDeleted: boolean
+  isChannel: boolean
+  isChat: boolean
   createdAt: Date
   updatedAt: Date
   lastStartedAt: Date | null
@@ -264,6 +284,7 @@ export type UsersGroupByOutputType = {
   tgProgramPartnerExpiredAt: Date | null
   nextAdsRewardAt: Date | null
   nextAdsgramTaskAt: Date | null
+  premiumExpiredAt: Date | null
   countryRegistration: string | null
   roleId: $Enums.UserRoleEnum
   telegramDataId: string | null
@@ -302,6 +323,8 @@ export type UsersWhereInput = {
   isFreePlanAvailable?: Prisma.BoolFilter<"Users"> | boolean
   isBanned?: Prisma.BoolFilter<"Users"> | boolean
   isDeleted?: Prisma.BoolFilter<"Users"> | boolean
+  isChannel?: Prisma.BoolFilter<"Users"> | boolean
+  isChat?: Prisma.BoolFilter<"Users"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Users"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Users"> | Date | string
   lastStartedAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
@@ -310,6 +333,7 @@ export type UsersWhereInput = {
   tgProgramPartnerExpiredAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   nextAdsRewardAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   nextAdsgramTaskAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
+  premiumExpiredAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   countryRegistration?: Prisma.StringNullableFilter<"Users"> | string | null
   roleId?: Prisma.EnumUserRoleEnumFilter<"Users"> | $Enums.UserRoleEnum
   telegramDataId?: Prisma.StringNullableFilter<"Users"> | string | null
@@ -342,6 +366,8 @@ export type UsersOrderByWithRelationInput = {
   isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  isChannel?: Prisma.SortOrder
+  isChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -350,6 +376,7 @@ export type UsersOrderByWithRelationInput = {
   tgProgramPartnerExpiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   nextAdsRewardAt?: Prisma.SortOrderInput | Prisma.SortOrder
   nextAdsgramTaskAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  premiumExpiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   countryRegistration?: Prisma.SortOrderInput | Prisma.SortOrder
   roleId?: Prisma.SortOrder
   telegramDataId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -389,6 +416,8 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
   isFreePlanAvailable?: Prisma.BoolFilter<"Users"> | boolean
   isBanned?: Prisma.BoolFilter<"Users"> | boolean
   isDeleted?: Prisma.BoolFilter<"Users"> | boolean
+  isChannel?: Prisma.BoolFilter<"Users"> | boolean
+  isChat?: Prisma.BoolFilter<"Users"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Users"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Users"> | Date | string
   lastStartedAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
@@ -397,6 +426,7 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
   tgProgramPartnerExpiredAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   nextAdsRewardAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   nextAdsgramTaskAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
+  premiumExpiredAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   countryRegistration?: Prisma.StringNullableFilter<"Users"> | string | null
   roleId?: Prisma.EnumUserRoleEnumFilter<"Users"> | $Enums.UserRoleEnum
   languageId?: Prisma.StringFilter<"Users"> | string
@@ -425,6 +455,8 @@ export type UsersOrderByWithAggregationInput = {
   isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  isChannel?: Prisma.SortOrder
+  isChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -433,6 +465,7 @@ export type UsersOrderByWithAggregationInput = {
   tgProgramPartnerExpiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   nextAdsRewardAt?: Prisma.SortOrderInput | Prisma.SortOrder
   nextAdsgramTaskAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  premiumExpiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   countryRegistration?: Prisma.SortOrderInput | Prisma.SortOrder
   roleId?: Prisma.SortOrder
   telegramDataId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -456,6 +489,8 @@ export type UsersScalarWhereWithAggregatesInput = {
   isFreePlanAvailable?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
   isBanned?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
+  isChannel?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
+  isChat?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Users"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Users"> | Date | string
   lastStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Users"> | Date | string | null
@@ -464,6 +499,7 @@ export type UsersScalarWhereWithAggregatesInput = {
   tgProgramPartnerExpiredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Users"> | Date | string | null
   nextAdsRewardAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Users"> | Date | string | null
   nextAdsgramTaskAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Users"> | Date | string | null
+  premiumExpiredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Users"> | Date | string | null
   countryRegistration?: Prisma.StringNullableWithAggregatesFilter<"Users"> | string | null
   roleId?: Prisma.EnumUserRoleEnumWithAggregatesFilter<"Users"> | $Enums.UserRoleEnum
   telegramDataId?: Prisma.StringNullableWithAggregatesFilter<"Users"> | string | null
@@ -481,6 +517,8 @@ export type UsersCreateInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -489,6 +527,7 @@ export type UsersCreateInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -514,6 +553,8 @@ export type UsersUncheckedCreateInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -522,6 +563,7 @@ export type UsersUncheckedCreateInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -547,6 +589,8 @@ export type UsersUpdateInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -555,6 +599,7 @@ export type UsersUpdateInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -580,6 +625,8 @@ export type UsersUncheckedUpdateInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -588,6 +635,7 @@ export type UsersUncheckedUpdateInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -613,6 +661,8 @@ export type UsersCreateManyInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -621,6 +671,7 @@ export type UsersCreateManyInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -638,6 +689,8 @@ export type UsersUpdateManyMutationInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -646,6 +699,7 @@ export type UsersUpdateManyMutationInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -656,6 +710,8 @@ export type UsersUncheckedUpdateManyInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -664,6 +720,7 @@ export type UsersUncheckedUpdateManyInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -691,6 +748,8 @@ export type UsersCountOrderByAggregateInput = {
   isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  isChannel?: Prisma.SortOrder
+  isChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastStartedAt?: Prisma.SortOrder
@@ -699,6 +758,7 @@ export type UsersCountOrderByAggregateInput = {
   tgProgramPartnerExpiredAt?: Prisma.SortOrder
   nextAdsRewardAt?: Prisma.SortOrder
   nextAdsgramTaskAt?: Prisma.SortOrder
+  premiumExpiredAt?: Prisma.SortOrder
   countryRegistration?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   telegramDataId?: Prisma.SortOrder
@@ -716,6 +776,8 @@ export type UsersMaxOrderByAggregateInput = {
   isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  isChannel?: Prisma.SortOrder
+  isChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastStartedAt?: Prisma.SortOrder
@@ -724,6 +786,7 @@ export type UsersMaxOrderByAggregateInput = {
   tgProgramPartnerExpiredAt?: Prisma.SortOrder
   nextAdsRewardAt?: Prisma.SortOrder
   nextAdsgramTaskAt?: Prisma.SortOrder
+  premiumExpiredAt?: Prisma.SortOrder
   countryRegistration?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   telegramDataId?: Prisma.SortOrder
@@ -741,6 +804,8 @@ export type UsersMinOrderByAggregateInput = {
   isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  isChannel?: Prisma.SortOrder
+  isChat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lastStartedAt?: Prisma.SortOrder
@@ -749,6 +814,7 @@ export type UsersMinOrderByAggregateInput = {
   tgProgramPartnerExpiredAt?: Prisma.SortOrder
   nextAdsRewardAt?: Prisma.SortOrder
   nextAdsgramTaskAt?: Prisma.SortOrder
+  premiumExpiredAt?: Prisma.SortOrder
   countryRegistration?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   telegramDataId?: Prisma.SortOrder
@@ -827,10 +893,6 @@ export type UsersUpdateOneRequiredWithoutInvitersNestedInput = {
   upsert?: Prisma.UsersUpsertWithoutInvitersInput
   connect?: Prisma.UsersWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutInvitersInput, Prisma.UsersUpdateWithoutInvitersInput>, Prisma.UsersUncheckedUpdateWithoutInvitersInput>
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type EnumUserRoleEnumFieldUpdateOperationsInput = {
@@ -1154,6 +1216,8 @@ export type UsersCreateWithoutTelegramDataInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1162,6 +1226,7 @@ export type UsersCreateWithoutTelegramDataInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -1186,6 +1251,8 @@ export type UsersUncheckedCreateWithoutTelegramDataInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1194,6 +1261,7 @@ export type UsersUncheckedCreateWithoutTelegramDataInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   balanceId?: string | null
@@ -1234,6 +1302,8 @@ export type UsersUpdateWithoutTelegramDataInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1242,6 +1312,7 @@ export type UsersUpdateWithoutTelegramDataInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -1266,6 +1337,8 @@ export type UsersUncheckedUpdateWithoutTelegramDataInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1274,6 +1347,7 @@ export type UsersUncheckedUpdateWithoutTelegramDataInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1298,6 +1372,8 @@ export type UsersCreateWithoutReferralsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1306,6 +1382,7 @@ export type UsersCreateWithoutReferralsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -1330,6 +1407,8 @@ export type UsersUncheckedCreateWithoutReferralsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1338,6 +1417,7 @@ export type UsersUncheckedCreateWithoutReferralsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -1367,6 +1447,8 @@ export type UsersCreateWithoutInvitersInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1375,6 +1457,7 @@ export type UsersCreateWithoutInvitersInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -1399,6 +1482,8 @@ export type UsersUncheckedCreateWithoutInvitersInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1407,6 +1492,7 @@ export type UsersUncheckedCreateWithoutInvitersInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -1447,6 +1533,8 @@ export type UsersUpdateWithoutReferralsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1455,6 +1543,7 @@ export type UsersUpdateWithoutReferralsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -1479,6 +1568,8 @@ export type UsersUncheckedUpdateWithoutReferralsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1487,6 +1578,7 @@ export type UsersUncheckedUpdateWithoutReferralsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1522,6 +1614,8 @@ export type UsersUpdateWithoutInvitersInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1530,6 +1624,7 @@ export type UsersUpdateWithoutInvitersInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -1554,6 +1649,8 @@ export type UsersUncheckedUpdateWithoutInvitersInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1562,6 +1659,7 @@ export type UsersUncheckedUpdateWithoutInvitersInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1586,6 +1684,8 @@ export type UsersCreateWithoutEventsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1594,6 +1694,7 @@ export type UsersCreateWithoutEventsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -1618,6 +1719,8 @@ export type UsersUncheckedCreateWithoutEventsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1626,6 +1729,7 @@ export type UsersUncheckedCreateWithoutEventsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -1666,6 +1770,8 @@ export type UsersUpdateWithoutEventsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1674,6 +1780,7 @@ export type UsersUpdateWithoutEventsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -1698,6 +1805,8 @@ export type UsersUncheckedUpdateWithoutEventsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1706,6 +1815,7 @@ export type UsersUncheckedUpdateWithoutEventsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1730,6 +1840,8 @@ export type UsersCreateWithoutAcquisitionInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1738,6 +1850,7 @@ export type UsersCreateWithoutAcquisitionInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -1762,6 +1875,8 @@ export type UsersUncheckedCreateWithoutAcquisitionInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1770,6 +1885,7 @@ export type UsersUncheckedCreateWithoutAcquisitionInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -1810,6 +1926,8 @@ export type UsersUpdateWithoutAcquisitionInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1818,6 +1936,7 @@ export type UsersUpdateWithoutAcquisitionInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -1842,6 +1961,8 @@ export type UsersUncheckedUpdateWithoutAcquisitionInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1850,6 +1971,7 @@ export type UsersUncheckedUpdateWithoutAcquisitionInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1874,6 +1996,8 @@ export type UsersCreateWithoutSessionsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1882,6 +2006,7 @@ export type UsersCreateWithoutSessionsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -1906,6 +2031,8 @@ export type UsersUncheckedCreateWithoutSessionsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -1914,6 +2041,7 @@ export type UsersUncheckedCreateWithoutSessionsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -1954,6 +2082,8 @@ export type UsersUpdateWithoutSessionsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1962,6 +2092,7 @@ export type UsersUpdateWithoutSessionsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -1986,6 +2117,8 @@ export type UsersUncheckedUpdateWithoutSessionsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1994,6 +2127,7 @@ export type UsersUncheckedUpdateWithoutSessionsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2018,6 +2152,8 @@ export type UsersCreateWithoutAdsDataInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2026,6 +2162,7 @@ export type UsersCreateWithoutAdsDataInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -2050,6 +2187,8 @@ export type UsersUncheckedCreateWithoutAdsDataInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2058,6 +2197,7 @@ export type UsersUncheckedCreateWithoutAdsDataInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -2098,6 +2238,8 @@ export type UsersUpdateWithoutAdsDataInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2106,6 +2248,7 @@ export type UsersUpdateWithoutAdsDataInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -2130,6 +2273,8 @@ export type UsersUncheckedUpdateWithoutAdsDataInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2138,6 +2283,7 @@ export type UsersUncheckedUpdateWithoutAdsDataInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2162,6 +2308,8 @@ export type UsersCreateWithoutAdsViewsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2170,6 +2318,7 @@ export type UsersCreateWithoutAdsViewsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -2194,6 +2343,8 @@ export type UsersUncheckedCreateWithoutAdsViewsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2202,6 +2353,7 @@ export type UsersUncheckedCreateWithoutAdsViewsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -2242,6 +2394,8 @@ export type UsersUpdateWithoutAdsViewsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2250,6 +2404,7 @@ export type UsersUpdateWithoutAdsViewsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -2274,6 +2429,8 @@ export type UsersUncheckedUpdateWithoutAdsViewsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2282,6 +2439,7 @@ export type UsersUncheckedUpdateWithoutAdsViewsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2306,6 +2464,8 @@ export type UsersCreateWithoutBalanceInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2314,6 +2474,7 @@ export type UsersCreateWithoutBalanceInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -2338,6 +2499,8 @@ export type UsersUncheckedCreateWithoutBalanceInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2346,6 +2509,7 @@ export type UsersUncheckedCreateWithoutBalanceInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -2386,6 +2550,8 @@ export type UsersUpdateWithoutBalanceInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2394,6 +2560,7 @@ export type UsersUpdateWithoutBalanceInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -2418,6 +2585,8 @@ export type UsersUncheckedUpdateWithoutBalanceInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2426,6 +2595,7 @@ export type UsersUncheckedUpdateWithoutBalanceInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2450,6 +2620,8 @@ export type UsersCreateWithoutSubscriptionsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2458,6 +2630,7 @@ export type UsersCreateWithoutSubscriptionsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -2482,6 +2655,8 @@ export type UsersUncheckedCreateWithoutSubscriptionsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2490,6 +2665,7 @@ export type UsersUncheckedCreateWithoutSubscriptionsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -2530,6 +2706,8 @@ export type UsersUpdateWithoutSubscriptionsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2538,6 +2716,7 @@ export type UsersUpdateWithoutSubscriptionsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -2562,6 +2741,8 @@ export type UsersUncheckedUpdateWithoutSubscriptionsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2570,6 +2751,7 @@ export type UsersUncheckedUpdateWithoutSubscriptionsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2594,6 +2776,8 @@ export type UsersCreateWithoutRoleInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2602,6 +2786,7 @@ export type UsersCreateWithoutRoleInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsCreateNestedManyWithoutInviterInput
@@ -2626,6 +2811,8 @@ export type UsersUncheckedCreateWithoutRoleInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2634,6 +2821,7 @@ export type UsersUncheckedCreateWithoutRoleInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   telegramDataId?: string | null
   balanceId?: string | null
@@ -2687,6 +2875,8 @@ export type UsersScalarWhereInput = {
   isFreePlanAvailable?: Prisma.BoolFilter<"Users"> | boolean
   isBanned?: Prisma.BoolFilter<"Users"> | boolean
   isDeleted?: Prisma.BoolFilter<"Users"> | boolean
+  isChannel?: Prisma.BoolFilter<"Users"> | boolean
+  isChat?: Prisma.BoolFilter<"Users"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Users"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Users"> | Date | string
   lastStartedAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
@@ -2695,6 +2885,7 @@ export type UsersScalarWhereInput = {
   tgProgramPartnerExpiredAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   nextAdsRewardAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   nextAdsgramTaskAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
+  premiumExpiredAt?: Prisma.DateTimeNullableFilter<"Users"> | Date | string | null
   countryRegistration?: Prisma.StringNullableFilter<"Users"> | string | null
   roleId?: Prisma.EnumUserRoleEnumFilter<"Users"> | $Enums.UserRoleEnum
   telegramDataId?: Prisma.StringNullableFilter<"Users"> | string | null
@@ -2712,6 +2903,8 @@ export type UsersCreateWithoutLanguageInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2720,6 +2913,7 @@ export type UsersCreateWithoutLanguageInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -2744,6 +2938,8 @@ export type UsersUncheckedCreateWithoutLanguageInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2752,6 +2948,7 @@ export type UsersUncheckedCreateWithoutLanguageInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -2802,6 +2999,8 @@ export type UsersCreateWithoutCurrencyInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2810,6 +3009,7 @@ export type UsersCreateWithoutCurrencyInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -2834,6 +3034,8 @@ export type UsersUncheckedCreateWithoutCurrencyInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2842,6 +3044,7 @@ export type UsersUncheckedCreateWithoutCurrencyInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -2892,6 +3095,8 @@ export type UsersCreateWithoutWithdrawalsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2900,6 +3105,7 @@ export type UsersCreateWithoutWithdrawalsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   payments?: Prisma.PaymentsCreateNestedManyWithoutUserInput
@@ -2924,6 +3130,8 @@ export type UsersUncheckedCreateWithoutWithdrawalsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -2932,6 +3140,7 @@ export type UsersUncheckedCreateWithoutWithdrawalsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -2972,6 +3181,8 @@ export type UsersUpdateWithoutWithdrawalsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2980,6 +3191,7 @@ export type UsersUpdateWithoutWithdrawalsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -3004,6 +3216,8 @@ export type UsersUncheckedUpdateWithoutWithdrawalsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3012,6 +3226,7 @@ export type UsersUncheckedUpdateWithoutWithdrawalsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3036,6 +3251,8 @@ export type UsersCreateWithoutPaymentsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -3044,6 +3261,7 @@ export type UsersCreateWithoutPaymentsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   role?: Prisma.RolesCreateNestedOneWithoutUsersInput
   referrals?: Prisma.ReferralsCreateNestedManyWithoutInviterInput
@@ -3068,6 +3286,8 @@ export type UsersUncheckedCreateWithoutPaymentsInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -3076,6 +3296,7 @@ export type UsersUncheckedCreateWithoutPaymentsInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -3116,6 +3337,8 @@ export type UsersUpdateWithoutPaymentsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3124,6 +3347,7 @@ export type UsersUpdateWithoutPaymentsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   referrals?: Prisma.ReferralsUpdateManyWithoutInviterNestedInput
@@ -3148,6 +3372,8 @@ export type UsersUncheckedUpdateWithoutPaymentsInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3156,6 +3382,7 @@ export type UsersUncheckedUpdateWithoutPaymentsInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3180,6 +3407,8 @@ export type UsersCreateManyRoleInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -3188,6 +3417,7 @@ export type UsersCreateManyRoleInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   telegramDataId?: string | null
   balanceId?: string | null
@@ -3204,6 +3434,8 @@ export type UsersUpdateWithoutRoleInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3212,6 +3444,7 @@ export type UsersUpdateWithoutRoleInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUpdateManyWithoutInviterNestedInput
@@ -3236,6 +3469,8 @@ export type UsersUncheckedUpdateWithoutRoleInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3244,6 +3479,7 @@ export type UsersUncheckedUpdateWithoutRoleInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3268,6 +3504,8 @@ export type UsersUncheckedUpdateManyWithoutRoleInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3276,6 +3514,7 @@ export type UsersUncheckedUpdateManyWithoutRoleInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3292,6 +3531,8 @@ export type UsersCreateManyLanguageInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -3300,6 +3541,7 @@ export type UsersCreateManyLanguageInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -3316,6 +3558,8 @@ export type UsersUpdateWithoutLanguageInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3324,6 +3568,7 @@ export type UsersUpdateWithoutLanguageInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -3348,6 +3593,8 @@ export type UsersUncheckedUpdateWithoutLanguageInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3356,6 +3603,7 @@ export type UsersUncheckedUpdateWithoutLanguageInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3380,6 +3628,8 @@ export type UsersUncheckedUpdateManyWithoutLanguageInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3388,6 +3638,7 @@ export type UsersUncheckedUpdateManyWithoutLanguageInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3404,6 +3655,8 @@ export type UsersCreateManyCurrencyInput = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lastStartedAt?: Date | string | null
@@ -3412,6 +3665,7 @@ export type UsersCreateManyCurrencyInput = {
   tgProgramPartnerExpiredAt?: Date | string | null
   nextAdsRewardAt?: Date | string | null
   nextAdsgramTaskAt?: Date | string | null
+  premiumExpiredAt?: Date | string | null
   countryRegistration?: string | null
   roleId?: $Enums.UserRoleEnum
   telegramDataId?: string | null
@@ -3428,6 +3682,8 @@ export type UsersUpdateWithoutCurrencyInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3436,6 +3692,7 @@ export type UsersUpdateWithoutCurrencyInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.RolesUpdateOneRequiredWithoutUsersNestedInput
   payments?: Prisma.PaymentsUpdateManyWithoutUserNestedInput
@@ -3460,6 +3717,8 @@ export type UsersUncheckedUpdateWithoutCurrencyInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3468,6 +3727,7 @@ export type UsersUncheckedUpdateWithoutCurrencyInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3492,6 +3752,8 @@ export type UsersUncheckedUpdateManyWithoutCurrencyInput = {
   isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3500,6 +3762,7 @@ export type UsersUncheckedUpdateManyWithoutCurrencyInput = {
   tgProgramPartnerExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsRewardAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextAdsgramTaskAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premiumExpiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   countryRegistration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   roleId?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3610,6 +3873,8 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastStartedAt?: boolean
@@ -3618,6 +3883,7 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   tgProgramPartnerExpiredAt?: boolean
   nextAdsRewardAt?: boolean
   nextAdsgramTaskAt?: boolean
+  premiumExpiredAt?: boolean
   countryRegistration?: boolean
   roleId?: boolean
   telegramDataId?: boolean
@@ -3651,6 +3917,8 @@ export type UsersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastStartedAt?: boolean
@@ -3659,6 +3927,7 @@ export type UsersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   tgProgramPartnerExpiredAt?: boolean
   nextAdsRewardAt?: boolean
   nextAdsgramTaskAt?: boolean
+  premiumExpiredAt?: boolean
   countryRegistration?: boolean
   roleId?: boolean
   telegramDataId?: boolean
@@ -3683,6 +3952,8 @@ export type UsersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastStartedAt?: boolean
@@ -3691,6 +3962,7 @@ export type UsersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   tgProgramPartnerExpiredAt?: boolean
   nextAdsRewardAt?: boolean
   nextAdsgramTaskAt?: boolean
+  premiumExpiredAt?: boolean
   countryRegistration?: boolean
   roleId?: boolean
   telegramDataId?: boolean
@@ -3715,6 +3987,8 @@ export type UsersSelectScalar = {
   isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
+  isChannel?: boolean
+  isChat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastStartedAt?: boolean
@@ -3723,6 +3997,7 @@ export type UsersSelectScalar = {
   tgProgramPartnerExpiredAt?: boolean
   nextAdsRewardAt?: boolean
   nextAdsgramTaskAt?: boolean
+  premiumExpiredAt?: boolean
   countryRegistration?: boolean
   roleId?: boolean
   telegramDataId?: boolean
@@ -3733,7 +4008,7 @@ export type UsersSelectScalar = {
   acquisitionId?: boolean
 }
 
-export type UsersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramId" | "isTgProgramPartner" | "isFreePlanAvailable" | "isBanned" | "isDeleted" | "createdAt" | "updatedAt" | "lastStartedAt" | "banExpiredAt" | "deletedAt" | "tgProgramPartnerExpiredAt" | "nextAdsRewardAt" | "nextAdsgramTaskAt" | "countryRegistration" | "roleId" | "telegramDataId" | "balanceId" | "languageId" | "currencyKey" | "adsDataId" | "acquisitionId", ExtArgs["result"]["users"]>
+export type UsersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramId" | "isTgProgramPartner" | "isFreePlanAvailable" | "isBanned" | "isDeleted" | "isChannel" | "isChat" | "createdAt" | "updatedAt" | "lastStartedAt" | "banExpiredAt" | "deletedAt" | "tgProgramPartnerExpiredAt" | "nextAdsRewardAt" | "nextAdsgramTaskAt" | "premiumExpiredAt" | "countryRegistration" | "roleId" | "telegramDataId" | "balanceId" | "languageId" | "currencyKey" | "adsDataId" | "acquisitionId", ExtArgs["result"]["users"]>
 export type UsersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
   payments?: boolean | Prisma.Users$paymentsArgs<ExtArgs>
@@ -3797,6 +4072,8 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     isFreePlanAvailable: boolean
     isBanned: boolean
     isDeleted: boolean
+    isChannel: boolean
+    isChat: boolean
     createdAt: Date
     updatedAt: Date
     lastStartedAt: Date | null
@@ -3805,6 +4082,7 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     tgProgramPartnerExpiredAt: Date | null
     nextAdsRewardAt: Date | null
     nextAdsgramTaskAt: Date | null
+    premiumExpiredAt: Date | null
     countryRegistration: string | null
     roleId: $Enums.UserRoleEnum
     telegramDataId: string | null
@@ -4257,6 +4535,8 @@ export interface UsersFieldRefs {
   readonly isFreePlanAvailable: Prisma.FieldRef<"Users", 'Boolean'>
   readonly isBanned: Prisma.FieldRef<"Users", 'Boolean'>
   readonly isDeleted: Prisma.FieldRef<"Users", 'Boolean'>
+  readonly isChannel: Prisma.FieldRef<"Users", 'Boolean'>
+  readonly isChat: Prisma.FieldRef<"Users", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Users", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Users", 'DateTime'>
   readonly lastStartedAt: Prisma.FieldRef<"Users", 'DateTime'>
@@ -4265,6 +4545,7 @@ export interface UsersFieldRefs {
   readonly tgProgramPartnerExpiredAt: Prisma.FieldRef<"Users", 'DateTime'>
   readonly nextAdsRewardAt: Prisma.FieldRef<"Users", 'DateTime'>
   readonly nextAdsgramTaskAt: Prisma.FieldRef<"Users", 'DateTime'>
+  readonly premiumExpiredAt: Prisma.FieldRef<"Users", 'DateTime'>
   readonly countryRegistration: Prisma.FieldRef<"Users", 'String'>
   readonly roleId: Prisma.FieldRef<"Users", 'UserRoleEnum'>
   readonly telegramDataId: Prisma.FieldRef<"Users", 'String'>
