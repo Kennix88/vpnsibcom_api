@@ -143,25 +143,6 @@ grafana.fasti.fun {
     "
 }
 
-# Loki ingest/query with auth
-logs.fasti.fun {
-    import standard_config
-
-    basic_auth bcrypt {
-        {env.LOKI_BASIC_AUTH_USER} {env.LOKI_BASIC_AUTH_HASH}
-    }
-
-    reverse_proxy loki:3100
-
-    log {
-        output file /var/log/caddy/logs.access.log {
-            roll_size 100MB
-            roll_keep 5
-        }
-        format json
-    }
-}
-
 # FRP Control (WebSocket)
 frp.fasti.fun {
     import standard_config
