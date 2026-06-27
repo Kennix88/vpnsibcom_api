@@ -242,8 +242,8 @@ services:
     environment:
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - CADDY_DISABLE_HTTP_CHALLENGE=true
-      - LOKI_BASIC_AUTH_USER=${LOKI_BASIC_AUTH_USER}
-      - LOKI_BASIC_AUTH_HASH=${LOKI_BASIC_AUTH_HASH}
+      # - LOKI_BASIC_AUTH_USER=${LOKI_BASIC_AUTH_USER}
+      # - LOKI_BASIC_AUTH_HASH=${LOKI_BASIC_AUTH_HASH}
       # - ACME_AGREE=true
       - ACME_EMAIL=shel.live@yandex.ru
     depends_on:
@@ -251,8 +251,8 @@ services:
         condition: service_healthy
       grafana:
         condition: service_healthy
-      loki:
-        condition: service_healthy
+      # loki:
+      #   condition: service_healthy
     healthcheck:
       test: ['CMD', 'caddy', 'validate', '--config', '/etc/caddy/Caddyfile']
       interval: 30s
