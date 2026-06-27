@@ -54,6 +54,10 @@ export class StartUpdate {
 
   @Help()
   async helpCommand(@Ctx() ctx: Context) {
+    if (ctx.chat?.type !== 'private') {
+      await this.sendNonPrivateChatPitch(ctx).catch(console.error)
+      return
+    }
     await ctx.replyWithHTML(
       `<b>Help</b>
 <b>Ваш Telegram id</b>: <code>${ctx.from.id}</code>
@@ -91,12 +95,15 @@ export class StartUpdate {
   }
 
   @Start()
-  @On('message')
   @Command(['settings', 'profile', 'cancel', 'subscribe', 'policy'])
   async startCommand(@Ctx() ctx: Context) {
     try {
-      if (ctx.chat?.type !== 'private' || !ctx.from) return
+      if (ctx.chat?.type !== 'private') {
+        await this.sendNonPrivateChatPitch(ctx).catch(console.error)
+        return
+      }
 
+      if (!ctx.from) return
       const loaderMsgId = await ctx
         .replyWithSticker(
           'CAACAgIAAxkBAAEWPfRppTYBRM_NLOTANCMU-jcXRl5IwAACW1wBAAFji0YMrLK2QXamXBs6BA',
@@ -130,6 +137,9 @@ export class StartUpdate {
           // @ts-ignore
           day: chatInfo.birthdate.day ?? null,
         }
+
+      // @ts-ignore
+      const bio = (chatInfo && chatInfo.bio) ?? undefined
 
       await this.taddyService.startEvent({
         user: {
@@ -176,6 +186,7 @@ export class StartUpdate {
           startParam,
           ...(birth && { birth }),
           telegramPlatform: TelegramPlatformEnum.BOT,
+          bio,
         })
       }
 
@@ -221,12 +232,11 @@ export class StartUpdate {
       await ctx.sendPhoto(
         { source: createReadStream('assets/welcome.jpg') },
         {
-          caption: `<b>${this.i18n.t('telegraf.telegram.welcome.message1', {
-            lang: ctx.from.language_code,
-          })}
+          caption: `<b>Добро пожаловать в VPNsib!
 
-Бесплатный, быстрый и безопасный VPN для всех!
-Оставайся всегда на связи и получай доступ к интернету с VPNsib!</b>
+VPN, который думает за тебя 🧠
+Заблокированное — открывает. Российские сайты — пускает напрямую. Игры — без потери пинга.
+И всё это бесплатно, прямо в Telegram</b>
 `,
           parse_mode: 'HTML',
           reply_markup: {
@@ -284,5 +294,54 @@ export class StartUpdate {
         err: e,
       })
     }
+  }
+
+  @On('message')
+  async onMessage(@Ctx() ctx: Context) {
+    await this.sendNonPrivateChatPitch(ctx).catch(console.error)
+    return
+  }
+
+  private async sendNonPrivateChatPitch(ctx: Context) {
+    const tmaUrl =
+      this.configService.get<string>('TMA_URL') ||
+      'https://t.me/vpnsibcom_bot/tma'
+
+    const startUrl = tmaUrl + '?startapp=source-tgnotbot'
+
+    await ctx.sendPhoto(
+      { source: createReadStream('assets/welcome.jpg') },
+      {
+        caption: `<b>VPNsib</b> — бесплатный VPN, который думает за тебя 🧠
+
+Обходит блокировки, пускает российские сайты напрямую и держит пинг в играх — без установки приложений, прямо в Telegram.
+
+Подключиться можно только в личных сообщениях с ботом 👇
+`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          remove_keyboard: true,
+          inline_keyboard: [
+            [
+              {
+                ...Markup.button.url('🛡️ Подключить VPN бесплатно', startUrl),
+                // @ts-ignore
+                style: 'success',
+              },
+            ],
+            [
+              Markup.button.url(
+                '📢 Канал',
+                this.configService.get<string>('CHANNEL_URL'),
+              ),
+              Markup.button.url(
+                '💬 Чат и Поддержка',
+                this.configService.get<string>('CHAT_URL'),
+              ),
+            ],
+          ],
+        },
+      },
+    )
   }
 }
