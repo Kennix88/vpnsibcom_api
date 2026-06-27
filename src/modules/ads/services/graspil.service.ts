@@ -28,6 +28,12 @@ export interface GraspilUser {
   birth_month: number | null
   birth_year: number | null
   bio: string | null
+  utm?: {
+    first: object
+    last: object
+    weight: object
+    referral_id: number | null
+  }
 }
 
 interface GraspilGetUsersResponse {
