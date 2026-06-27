@@ -79,10 +79,12 @@ export class AdsService {
     reason?: string
     redirectUrl?: string
     rewardStars?: number
+    isClaimed?: boolean
   }> {
     const ad = await this.prisma.adsViews.findUnique({
       where: {
         verifyKey: key,
+        // claimedAt: { not: null },
         redirectUrl: {
           not: null,
         },
@@ -96,6 +98,7 @@ export class AdsService {
       success: true,
       redirectUrl: ad.redirectUrl,
       rewardStars: ad.rewardStars,
+      isClaimed: ad.claimedAt ? true : false,
     }
   }
 
@@ -693,7 +696,12 @@ export class AdsService {
     try {
       await this.prisma.$transaction(async (prisma) => {
         const getAd = await prisma.adsViews.findUnique({
-          where: { verifyKey: isEasy ? verifyKey : sessionId },
+          where: {
+            verifyKey: isEasy ? verifyKey : sessionId,
+            claimedAt: {
+              not: null,
+            },
+          },
         })
 
         if (!getAd || getAd.claimedAt) return
@@ -707,7 +715,9 @@ export class AdsService {
         if (!addBalanceResult.success) return
 
         const ad = await prisma.adsViews.update({
-          where: { verifyKey: sessionId },
+          where: {
+            verifyKey: sessionId,
+          },
           data: {
             claimedAt: new Date(),
             ip: ip ?? null,
