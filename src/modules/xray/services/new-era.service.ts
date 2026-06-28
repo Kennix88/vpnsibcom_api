@@ -752,6 +752,8 @@ export class NewEraService implements OnModuleInit {
       isAfter(new Date(), addDays(subscription.createdAt, 7)) &&
       subscription.lifeTimeUsedTraffic <= 0
 
+    // TODO: НЕ удалять, если есть прем, и если роль не пользователь и не олд юзер
+
     return (
       isNotLive || isAfterDaysFromEntry || isOldRemoval || isNotTrafficForWeek
     )
