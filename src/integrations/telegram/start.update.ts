@@ -19,15 +19,7 @@ import { extractReferralKey } from '@shared/utils/parse-start-param.util'
 import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
-import {
-  Command,
-  Ctx,
-  Help,
-  InjectBot,
-  On,
-  Start,
-  Update,
-} from 'nestjs-telegraf'
+import { Command, Ctx, Help, InjectBot, Start, Update } from 'nestjs-telegraf'
 import { Markup, Telegraf } from 'telegraf'
 
 @Update()
@@ -296,11 +288,11 @@ VPN, который думает за тебя 🧠
     }
   }
 
-  @On('message')
-  async onMessage(@Ctx() ctx: Context) {
-    await this.sendNonPrivateChatPitch(ctx).catch(console.error)
-    return
-  }
+  // @On('message')
+  // async onMessage(@Ctx() ctx: Context) {
+  //   await this.sendNonPrivateChatPitch(ctx).catch(console.error)
+  //   return
+  // }
 
   private async sendNonPrivateChatPitch(ctx: Context) {
     const tmaUrl =
