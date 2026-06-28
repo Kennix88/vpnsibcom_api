@@ -191,9 +191,10 @@ export class AdsSenderService implements OnModuleInit {
       let lastId: string | undefined
       let processed = 0
       const startTime = Date.now()
-      const sponsorMessage = `\n\n<b><i>Переходя по рекламе, вы получаете ${Number(
-        adsRewards.botMessage,
-      )} STARS на ваш баланс и поддерживаете наш VPN сервис❤️‍🔥</i></b>`
+      // const sponsorMessage = `\n\n<b><i>Переходя по рекламе, вы получаете ${Number(
+      //   adsRewards.botMessage,
+      // )} STARS на ваш баланс и поддерживаете наш VPN сервис❤️‍🔥</i></b>`
+      const sponsorMessage = `\n\n<b><i>VPNsib: Поддержи нас, твой переход и выполнение действий по рекламе поможет запустить новые сервера, устойчивые к блокировкам, как можно скорее, бесплатно для всех!</i></b>`
 
       this.logger.info({
         msg: 'Send ads started',
@@ -283,7 +284,8 @@ export class AdsSenderService implements OnModuleInit {
                           [
                             {
                               text: ad.richAds.button,
-                              url: ad.ad.goAdsUrl,
+                              url: ad.richAds.link,
+                              // url: ad.ad.goAdsUrl,
                               // @ts-ignore
                               style: 'success',
                             },
@@ -353,7 +355,8 @@ export class AdsSenderService implements OnModuleInit {
                             [
                               {
                                 text: ad.taddy.result.button,
-                                url: ad.ad.goAdsUrl,
+                                url: ad.taddy.result.link,
+                                // url: ad.ad.goAdsUrl,
                               },
                             ],
                           ]
@@ -376,7 +379,8 @@ export class AdsSenderService implements OnModuleInit {
                             [
                               {
                                 text: ad.taddy.result.button,
-                                url: ad.ad.goAdsUrl,
+                                url: ad.taddy.result.link,
+                                // url: ad.ad.goAdsUrl,
                               },
                             ],
                           ]
@@ -433,7 +437,7 @@ export class AdsSenderService implements OnModuleInit {
               const inlineKeyboard: any[][] = []
               if (adsgramAd.button_name && adsgramAd.click_url) {
                 inlineKeyboard.push([
-                  { text: adsgramAd.button_name, url: ad.ad.goAdsUrl },
+                  { text: adsgramAd.button_name, url: adsgramAd.click_url },
                 ])
               }
               if (adsgramAd.button_reward_name && adsgramAd.reward_url) {
