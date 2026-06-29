@@ -239,6 +239,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
     networks:
       - token-backend
+      - remnawave-network
     environment:
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - CADDY_DISABLE_HTTP_CHALLENGE=true
@@ -307,6 +308,9 @@ networks:
   token-backend:
     driver: bridge
     name: token-backend
+  remnawave-network:
+    driver: bridge
+    name: remnawave-network
 
 volumes:
   postgres_data:
