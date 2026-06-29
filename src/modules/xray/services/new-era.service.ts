@@ -18,7 +18,7 @@ import { UsersService } from '@modules/users/services/users.service'
 import { EventType } from '@modules/users/types/event-type.enum'
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Cron, CronExpression } from '@nestjs/schedule'
+import { Cron } from '@nestjs/schedule'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { genToken } from '@shared/utils/gen-token.util'
@@ -134,9 +134,10 @@ export class NewEraService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    void this.removalSubscriptions().catch((error) => {
-      this.logger.error('Ошибка в NewEraService onModuleInit', error)
-    })
+    // WARN: вернуть потом крон
+    // void this.removalSubscriptions().catch((error) => {
+    //   this.logger.error('Ошибка в NewEraService onModuleInit', error)
+    // })
     void this.checkEntryChannelAndChat().catch((error) => {
       this.logger.error('Ошибка в NewEraService onModuleInit', error)
     })
@@ -791,7 +792,8 @@ export class NewEraService implements OnModuleInit {
     return true
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_5AM)
+  // WARN: вернуть потом крон
+  // @Cron(CronExpression.EVERY_DAY_AT_5AM)
   private async removalSubscriptions() {
     // Крон агрессивной очистки от ненужных подписок в сервисе
     try {
@@ -866,27 +868,8 @@ export class NewEraService implements OnModuleInit {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_3AM)
-  private async rebootXrayCore() {
-    await this.redis.withLock(
-      'rebootXrayCoreLock',
-      30,
-      async () => {
-        try {
-          await this.marzbanService.restartCore()
-        } catch (error) {
-          this.logger.error({
-            msg: 'Ошибка перезапуска ядра Xray',
-            service: this.serviceName,
-            error: error instanceof Error ? error.message : String(error),
-          })
-        }
-      },
-      { retries: 0, retryDelayMs: 0, autoRenewIntervalSec: 0 },
-    )
-  }
-
-  @Cron('0 0 */6 * * *')
+  // WARN: вернуть потом крон
+  // @Cron('0 0 */6 * * *')
   private async rebootTelegramConfig() {
     await this.redis.withLock(
       'rebootTelegramConfigLock',
@@ -1051,7 +1034,8 @@ export class NewEraService implements OnModuleInit {
     }
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  // WARN: вернуть потом крон
+  // @Cron(CronExpression.EVERY_MINUTE)
   async subscriptionsUpdater() {
     await this.redis.withLock(
       'subscriptionsUpdaterLock',
