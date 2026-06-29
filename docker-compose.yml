@@ -309,7 +309,7 @@ networks:
     driver: bridge
     name: token-backend
   remnawave-network:
-    driver: bridge
+    external: true
     name: remnawave-network
 
 volumes:
