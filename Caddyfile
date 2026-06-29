@@ -127,6 +127,19 @@ api.fasti.fun {
     }
 }
 
+rem.fasti.fun {
+    import standard_config
+
+    reverse_proxy remnawave:3000 {
+        transport http {
+            read_timeout 300s
+            write_timeout 300s
+            keepalive 120s
+        }
+    }
+}
+
+
 # Grafana
 grafana.fasti.fun {
     import standard_config
