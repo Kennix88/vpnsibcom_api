@@ -2,7 +2,6 @@ import { Prisma } from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
-import { PaymentTypeEnum } from '@modules/payments/types/payment-type.enum'
 import { PlansServersSelectTypeEnum } from '@modules/plans/types/plans-servers-select-type.enum'
 import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { EventsService } from '@modules/users/services/events.service'
@@ -11,7 +10,6 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
-import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
 import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
@@ -27,7 +25,6 @@ import {
   SubscriptionDataInterface,
   SubscriptionResponseInterface,
 } from '../types/subscription-data.interface'
-import { calculateTrafficPrice } from '../utils/calculate-subscription-cost.util'
 import { MarzbanService } from './marzban.service'
 
 // ---------------------------------------------------------------------------
@@ -89,411 +86,6 @@ export class XrayService {
     @InjectBot() private readonly bot: Telegraf,
     private readonly eventsService: EventsService,
   ) {}
-
-  public async addTraffic(
-    subscriptionId: string,
-    traffic: number,
-    method: PaymentMethodEnum | 'BALANCE' | 'USDT',
-    userId: string,
-  ) {
-    try {
-      const sub = await this.prismaService.subscriptions.findUnique({
-        where: {
-          id: subscriptionId,
-          userId: userId,
-        },
-        include: {
-          plan: true,
-          user: {
-            include: {
-              role: true,
-            },
-          },
-        },
-      })
-
-      if (!sub) {
-        this.logger.error({
-          msg: `Не существует такой подписки с таким пользователем!`,
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'Не существует такой подписки с таким пользователем!',
-        }
-      }
-
-      const settings = await this.prismaService.settings.findUnique({
-        where: {
-          key: DefaultEnum.DEFAULT,
-        },
-      })
-      if (!settings) {
-        this.logger.error({
-          msg: 'Настройки не найдены',
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'settings_not_found',
-        }
-      }
-
-      if (method === 'BALANCE' || method === 'USDT') {
-        const deductionAmount =
-          method === 'USDT'
-            ? calculateTrafficPrice(
-                traffic,
-                sub.isPremium,
-                sub.user.isTgProgramPartner,
-                sub.user.role.discount,
-                settings,
-              ) * settings.tgStarsToUSD
-            : calculateTrafficPrice(
-                traffic,
-                sub.isPremium,
-                sub.user.isTgProgramPartner,
-                sub.user.role.discount,
-                settings,
-              )
-        const deductionBalanceType =
-          method === 'USDT' ? BalanceTypeEnum.USDT : BalanceTypeEnum.PAYMENT
-
-        // FIX #8: deduct balance first, then mutate Marzban/DB.
-        // If Marzban/DB fails we roll back the balance manually and log
-        // any rollback failure so ops can correct it.
-        const updateBalance = await this.userService.deductUserBalance(
-          userId,
-          deductionAmount,
-          TransactionReasonEnum.SUBSCRIPTIONS,
-          deductionBalanceType,
-        )
-
-        if (!updateBalance.success) {
-          this.logger.error({
-            msg: `Ошибка при изменении баланса пользователя: ${updateBalance}`,
-            service: this.serviceName,
-          })
-          return {
-            success: false,
-            message: 'Error changing user balance',
-          }
-        }
-
-        const updateSub = await this.addTrafficToSubscription(
-          subscriptionId,
-          traffic,
-        )
-
-        if (!updateSub || !updateSub.success) {
-          // Balance already deducted — attempt rollback
-          const rollbackResult = await this.userService.addUserBalance(
-            userId,
-            deductionAmount,
-            TransactionReasonEnum.SUBSCRIPTIONS,
-            deductionBalanceType,
-          )
-
-          if (!rollbackResult.success) {
-            // Critical: money deducted but service not delivered — alert ops
-            this.logger.error({
-              msg: `CRITICAL: Не удалось вернуть средства после ошибки добавления трафика`,
-              userId,
-              deductionAmount,
-              deductionBalanceType,
-              service: this.serviceName,
-            })
-          }
-
-          this.logger.error({
-            msg: `Ошибка при изменении трафика подписки: ${updateSub}`,
-            service: this.serviceName,
-          })
-          return {
-            success: false,
-            message: 'Error changing subscription traffic',
-          }
-        }
-
-        return {
-          success: true,
-        }
-      }
-
-      const invoice = await this.paymentsService.createInvoice(
-        calculateTrafficPrice(
-          traffic,
-          sub.isPremium,
-          sub.user.isTgProgramPartner,
-          sub.user.role.discount,
-          settings,
-        ),
-        method,
-        sub.user.telegramId,
-        PaymentTypeEnum.ADD_TRAFFIC_SUBSCRIPTION,
-        {
-          subscriptionId,
-          traffic,
-        },
-        subscriptionId,
-      )
-
-      return {
-        success: true,
-        invoice,
-      }
-    } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при изменении трафика подписки: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-        service: this.serviceName,
-      })
-      return {
-        success: false,
-        message: 'Error changing subscription traffic',
-      }
-    }
-  }
-
-  public async addTrafficToSubscription(
-    subscriptionId: string,
-    traffic: number,
-  ) {
-    try {
-      const sub = await this.prismaService.subscriptions.findUnique({
-        where: {
-          id: subscriptionId,
-        },
-        include: {
-          user: {
-            include: {
-              telegramData: true,
-            },
-          },
-        },
-      })
-
-      if (!sub) {
-        this.logger.error({
-          msg: `Не существует такой подписки!`,
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'Не существует такой подписки!',
-        }
-      }
-
-      const updateData = {
-        data_limit: (sub.trafficLimitGb + traffic) * 1024 * 1024 * 1024,
-      }
-
-      const marzbanUser = await this.marzbanService.modifyUser(
-        sub.username,
-        updateData,
-      )
-
-      if (!marzbanUser) {
-        this.logger.error({
-          msg: `Ошибка при изменении трафика подписки: ${marzbanUser}`,
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'Error changing subscription traffic',
-        }
-      }
-
-      // if (this.configService.getOrThrow<string>('NODE_ENV') === 'production') {
-      //   await this.marzbanService.restartCore()
-      // }
-
-      const updateSub = await this.prismaService.subscriptions.update({
-        where: {
-          id: subscriptionId,
-        },
-        data: {
-          isActive: true,
-          planKey: PlansEnum.TRAFFIC,
-          trafficLimitGb: sub.trafficLimitGb + traffic,
-          // FIX #9: values from Marzban are in bytes; store as MB
-          usedTraffic: marzbanUser.used_traffic / 1024 / 1024,
-          lastUserAgent: marzbanUser.sub_last_user_agent,
-          dataLimit: marzbanUser.data_limit / 1024 / 1024,
-          lifeTimeUsedTraffic: marzbanUser.lifetime_used_traffic / 1024 / 1024,
-          onlineAt: marzbanUser.online_at
-            ? new Date(marzbanUser.online_at + 'Z')
-            : null,
-          removalAt: null,
-          marzbanData: marzbanUser as unknown as Prisma.InputJsonValue,
-          announce: null,
-        },
-      })
-
-      if (!updateSub) {
-        this.logger.error({
-          msg: `Ошибка при изменении трафика подписки: ${updateSub}`,
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'Error changing subscription traffic',
-        }
-      }
-
-      await this.bot.telegram
-        .sendMessage(
-          Number(process.env.TELEGRAM_LOG_CHAT_ID),
-          `<b>➕ ДОБАВЛЕН ТРАФИК НА ${traffic} GB</b>
-<b>👤 Пользователь:</b> ${
-            sub.user.telegramData?.username
-              ? `@${sub.user.telegramData?.username}`
-              : ''
-          } <code>${sub.user.telegramData?.firstName || ''} ${
-            sub.user.telegramData?.lastName || ''
-          }</code>
-<b>🪪 User ID:</b> <code>${updateSub.userId}</code>
-<b>🆔 Telegram ID:</b> <code>${sub.user.telegramId}</code>
-<b>Имя:</b> <code>${updateSub.name}</code>
-<b>Username :</b> <code>${updateSub.username}</code>
-<b>Тариф:</b> <code>${updateSub.planKey}</code>
-<b>📅 Дата истечения:</b> <code>${
-            updateSub.expiredAt == null ? '♾️' : updateSub.expiredAt
-          }</code>
-<b>🔁 Автопродление:</b> <code>${updateSub.isAutoRenewal ? '✅' : '🚫'}</code>
-<b>Множитель периода:</b> <code>x${updateSub.periodMultiplier}</code>
-<b>Цена следующей оплаты:</b> <code>${updateSub.nextRenewalStars}</code>
-<b>⭐ Премиум:</b> <code>${updateSub.isPremium ? '✅' : '🚫'}</code>
-<b>📱 Устройства:</b> <code>${updateSub.devicesCount}</code> шт.
-<b>Все базовые сервера:</b> <code>${
-            updateSub.isAllBaseServers ? '✅' : '🚫'
-          }</code>
-<b>Все премиум сервера:</b> <code>${
-            updateSub.isAllPremiumServers ? '✅' : '🚫'
-          }</code>
-<b>📉 Лимит трафика (MB/GB):</b> <code>${updateSub.usedTraffic}</code>/<code>${
-            updateSub.trafficLimitGb *
-            (updateSub.trafficReset == TrafficResetEnum.DAY
-              ? 1
-              : updateSub.trafficReset == TrafficResetEnum.WEEK
-              ? 7
-              : updateSub.trafficReset == TrafficResetEnum.MONTH
-              ? 30
-              : updateSub.trafficReset == TrafficResetEnum.YEAR
-              ? 365
-              : 1)
-          } GB</code>
-<b>Сброс трафика:</b> <code>${updateSub.trafficReset}</code>
-<b>♾️ Безлимит:</b> <code>${updateSub.isUnlimitTraffic ? '✅' : '🚫'}</code>
-`,
-          {
-            parse_mode: 'HTML',
-            message_thread_id: Number(
-              process.env.TELEGRAM_THREAD_ID_SUBSCRIPTIONS,
-            ),
-          },
-        )
-        .catch((e) => {
-          this.logger.error({
-            msg: `Error while sending message to telegram`,
-            e,
-          })
-        })
-        .then(() => {
-          this.logger.info({
-            msg: `Message sent to telegram`,
-          })
-        })
-
-      return {
-        success: true,
-      }
-    } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при изменении трафика подписки: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-        service: this.serviceName,
-      })
-      return {
-        success: false,
-        message: 'Error changing subscription traffic',
-      }
-    }
-  }
-
-  public async updateServer(
-    subscriptionId: string,
-    server: string,
-    userId: string,
-  ) {
-    try {
-      const sub = await this.prismaService.subscriptions.findUnique({
-        where: {
-          id: subscriptionId,
-          userId: userId,
-        },
-      })
-
-      if (!sub) {
-        this.logger.error({
-          msg: `Не существует такой подписки с таким пользователем!`,
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'Не существует такой подписки с таким пользователем!',
-        }
-      }
-
-      const getServer = await this.prismaService.greenList.findUnique({
-        where: {
-          code: server,
-        },
-      })
-
-      if (!getServer) {
-        this.logger.error({
-          msg: `Нужный сервер не найден!`,
-          service: this.serviceName,
-        })
-        return {
-          success: false,
-          message: 'Нужный сервер не найден',
-        }
-      }
-
-      await this.prismaService.$transaction(async (tx) => {
-        await tx.subscriptionToGreenList.deleteMany({
-          where: {
-            subscriptionId: subscriptionId,
-          },
-        })
-        await tx.subscriptionToGreenList.create({
-          data: {
-            subscriptionId: subscriptionId,
-            greenListId: getServer.green,
-          },
-        })
-      })
-
-      return {
-        success: true,
-      }
-    } catch (error) {
-      this.logger.error({
-        msg: `Ошибка при изменении сервера подписки: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-        service: this.serviceName,
-      })
-      return {
-        success: false,
-        message: 'Error changing subscription server',
-      }
-    }
-  }
 
   public async editSubscriptionName(
     subscriptionId: string,
@@ -649,8 +241,9 @@ export class XrayService {
       )
 
       const routing = settings.routingUrl ? settings.routingUrl : undefined
-      const subscriptionUrl = `${allowedOrigin}/sub/${subscription.token}`
-
+      // const subscriptionUrl = `${allowedOrigin}/sub/${subscription.token}`
+      const subscriptionUrl =
+        'happ://crypt5/fzvdgqNr9OJMbqUegYzarjvM108MTu8gTcX/YH9X2txQ8zaZpbwMA+JxBuunRLP92iRaj7KA28c2VdoVTkDKAvEr+MSAa8aAIDLrTby0950uKOu/tISsegtPiHUXo+ysVLI7Tc/xZzI=bwCER8jknmbfRBGjwrG3a6+iZj05z2Za8vbYJiLF8xRsVnqZ2M4j76tWOzIoIphSheu+JQSHnJAOf9zrdTfHuINkAnWVqwlLMLrpoE2/wVNHT9h7GCWceMDBl0EJ4BYpIfjqGU/V4NQC903lH3jZcdDOKt9mMS8zlVL5Iah2XJABHKNu72HXEUOJF2DqAB/gWIxOencCrwDFeeOKtaSF2BM/+zWsylIszAENOgq0EvLSs7yOKLeRgndjpZ6QKrH4zUDoCy++pB1WoisC/mT/lIwtIPq2lj/upJummLfWGfaSA9Svzka+iwzrSEPnpwFU0lRFldgkAftJY2OsDYNLXSqgHVSBO7GOGhG5gCFNjNnp6HZBoxlHEeB4oI1UzjsvJELC0dZUqzS8/JHGAYGaUV3mKUeW9k6Dx4SZ2xPquSJ7SYyG83lRB5h3v/yC3orxp4bLD6dd7WL7xc5gB9/zlOGAbseiJiR4k75WZhueL5uutbMtEHjKkwDsvHEt579Z+ArxTdIFW6J0ychpFzyB0XxxeEo2QZpNUy7s8l5FcGcIEUdr1c1H/dwrM8vmj4dG6TcamnpSY0/9hxzXf7bNmQ1ktSwdbr2+k7zkso1bx9AQ6MCoM9fxaj3mi/S8a1/r9ZxxooR/oco24YN4TOgZSsmgQaD6IpffhIKJEaTffoI=ff'
       // FIX #11: resolve servers via shared helper
       const resolvedServers = this.resolveServers(
         subscription,
@@ -853,7 +446,8 @@ export class XrayService {
           expiredAt: subscription.expiredAt,
           onlineAt: subscription.onlineAt,
           token: subscription.token,
-          subscriptionUrl: `${allowedOrigin}/sub/${subscription.token}`,
+          // subscriptionUrl: `${allowedOrigin}/sub/${subscription.token}`,
+          subscriptionUrl: `happ://crypt5/fzvdgqNr9OJMbqUegYzarjvM108MTu8gTcX/YH9X2txQ8zaZpbwMA+JxBuunRLP92iRaj7KA28c2VdoVTkDKAvEr+MSAa8aAIDLrTby0950uKOu/tISsegtPiHUXo+ysVLI7Tc/xZzI=bwCER8jknmbfRBGjwrG3a6+iZj05z2Za8vbYJiLF8xRsVnqZ2M4j76tWOzIoIphSheu+JQSHnJAOf9zrdTfHuINkAnWVqwlLMLrpoE2/wVNHT9h7GCWceMDBl0EJ4BYpIfjqGU/V4NQC903lH3jZcdDOKt9mMS8zlVL5Iah2XJABHKNu72HXEUOJF2DqAB/gWIxOencCrwDFeeOKtaSF2BM/+zWsylIszAENOgq0EvLSs7yOKLeRgndjpZ6QKrH4zUDoCy++pB1WoisC/mT/lIwtIPq2lj/upJummLfWGfaSA9Svzka+iwzrSEPnpwFU0lRFldgkAftJY2OsDYNLXSqgHVSBO7GOGhG5gCFNjNnp6HZBoxlHEeB4oI1UzjsvJELC0dZUqzS8/JHGAYGaUV3mKUeW9k6Dx4SZ2xPquSJ7SYyG83lRB5h3v/yC3orxp4bLD6dd7WL7xc5gB9/zlOGAbseiJiR4k75WZhueL5uutbMtEHjKkwDsvHEt579Z+ArxTdIFW6J0ychpFzyB0XxxeEo2QZpNUy7s8l5FcGcIEUdr1c1H/dwrM8vmj4dG6TcamnpSY0/9hxzXf7bNmQ1ktSwdbr2+k7zkso1bx9AQ6MCoM9fxaj3mi/S8a1/r9ZxxooR/oco24YN4TOgZSsmgQaD6IpffhIKJEaTffoI=ff`,
         }),
       )
 
