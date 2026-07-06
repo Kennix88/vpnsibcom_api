@@ -31,6 +31,22 @@ export class PaymentsUpdate {
   @On('pre_checkout_query')
   async handlePreCheckout(@Ctx() ctx: Context) {
     try {
+      if (!ctx.from) {
+        return
+      }
+
+      if (ctx.from.is_bot) {
+        this.logger.warn({
+          msg: 'Bot update received',
+          update: ctx.update,
+        })
+
+        return
+      }
+
+      if (ctx.chat?.type !== 'private') {
+        return
+      }
       const query = ctx.preCheckoutQuery
       this.logger.info(`PreCheckoutQuery received: ${JSON.stringify(query)}`)
       await ctx.answerPreCheckoutQuery(true)
@@ -51,17 +67,49 @@ export class PaymentsUpdate {
   @On('successful_payment')
   async handleSuccessfulPayment(@Ctx() ctx: Context) {
     try {
+      if (!ctx.from) {
+        return
+      }
+
+      if (ctx.from.is_bot) {
+        this.logger.warn({
+          msg: 'Bot update received',
+          update: ctx.update,
+        })
+
+        return
+      }
+
+      if (ctx.chat?.type !== 'private') {
+        return
+      }
       const msg = ctx.message
       if (!msg) return
       if (!('successful_payment' in msg)) return
 
       const payment = msg.successful_payment as SuccessfulPayment
+      if (payment.currency !== 'XTR') {
+        this.logger.warn({
+          msg: 'Unexpected payment currency',
+          currency: payment.currency,
+        })
+
+        return
+      }
       const userId = ctx.from?.id.toString()
 
       this.logger.info({
-        msg: 'SuccessfulPayment received',
-        payment: JSON.stringify(payment),
-        userId,
+        msg: 'Successful payment',
+
+        telegramUserId: ctx.from.id,
+
+        amount: payment.total_amount,
+
+        currency: payment.currency,
+
+        invoicePayload: payment.invoice_payload,
+
+        telegramPaymentChargeId: payment.telegram_payment_charge_id,
       })
 
       let userLang = 'ru'
