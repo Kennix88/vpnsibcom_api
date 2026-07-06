@@ -46,10 +46,24 @@ export class StartUpdate {
 
   @Help()
   async helpCommand(@Ctx() ctx: Context) {
+    if (!ctx.from) {
+      return
+    }
+
+    if (ctx.from.is_bot) {
+      this.logger.warn({
+        msg: 'Bot update received',
+        update: ctx.update,
+      })
+
+      return
+    }
+
     if (ctx.chat?.type !== 'private') {
       await this.sendNonPrivateChatPitch(ctx).catch(console.error)
       return
     }
+
     await ctx.replyWithHTML(
       `<b>Help</b>
 <b>Ваш Telegram id</b>: <code>${ctx.from.id}</code>
@@ -90,12 +104,24 @@ export class StartUpdate {
   @Command(['settings', 'profile', 'cancel', 'subscribe', 'policy'])
   async startCommand(@Ctx() ctx: Context) {
     try {
+      if (!ctx.from) {
+        return
+      }
+
+      if (ctx.from.is_bot) {
+        this.logger.warn({
+          msg: 'Bot update received',
+          update: ctx.update,
+        })
+
+        return
+      }
+
       if (ctx.chat?.type !== 'private') {
         await this.sendNonPrivateChatPitch(ctx).catch(console.error)
         return
       }
 
-      if (!ctx.from) return
       const loaderMsgId = await ctx
         .replyWithSticker(
           'CAACAgIAAxkBAAEWPfRppTYBRM_NLOTANCMU-jcXRl5IwAACW1wBAAFji0YMrLK2QXamXBs6BA',
@@ -140,7 +166,8 @@ export class StartUpdate {
           lastName: ctx.from.last_name,
           username: ctx.from.username,
           premium: ctx.from.is_premium,
-          language: ctx.from.language_code,
+          language: 'ru',
+          country: 'RU',
           // @ts-ignore
           ...(chatInfo &&
             // @ts-ignore
