@@ -82,14 +82,20 @@ services:
       - TADDY_SECRET_KEY=${TADDY_SECRET_KEY}
       - ADSGRAM_TOKEN=${ADSGRAM_TOKEN}
       - GRASPIL_TOKEN=${GRASPIL_TOKEN}
-      - GRASPIL_PRIXY_URL=${GRASPIL_PRIXY_URL}
+      - GRASPIL_PROXY_URL=${GRASPIL_PROXY_URL}
       - RICHADS_API_URL=${RICHADS_API_URL}
       - RICHADS_PUB_KEY=${RICHADS_PUB_KEY}
+      - REMNAWAVE_API_URL=${REMNAWAVE_API_URL}
+      - REMNAWAVE_API_TOKEN=${REMNAWAVE_API_TOKEN}
+      - REMNAWAVE_TIMEOUT_MS=${REMNAWAVE_TIMEOUT_MS}
+      - REMNAWAVE_MAX_RETRIES=${REMNAWAVE_MAX_RETRIES}
+      - SUB_DOMAIN=${SUB_DOMAIN}
     volumes:
       - api_logs:/app/logs
       - api_data:/app/data
     networks:
       - token-backend
+      - remnawave-network
     expose:
       - '4000'
     ports:
@@ -129,6 +135,7 @@ services:
       - NEXT_PUBLIC_GRASPIL_ID=${NEXT_PUBLIC_GRASPIL_ID}
     networks:
       - token-backend
+      - remnawave-network
     expose:
       - '3000'
     ports:
@@ -207,6 +214,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
     networks:
       - token-backend
+      - remnawave-network
     expose:
       - '3000'
     ports:
@@ -241,11 +249,11 @@ services:
       - token-backend
       - remnawave-network
     environment:
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - MAIN_DOMAIN=${MAIN_DOMAIN}
+      - SUB_DOMAIN=${SUB_DOMAIN}
+      - FRONTEND_DOMAINS=${FRONTEND_DOMAINS}
+      - BUNNY_API_KEY=${BUNNY_API_KEY}
       - CADDY_DISABLE_HTTP_CHALLENGE=true
-      # - LOKI_BASIC_AUTH_USER=${LOKI_BASIC_AUTH_USER}
-      # - LOKI_BASIC_AUTH_HASH=${LOKI_BASIC_AUTH_HASH}
-      # - ACME_AGREE=true
       - ACME_EMAIL=shel.live@yandex.ru
     depends_on:
       api:
@@ -278,7 +286,7 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_LOG_CHAT_ID=${TELEGRAM_LOG_CHAT_ID}
       - TELEGRAM_THREAD_ID_BACKUPS=${TELEGRAM_THREAD_ID_BACKUPS}
-      - GRASPIL_PRIXY_URL=${GRASPIL_PRIXY_URL}
+      - GRASPIL_PROXY_URL=${GRASPIL_PROXY_URL}
       - CRON_SCHEDULE=0 */6 * * *
     networks:
       - token-backend
