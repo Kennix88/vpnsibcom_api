@@ -5,11 +5,13 @@ import { AuthService } from '@core/auth/services/auth.service'
 import { UsersService } from '@modules/users/services/users.service'
 import {
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpException,
   HttpStatus,
   InternalServerErrorException,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -36,6 +38,46 @@ export class NewEraController {
     }
   }
 
+  @Post('extensions')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ defaults: { limit: 10, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  async checkExtensions(
+    @CurrentUser() user: JwtPayload,
+    @Req() req: FastifyRequest,
+  ) {
+    try {
+      await this.refreshActivity(req)
+      this.logger.info(
+        `Проверка расширений подписок для пользователя: ${user.telegramId}`,
+      )
+
+      const [extensions, userData] = await Promise.all([
+        this.newEraService.checkSubscriptionTasksByUserId(user.sub),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      if (!extensions || !extensions.success) {
+        throw new InternalServerErrorException(
+          'Произошла ошибка при проверки расширений подписки',
+        )
+      }
+
+      return { success: true, extensions: extensions.data, user: userData }
+    } catch (error) {
+      if (error instanceof HttpException) throw error
+      this.logger.error(
+        `Ошибка при проверки расширений подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при проверки расширений подписки',
+      )
+    }
+  }
+
   @Get('extensions')
   @UseGuards(JwtAuthGuard)
   @Throttle({ defaults: { limit: 10, ttl: 60 } })
@@ -47,7 +89,7 @@ export class NewEraController {
     try {
       await this.refreshActivity(req)
       this.logger.info(
-        `Получение подписок для пользователя: ${user.telegramId}`,
+        `Получение расширений подписок для пользователя: ${user.telegramId}`,
       )
 
       const [extensions, userData] = await Promise.all([
@@ -57,22 +99,28 @@ export class NewEraController {
         this.userService.getResUserByTgId(user.telegramId),
       ])
 
-      return { success: true, extensions, user: userData }
+      if (!extensions || !extensions.success) {
+        throw new InternalServerErrorException(
+          'Произошла ошибка при получении расширений подписки',
+        )
+      }
+
+      return { success: true, extensions: extensions.data, user: userData }
     } catch (error) {
       if (error instanceof HttpException) throw error
       this.logger.error(
-        `Ошибка при получении подписки: ${
+        `Ошибка при получении расширений подписки: ${
           error instanceof Error ? error.message : String(error)
         }`,
         error instanceof Error ? error.stack : undefined,
       )
       throw new InternalServerErrorException(
-        'Произошла ошибка при получении подписки',
+        'Произошла ошибка при получении расширений подписки',
       )
     }
   }
 
-  @Get()
+  @Get('sub')
   @UseGuards(JwtAuthGuard)
   @Throttle({ defaults: { limit: 10, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
@@ -88,7 +136,13 @@ export class NewEraController {
         this.userService.getResUserByTgId(user.telegramId),
       ])
 
-      return { success: true, subscription, user: userData }
+      if (!subscription || !subscription.success) {
+        throw new InternalServerErrorException(
+          'Произошла ошибка при получении подписки',
+        )
+      }
+
+      return { success: true, subscription: subscription.data, user: userData }
     } catch (error) {
       if (error instanceof HttpException) throw error
       this.logger.error(
@@ -103,7 +157,47 @@ export class NewEraController {
     }
   }
 
-  @Post()
+  @Delete('device/:hwid')
+  @UseGuards(JwtAuthGuard)
+  @PreventDuplicateRequest(60)
+  @Throttle({ defaults: { limit: 10, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  async deleteSub(
+    @Param('hwid') hwid: string,
+    @CurrentUser() user: JwtPayload,
+    @Req() req: FastifyRequest,
+  ) {
+    try {
+      await this.refreshActivity(req)
+      this.logger.info(`Удаление устройства пользователя: ${user.telegramId}`)
+
+      const [subscription, userData] = await Promise.all([
+        this.newEraService.deleteDevice(user.sub, hwid),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      if (!subscription || !subscription.success) {
+        throw new InternalServerErrorException(
+          'Произошла ошибка при Удаление устройства',
+        )
+      }
+
+      return { success: true, subscription: subscription.data, user: userData }
+    } catch (error) {
+      if (error instanceof HttpException) throw error
+      this.logger.error(
+        `Ошибка при Удаление устройства: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при Удаление устройства',
+      )
+    }
+  }
+
+  @Post('sub')
   @UseGuards(JwtAuthGuard)
   @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 10, ttl: 60 } })
@@ -118,7 +212,13 @@ export class NewEraController {
         this.userService.getResUserByTgId(user.telegramId),
       ])
 
-      return { success: true, subscription, user: userData }
+      if (!subscription || !subscription.success) {
+        throw new InternalServerErrorException(
+          'Произошла ошибка при продление подписки',
+        )
+      }
+
+      return { success: true, subscription: subscription.data, user: userData }
     } catch (error) {
       if (error instanceof HttpException) throw error
       this.logger.error(
