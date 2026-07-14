@@ -3,6 +3,7 @@ export enum TransactionReasonEnum {
   PAYMENT = 'PAYMENT',
   SYSTEM = 'SYSTEM',
   SUBSCRIPTIONS = 'SUBSCRIPTIONS',
+  PREMIUM = 'PREMIUM',
   REWARD = 'REWARD',
   REFERRAL = 'REFERRAL',
   FINE = 'FINE',
