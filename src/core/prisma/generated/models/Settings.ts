@@ -29,13 +29,6 @@ export type AggregateSettings = {
 export type SettingsAvgAggregateOutputType = {
   tgStarsToUSD: number | null
   telegramPremiumRatio: number | null
-  devicesPriceStars: number | null
-  serversPriceStars: number | null
-  premiumServersPriceStars: number | null
-  allBaseServersPriceStars: number | null
-  allPremiumServersPriceStars: number | null
-  trafficGbPriceStars: number | null
-  unlimitTrafficPriceStars: number | null
   hourRatioPayment: number | null
   dayRatioPayment: number | null
   weekRatioPayment: number | null
@@ -63,22 +56,13 @@ export type SettingsAvgAggregateOutputType = {
   bonusPayment20000: number | null
   bonusPayment50000: number | null
   nextAdsHours: number | null
-  nextFakeAdsHours: number | null
   premiumStatusPriceStars: number | null
   premiumStatusDiscountRatio: number | null
-  subscriptionRemovalAfterInactiveDays: number | null
 }
 
 export type SettingsSumAggregateOutputType = {
   tgStarsToUSD: number | null
   telegramPremiumRatio: number | null
-  devicesPriceStars: number | null
-  serversPriceStars: number | null
-  premiumServersPriceStars: number | null
-  allBaseServersPriceStars: number | null
-  allPremiumServersPriceStars: number | null
-  trafficGbPriceStars: number | null
-  unlimitTrafficPriceStars: number | null
   hourRatioPayment: number | null
   dayRatioPayment: number | null
   weekRatioPayment: number | null
@@ -106,23 +90,14 @@ export type SettingsSumAggregateOutputType = {
   bonusPayment20000: number | null
   bonusPayment50000: number | null
   nextAdsHours: number | null
-  nextFakeAdsHours: number | null
   premiumStatusPriceStars: number | null
   premiumStatusDiscountRatio: number | null
-  subscriptionRemovalAfterInactiveDays: number | null
 }
 
 export type SettingsMinAggregateOutputType = {
   key: $Enums.DefaultEnum | null
   tgStarsToUSD: number | null
   telegramPremiumRatio: number | null
-  devicesPriceStars: number | null
-  serversPriceStars: number | null
-  premiumServersPriceStars: number | null
-  allBaseServersPriceStars: number | null
-  allPremiumServersPriceStars: number | null
-  trafficGbPriceStars: number | null
-  unlimitTrafficPriceStars: number | null
   hourRatioPayment: number | null
   dayRatioPayment: number | null
   weekRatioPayment: number | null
@@ -152,22 +127,12 @@ export type SettingsMinAggregateOutputType = {
   bonusPayment50000: number | null
   isActiveSendAdsMessages: boolean | null
   nextAdsHours: number | null
-  isActiveFakeAds: boolean | null
-  nextFakeAdsHours: number | null
-  lastFakeAdsSend: Date | null
-  proxyPartnerLink: string | null
-  partnerBotLink: string | null
-  partnerMiniAppLink: string | null
-  partnerSiteLink: string | null
   importUsersUrl: string | null
   isActiveImportUsers: boolean | null
   isActiveCheckUsers: boolean | null
   defaultAnnounce: string | null
-  routingUrl: string | null
   premiumStatusPriceStars: number | null
   premiumStatusDiscountRatio: number | null
-  subscriptionRemovalAfterInactiveDays: number | null
-  removeOldSubscriptionsAfter: Date | null
   chatId: string | null
   channelId: string | null
 }
@@ -176,13 +141,6 @@ export type SettingsMaxAggregateOutputType = {
   key: $Enums.DefaultEnum | null
   tgStarsToUSD: number | null
   telegramPremiumRatio: number | null
-  devicesPriceStars: number | null
-  serversPriceStars: number | null
-  premiumServersPriceStars: number | null
-  allBaseServersPriceStars: number | null
-  allPremiumServersPriceStars: number | null
-  trafficGbPriceStars: number | null
-  unlimitTrafficPriceStars: number | null
   hourRatioPayment: number | null
   dayRatioPayment: number | null
   weekRatioPayment: number | null
@@ -212,22 +170,12 @@ export type SettingsMaxAggregateOutputType = {
   bonusPayment50000: number | null
   isActiveSendAdsMessages: boolean | null
   nextAdsHours: number | null
-  isActiveFakeAds: boolean | null
-  nextFakeAdsHours: number | null
-  lastFakeAdsSend: Date | null
-  proxyPartnerLink: string | null
-  partnerBotLink: string | null
-  partnerMiniAppLink: string | null
-  partnerSiteLink: string | null
   importUsersUrl: string | null
   isActiveImportUsers: boolean | null
   isActiveCheckUsers: boolean | null
   defaultAnnounce: string | null
-  routingUrl: string | null
   premiumStatusPriceStars: number | null
   premiumStatusDiscountRatio: number | null
-  subscriptionRemovalAfterInactiveDays: number | null
-  removeOldSubscriptionsAfter: Date | null
   chatId: string | null
   channelId: string | null
 }
@@ -236,13 +184,6 @@ export type SettingsCountAggregateOutputType = {
   key: number
   tgStarsToUSD: number
   telegramPremiumRatio: number
-  devicesPriceStars: number
-  serversPriceStars: number
-  premiumServersPriceStars: number
-  allBaseServersPriceStars: number
-  allPremiumServersPriceStars: number
-  trafficGbPriceStars: number
-  unlimitTrafficPriceStars: number
   hourRatioPayment: number
   dayRatioPayment: number
   weekRatioPayment: number
@@ -272,23 +213,13 @@ export type SettingsCountAggregateOutputType = {
   bonusPayment50000: number
   isActiveSendAdsMessages: number
   nextAdsHours: number
-  isActiveFakeAds: number
-  nextFakeAdsHours: number
-  lastFakeAdsSend: number
-  proxyPartnerLink: number
-  partnerBotLink: number
-  partnerMiniAppLink: number
-  partnerSiteLink: number
   importUsersUrl: number
   isActiveImportUsers: number
   isActiveCheckUsers: number
   defaultAnnounce: number
   telegramConfigLinks: number
-  routingUrl: number
   premiumStatusPriceStars: number
   premiumStatusDiscountRatio: number
-  subscriptionRemovalAfterInactiveDays: number
-  removeOldSubscriptionsAfter: number
   chatId: number
   channelId: number
   _all: number
@@ -298,13 +229,6 @@ export type SettingsCountAggregateOutputType = {
 export type SettingsAvgAggregateInputType = {
   tgStarsToUSD?: true
   telegramPremiumRatio?: true
-  devicesPriceStars?: true
-  serversPriceStars?: true
-  premiumServersPriceStars?: true
-  allBaseServersPriceStars?: true
-  allPremiumServersPriceStars?: true
-  trafficGbPriceStars?: true
-  unlimitTrafficPriceStars?: true
   hourRatioPayment?: true
   dayRatioPayment?: true
   weekRatioPayment?: true
@@ -332,22 +256,13 @@ export type SettingsAvgAggregateInputType = {
   bonusPayment20000?: true
   bonusPayment50000?: true
   nextAdsHours?: true
-  nextFakeAdsHours?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
-  subscriptionRemovalAfterInactiveDays?: true
 }
 
 export type SettingsSumAggregateInputType = {
   tgStarsToUSD?: true
   telegramPremiumRatio?: true
-  devicesPriceStars?: true
-  serversPriceStars?: true
-  premiumServersPriceStars?: true
-  allBaseServersPriceStars?: true
-  allPremiumServersPriceStars?: true
-  trafficGbPriceStars?: true
-  unlimitTrafficPriceStars?: true
   hourRatioPayment?: true
   dayRatioPayment?: true
   weekRatioPayment?: true
@@ -375,23 +290,14 @@ export type SettingsSumAggregateInputType = {
   bonusPayment20000?: true
   bonusPayment50000?: true
   nextAdsHours?: true
-  nextFakeAdsHours?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
-  subscriptionRemovalAfterInactiveDays?: true
 }
 
 export type SettingsMinAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
   telegramPremiumRatio?: true
-  devicesPriceStars?: true
-  serversPriceStars?: true
-  premiumServersPriceStars?: true
-  allBaseServersPriceStars?: true
-  allPremiumServersPriceStars?: true
-  trafficGbPriceStars?: true
-  unlimitTrafficPriceStars?: true
   hourRatioPayment?: true
   dayRatioPayment?: true
   weekRatioPayment?: true
@@ -421,22 +327,12 @@ export type SettingsMinAggregateInputType = {
   bonusPayment50000?: true
   isActiveSendAdsMessages?: true
   nextAdsHours?: true
-  isActiveFakeAds?: true
-  nextFakeAdsHours?: true
-  lastFakeAdsSend?: true
-  proxyPartnerLink?: true
-  partnerBotLink?: true
-  partnerMiniAppLink?: true
-  partnerSiteLink?: true
   importUsersUrl?: true
   isActiveImportUsers?: true
   isActiveCheckUsers?: true
   defaultAnnounce?: true
-  routingUrl?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
-  subscriptionRemovalAfterInactiveDays?: true
-  removeOldSubscriptionsAfter?: true
   chatId?: true
   channelId?: true
 }
@@ -445,13 +341,6 @@ export type SettingsMaxAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
   telegramPremiumRatio?: true
-  devicesPriceStars?: true
-  serversPriceStars?: true
-  premiumServersPriceStars?: true
-  allBaseServersPriceStars?: true
-  allPremiumServersPriceStars?: true
-  trafficGbPriceStars?: true
-  unlimitTrafficPriceStars?: true
   hourRatioPayment?: true
   dayRatioPayment?: true
   weekRatioPayment?: true
@@ -481,22 +370,12 @@ export type SettingsMaxAggregateInputType = {
   bonusPayment50000?: true
   isActiveSendAdsMessages?: true
   nextAdsHours?: true
-  isActiveFakeAds?: true
-  nextFakeAdsHours?: true
-  lastFakeAdsSend?: true
-  proxyPartnerLink?: true
-  partnerBotLink?: true
-  partnerMiniAppLink?: true
-  partnerSiteLink?: true
   importUsersUrl?: true
   isActiveImportUsers?: true
   isActiveCheckUsers?: true
   defaultAnnounce?: true
-  routingUrl?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
-  subscriptionRemovalAfterInactiveDays?: true
-  removeOldSubscriptionsAfter?: true
   chatId?: true
   channelId?: true
 }
@@ -505,13 +384,6 @@ export type SettingsCountAggregateInputType = {
   key?: true
   tgStarsToUSD?: true
   telegramPremiumRatio?: true
-  devicesPriceStars?: true
-  serversPriceStars?: true
-  premiumServersPriceStars?: true
-  allBaseServersPriceStars?: true
-  allPremiumServersPriceStars?: true
-  trafficGbPriceStars?: true
-  unlimitTrafficPriceStars?: true
   hourRatioPayment?: true
   dayRatioPayment?: true
   weekRatioPayment?: true
@@ -541,23 +413,13 @@ export type SettingsCountAggregateInputType = {
   bonusPayment50000?: true
   isActiveSendAdsMessages?: true
   nextAdsHours?: true
-  isActiveFakeAds?: true
-  nextFakeAdsHours?: true
-  lastFakeAdsSend?: true
-  proxyPartnerLink?: true
-  partnerBotLink?: true
-  partnerMiniAppLink?: true
-  partnerSiteLink?: true
   importUsersUrl?: true
   isActiveImportUsers?: true
   isActiveCheckUsers?: true
   defaultAnnounce?: true
   telegramConfigLinks?: true
-  routingUrl?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
-  subscriptionRemovalAfterInactiveDays?: true
-  removeOldSubscriptionsAfter?: true
   chatId?: true
   channelId?: true
   _all?: true
@@ -653,13 +515,6 @@ export type SettingsGroupByOutputType = {
   key: $Enums.DefaultEnum
   tgStarsToUSD: number
   telegramPremiumRatio: number
-  devicesPriceStars: number
-  serversPriceStars: number
-  premiumServersPriceStars: number
-  allBaseServersPriceStars: number
-  allPremiumServersPriceStars: number
-  trafficGbPriceStars: number
-  unlimitTrafficPriceStars: number
   hourRatioPayment: number
   dayRatioPayment: number
   weekRatioPayment: number
@@ -689,23 +544,13 @@ export type SettingsGroupByOutputType = {
   bonusPayment50000: number
   isActiveSendAdsMessages: boolean
   nextAdsHours: number
-  isActiveFakeAds: boolean
-  nextFakeAdsHours: number
-  lastFakeAdsSend: Date
-  proxyPartnerLink: string | null
-  partnerBotLink: string | null
-  partnerMiniAppLink: string | null
-  partnerSiteLink: string | null
   importUsersUrl: string | null
   isActiveImportUsers: boolean
   isActiveCheckUsers: boolean
   defaultAnnounce: string | null
   telegramConfigLinks: runtime.JsonValue | null
-  routingUrl: string | null
   premiumStatusPriceStars: number
   premiumStatusDiscountRatio: number
-  subscriptionRemovalAfterInactiveDays: number
-  removeOldSubscriptionsAfter: Date | null
   chatId: string
   channelId: string
   _count: SettingsCountAggregateOutputType | null
@@ -737,13 +582,6 @@ export type SettingsWhereInput = {
   key?: Prisma.EnumDefaultEnumFilter<"Settings"> | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatFilter<"Settings"> | number
-  devicesPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  serversPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  premiumServersPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  allBaseServersPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  allPremiumServersPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  trafficGbPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  unlimitTrafficPriceStars?: Prisma.FloatFilter<"Settings"> | number
   hourRatioPayment?: Prisma.FloatFilter<"Settings"> | number
   dayRatioPayment?: Prisma.FloatFilter<"Settings"> | number
   weekRatioPayment?: Prisma.FloatFilter<"Settings"> | number
@@ -773,23 +611,13 @@ export type SettingsWhereInput = {
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
   isActiveSendAdsMessages?: Prisma.BoolFilter<"Settings"> | boolean
   nextAdsHours?: Prisma.IntFilter<"Settings"> | number
-  isActiveFakeAds?: Prisma.BoolFilter<"Settings"> | boolean
-  nextFakeAdsHours?: Prisma.IntFilter<"Settings"> | number
-  lastFakeAdsSend?: Prisma.DateTimeFilter<"Settings"> | Date | string
-  proxyPartnerLink?: Prisma.StringNullableFilter<"Settings"> | string | null
-  partnerBotLink?: Prisma.StringNullableFilter<"Settings"> | string | null
-  partnerMiniAppLink?: Prisma.StringNullableFilter<"Settings"> | string | null
-  partnerSiteLink?: Prisma.StringNullableFilter<"Settings"> | string | null
   importUsersUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
   isActiveImportUsers?: Prisma.BoolFilter<"Settings"> | boolean
   isActiveCheckUsers?: Prisma.BoolFilter<"Settings"> | boolean
   defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableFilter<"Settings">
-  routingUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
   premiumStatusPriceStars?: Prisma.FloatFilter<"Settings"> | number
   premiumStatusDiscountRatio?: Prisma.FloatFilter<"Settings"> | number
-  subscriptionRemovalAfterInactiveDays?: Prisma.IntFilter<"Settings"> | number
-  removeOldSubscriptionsAfter?: Prisma.DateTimeNullableFilter<"Settings"> | Date | string | null
   chatId?: Prisma.StringFilter<"Settings"> | string
   channelId?: Prisma.StringFilter<"Settings"> | string
 }
@@ -798,13 +626,6 @@ export type SettingsOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
-  devicesPriceStars?: Prisma.SortOrder
-  serversPriceStars?: Prisma.SortOrder
-  premiumServersPriceStars?: Prisma.SortOrder
-  allBaseServersPriceStars?: Prisma.SortOrder
-  allPremiumServersPriceStars?: Prisma.SortOrder
-  trafficGbPriceStars?: Prisma.SortOrder
-  unlimitTrafficPriceStars?: Prisma.SortOrder
   hourRatioPayment?: Prisma.SortOrder
   dayRatioPayment?: Prisma.SortOrder
   weekRatioPayment?: Prisma.SortOrder
@@ -834,23 +655,13 @@ export type SettingsOrderByWithRelationInput = {
   bonusPayment50000?: Prisma.SortOrder
   isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
-  isActiveFakeAds?: Prisma.SortOrder
-  nextFakeAdsHours?: Prisma.SortOrder
-  lastFakeAdsSend?: Prisma.SortOrder
-  proxyPartnerLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  partnerBotLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  partnerMiniAppLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  partnerSiteLink?: Prisma.SortOrderInput | Prisma.SortOrder
   importUsersUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrderInput | Prisma.SortOrder
-  routingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
-  subscriptionRemovalAfterInactiveDays?: Prisma.SortOrder
-  removeOldSubscriptionsAfter?: Prisma.SortOrderInput | Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
 }
@@ -862,13 +673,6 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SettingsWhereInput | Prisma.SettingsWhereInput[]
   tgStarsToUSD?: Prisma.FloatFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatFilter<"Settings"> | number
-  devicesPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  serversPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  premiumServersPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  allBaseServersPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  allPremiumServersPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  trafficGbPriceStars?: Prisma.FloatFilter<"Settings"> | number
-  unlimitTrafficPriceStars?: Prisma.FloatFilter<"Settings"> | number
   hourRatioPayment?: Prisma.FloatFilter<"Settings"> | number
   dayRatioPayment?: Prisma.FloatFilter<"Settings"> | number
   weekRatioPayment?: Prisma.FloatFilter<"Settings"> | number
@@ -898,23 +702,13 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   bonusPayment50000?: Prisma.FloatFilter<"Settings"> | number
   isActiveSendAdsMessages?: Prisma.BoolFilter<"Settings"> | boolean
   nextAdsHours?: Prisma.IntFilter<"Settings"> | number
-  isActiveFakeAds?: Prisma.BoolFilter<"Settings"> | boolean
-  nextFakeAdsHours?: Prisma.IntFilter<"Settings"> | number
-  lastFakeAdsSend?: Prisma.DateTimeFilter<"Settings"> | Date | string
-  proxyPartnerLink?: Prisma.StringNullableFilter<"Settings"> | string | null
-  partnerBotLink?: Prisma.StringNullableFilter<"Settings"> | string | null
-  partnerMiniAppLink?: Prisma.StringNullableFilter<"Settings"> | string | null
-  partnerSiteLink?: Prisma.StringNullableFilter<"Settings"> | string | null
   importUsersUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
   isActiveImportUsers?: Prisma.BoolFilter<"Settings"> | boolean
   isActiveCheckUsers?: Prisma.BoolFilter<"Settings"> | boolean
   defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableFilter<"Settings">
-  routingUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
   premiumStatusPriceStars?: Prisma.FloatFilter<"Settings"> | number
   premiumStatusDiscountRatio?: Prisma.FloatFilter<"Settings"> | number
-  subscriptionRemovalAfterInactiveDays?: Prisma.IntFilter<"Settings"> | number
-  removeOldSubscriptionsAfter?: Prisma.DateTimeNullableFilter<"Settings"> | Date | string | null
   chatId?: Prisma.StringFilter<"Settings"> | string
   channelId?: Prisma.StringFilter<"Settings"> | string
 }, "key">
@@ -923,13 +717,6 @@ export type SettingsOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
-  devicesPriceStars?: Prisma.SortOrder
-  serversPriceStars?: Prisma.SortOrder
-  premiumServersPriceStars?: Prisma.SortOrder
-  allBaseServersPriceStars?: Prisma.SortOrder
-  allPremiumServersPriceStars?: Prisma.SortOrder
-  trafficGbPriceStars?: Prisma.SortOrder
-  unlimitTrafficPriceStars?: Prisma.SortOrder
   hourRatioPayment?: Prisma.SortOrder
   dayRatioPayment?: Prisma.SortOrder
   weekRatioPayment?: Prisma.SortOrder
@@ -959,23 +746,13 @@ export type SettingsOrderByWithAggregationInput = {
   bonusPayment50000?: Prisma.SortOrder
   isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
-  isActiveFakeAds?: Prisma.SortOrder
-  nextFakeAdsHours?: Prisma.SortOrder
-  lastFakeAdsSend?: Prisma.SortOrder
-  proxyPartnerLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  partnerBotLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  partnerMiniAppLink?: Prisma.SortOrderInput | Prisma.SortOrder
-  partnerSiteLink?: Prisma.SortOrderInput | Prisma.SortOrder
   importUsersUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrderInput | Prisma.SortOrder
-  routingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
-  subscriptionRemovalAfterInactiveDays?: Prisma.SortOrder
-  removeOldSubscriptionsAfter?: Prisma.SortOrderInput | Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
@@ -992,13 +769,6 @@ export type SettingsScalarWhereWithAggregatesInput = {
   key?: Prisma.EnumDefaultEnumWithAggregatesFilter<"Settings"> | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   telegramPremiumRatio?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  devicesPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  serversPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  premiumServersPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  allBaseServersPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  allPremiumServersPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  trafficGbPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  unlimitTrafficPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   hourRatioPayment?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   dayRatioPayment?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   weekRatioPayment?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
@@ -1028,23 +798,13 @@ export type SettingsScalarWhereWithAggregatesInput = {
   bonusPayment50000?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   isActiveSendAdsMessages?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
   nextAdsHours?: Prisma.IntWithAggregatesFilter<"Settings"> | number
-  isActiveFakeAds?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
-  nextFakeAdsHours?: Prisma.IntWithAggregatesFilter<"Settings"> | number
-  lastFakeAdsSend?: Prisma.DateTimeWithAggregatesFilter<"Settings"> | Date | string
-  proxyPartnerLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
-  partnerBotLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
-  partnerMiniAppLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
-  partnerSiteLink?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   importUsersUrl?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   isActiveImportUsers?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
   isActiveCheckUsers?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
   defaultAnnounce?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableWithAggregatesFilter<"Settings">
-  routingUrl?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   premiumStatusPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   premiumStatusDiscountRatio?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
-  subscriptionRemovalAfterInactiveDays?: Prisma.IntWithAggregatesFilter<"Settings"> | number
-  removeOldSubscriptionsAfter?: Prisma.DateTimeNullableWithAggregatesFilter<"Settings"> | Date | string | null
   chatId?: Prisma.StringWithAggregatesFilter<"Settings"> | string
   channelId?: Prisma.StringWithAggregatesFilter<"Settings"> | string
 }
@@ -1053,13 +813,6 @@ export type SettingsCreateInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
   telegramPremiumRatio?: number
-  devicesPriceStars?: number
-  serversPriceStars?: number
-  premiumServersPriceStars?: number
-  allBaseServersPriceStars?: number
-  allPremiumServersPriceStars?: number
-  trafficGbPriceStars?: number
-  unlimitTrafficPriceStars?: number
   hourRatioPayment?: number
   dayRatioPayment?: number
   weekRatioPayment?: number
@@ -1089,23 +842,13 @@ export type SettingsCreateInput = {
   bonusPayment50000?: number
   isActiveSendAdsMessages?: boolean
   nextAdsHours?: number
-  isActiveFakeAds?: boolean
-  nextFakeAdsHours?: number
-  lastFakeAdsSend?: Date | string
-  proxyPartnerLink?: string | null
-  partnerBotLink?: string | null
-  partnerMiniAppLink?: string | null
-  partnerSiteLink?: string | null
   importUsersUrl?: string | null
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
   defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  routingUrl?: string | null
   premiumStatusPriceStars?: number
   premiumStatusDiscountRatio?: number
-  subscriptionRemovalAfterInactiveDays?: number
-  removeOldSubscriptionsAfter?: Date | string | null
   chatId?: string
   channelId?: string
 }
@@ -1114,13 +857,6 @@ export type SettingsUncheckedCreateInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
   telegramPremiumRatio?: number
-  devicesPriceStars?: number
-  serversPriceStars?: number
-  premiumServersPriceStars?: number
-  allBaseServersPriceStars?: number
-  allPremiumServersPriceStars?: number
-  trafficGbPriceStars?: number
-  unlimitTrafficPriceStars?: number
   hourRatioPayment?: number
   dayRatioPayment?: number
   weekRatioPayment?: number
@@ -1150,23 +886,13 @@ export type SettingsUncheckedCreateInput = {
   bonusPayment50000?: number
   isActiveSendAdsMessages?: boolean
   nextAdsHours?: number
-  isActiveFakeAds?: boolean
-  nextFakeAdsHours?: number
-  lastFakeAdsSend?: Date | string
-  proxyPartnerLink?: string | null
-  partnerBotLink?: string | null
-  partnerMiniAppLink?: string | null
-  partnerSiteLink?: string | null
   importUsersUrl?: string | null
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
   defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  routingUrl?: string | null
   premiumStatusPriceStars?: number
   premiumStatusDiscountRatio?: number
-  subscriptionRemovalAfterInactiveDays?: number
-  removeOldSubscriptionsAfter?: Date | string | null
   chatId?: string
   channelId?: string
 }
@@ -1175,13 +901,6 @@ export type SettingsUpdateInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  premiumServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  allBaseServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  allPremiumServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  trafficGbPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  unlimitTrafficPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   hourRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   dayRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   weekRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1211,23 +930,13 @@ export type SettingsUpdateInput = {
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
   isActiveSendAdsMessages?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
-  isActiveFakeAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  nextFakeAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
-  lastFakeAdsSend?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActiveImportUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  routingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premiumStatusPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   premiumStatusDiscountRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  subscriptionRemovalAfterInactiveDays?: Prisma.IntFieldUpdateOperationsInput | number
-  removeOldSubscriptionsAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
   channelId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -1236,13 +945,6 @@ export type SettingsUncheckedUpdateInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  premiumServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  allBaseServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  allPremiumServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  trafficGbPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  unlimitTrafficPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   hourRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   dayRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   weekRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1272,23 +974,13 @@ export type SettingsUncheckedUpdateInput = {
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
   isActiveSendAdsMessages?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
-  isActiveFakeAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  nextFakeAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
-  lastFakeAdsSend?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActiveImportUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  routingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premiumStatusPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   premiumStatusDiscountRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  subscriptionRemovalAfterInactiveDays?: Prisma.IntFieldUpdateOperationsInput | number
-  removeOldSubscriptionsAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
   channelId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -1297,13 +989,6 @@ export type SettingsCreateManyInput = {
   key?: $Enums.DefaultEnum
   tgStarsToUSD?: number
   telegramPremiumRatio?: number
-  devicesPriceStars?: number
-  serversPriceStars?: number
-  premiumServersPriceStars?: number
-  allBaseServersPriceStars?: number
-  allPremiumServersPriceStars?: number
-  trafficGbPriceStars?: number
-  unlimitTrafficPriceStars?: number
   hourRatioPayment?: number
   dayRatioPayment?: number
   weekRatioPayment?: number
@@ -1333,23 +1018,13 @@ export type SettingsCreateManyInput = {
   bonusPayment50000?: number
   isActiveSendAdsMessages?: boolean
   nextAdsHours?: number
-  isActiveFakeAds?: boolean
-  nextFakeAdsHours?: number
-  lastFakeAdsSend?: Date | string
-  proxyPartnerLink?: string | null
-  partnerBotLink?: string | null
-  partnerMiniAppLink?: string | null
-  partnerSiteLink?: string | null
   importUsersUrl?: string | null
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
   defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  routingUrl?: string | null
   premiumStatusPriceStars?: number
   premiumStatusDiscountRatio?: number
-  subscriptionRemovalAfterInactiveDays?: number
-  removeOldSubscriptionsAfter?: Date | string | null
   chatId?: string
   channelId?: string
 }
@@ -1358,13 +1033,6 @@ export type SettingsUpdateManyMutationInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  premiumServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  allBaseServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  allPremiumServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  trafficGbPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  unlimitTrafficPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   hourRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   dayRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   weekRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1394,23 +1062,13 @@ export type SettingsUpdateManyMutationInput = {
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
   isActiveSendAdsMessages?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
-  isActiveFakeAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  nextFakeAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
-  lastFakeAdsSend?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActiveImportUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  routingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premiumStatusPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   premiumStatusDiscountRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  subscriptionRemovalAfterInactiveDays?: Prisma.IntFieldUpdateOperationsInput | number
-  removeOldSubscriptionsAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
   channelId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -1419,13 +1077,6 @@ export type SettingsUncheckedUpdateManyInput = {
   key?: Prisma.EnumDefaultEnumFieldUpdateOperationsInput | $Enums.DefaultEnum
   tgStarsToUSD?: Prisma.FloatFieldUpdateOperationsInput | number
   telegramPremiumRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  devicesPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  serversPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  premiumServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  allBaseServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  allPremiumServersPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  trafficGbPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
-  unlimitTrafficPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   hourRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   dayRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
   weekRatioPayment?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1455,23 +1106,13 @@ export type SettingsUncheckedUpdateManyInput = {
   bonusPayment50000?: Prisma.FloatFieldUpdateOperationsInput | number
   isActiveSendAdsMessages?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nextAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
-  isActiveFakeAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  nextFakeAdsHours?: Prisma.IntFieldUpdateOperationsInput | number
-  lastFakeAdsSend?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  proxyPartnerLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerBotLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerMiniAppLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  partnerSiteLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActiveImportUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  routingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premiumStatusPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   premiumStatusDiscountRatio?: Prisma.FloatFieldUpdateOperationsInput | number
-  subscriptionRemovalAfterInactiveDays?: Prisma.IntFieldUpdateOperationsInput | number
-  removeOldSubscriptionsAfter?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
   channelId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -1480,13 +1121,6 @@ export type SettingsCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
-  devicesPriceStars?: Prisma.SortOrder
-  serversPriceStars?: Prisma.SortOrder
-  premiumServersPriceStars?: Prisma.SortOrder
-  allBaseServersPriceStars?: Prisma.SortOrder
-  allPremiumServersPriceStars?: Prisma.SortOrder
-  trafficGbPriceStars?: Prisma.SortOrder
-  unlimitTrafficPriceStars?: Prisma.SortOrder
   hourRatioPayment?: Prisma.SortOrder
   dayRatioPayment?: Prisma.SortOrder
   weekRatioPayment?: Prisma.SortOrder
@@ -1516,23 +1150,13 @@ export type SettingsCountOrderByAggregateInput = {
   bonusPayment50000?: Prisma.SortOrder
   isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
-  isActiveFakeAds?: Prisma.SortOrder
-  nextFakeAdsHours?: Prisma.SortOrder
-  lastFakeAdsSend?: Prisma.SortOrder
-  proxyPartnerLink?: Prisma.SortOrder
-  partnerBotLink?: Prisma.SortOrder
-  partnerMiniAppLink?: Prisma.SortOrder
-  partnerSiteLink?: Prisma.SortOrder
   importUsersUrl?: Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrder
-  routingUrl?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
-  subscriptionRemovalAfterInactiveDays?: Prisma.SortOrder
-  removeOldSubscriptionsAfter?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
 }
@@ -1540,13 +1164,6 @@ export type SettingsCountOrderByAggregateInput = {
 export type SettingsAvgOrderByAggregateInput = {
   tgStarsToUSD?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
-  devicesPriceStars?: Prisma.SortOrder
-  serversPriceStars?: Prisma.SortOrder
-  premiumServersPriceStars?: Prisma.SortOrder
-  allBaseServersPriceStars?: Prisma.SortOrder
-  allPremiumServersPriceStars?: Prisma.SortOrder
-  trafficGbPriceStars?: Prisma.SortOrder
-  unlimitTrafficPriceStars?: Prisma.SortOrder
   hourRatioPayment?: Prisma.SortOrder
   dayRatioPayment?: Prisma.SortOrder
   weekRatioPayment?: Prisma.SortOrder
@@ -1574,23 +1191,14 @@ export type SettingsAvgOrderByAggregateInput = {
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
-  nextFakeAdsHours?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
-  subscriptionRemovalAfterInactiveDays?: Prisma.SortOrder
 }
 
 export type SettingsMaxOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
-  devicesPriceStars?: Prisma.SortOrder
-  serversPriceStars?: Prisma.SortOrder
-  premiumServersPriceStars?: Prisma.SortOrder
-  allBaseServersPriceStars?: Prisma.SortOrder
-  allPremiumServersPriceStars?: Prisma.SortOrder
-  trafficGbPriceStars?: Prisma.SortOrder
-  unlimitTrafficPriceStars?: Prisma.SortOrder
   hourRatioPayment?: Prisma.SortOrder
   dayRatioPayment?: Prisma.SortOrder
   weekRatioPayment?: Prisma.SortOrder
@@ -1620,22 +1228,12 @@ export type SettingsMaxOrderByAggregateInput = {
   bonusPayment50000?: Prisma.SortOrder
   isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
-  isActiveFakeAds?: Prisma.SortOrder
-  nextFakeAdsHours?: Prisma.SortOrder
-  lastFakeAdsSend?: Prisma.SortOrder
-  proxyPartnerLink?: Prisma.SortOrder
-  partnerBotLink?: Prisma.SortOrder
-  partnerMiniAppLink?: Prisma.SortOrder
-  partnerSiteLink?: Prisma.SortOrder
   importUsersUrl?: Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
-  routingUrl?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
-  subscriptionRemovalAfterInactiveDays?: Prisma.SortOrder
-  removeOldSubscriptionsAfter?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
 }
@@ -1644,13 +1242,6 @@ export type SettingsMinOrderByAggregateInput = {
   key?: Prisma.SortOrder
   tgStarsToUSD?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
-  devicesPriceStars?: Prisma.SortOrder
-  serversPriceStars?: Prisma.SortOrder
-  premiumServersPriceStars?: Prisma.SortOrder
-  allBaseServersPriceStars?: Prisma.SortOrder
-  allPremiumServersPriceStars?: Prisma.SortOrder
-  trafficGbPriceStars?: Prisma.SortOrder
-  unlimitTrafficPriceStars?: Prisma.SortOrder
   hourRatioPayment?: Prisma.SortOrder
   dayRatioPayment?: Prisma.SortOrder
   weekRatioPayment?: Prisma.SortOrder
@@ -1680,22 +1271,12 @@ export type SettingsMinOrderByAggregateInput = {
   bonusPayment50000?: Prisma.SortOrder
   isActiveSendAdsMessages?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
-  isActiveFakeAds?: Prisma.SortOrder
-  nextFakeAdsHours?: Prisma.SortOrder
-  lastFakeAdsSend?: Prisma.SortOrder
-  proxyPartnerLink?: Prisma.SortOrder
-  partnerBotLink?: Prisma.SortOrder
-  partnerMiniAppLink?: Prisma.SortOrder
-  partnerSiteLink?: Prisma.SortOrder
   importUsersUrl?: Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
   defaultAnnounce?: Prisma.SortOrder
-  routingUrl?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
-  subscriptionRemovalAfterInactiveDays?: Prisma.SortOrder
-  removeOldSubscriptionsAfter?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
 }
@@ -1703,13 +1284,6 @@ export type SettingsMinOrderByAggregateInput = {
 export type SettingsSumOrderByAggregateInput = {
   tgStarsToUSD?: Prisma.SortOrder
   telegramPremiumRatio?: Prisma.SortOrder
-  devicesPriceStars?: Prisma.SortOrder
-  serversPriceStars?: Prisma.SortOrder
-  premiumServersPriceStars?: Prisma.SortOrder
-  allBaseServersPriceStars?: Prisma.SortOrder
-  allPremiumServersPriceStars?: Prisma.SortOrder
-  trafficGbPriceStars?: Prisma.SortOrder
-  unlimitTrafficPriceStars?: Prisma.SortOrder
   hourRatioPayment?: Prisma.SortOrder
   dayRatioPayment?: Prisma.SortOrder
   weekRatioPayment?: Prisma.SortOrder
@@ -1737,10 +1311,8 @@ export type SettingsSumOrderByAggregateInput = {
   bonusPayment20000?: Prisma.SortOrder
   bonusPayment50000?: Prisma.SortOrder
   nextAdsHours?: Prisma.SortOrder
-  nextFakeAdsHours?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
-  subscriptionRemovalAfterInactiveDays?: Prisma.SortOrder
 }
 
 export type EnumDefaultEnumFieldUpdateOperationsInput = {
@@ -1775,16 +1347,8 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -1797,13 +1361,6 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   key?: boolean
   tgStarsToUSD?: boolean
   telegramPremiumRatio?: boolean
-  devicesPriceStars?: boolean
-  serversPriceStars?: boolean
-  premiumServersPriceStars?: boolean
-  allBaseServersPriceStars?: boolean
-  allPremiumServersPriceStars?: boolean
-  trafficGbPriceStars?: boolean
-  unlimitTrafficPriceStars?: boolean
   hourRatioPayment?: boolean
   dayRatioPayment?: boolean
   weekRatioPayment?: boolean
@@ -1833,23 +1390,13 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   bonusPayment50000?: boolean
   isActiveSendAdsMessages?: boolean
   nextAdsHours?: boolean
-  isActiveFakeAds?: boolean
-  nextFakeAdsHours?: boolean
-  lastFakeAdsSend?: boolean
-  proxyPartnerLink?: boolean
-  partnerBotLink?: boolean
-  partnerMiniAppLink?: boolean
-  partnerSiteLink?: boolean
   importUsersUrl?: boolean
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
   defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
-  routingUrl?: boolean
   premiumStatusPriceStars?: boolean
   premiumStatusDiscountRatio?: boolean
-  subscriptionRemovalAfterInactiveDays?: boolean
-  removeOldSubscriptionsAfter?: boolean
   chatId?: boolean
   channelId?: boolean
 }, ExtArgs["result"]["settings"]>
@@ -1858,13 +1405,6 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   key?: boolean
   tgStarsToUSD?: boolean
   telegramPremiumRatio?: boolean
-  devicesPriceStars?: boolean
-  serversPriceStars?: boolean
-  premiumServersPriceStars?: boolean
-  allBaseServersPriceStars?: boolean
-  allPremiumServersPriceStars?: boolean
-  trafficGbPriceStars?: boolean
-  unlimitTrafficPriceStars?: boolean
   hourRatioPayment?: boolean
   dayRatioPayment?: boolean
   weekRatioPayment?: boolean
@@ -1894,23 +1434,13 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment50000?: boolean
   isActiveSendAdsMessages?: boolean
   nextAdsHours?: boolean
-  isActiveFakeAds?: boolean
-  nextFakeAdsHours?: boolean
-  lastFakeAdsSend?: boolean
-  proxyPartnerLink?: boolean
-  partnerBotLink?: boolean
-  partnerMiniAppLink?: boolean
-  partnerSiteLink?: boolean
   importUsersUrl?: boolean
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
   defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
-  routingUrl?: boolean
   premiumStatusPriceStars?: boolean
   premiumStatusDiscountRatio?: boolean
-  subscriptionRemovalAfterInactiveDays?: boolean
-  removeOldSubscriptionsAfter?: boolean
   chatId?: boolean
   channelId?: boolean
 }, ExtArgs["result"]["settings"]>
@@ -1919,13 +1449,6 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   key?: boolean
   tgStarsToUSD?: boolean
   telegramPremiumRatio?: boolean
-  devicesPriceStars?: boolean
-  serversPriceStars?: boolean
-  premiumServersPriceStars?: boolean
-  allBaseServersPriceStars?: boolean
-  allPremiumServersPriceStars?: boolean
-  trafficGbPriceStars?: boolean
-  unlimitTrafficPriceStars?: boolean
   hourRatioPayment?: boolean
   dayRatioPayment?: boolean
   weekRatioPayment?: boolean
@@ -1955,23 +1478,13 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   bonusPayment50000?: boolean
   isActiveSendAdsMessages?: boolean
   nextAdsHours?: boolean
-  isActiveFakeAds?: boolean
-  nextFakeAdsHours?: boolean
-  lastFakeAdsSend?: boolean
-  proxyPartnerLink?: boolean
-  partnerBotLink?: boolean
-  partnerMiniAppLink?: boolean
-  partnerSiteLink?: boolean
   importUsersUrl?: boolean
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
   defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
-  routingUrl?: boolean
   premiumStatusPriceStars?: boolean
   premiumStatusDiscountRatio?: boolean
-  subscriptionRemovalAfterInactiveDays?: boolean
-  removeOldSubscriptionsAfter?: boolean
   chatId?: boolean
   channelId?: boolean
 }, ExtArgs["result"]["settings"]>
@@ -1980,13 +1493,6 @@ export type SettingsSelectScalar = {
   key?: boolean
   tgStarsToUSD?: boolean
   telegramPremiumRatio?: boolean
-  devicesPriceStars?: boolean
-  serversPriceStars?: boolean
-  premiumServersPriceStars?: boolean
-  allBaseServersPriceStars?: boolean
-  allPremiumServersPriceStars?: boolean
-  trafficGbPriceStars?: boolean
-  unlimitTrafficPriceStars?: boolean
   hourRatioPayment?: boolean
   dayRatioPayment?: boolean
   weekRatioPayment?: boolean
@@ -2016,28 +1522,18 @@ export type SettingsSelectScalar = {
   bonusPayment50000?: boolean
   isActiveSendAdsMessages?: boolean
   nextAdsHours?: boolean
-  isActiveFakeAds?: boolean
-  nextFakeAdsHours?: boolean
-  lastFakeAdsSend?: boolean
-  proxyPartnerLink?: boolean
-  partnerBotLink?: boolean
-  partnerMiniAppLink?: boolean
-  partnerSiteLink?: boolean
   importUsersUrl?: boolean
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
   defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
-  routingUrl?: boolean
   premiumStatusPriceStars?: boolean
   premiumStatusDiscountRatio?: boolean
-  subscriptionRemovalAfterInactiveDays?: boolean
-  removeOldSubscriptionsAfter?: boolean
   chatId?: boolean
   channelId?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "devicesPriceStars" | "serversPriceStars" | "premiumServersPriceStars" | "allBaseServersPriceStars" | "allPremiumServersPriceStars" | "trafficGbPriceStars" | "unlimitTrafficPriceStars" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "isActiveSendAdsMessages" | "nextAdsHours" | "isActiveFakeAds" | "nextFakeAdsHours" | "lastFakeAdsSend" | "proxyPartnerLink" | "partnerBotLink" | "partnerMiniAppLink" | "partnerSiteLink" | "importUsersUrl" | "isActiveImportUsers" | "isActiveCheckUsers" | "defaultAnnounce" | "telegramConfigLinks" | "routingUrl" | "premiumStatusPriceStars" | "premiumStatusDiscountRatio" | "subscriptionRemovalAfterInactiveDays" | "removeOldSubscriptionsAfter" | "chatId" | "channelId", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "isActiveSendAdsMessages" | "nextAdsHours" | "importUsersUrl" | "isActiveImportUsers" | "isActiveCheckUsers" | "defaultAnnounce" | "telegramConfigLinks" | "premiumStatusPriceStars" | "premiumStatusDiscountRatio" | "chatId" | "channelId", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -2046,13 +1542,6 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     key: $Enums.DefaultEnum
     tgStarsToUSD: number
     telegramPremiumRatio: number
-    devicesPriceStars: number
-    serversPriceStars: number
-    premiumServersPriceStars: number
-    allBaseServersPriceStars: number
-    allPremiumServersPriceStars: number
-    trafficGbPriceStars: number
-    unlimitTrafficPriceStars: number
     hourRatioPayment: number
     dayRatioPayment: number
     weekRatioPayment: number
@@ -2082,23 +1571,13 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     bonusPayment50000: number
     isActiveSendAdsMessages: boolean
     nextAdsHours: number
-    isActiveFakeAds: boolean
-    nextFakeAdsHours: number
-    lastFakeAdsSend: Date
-    proxyPartnerLink: string | null
-    partnerBotLink: string | null
-    partnerMiniAppLink: string | null
-    partnerSiteLink: string | null
     importUsersUrl: string | null
     isActiveImportUsers: boolean
     isActiveCheckUsers: boolean
     defaultAnnounce: string | null
     telegramConfigLinks: runtime.JsonValue | null
-    routingUrl: string | null
     premiumStatusPriceStars: number
     premiumStatusDiscountRatio: number
-    subscriptionRemovalAfterInactiveDays: number
-    removeOldSubscriptionsAfter: Date | null
     chatId: string
     channelId: string
   }, ExtArgs["result"]["settings"]>
@@ -2527,13 +2006,6 @@ export interface SettingsFieldRefs {
   readonly key: Prisma.FieldRef<"Settings", 'DefaultEnum'>
   readonly tgStarsToUSD: Prisma.FieldRef<"Settings", 'Float'>
   readonly telegramPremiumRatio: Prisma.FieldRef<"Settings", 'Float'>
-  readonly devicesPriceStars: Prisma.FieldRef<"Settings", 'Float'>
-  readonly serversPriceStars: Prisma.FieldRef<"Settings", 'Float'>
-  readonly premiumServersPriceStars: Prisma.FieldRef<"Settings", 'Float'>
-  readonly allBaseServersPriceStars: Prisma.FieldRef<"Settings", 'Float'>
-  readonly allPremiumServersPriceStars: Prisma.FieldRef<"Settings", 'Float'>
-  readonly trafficGbPriceStars: Prisma.FieldRef<"Settings", 'Float'>
-  readonly unlimitTrafficPriceStars: Prisma.FieldRef<"Settings", 'Float'>
   readonly hourRatioPayment: Prisma.FieldRef<"Settings", 'Float'>
   readonly dayRatioPayment: Prisma.FieldRef<"Settings", 'Float'>
   readonly weekRatioPayment: Prisma.FieldRef<"Settings", 'Float'>
@@ -2563,23 +2035,13 @@ export interface SettingsFieldRefs {
   readonly bonusPayment50000: Prisma.FieldRef<"Settings", 'Float'>
   readonly isActiveSendAdsMessages: Prisma.FieldRef<"Settings", 'Boolean'>
   readonly nextAdsHours: Prisma.FieldRef<"Settings", 'Int'>
-  readonly isActiveFakeAds: Prisma.FieldRef<"Settings", 'Boolean'>
-  readonly nextFakeAdsHours: Prisma.FieldRef<"Settings", 'Int'>
-  readonly lastFakeAdsSend: Prisma.FieldRef<"Settings", 'DateTime'>
-  readonly proxyPartnerLink: Prisma.FieldRef<"Settings", 'String'>
-  readonly partnerBotLink: Prisma.FieldRef<"Settings", 'String'>
-  readonly partnerMiniAppLink: Prisma.FieldRef<"Settings", 'String'>
-  readonly partnerSiteLink: Prisma.FieldRef<"Settings", 'String'>
   readonly importUsersUrl: Prisma.FieldRef<"Settings", 'String'>
   readonly isActiveImportUsers: Prisma.FieldRef<"Settings", 'Boolean'>
   readonly isActiveCheckUsers: Prisma.FieldRef<"Settings", 'Boolean'>
   readonly defaultAnnounce: Prisma.FieldRef<"Settings", 'String'>
   readonly telegramConfigLinks: Prisma.FieldRef<"Settings", 'Json'>
-  readonly routingUrl: Prisma.FieldRef<"Settings", 'String'>
   readonly premiumStatusPriceStars: Prisma.FieldRef<"Settings", 'Float'>
   readonly premiumStatusDiscountRatio: Prisma.FieldRef<"Settings", 'Float'>
-  readonly subscriptionRemovalAfterInactiveDays: Prisma.FieldRef<"Settings", 'Int'>
-  readonly removeOldSubscriptionsAfter: Prisma.FieldRef<"Settings", 'DateTime'>
   readonly chatId: Prisma.FieldRef<"Settings", 'String'>
   readonly channelId: Prisma.FieldRef<"Settings", 'String'>
 }

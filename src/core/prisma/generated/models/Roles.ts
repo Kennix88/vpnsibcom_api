@@ -28,7 +28,6 @@ export type AggregateRoles = {
 
 export type RolesAvgAggregateOutputType = {
   discount: number | null
-  limitSubscriptions: number | null
   minPayStars: number | null
   days: number | null
   devicesCount: number | null
@@ -37,7 +36,6 @@ export type RolesAvgAggregateOutputType = {
 
 export type RolesSumAggregateOutputType = {
   discount: number | null
-  limitSubscriptions: number | null
   minPayStars: number | null
   days: number | null
   devicesCount: number | null
@@ -48,7 +46,6 @@ export type RolesMinAggregateOutputType = {
   key: $Enums.UserRoleEnum | null
   name: string | null
   discount: number | null
-  limitSubscriptions: number | null
   minPayStars: number | null
   days: number | null
   devicesCount: number | null
@@ -57,13 +54,14 @@ export type RolesMinAggregateOutputType = {
   isPremiumServers: boolean | null
   isNoAds: boolean | null
   isRoleChat: boolean | null
+  isAutoRenewing: boolean | null
+  roleName: string | null
 }
 
 export type RolesMaxAggregateOutputType = {
   key: $Enums.UserRoleEnum | null
   name: string | null
   discount: number | null
-  limitSubscriptions: number | null
   minPayStars: number | null
   days: number | null
   devicesCount: number | null
@@ -72,13 +70,14 @@ export type RolesMaxAggregateOutputType = {
   isPremiumServers: boolean | null
   isNoAds: boolean | null
   isRoleChat: boolean | null
+  isAutoRenewing: boolean | null
+  roleName: string | null
 }
 
 export type RolesCountAggregateOutputType = {
   key: number
   name: number
   discount: number
-  limitSubscriptions: number
   minPayStars: number
   days: number
   devicesCount: number
@@ -87,13 +86,14 @@ export type RolesCountAggregateOutputType = {
   isPremiumServers: number
   isNoAds: number
   isRoleChat: number
+  isAutoRenewing: number
+  roleName: number
   _all: number
 }
 
 
 export type RolesAvgAggregateInputType = {
   discount?: true
-  limitSubscriptions?: true
   minPayStars?: true
   days?: true
   devicesCount?: true
@@ -102,7 +102,6 @@ export type RolesAvgAggregateInputType = {
 
 export type RolesSumAggregateInputType = {
   discount?: true
-  limitSubscriptions?: true
   minPayStars?: true
   days?: true
   devicesCount?: true
@@ -113,7 +112,6 @@ export type RolesMinAggregateInputType = {
   key?: true
   name?: true
   discount?: true
-  limitSubscriptions?: true
   minPayStars?: true
   days?: true
   devicesCount?: true
@@ -122,13 +120,14 @@ export type RolesMinAggregateInputType = {
   isPremiumServers?: true
   isNoAds?: true
   isRoleChat?: true
+  isAutoRenewing?: true
+  roleName?: true
 }
 
 export type RolesMaxAggregateInputType = {
   key?: true
   name?: true
   discount?: true
-  limitSubscriptions?: true
   minPayStars?: true
   days?: true
   devicesCount?: true
@@ -137,13 +136,14 @@ export type RolesMaxAggregateInputType = {
   isPremiumServers?: true
   isNoAds?: true
   isRoleChat?: true
+  isAutoRenewing?: true
+  roleName?: true
 }
 
 export type RolesCountAggregateInputType = {
   key?: true
   name?: true
   discount?: true
-  limitSubscriptions?: true
   minPayStars?: true
   days?: true
   devicesCount?: true
@@ -152,6 +152,8 @@ export type RolesCountAggregateInputType = {
   isPremiumServers?: true
   isNoAds?: true
   isRoleChat?: true
+  isAutoRenewing?: true
+  roleName?: true
   _all?: true
 }
 
@@ -245,7 +247,6 @@ export type RolesGroupByOutputType = {
   key: $Enums.UserRoleEnum
   name: string
   discount: number
-  limitSubscriptions: number
   minPayStars: number
   days: number
   devicesCount: number
@@ -254,6 +255,8 @@ export type RolesGroupByOutputType = {
   isPremiumServers: boolean
   isNoAds: boolean
   isRoleChat: boolean
+  isAutoRenewing: boolean
+  roleName: string | null
   _count: RolesCountAggregateOutputType | null
   _avg: RolesAvgAggregateOutputType | null
   _sum: RolesSumAggregateOutputType | null
@@ -283,7 +286,6 @@ export type RolesWhereInput = {
   key?: Prisma.EnumUserRoleEnumFilter<"Roles"> | $Enums.UserRoleEnum
   name?: Prisma.StringFilter<"Roles"> | string
   discount?: Prisma.FloatFilter<"Roles"> | number
-  limitSubscriptions?: Prisma.IntFilter<"Roles"> | number
   minPayStars?: Prisma.IntFilter<"Roles"> | number
   days?: Prisma.IntFilter<"Roles"> | number
   devicesCount?: Prisma.IntFilter<"Roles"> | number
@@ -292,6 +294,8 @@ export type RolesWhereInput = {
   isPremiumServers?: Prisma.BoolFilter<"Roles"> | boolean
   isNoAds?: Prisma.BoolFilter<"Roles"> | boolean
   isRoleChat?: Prisma.BoolFilter<"Roles"> | boolean
+  isAutoRenewing?: Prisma.BoolFilter<"Roles"> | boolean
+  roleName?: Prisma.StringNullableFilter<"Roles"> | string | null
   users?: Prisma.UsersListRelationFilter
 }
 
@@ -299,7 +303,6 @@ export type RolesOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
-  limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
   days?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
@@ -308,6 +311,8 @@ export type RolesOrderByWithRelationInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrderInput | Prisma.SortOrder
   users?: Prisma.UsersOrderByRelationAggregateInput
 }
 
@@ -318,7 +323,6 @@ export type RolesWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.RolesWhereInput | Prisma.RolesWhereInput[]
   name?: Prisma.StringFilter<"Roles"> | string
   discount?: Prisma.FloatFilter<"Roles"> | number
-  limitSubscriptions?: Prisma.IntFilter<"Roles"> | number
   minPayStars?: Prisma.IntFilter<"Roles"> | number
   days?: Prisma.IntFilter<"Roles"> | number
   devicesCount?: Prisma.IntFilter<"Roles"> | number
@@ -327,6 +331,8 @@ export type RolesWhereUniqueInput = Prisma.AtLeast<{
   isPremiumServers?: Prisma.BoolFilter<"Roles"> | boolean
   isNoAds?: Prisma.BoolFilter<"Roles"> | boolean
   isRoleChat?: Prisma.BoolFilter<"Roles"> | boolean
+  isAutoRenewing?: Prisma.BoolFilter<"Roles"> | boolean
+  roleName?: Prisma.StringNullableFilter<"Roles"> | string | null
   users?: Prisma.UsersListRelationFilter
 }, "key">
 
@@ -334,7 +340,6 @@ export type RolesOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
-  limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
   days?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
@@ -343,6 +348,8 @@ export type RolesOrderByWithAggregationInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.RolesCountOrderByAggregateInput
   _avg?: Prisma.RolesAvgOrderByAggregateInput
   _max?: Prisma.RolesMaxOrderByAggregateInput
@@ -357,7 +364,6 @@ export type RolesScalarWhereWithAggregatesInput = {
   key?: Prisma.EnumUserRoleEnumWithAggregatesFilter<"Roles"> | $Enums.UserRoleEnum
   name?: Prisma.StringWithAggregatesFilter<"Roles"> | string
   discount?: Prisma.FloatWithAggregatesFilter<"Roles"> | number
-  limitSubscriptions?: Prisma.IntWithAggregatesFilter<"Roles"> | number
   minPayStars?: Prisma.IntWithAggregatesFilter<"Roles"> | number
   days?: Prisma.IntWithAggregatesFilter<"Roles"> | number
   devicesCount?: Prisma.IntWithAggregatesFilter<"Roles"> | number
@@ -366,13 +372,14 @@ export type RolesScalarWhereWithAggregatesInput = {
   isPremiumServers?: Prisma.BoolWithAggregatesFilter<"Roles"> | boolean
   isNoAds?: Prisma.BoolWithAggregatesFilter<"Roles"> | boolean
   isRoleChat?: Prisma.BoolWithAggregatesFilter<"Roles"> | boolean
+  isAutoRenewing?: Prisma.BoolWithAggregatesFilter<"Roles"> | boolean
+  roleName?: Prisma.StringNullableWithAggregatesFilter<"Roles"> | string | null
 }
 
 export type RolesCreateInput = {
   key: $Enums.UserRoleEnum
   name: string
   discount?: number
-  limitSubscriptions?: number
   minPayStars?: number
   days?: number
   devicesCount?: number
@@ -381,6 +388,8 @@ export type RolesCreateInput = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: string | null
   users?: Prisma.UsersCreateNestedManyWithoutRoleInput
 }
 
@@ -388,7 +397,6 @@ export type RolesUncheckedCreateInput = {
   key: $Enums.UserRoleEnum
   name: string
   discount?: number
-  limitSubscriptions?: number
   minPayStars?: number
   days?: number
   devicesCount?: number
@@ -397,6 +405,8 @@ export type RolesUncheckedCreateInput = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: string | null
   users?: Prisma.UsersUncheckedCreateNestedManyWithoutRoleInput
 }
 
@@ -404,7 +414,6 @@ export type RolesUpdateInput = {
   key?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
-  limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
   days?: Prisma.IntFieldUpdateOperationsInput | number
   devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -413,6 +422,8 @@ export type RolesUpdateInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   users?: Prisma.UsersUpdateManyWithoutRoleNestedInput
 }
 
@@ -420,7 +431,6 @@ export type RolesUncheckedUpdateInput = {
   key?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
-  limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
   days?: Prisma.IntFieldUpdateOperationsInput | number
   devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -429,6 +439,8 @@ export type RolesUncheckedUpdateInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   users?: Prisma.UsersUncheckedUpdateManyWithoutRoleNestedInput
 }
 
@@ -436,7 +448,6 @@ export type RolesCreateManyInput = {
   key: $Enums.UserRoleEnum
   name: string
   discount?: number
-  limitSubscriptions?: number
   minPayStars?: number
   days?: number
   devicesCount?: number
@@ -445,13 +456,14 @@ export type RolesCreateManyInput = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: string | null
 }
 
 export type RolesUpdateManyMutationInput = {
   key?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
-  limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
   days?: Prisma.IntFieldUpdateOperationsInput | number
   devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -460,13 +472,14 @@ export type RolesUpdateManyMutationInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type RolesUncheckedUpdateManyInput = {
   key?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
-  limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
   days?: Prisma.IntFieldUpdateOperationsInput | number
   devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -475,6 +488,8 @@ export type RolesUncheckedUpdateManyInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type RolesScalarRelationFilter = {
@@ -486,7 +501,6 @@ export type RolesCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
-  limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
   days?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
@@ -495,11 +509,12 @@ export type RolesCountOrderByAggregateInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrder
 }
 
 export type RolesAvgOrderByAggregateInput = {
   discount?: Prisma.SortOrder
-  limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
   days?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
@@ -510,7 +525,6 @@ export type RolesMaxOrderByAggregateInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
-  limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
   days?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
@@ -519,13 +533,14 @@ export type RolesMaxOrderByAggregateInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrder
 }
 
 export type RolesMinOrderByAggregateInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   discount?: Prisma.SortOrder
-  limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
   days?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
@@ -534,11 +549,12 @@ export type RolesMinOrderByAggregateInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrder
 }
 
 export type RolesSumOrderByAggregateInput = {
   discount?: Prisma.SortOrder
-  limitSubscriptions?: Prisma.SortOrder
   minPayStars?: Prisma.SortOrder
   days?: Prisma.SortOrder
   devicesCount?: Prisma.SortOrder
@@ -563,7 +579,6 @@ export type RolesCreateWithoutUsersInput = {
   key: $Enums.UserRoleEnum
   name: string
   discount?: number
-  limitSubscriptions?: number
   minPayStars?: number
   days?: number
   devicesCount?: number
@@ -572,13 +587,14 @@ export type RolesCreateWithoutUsersInput = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: string | null
 }
 
 export type RolesUncheckedCreateWithoutUsersInput = {
   key: $Enums.UserRoleEnum
   name: string
   discount?: number
-  limitSubscriptions?: number
   minPayStars?: number
   days?: number
   devicesCount?: number
@@ -587,6 +603,8 @@ export type RolesUncheckedCreateWithoutUsersInput = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: string | null
 }
 
 export type RolesCreateOrConnectWithoutUsersInput = {
@@ -609,7 +627,6 @@ export type RolesUpdateWithoutUsersInput = {
   key?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
-  limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
   days?: Prisma.IntFieldUpdateOperationsInput | number
   devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -618,13 +635,14 @@ export type RolesUpdateWithoutUsersInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type RolesUncheckedUpdateWithoutUsersInput = {
   key?: Prisma.EnumUserRoleEnumFieldUpdateOperationsInput | $Enums.UserRoleEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
-  limitSubscriptions?: Prisma.IntFieldUpdateOperationsInput | number
   minPayStars?: Prisma.IntFieldUpdateOperationsInput | number
   days?: Prisma.IntFieldUpdateOperationsInput | number
   devicesCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -633,6 +651,8 @@ export type RolesUncheckedUpdateWithoutUsersInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -670,7 +690,6 @@ export type RolesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   key?: boolean
   name?: boolean
   discount?: boolean
-  limitSubscriptions?: boolean
   minPayStars?: boolean
   days?: boolean
   devicesCount?: boolean
@@ -679,6 +698,8 @@ export type RolesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: boolean
   users?: boolean | Prisma.Roles$usersArgs<ExtArgs>
   _count?: boolean | Prisma.RolesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["roles"]>
@@ -687,7 +708,6 @@ export type RolesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   key?: boolean
   name?: boolean
   discount?: boolean
-  limitSubscriptions?: boolean
   minPayStars?: boolean
   days?: boolean
   devicesCount?: boolean
@@ -696,13 +716,14 @@ export type RolesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: boolean
 }, ExtArgs["result"]["roles"]>
 
 export type RolesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   name?: boolean
   discount?: boolean
-  limitSubscriptions?: boolean
   minPayStars?: boolean
   days?: boolean
   devicesCount?: boolean
@@ -711,13 +732,14 @@ export type RolesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: boolean
 }, ExtArgs["result"]["roles"]>
 
 export type RolesSelectScalar = {
   key?: boolean
   name?: boolean
   discount?: boolean
-  limitSubscriptions?: boolean
   minPayStars?: boolean
   days?: boolean
   devicesCount?: boolean
@@ -726,9 +748,11 @@ export type RolesSelectScalar = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: boolean
 }
 
-export type RolesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "name" | "discount" | "limitSubscriptions" | "minPayStars" | "days" | "devicesCount" | "trafficLimitGb" | "isUnlimitTraffic" | "isPremiumServers" | "isNoAds" | "isRoleChat", ExtArgs["result"]["roles"]>
+export type RolesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "name" | "discount" | "minPayStars" | "days" | "devicesCount" | "trafficLimitGb" | "isUnlimitTraffic" | "isPremiumServers" | "isNoAds" | "isRoleChat" | "isAutoRenewing" | "roleName", ExtArgs["result"]["roles"]>
 export type RolesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Roles$usersArgs<ExtArgs>
   _count?: boolean | Prisma.RolesCountOutputTypeDefaultArgs<ExtArgs>
@@ -745,7 +769,6 @@ export type $RolesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     key: $Enums.UserRoleEnum
     name: string
     discount: number
-    limitSubscriptions: number
     minPayStars: number
     days: number
     devicesCount: number
@@ -754,6 +777,8 @@ export type $RolesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     isPremiumServers: boolean
     isNoAds: boolean
     isRoleChat: boolean
+    isAutoRenewing: boolean
+    roleName: string | null
   }, ExtArgs["result"]["roles"]>
   composites: {}
 }
@@ -1181,7 +1206,6 @@ export interface RolesFieldRefs {
   readonly key: Prisma.FieldRef<"Roles", 'UserRoleEnum'>
   readonly name: Prisma.FieldRef<"Roles", 'String'>
   readonly discount: Prisma.FieldRef<"Roles", 'Float'>
-  readonly limitSubscriptions: Prisma.FieldRef<"Roles", 'Int'>
   readonly minPayStars: Prisma.FieldRef<"Roles", 'Int'>
   readonly days: Prisma.FieldRef<"Roles", 'Int'>
   readonly devicesCount: Prisma.FieldRef<"Roles", 'Int'>
@@ -1190,6 +1214,8 @@ export interface RolesFieldRefs {
   readonly isPremiumServers: Prisma.FieldRef<"Roles", 'Boolean'>
   readonly isNoAds: Prisma.FieldRef<"Roles", 'Boolean'>
   readonly isRoleChat: Prisma.FieldRef<"Roles", 'Boolean'>
+  readonly isAutoRenewing: Prisma.FieldRef<"Roles", 'Boolean'>
+  readonly roleName: Prisma.FieldRef<"Roles", 'String'>
 }
     
 

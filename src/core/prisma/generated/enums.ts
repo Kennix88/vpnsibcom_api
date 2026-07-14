@@ -83,41 +83,22 @@ export const AdsNetworkEnum = {
 export type AdsNetworkEnum = (typeof AdsNetworkEnum)[keyof typeof AdsNetworkEnum]
 
 
-export const PlansServersSelectTypeEnum = {
-  ONE_BASE: 'ONE_BASE',
-  ONE_BASE_OR_PREMIUM: 'ONE_BASE_OR_PREMIUM',
-  CUSTOM: 'CUSTOM',
-  NOT_SELECTED: 'NOT_SELECTED'
-} as const
-
-export type PlansServersSelectTypeEnum = (typeof PlansServersSelectTypeEnum)[keyof typeof PlansServersSelectTypeEnum]
-
-
-export const PlansEnum = {
-  TRIAL: 'TRIAL',
-  START: 'START',
-  BASE: 'BASE',
-  PLUS: 'PLUS',
-  PRO: 'PRO',
+export const InternalSquadsEnum = {
+  FREE: 'FREE',
   PREMIUM: 'PREMIUM',
-  ULTIMATE: 'ULTIMATE',
-  CUSTOM: 'CUSTOM',
-  TRAFFIC: 'TRAFFIC',
-  NEW_ERA: 'NEW_ERA'
+  TELEGRAM: 'TELEGRAM'
 } as const
 
-export type PlansEnum = (typeof PlansEnum)[keyof typeof PlansEnum]
+export type InternalSquadsEnum = (typeof InternalSquadsEnum)[keyof typeof InternalSquadsEnum]
 
 
-export const TrafficResetEnum = {
-  NO_RESET: 'NO_RESET',
-  DAY: 'DAY',
-  WEEK: 'WEEK',
-  MONTH: 'MONTH',
-  YEAR: 'YEAR'
+export const ExternalSquadEnum = {
+  GLOBAL: 'GLOBAL',
+  RU_ROUTING: 'RU_ROUTING',
+  RU_ROUTING_FRAGMENT: 'RU_ROUTING_FRAGMENT'
 } as const
 
-export type TrafficResetEnum = (typeof TrafficResetEnum)[keyof typeof TrafficResetEnum]
+export type ExternalSquadEnum = (typeof ExternalSquadEnum)[keyof typeof ExternalSquadEnum]
 
 
 export const SubscriptionExtensionsEnum = {
@@ -132,8 +113,6 @@ export type SubscriptionExtensionsEnum = (typeof SubscriptionExtensionsEnum)[key
 
 
 export const SubscriptionPeriodEnum = {
-  TRIAL: 'TRIAL',
-  TRAFFIC: 'TRAFFIC',
   HOUR: 'HOUR',
   DAY: 'DAY',
   WEEK: 'WEEK',
@@ -143,26 +122,18 @@ export const SubscriptionPeriodEnum = {
   YEAR: 'YEAR',
   TWO_YEAR: 'TWO_YEAR',
   THREE_YEAR: 'THREE_YEAR',
-  INDEFINITELY: 'INDEFINITELY',
-  NEW_ERA: 'NEW_ERA'
+  INDEFINITELY: 'INDEFINITELY'
 } as const
 
 export type SubscriptionPeriodEnum = (typeof SubscriptionPeriodEnum)[keyof typeof SubscriptionPeriodEnum]
-
-
-export const XrayInboundTypeEnum = {
-  VLESS: 'VLESS',
-  TROJAN: 'TROJAN',
-  SHADOWSOCKS: 'SHADOWSOCKS'
-} as const
-
-export type XrayInboundTypeEnum = (typeof XrayInboundTypeEnum)[keyof typeof XrayInboundTypeEnum]
 
 
 export const UserRoleEnum = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   FRIEND: 'FRIEND',
+  SUPPORT: 'SUPPORT',
+  VOLUNTEER: 'VOLUNTEER',
   OLD_USER: 'OLD_USER',
   USER: 'USER'
 } as const
@@ -287,6 +258,7 @@ export const TransactionReasonEnum = {
   WITHDRAWAL: 'WITHDRAWAL',
   SYSTEM: 'SYSTEM',
   SUBSCRIPTIONS: 'SUBSCRIPTIONS',
+  PREMIUM: 'PREMIUM',
   PAYMENT: 'PAYMENT',
   REWARD: 'REWARD',
   REFERRAL: 'REFERRAL',
@@ -313,7 +285,8 @@ export const PaymentTypeEnum = {
   PAY_SUBSCRIPTION: 'PAY_SUBSCRIPTION',
   UPDATE_SUBSCTIPTION: 'UPDATE_SUBSCTIPTION',
   ADD_TRAFFIC_SUBSCRIPTION: 'ADD_TRAFFIC_SUBSCRIPTION',
-  ADD_PAYMENT_BALANCE: 'ADD_PAYMENT_BALANCE'
+  ADD_PAYMENT_BALANCE: 'ADD_PAYMENT_BALANCE',
+  PAY_PREMIUM_SUBSCRIPTION: 'PAY_PREMIUM_SUBSCRIPTION'
 } as const
 
 export type PaymentTypeEnum = (typeof PaymentTypeEnum)[keyof typeof PaymentTypeEnum]

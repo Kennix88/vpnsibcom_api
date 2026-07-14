@@ -64,13 +64,11 @@ export const ModelName = {
   AdsBlocks: 'AdsBlocks',
   AdsNetworks: 'AdsNetworks',
   UserBalance: 'UserBalance',
-  GreenList: 'GreenList',
-  Plans: 'Plans',
+  InternalSquads: 'InternalSquads',
+  ExternalSquad: 'ExternalSquad',
+  DefaultSubData: 'DefaultSubData',
   Subscriptions: 'Subscriptions',
   SubscriptionExtensions: 'SubscriptionExtensions',
-  Devices: 'Devices',
-  SubscriptionToGreenList: 'SubscriptionToGreenList',
-  XrayInbounds: 'XrayInbounds',
   Roles: 'Roles',
   Language: 'Language',
   Currency: 'Currency',
@@ -100,13 +98,6 @@ export const SettingsScalarFieldEnum = {
   key: 'key',
   tgStarsToUSD: 'tgStarsToUSD',
   telegramPremiumRatio: 'telegramPremiumRatio',
-  devicesPriceStars: 'devicesPriceStars',
-  serversPriceStars: 'serversPriceStars',
-  premiumServersPriceStars: 'premiumServersPriceStars',
-  allBaseServersPriceStars: 'allBaseServersPriceStars',
-  allPremiumServersPriceStars: 'allPremiumServersPriceStars',
-  trafficGbPriceStars: 'trafficGbPriceStars',
-  unlimitTrafficPriceStars: 'unlimitTrafficPriceStars',
   hourRatioPayment: 'hourRatioPayment',
   dayRatioPayment: 'dayRatioPayment',
   weekRatioPayment: 'weekRatioPayment',
@@ -136,23 +127,13 @@ export const SettingsScalarFieldEnum = {
   bonusPayment50000: 'bonusPayment50000',
   isActiveSendAdsMessages: 'isActiveSendAdsMessages',
   nextAdsHours: 'nextAdsHours',
-  isActiveFakeAds: 'isActiveFakeAds',
-  nextFakeAdsHours: 'nextFakeAdsHours',
-  lastFakeAdsSend: 'lastFakeAdsSend',
-  proxyPartnerLink: 'proxyPartnerLink',
-  partnerBotLink: 'partnerBotLink',
-  partnerMiniAppLink: 'partnerMiniAppLink',
-  partnerSiteLink: 'partnerSiteLink',
   importUsersUrl: 'importUsersUrl',
   isActiveImportUsers: 'isActiveImportUsers',
   isActiveCheckUsers: 'isActiveCheckUsers',
   defaultAnnounce: 'defaultAnnounce',
   telegramConfigLinks: 'telegramConfigLinks',
-  routingUrl: 'routingUrl',
   premiumStatusPriceStars: 'premiumStatusPriceStars',
   premiumStatusDiscountRatio: 'premiumStatusDiscountRatio',
-  subscriptionRemovalAfterInactiveDays: 'subscriptionRemovalAfterInactiveDays',
-  removeOldSubscriptionsAfter: 'removeOldSubscriptionsAfter',
   chatId: 'chatId',
   channelId: 'channelId'
 } as const
@@ -196,7 +177,6 @@ export const ReferralsScalarFieldEnum = {
   referralId: 'referralId',
   totalUsdtRewarded: 'totalUsdtRewarded',
   isActivated: 'isActivated',
-  isPremium: 'isPremium',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -208,7 +188,6 @@ export const UsersScalarFieldEnum = {
   id: 'id',
   telegramId: 'telegramId',
   isTgProgramPartner: 'isTgProgramPartner',
-  isFreePlanAvailable: 'isFreePlanAvailable',
   isBanned: 'isBanned',
   isDeleted: 'isDeleted',
   isChannel: 'isChannel',
@@ -228,6 +207,7 @@ export const UsersScalarFieldEnum = {
   balanceId: 'balanceId',
   languageId: 'languageId',
   currencyKey: 'currencyKey',
+  subscriptionId: 'subscriptionId',
   adsDataId: 'adsDataId',
   acquisitionId: 'acquisitionId'
 } as const
@@ -384,78 +364,48 @@ export const UserBalanceScalarFieldEnum = {
 export type UserBalanceScalarFieldEnum = (typeof UserBalanceScalarFieldEnum)[keyof typeof UserBalanceScalarFieldEnum]
 
 
-export const GreenListScalarFieldEnum = {
-  green: 'green',
-  isActive: 'isActive',
-  isPremium: 'isPremium',
-  code: 'code',
-  flagKey: 'flagKey',
-  flagEmoji: 'flagEmoji',
-  name: 'name',
-  network: 'network',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+export const InternalSquadsScalarFieldEnum = {
+  key: 'key',
+  uuid: 'uuid'
 } as const
 
-export type GreenListScalarFieldEnum = (typeof GreenListScalarFieldEnum)[keyof typeof GreenListScalarFieldEnum]
+export type InternalSquadsScalarFieldEnum = (typeof InternalSquadsScalarFieldEnum)[keyof typeof InternalSquadsScalarFieldEnum]
 
 
-export const PlansScalarFieldEnum = {
+export const ExternalSquadScalarFieldEnum = {
   key: 'key',
-  isActive: 'isActive',
-  name: 'name',
-  priceStars: 'priceStars',
-  isCustom: 'isCustom',
+  uuid: 'uuid'
+} as const
+
+export type ExternalSquadScalarFieldEnum = (typeof ExternalSquadScalarFieldEnum)[keyof typeof ExternalSquadScalarFieldEnum]
+
+
+export const DefaultSubDataScalarFieldEnum = {
+  key: 'key',
   devicesCount: 'devicesCount',
-  isAllBaseServers: 'isAllBaseServers',
-  isAllPremiumServers: 'isAllPremiumServers',
+  isPremiumServers: 'isPremiumServers',
   trafficLimitGb: 'trafficLimitGb',
   isUnlimitTraffic: 'isUnlimitTraffic',
-  serversSelectType: 'serversSelectType',
   days: 'days',
   isNoAds: 'isNoAds',
   isRoleChat: 'isRoleChat',
+  isAutoRenewing: 'isAutoRenewing',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type PlansScalarFieldEnum = (typeof PlansScalarFieldEnum)[keyof typeof PlansScalarFieldEnum]
+export type DefaultSubDataScalarFieldEnum = (typeof DefaultSubDataScalarFieldEnum)[keyof typeof DefaultSubDataScalarFieldEnum]
 
 
 export const SubscriptionsScalarFieldEnum = {
   id: 'id',
   username: 'username',
-  name: 'name',
-  planKey: 'planKey',
-  isActive: 'isActive',
-  isAutoRenewal: 'isAutoRenewal',
-  token: 'token',
-  period: 'period',
-  periodMultiplier: 'periodMultiplier',
-  announce: 'announce',
-  nextRenewalStars: 'nextRenewalStars',
-  isPremium: 'isPremium',
-  devicesCount: 'devicesCount',
-  isAllBaseServers: 'isAllBaseServers',
-  isAllPremiumServers: 'isAllPremiumServers',
-  trafficLimitGb: 'trafficLimitGb',
-  isUnlimitTraffic: 'isUnlimitTraffic',
-  links: 'links',
-  lastUserAgent: 'lastUserAgent',
-  dataLimit: 'dataLimit',
-  usedTraffic: 'usedTraffic',
-  lifeTimeUsedTraffic: 'lifeTimeUsedTraffic',
-  trafficReset: 'trafficReset',
-  marzbanData: 'marzbanData',
+  uuid: 'uuid',
+  shortUuid: 'shortUuid',
+  subscriptionUrl: 'subscriptionUrl',
   happCryptoUrl: 'happCryptoUrl',
-  days: 'days',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  expiredAt: 'expiredAt',
-  removalAt: 'removalAt',
-  onlineAt: 'onlineAt',
-  deletedAt: 'deletedAt',
-  userId: 'userId'
+  updatedAt: 'updatedAt'
 } as const
 
 export type SubscriptionsScalarFieldEnum = (typeof SubscriptionsScalarFieldEnum)[keyof typeof SubscriptionsScalarFieldEnum]
@@ -469,53 +419,18 @@ export const SubscriptionExtensionsScalarFieldEnum = {
   isUnlimitTraffic: 'isUnlimitTraffic',
   isPremiumServers: 'isPremiumServers',
   isNoAds: 'isNoAds',
-  isRoleChat: 'isRoleChat'
+  isRoleChat: 'isRoleChat',
+  isAutoRenewing: 'isAutoRenewing',
+  roleName: 'roleName'
 } as const
 
 export type SubscriptionExtensionsScalarFieldEnum = (typeof SubscriptionExtensionsScalarFieldEnum)[keyof typeof SubscriptionExtensionsScalarFieldEnum]
-
-
-export const DevicesScalarFieldEnum = {
-  id: 'id',
-  model: 'model',
-  hwid: 'hwid',
-  osVersion: 'osVersion',
-  os: 'os',
-  locale: 'locale',
-  happVersion: 'happVersion',
-  userAgent: 'userAgent',
-  token: 'token',
-  happCryptoUrl: 'happCryptoUrl',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  subscriptionId: 'subscriptionId'
-} as const
-
-export type DevicesScalarFieldEnum = (typeof DevicesScalarFieldEnum)[keyof typeof DevicesScalarFieldEnum]
-
-
-export const SubscriptionToGreenListScalarFieldEnum = {
-  subscriptionId: 'subscriptionId',
-  greenListId: 'greenListId',
-  assignedAt: 'assignedAt'
-} as const
-
-export type SubscriptionToGreenListScalarFieldEnum = (typeof SubscriptionToGreenListScalarFieldEnum)[keyof typeof SubscriptionToGreenListScalarFieldEnum]
-
-
-export const XrayInboundsScalarFieldEnum = {
-  inboundTag: 'inboundTag',
-  type: 'type'
-} as const
-
-export type XrayInboundsScalarFieldEnum = (typeof XrayInboundsScalarFieldEnum)[keyof typeof XrayInboundsScalarFieldEnum]
 
 
 export const RolesScalarFieldEnum = {
   key: 'key',
   name: 'name',
   discount: 'discount',
-  limitSubscriptions: 'limitSubscriptions',
   minPayStars: 'minPayStars',
   days: 'days',
   devicesCount: 'devicesCount',
@@ -523,7 +438,9 @@ export const RolesScalarFieldEnum = {
   isUnlimitTraffic: 'isUnlimitTraffic',
   isPremiumServers: 'isPremiumServers',
   isNoAds: 'isNoAds',
-  isRoleChat: 'isRoleChat'
+  isRoleChat: 'isRoleChat',
+  isAutoRenewing: 'isAutoRenewing',
+  roleName: 'roleName'
 } as const
 
 export type RolesScalarFieldEnum = (typeof RolesScalarFieldEnum)[keyof typeof RolesScalarFieldEnum]
@@ -600,13 +517,13 @@ export const PaymentsScalarFieldEnum = {
   linkPay: 'linkPay',
   details: 'details',
   data: 'data',
+  period: 'period',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
   currencyKey: 'currencyKey',
   methodKey: 'methodKey',
-  transactionId: 'transactionId',
-  subscriptionId: 'subscriptionId'
+  transactionId: 'transactionId'
 } as const
 
 export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typeof PaymentsScalarFieldEnum]

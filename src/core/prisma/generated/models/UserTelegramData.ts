@@ -785,6 +785,10 @@ export type NullableBoolFieldUpdateOperationsInput = {
   set?: boolean | null
 }
 
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
+}
+
 export type UserTelegramDataCreateNestedOneWithoutUserInput = {
   create?: Prisma.XOR<Prisma.UserTelegramDataCreateWithoutUserInput, Prisma.UserTelegramDataUncheckedCreateWithoutUserInput>
   connectOrCreate?: Prisma.UserTelegramDataCreateOrConnectWithoutUserInput

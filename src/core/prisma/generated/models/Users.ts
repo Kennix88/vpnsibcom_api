@@ -28,7 +28,6 @@ export type UsersMinAggregateOutputType = {
   id: string | null
   telegramId: string | null
   isTgProgramPartner: boolean | null
-  isFreePlanAvailable: boolean | null
   isBanned: boolean | null
   isDeleted: boolean | null
   isChannel: boolean | null
@@ -48,6 +47,7 @@ export type UsersMinAggregateOutputType = {
   balanceId: string | null
   languageId: string | null
   currencyKey: $Enums.CurrencyEnum | null
+  subscriptionId: string | null
   adsDataId: string | null
   acquisitionId: string | null
 }
@@ -56,7 +56,6 @@ export type UsersMaxAggregateOutputType = {
   id: string | null
   telegramId: string | null
   isTgProgramPartner: boolean | null
-  isFreePlanAvailable: boolean | null
   isBanned: boolean | null
   isDeleted: boolean | null
   isChannel: boolean | null
@@ -76,6 +75,7 @@ export type UsersMaxAggregateOutputType = {
   balanceId: string | null
   languageId: string | null
   currencyKey: $Enums.CurrencyEnum | null
+  subscriptionId: string | null
   adsDataId: string | null
   acquisitionId: string | null
 }
@@ -84,7 +84,6 @@ export type UsersCountAggregateOutputType = {
   id: number
   telegramId: number
   isTgProgramPartner: number
-  isFreePlanAvailable: number
   isBanned: number
   isDeleted: number
   isChannel: number
@@ -104,6 +103,7 @@ export type UsersCountAggregateOutputType = {
   balanceId: number
   languageId: number
   currencyKey: number
+  subscriptionId: number
   adsDataId: number
   acquisitionId: number
   _all: number
@@ -114,7 +114,6 @@ export type UsersMinAggregateInputType = {
   id?: true
   telegramId?: true
   isTgProgramPartner?: true
-  isFreePlanAvailable?: true
   isBanned?: true
   isDeleted?: true
   isChannel?: true
@@ -134,6 +133,7 @@ export type UsersMinAggregateInputType = {
   balanceId?: true
   languageId?: true
   currencyKey?: true
+  subscriptionId?: true
   adsDataId?: true
   acquisitionId?: true
 }
@@ -142,7 +142,6 @@ export type UsersMaxAggregateInputType = {
   id?: true
   telegramId?: true
   isTgProgramPartner?: true
-  isFreePlanAvailable?: true
   isBanned?: true
   isDeleted?: true
   isChannel?: true
@@ -162,6 +161,7 @@ export type UsersMaxAggregateInputType = {
   balanceId?: true
   languageId?: true
   currencyKey?: true
+  subscriptionId?: true
   adsDataId?: true
   acquisitionId?: true
 }
@@ -170,7 +170,6 @@ export type UsersCountAggregateInputType = {
   id?: true
   telegramId?: true
   isTgProgramPartner?: true
-  isFreePlanAvailable?: true
   isBanned?: true
   isDeleted?: true
   isChannel?: true
@@ -190,6 +189,7 @@ export type UsersCountAggregateInputType = {
   balanceId?: true
   languageId?: true
   currencyKey?: true
+  subscriptionId?: true
   adsDataId?: true
   acquisitionId?: true
   _all?: true
@@ -271,7 +271,6 @@ export type UsersGroupByOutputType = {
   id: string
   telegramId: string
   isTgProgramPartner: boolean
-  isFreePlanAvailable: boolean
   isBanned: boolean
   isDeleted: boolean
   isChannel: boolean
@@ -291,6 +290,7 @@ export type UsersGroupByOutputType = {
   balanceId: string | null
   languageId: string
   currencyKey: $Enums.CurrencyEnum
+  subscriptionId: string | null
   adsDataId: string | null
   acquisitionId: string | null
   _count: UsersCountAggregateOutputType | null
@@ -320,7 +320,6 @@ export type UsersWhereInput = {
   id?: Prisma.StringFilter<"Users"> | string
   telegramId?: Prisma.StringFilter<"Users"> | string
   isTgProgramPartner?: Prisma.BoolFilter<"Users"> | boolean
-  isFreePlanAvailable?: Prisma.BoolFilter<"Users"> | boolean
   isBanned?: Prisma.BoolFilter<"Users"> | boolean
   isDeleted?: Prisma.BoolFilter<"Users"> | boolean
   isChannel?: Prisma.BoolFilter<"Users"> | boolean
@@ -340,6 +339,7 @@ export type UsersWhereInput = {
   balanceId?: Prisma.StringNullableFilter<"Users"> | string | null
   languageId?: Prisma.StringFilter<"Users"> | string
   currencyKey?: Prisma.EnumCurrencyEnumFilter<"Users"> | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.StringNullableFilter<"Users"> | string | null
   adsDataId?: Prisma.StringNullableFilter<"Users"> | string | null
   acquisitionId?: Prisma.StringNullableFilter<"Users"> | string | null
   role?: Prisma.XOR<Prisma.RolesScalarRelationFilter, Prisma.RolesWhereInput>
@@ -350,7 +350,7 @@ export type UsersWhereInput = {
   balance?: Prisma.XOR<Prisma.UserBalanceNullableScalarRelationFilter, Prisma.UserBalanceWhereInput> | null
   language?: Prisma.XOR<Prisma.LanguageScalarRelationFilter, Prisma.LanguageWhereInput>
   currency?: Prisma.XOR<Prisma.CurrencyScalarRelationFilter, Prisma.CurrencyWhereInput>
-  subscriptions?: Prisma.SubscriptionsListRelationFilter
+  subscription?: Prisma.XOR<Prisma.SubscriptionsNullableScalarRelationFilter, Prisma.SubscriptionsWhereInput> | null
   withdrawals?: Prisma.WithdrawalsListRelationFilter
   adsViews?: Prisma.AdsViewsListRelationFilter
   adsData?: Prisma.XOR<Prisma.UserAdsDataNullableScalarRelationFilter, Prisma.UserAdsDataWhereInput> | null
@@ -363,7 +363,6 @@ export type UsersOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   telegramId?: Prisma.SortOrder
   isTgProgramPartner?: Prisma.SortOrder
-  isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   isChannel?: Prisma.SortOrder
@@ -383,6 +382,7 @@ export type UsersOrderByWithRelationInput = {
   balanceId?: Prisma.SortOrderInput | Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   adsDataId?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionId?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.RolesOrderByWithRelationInput
@@ -393,7 +393,7 @@ export type UsersOrderByWithRelationInput = {
   balance?: Prisma.UserBalanceOrderByWithRelationInput
   language?: Prisma.LanguageOrderByWithRelationInput
   currency?: Prisma.CurrencyOrderByWithRelationInput
-  subscriptions?: Prisma.SubscriptionsOrderByRelationAggregateInput
+  subscription?: Prisma.SubscriptionsOrderByWithRelationInput
   withdrawals?: Prisma.WithdrawalsOrderByRelationAggregateInput
   adsViews?: Prisma.AdsViewsOrderByRelationAggregateInput
   adsData?: Prisma.UserAdsDataOrderByWithRelationInput
@@ -407,13 +407,13 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
   telegramId?: string
   telegramDataId?: string
   balanceId?: string
+  subscriptionId?: string
   adsDataId?: string
   acquisitionId?: string
   AND?: Prisma.UsersWhereInput | Prisma.UsersWhereInput[]
   OR?: Prisma.UsersWhereInput[]
   NOT?: Prisma.UsersWhereInput | Prisma.UsersWhereInput[]
   isTgProgramPartner?: Prisma.BoolFilter<"Users"> | boolean
-  isFreePlanAvailable?: Prisma.BoolFilter<"Users"> | boolean
   isBanned?: Prisma.BoolFilter<"Users"> | boolean
   isDeleted?: Prisma.BoolFilter<"Users"> | boolean
   isChannel?: Prisma.BoolFilter<"Users"> | boolean
@@ -439,20 +439,19 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
   balance?: Prisma.XOR<Prisma.UserBalanceNullableScalarRelationFilter, Prisma.UserBalanceWhereInput> | null
   language?: Prisma.XOR<Prisma.LanguageScalarRelationFilter, Prisma.LanguageWhereInput>
   currency?: Prisma.XOR<Prisma.CurrencyScalarRelationFilter, Prisma.CurrencyWhereInput>
-  subscriptions?: Prisma.SubscriptionsListRelationFilter
+  subscription?: Prisma.XOR<Prisma.SubscriptionsNullableScalarRelationFilter, Prisma.SubscriptionsWhereInput> | null
   withdrawals?: Prisma.WithdrawalsListRelationFilter
   adsViews?: Prisma.AdsViewsListRelationFilter
   adsData?: Prisma.XOR<Prisma.UserAdsDataNullableScalarRelationFilter, Prisma.UserAdsDataWhereInput> | null
   sessions?: Prisma.SessionsListRelationFilter
   acquisition?: Prisma.XOR<Prisma.AcquisitionNullableScalarRelationFilter, Prisma.AcquisitionWhereInput> | null
   events?: Prisma.EventsListRelationFilter
-}, "id" | "telegramId" | "telegramDataId" | "balanceId" | "adsDataId" | "acquisitionId">
+}, "id" | "telegramId" | "telegramDataId" | "balanceId" | "subscriptionId" | "adsDataId" | "acquisitionId">
 
 export type UsersOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   telegramId?: Prisma.SortOrder
   isTgProgramPartner?: Prisma.SortOrder
-  isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   isChannel?: Prisma.SortOrder
@@ -472,6 +471,7 @@ export type UsersOrderByWithAggregationInput = {
   balanceId?: Prisma.SortOrderInput | Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   adsDataId?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UsersCountOrderByAggregateInput
@@ -486,7 +486,6 @@ export type UsersScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Users"> | string
   telegramId?: Prisma.StringWithAggregatesFilter<"Users"> | string
   isTgProgramPartner?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
-  isFreePlanAvailable?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
   isBanned?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
   isChannel?: Prisma.BoolWithAggregatesFilter<"Users"> | boolean
@@ -506,6 +505,7 @@ export type UsersScalarWhereWithAggregatesInput = {
   balanceId?: Prisma.StringNullableWithAggregatesFilter<"Users"> | string | null
   languageId?: Prisma.StringWithAggregatesFilter<"Users"> | string
   currencyKey?: Prisma.EnumCurrencyEnumWithAggregatesFilter<"Users"> | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Users"> | string | null
   adsDataId?: Prisma.StringNullableWithAggregatesFilter<"Users"> | string | null
   acquisitionId?: Prisma.StringNullableWithAggregatesFilter<"Users"> | string | null
 }
@@ -514,7 +514,6 @@ export type UsersCreateInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -537,7 +536,7 @@ export type UsersCreateInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -550,7 +549,6 @@ export type UsersUncheckedCreateInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -570,12 +568,12 @@ export type UsersUncheckedCreateInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -586,7 +584,6 @@ export type UsersUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -609,7 +606,7 @@ export type UsersUpdateInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -622,7 +619,6 @@ export type UsersUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -642,12 +638,12 @@ export type UsersUncheckedUpdateInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -658,7 +654,6 @@ export type UsersCreateManyInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -678,6 +673,7 @@ export type UsersCreateManyInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
 }
@@ -686,7 +682,6 @@ export type UsersUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -707,7 +702,6 @@ export type UsersUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -727,6 +721,7 @@ export type UsersUncheckedUpdateManyInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -745,7 +740,6 @@ export type UsersCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   telegramId?: Prisma.SortOrder
   isTgProgramPartner?: Prisma.SortOrder
-  isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   isChannel?: Prisma.SortOrder
@@ -765,6 +759,7 @@ export type UsersCountOrderByAggregateInput = {
   balanceId?: Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrder
   adsDataId?: Prisma.SortOrder
   acquisitionId?: Prisma.SortOrder
 }
@@ -773,7 +768,6 @@ export type UsersMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   telegramId?: Prisma.SortOrder
   isTgProgramPartner?: Prisma.SortOrder
-  isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   isChannel?: Prisma.SortOrder
@@ -793,6 +787,7 @@ export type UsersMaxOrderByAggregateInput = {
   balanceId?: Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrder
   adsDataId?: Prisma.SortOrder
   acquisitionId?: Prisma.SortOrder
 }
@@ -801,7 +796,6 @@ export type UsersMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   telegramId?: Prisma.SortOrder
   isTgProgramPartner?: Prisma.SortOrder
-  isFreePlanAvailable?: Prisma.SortOrder
   isBanned?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   isChannel?: Prisma.SortOrder
@@ -821,6 +815,7 @@ export type UsersMinOrderByAggregateInput = {
   balanceId?: Prisma.SortOrder
   languageId?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrder
   adsDataId?: Prisma.SortOrder
   acquisitionId?: Prisma.SortOrder
 }
@@ -893,6 +888,10 @@ export type UsersUpdateOneRequiredWithoutInvitersNestedInput = {
   upsert?: Prisma.UsersUpsertWithoutInvitersInput
   connect?: Prisma.UsersWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutInvitersInput, Prisma.UsersUpdateWithoutInvitersInput>, Prisma.UsersUncheckedUpdateWithoutInvitersInput>
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type EnumUserRoleEnumFieldUpdateOperationsInput = {
@@ -1041,18 +1040,36 @@ export type UsersUncheckedUpdateOneWithoutBalanceNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutBalanceInput, Prisma.UsersUpdateWithoutBalanceInput>, Prisma.UsersUncheckedUpdateWithoutBalanceInput>
 }
 
-export type UsersCreateNestedOneWithoutSubscriptionsInput = {
-  create?: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionsInput, Prisma.UsersUncheckedCreateWithoutSubscriptionsInput>
-  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutSubscriptionsInput
+export type UsersCreateNestedOneWithoutSubscriptionInput = {
+  create?: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionInput, Prisma.UsersUncheckedCreateWithoutSubscriptionInput>
+  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutSubscriptionInput
   connect?: Prisma.UsersWhereUniqueInput
 }
 
-export type UsersUpdateOneRequiredWithoutSubscriptionsNestedInput = {
-  create?: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionsInput, Prisma.UsersUncheckedCreateWithoutSubscriptionsInput>
-  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutSubscriptionsInput
-  upsert?: Prisma.UsersUpsertWithoutSubscriptionsInput
+export type UsersUncheckedCreateNestedOneWithoutSubscriptionInput = {
+  create?: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionInput, Prisma.UsersUncheckedCreateWithoutSubscriptionInput>
+  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutSubscriptionInput
   connect?: Prisma.UsersWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutSubscriptionsInput, Prisma.UsersUpdateWithoutSubscriptionsInput>, Prisma.UsersUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type UsersUpdateOneWithoutSubscriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionInput, Prisma.UsersUncheckedCreateWithoutSubscriptionInput>
+  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutSubscriptionInput
+  upsert?: Prisma.UsersUpsertWithoutSubscriptionInput
+  disconnect?: Prisma.UsersWhereInput | boolean
+  delete?: Prisma.UsersWhereInput | boolean
+  connect?: Prisma.UsersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutSubscriptionInput, Prisma.UsersUpdateWithoutSubscriptionInput>, Prisma.UsersUncheckedUpdateWithoutSubscriptionInput>
+}
+
+export type UsersUncheckedUpdateOneWithoutSubscriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionInput, Prisma.UsersUncheckedCreateWithoutSubscriptionInput>
+  connectOrCreate?: Prisma.UsersCreateOrConnectWithoutSubscriptionInput
+  upsert?: Prisma.UsersUpsertWithoutSubscriptionInput
+  disconnect?: Prisma.UsersWhereInput | boolean
+  delete?: Prisma.UsersWhereInput | boolean
+  connect?: Prisma.UsersWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutSubscriptionInput, Prisma.UsersUpdateWithoutSubscriptionInput>, Prisma.UsersUncheckedUpdateWithoutSubscriptionInput>
 }
 
 export type UsersCreateNestedManyWithoutRoleInput = {
@@ -1213,7 +1230,6 @@ export type UsersCreateWithoutTelegramDataInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1235,7 +1251,7 @@ export type UsersCreateWithoutTelegramDataInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -1248,7 +1264,6 @@ export type UsersUncheckedCreateWithoutTelegramDataInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1267,12 +1282,12 @@ export type UsersUncheckedCreateWithoutTelegramDataInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -1299,7 +1314,6 @@ export type UsersUpdateWithoutTelegramDataInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1321,7 +1335,7 @@ export type UsersUpdateWithoutTelegramDataInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -1334,7 +1348,6 @@ export type UsersUncheckedUpdateWithoutTelegramDataInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1353,12 +1366,12 @@ export type UsersUncheckedUpdateWithoutTelegramDataInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -1369,7 +1382,6 @@ export type UsersCreateWithoutReferralsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1391,7 +1403,7 @@ export type UsersCreateWithoutReferralsInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -1404,7 +1416,6 @@ export type UsersUncheckedCreateWithoutReferralsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1424,11 +1435,11 @@ export type UsersUncheckedCreateWithoutReferralsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -1444,7 +1455,6 @@ export type UsersCreateWithoutInvitersInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1466,7 +1476,7 @@ export type UsersCreateWithoutInvitersInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -1479,7 +1489,6 @@ export type UsersUncheckedCreateWithoutInvitersInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1499,11 +1508,11 @@ export type UsersUncheckedCreateWithoutInvitersInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -1530,7 +1539,6 @@ export type UsersUpdateWithoutReferralsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1552,7 +1560,7 @@ export type UsersUpdateWithoutReferralsInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -1565,7 +1573,6 @@ export type UsersUncheckedUpdateWithoutReferralsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1585,11 +1592,11 @@ export type UsersUncheckedUpdateWithoutReferralsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -1611,7 +1618,6 @@ export type UsersUpdateWithoutInvitersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1633,7 +1639,7 @@ export type UsersUpdateWithoutInvitersInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -1646,7 +1652,6 @@ export type UsersUncheckedUpdateWithoutInvitersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1666,11 +1671,11 @@ export type UsersUncheckedUpdateWithoutInvitersInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -1681,7 +1686,6 @@ export type UsersCreateWithoutEventsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1704,7 +1708,7 @@ export type UsersCreateWithoutEventsInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -1716,7 +1720,6 @@ export type UsersUncheckedCreateWithoutEventsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1736,12 +1739,12 @@ export type UsersUncheckedCreateWithoutEventsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -1767,7 +1770,6 @@ export type UsersUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1790,7 +1792,7 @@ export type UsersUpdateWithoutEventsInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -1802,7 +1804,6 @@ export type UsersUncheckedUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1822,12 +1823,12 @@ export type UsersUncheckedUpdateWithoutEventsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -1837,7 +1838,6 @@ export type UsersCreateWithoutAcquisitionInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1860,7 +1860,7 @@ export type UsersCreateWithoutAcquisitionInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -1872,7 +1872,6 @@ export type UsersUncheckedCreateWithoutAcquisitionInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -1892,11 +1891,11 @@ export type UsersUncheckedCreateWithoutAcquisitionInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -1923,7 +1922,6 @@ export type UsersUpdateWithoutAcquisitionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1946,7 +1944,7 @@ export type UsersUpdateWithoutAcquisitionInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -1958,7 +1956,6 @@ export type UsersUncheckedUpdateWithoutAcquisitionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1978,11 +1975,11 @@ export type UsersUncheckedUpdateWithoutAcquisitionInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -1993,7 +1990,6 @@ export type UsersCreateWithoutSessionsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2016,7 +2012,7 @@ export type UsersCreateWithoutSessionsInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -2028,7 +2024,6 @@ export type UsersUncheckedCreateWithoutSessionsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2048,12 +2043,12 @@ export type UsersUncheckedCreateWithoutSessionsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventsUncheckedCreateNestedManyWithoutUserInput
@@ -2079,7 +2074,6 @@ export type UsersUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2102,7 +2096,7 @@ export type UsersUpdateWithoutSessionsInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -2114,7 +2108,6 @@ export type UsersUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2134,12 +2127,12 @@ export type UsersUncheckedUpdateWithoutSessionsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventsUncheckedUpdateManyWithoutUserNestedInput
@@ -2149,7 +2142,6 @@ export type UsersCreateWithoutAdsDataInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2172,7 +2164,7 @@ export type UsersCreateWithoutAdsDataInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsCreateNestedManyWithoutUserInput
@@ -2184,7 +2176,6 @@ export type UsersUncheckedCreateWithoutAdsDataInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2204,11 +2195,11 @@ export type UsersUncheckedCreateWithoutAdsDataInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -2235,7 +2226,6 @@ export type UsersUpdateWithoutAdsDataInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2258,7 +2248,7 @@ export type UsersUpdateWithoutAdsDataInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUpdateManyWithoutUserNestedInput
@@ -2270,7 +2260,6 @@ export type UsersUncheckedUpdateWithoutAdsDataInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2290,11 +2279,11 @@ export type UsersUncheckedUpdateWithoutAdsDataInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -2305,7 +2294,6 @@ export type UsersCreateWithoutAdsViewsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2328,7 +2316,7 @@ export type UsersCreateWithoutAdsViewsInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
   sessions?: Prisma.SessionsCreateNestedManyWithoutUserInput
@@ -2340,7 +2328,6 @@ export type UsersUncheckedCreateWithoutAdsViewsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2360,12 +2347,12 @@ export type UsersUncheckedCreateWithoutAdsViewsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventsUncheckedCreateNestedManyWithoutUserInput
@@ -2391,7 +2378,6 @@ export type UsersUpdateWithoutAdsViewsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2414,7 +2400,7 @@ export type UsersUpdateWithoutAdsViewsInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
   sessions?: Prisma.SessionsUpdateManyWithoutUserNestedInput
@@ -2426,7 +2412,6 @@ export type UsersUncheckedUpdateWithoutAdsViewsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2446,12 +2431,12 @@ export type UsersUncheckedUpdateWithoutAdsViewsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventsUncheckedUpdateManyWithoutUserNestedInput
@@ -2461,7 +2446,6 @@ export type UsersCreateWithoutBalanceInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2483,7 +2467,7 @@ export type UsersCreateWithoutBalanceInput = {
   telegramData?: Prisma.UserTelegramDataCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -2496,7 +2480,6 @@ export type UsersUncheckedCreateWithoutBalanceInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2515,12 +2498,12 @@ export type UsersUncheckedCreateWithoutBalanceInput = {
   telegramDataId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -2547,7 +2530,6 @@ export type UsersUpdateWithoutBalanceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2569,7 +2551,7 @@ export type UsersUpdateWithoutBalanceInput = {
   telegramData?: Prisma.UserTelegramDataUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -2582,7 +2564,6 @@ export type UsersUncheckedUpdateWithoutBalanceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2601,23 +2582,22 @@ export type UsersUncheckedUpdateWithoutBalanceInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventsUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UsersCreateWithoutSubscriptionsInput = {
+export type UsersCreateWithoutSubscriptionInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2648,11 +2628,10 @@ export type UsersCreateWithoutSubscriptionsInput = {
   events?: Prisma.EventsCreateNestedManyWithoutUserInput
 }
 
-export type UsersUncheckedCreateWithoutSubscriptionsInput = {
+export type UsersUncheckedCreateWithoutSubscriptionInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2683,27 +2662,26 @@ export type UsersUncheckedCreateWithoutSubscriptionsInput = {
   events?: Prisma.EventsUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UsersCreateOrConnectWithoutSubscriptionsInput = {
+export type UsersCreateOrConnectWithoutSubscriptionInput = {
   where: Prisma.UsersWhereUniqueInput
-  create: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionsInput, Prisma.UsersUncheckedCreateWithoutSubscriptionsInput>
+  create: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionInput, Prisma.UsersUncheckedCreateWithoutSubscriptionInput>
 }
 
-export type UsersUpsertWithoutSubscriptionsInput = {
-  update: Prisma.XOR<Prisma.UsersUpdateWithoutSubscriptionsInput, Prisma.UsersUncheckedUpdateWithoutSubscriptionsInput>
-  create: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionsInput, Prisma.UsersUncheckedCreateWithoutSubscriptionsInput>
+export type UsersUpsertWithoutSubscriptionInput = {
+  update: Prisma.XOR<Prisma.UsersUpdateWithoutSubscriptionInput, Prisma.UsersUncheckedUpdateWithoutSubscriptionInput>
+  create: Prisma.XOR<Prisma.UsersCreateWithoutSubscriptionInput, Prisma.UsersUncheckedCreateWithoutSubscriptionInput>
   where?: Prisma.UsersWhereInput
 }
 
-export type UsersUpdateToOneWithWhereWithoutSubscriptionsInput = {
+export type UsersUpdateToOneWithWhereWithoutSubscriptionInput = {
   where?: Prisma.UsersWhereInput
-  data: Prisma.XOR<Prisma.UsersUpdateWithoutSubscriptionsInput, Prisma.UsersUncheckedUpdateWithoutSubscriptionsInput>
+  data: Prisma.XOR<Prisma.UsersUpdateWithoutSubscriptionInput, Prisma.UsersUncheckedUpdateWithoutSubscriptionInput>
 }
 
-export type UsersUpdateWithoutSubscriptionsInput = {
+export type UsersUpdateWithoutSubscriptionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2734,11 +2712,10 @@ export type UsersUpdateWithoutSubscriptionsInput = {
   events?: Prisma.EventsUpdateManyWithoutUserNestedInput
 }
 
-export type UsersUncheckedUpdateWithoutSubscriptionsInput = {
+export type UsersUncheckedUpdateWithoutSubscriptionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2773,7 +2750,6 @@ export type UsersCreateWithoutRoleInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2795,7 +2771,7 @@ export type UsersCreateWithoutRoleInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -2808,7 +2784,6 @@ export type UsersUncheckedCreateWithoutRoleInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2827,12 +2802,12 @@ export type UsersUncheckedCreateWithoutRoleInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -2872,7 +2847,6 @@ export type UsersScalarWhereInput = {
   id?: Prisma.StringFilter<"Users"> | string
   telegramId?: Prisma.StringFilter<"Users"> | string
   isTgProgramPartner?: Prisma.BoolFilter<"Users"> | boolean
-  isFreePlanAvailable?: Prisma.BoolFilter<"Users"> | boolean
   isBanned?: Prisma.BoolFilter<"Users"> | boolean
   isDeleted?: Prisma.BoolFilter<"Users"> | boolean
   isChannel?: Prisma.BoolFilter<"Users"> | boolean
@@ -2892,6 +2866,7 @@ export type UsersScalarWhereInput = {
   balanceId?: Prisma.StringNullableFilter<"Users"> | string | null
   languageId?: Prisma.StringFilter<"Users"> | string
   currencyKey?: Prisma.EnumCurrencyEnumFilter<"Users"> | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.StringNullableFilter<"Users"> | string | null
   adsDataId?: Prisma.StringNullableFilter<"Users"> | string | null
   acquisitionId?: Prisma.StringNullableFilter<"Users"> | string | null
 }
@@ -2900,7 +2875,6 @@ export type UsersCreateWithoutLanguageInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2922,7 +2896,7 @@ export type UsersCreateWithoutLanguageInput = {
   telegramData?: Prisma.UserTelegramDataCreateNestedOneWithoutUserInput
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -2935,7 +2909,6 @@ export type UsersUncheckedCreateWithoutLanguageInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -2954,12 +2927,12 @@ export type UsersUncheckedCreateWithoutLanguageInput = {
   telegramDataId?: string | null
   balanceId?: string | null
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -2996,7 +2969,6 @@ export type UsersCreateWithoutCurrencyInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3018,7 +2990,7 @@ export type UsersCreateWithoutCurrencyInput = {
   telegramData?: Prisma.UserTelegramDataCreateNestedOneWithoutUserInput
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -3031,7 +3003,6 @@ export type UsersUncheckedCreateWithoutCurrencyInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3050,12 +3021,12 @@ export type UsersUncheckedCreateWithoutCurrencyInput = {
   telegramDataId?: string | null
   balanceId?: string | null
   languageId: string
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -3092,7 +3063,6 @@ export type UsersCreateWithoutWithdrawalsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3115,7 +3085,7 @@ export type UsersCreateWithoutWithdrawalsInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
   sessions?: Prisma.SessionsCreateNestedManyWithoutUserInput
@@ -3127,7 +3097,6 @@ export type UsersUncheckedCreateWithoutWithdrawalsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3147,12 +3116,12 @@ export type UsersUncheckedCreateWithoutWithdrawalsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutUserInput
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventsUncheckedCreateNestedManyWithoutUserInput
@@ -3178,7 +3147,6 @@ export type UsersUpdateWithoutWithdrawalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3201,7 +3169,7 @@ export type UsersUpdateWithoutWithdrawalsInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
   sessions?: Prisma.SessionsUpdateManyWithoutUserNestedInput
@@ -3213,7 +3181,6 @@ export type UsersUncheckedUpdateWithoutWithdrawalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3233,12 +3200,12 @@ export type UsersUncheckedUpdateWithoutWithdrawalsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventsUncheckedUpdateManyWithoutUserNestedInput
@@ -3248,7 +3215,6 @@ export type UsersCreateWithoutPaymentsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3270,7 +3236,7 @@ export type UsersCreateWithoutPaymentsInput = {
   balance?: Prisma.UserBalanceCreateNestedOneWithoutUserInput
   language: Prisma.LanguageCreateNestedOneWithoutUsersInput
   currency?: Prisma.CurrencyCreateNestedOneWithoutUsersInput
-  subscriptions?: Prisma.SubscriptionsCreateNestedManyWithoutUserInput
+  subscription?: Prisma.SubscriptionsCreateNestedOneWithoutUserInput
   withdrawals?: Prisma.WithdrawalsCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsCreateNestedManyWithoutUserInput
   adsData?: Prisma.UserAdsDataCreateNestedOneWithoutUserInput
@@ -3283,7 +3249,6 @@ export type UsersUncheckedCreateWithoutPaymentsInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3303,11 +3268,11 @@ export type UsersUncheckedCreateWithoutPaymentsInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
   referrals?: Prisma.ReferralsUncheckedCreateNestedManyWithoutInviterInput
   inviters?: Prisma.ReferralsUncheckedCreateNestedManyWithoutReferralInput
-  subscriptions?: Prisma.SubscriptionsUncheckedCreateNestedManyWithoutUserInput
   withdrawals?: Prisma.WithdrawalsUncheckedCreateNestedManyWithoutUserInput
   adsViews?: Prisma.AdsViewsUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionsUncheckedCreateNestedManyWithoutUserInput
@@ -3334,7 +3299,6 @@ export type UsersUpdateWithoutPaymentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3356,7 +3320,7 @@ export type UsersUpdateWithoutPaymentsInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -3369,7 +3333,6 @@ export type UsersUncheckedUpdateWithoutPaymentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3389,11 +3352,11 @@ export type UsersUncheckedUpdateWithoutPaymentsInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -3404,7 +3367,6 @@ export type UsersCreateManyRoleInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3423,6 +3385,7 @@ export type UsersCreateManyRoleInput = {
   balanceId?: string | null
   languageId: string
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
 }
@@ -3431,7 +3394,6 @@ export type UsersUpdateWithoutRoleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3453,7 +3415,7 @@ export type UsersUpdateWithoutRoleInput = {
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -3466,7 +3428,6 @@ export type UsersUncheckedUpdateWithoutRoleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3485,12 +3446,12 @@ export type UsersUncheckedUpdateWithoutRoleInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -3501,7 +3462,6 @@ export type UsersUncheckedUpdateManyWithoutRoleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3520,6 +3480,7 @@ export type UsersUncheckedUpdateManyWithoutRoleInput = {
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -3528,7 +3489,6 @@ export type UsersCreateManyLanguageInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3547,6 +3507,7 @@ export type UsersCreateManyLanguageInput = {
   telegramDataId?: string | null
   balanceId?: string | null
   currencyKey?: $Enums.CurrencyEnum
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
 }
@@ -3555,7 +3516,6 @@ export type UsersUpdateWithoutLanguageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3577,7 +3537,7 @@ export type UsersUpdateWithoutLanguageInput = {
   telegramData?: Prisma.UserTelegramDataUpdateOneWithoutUserNestedInput
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -3590,7 +3550,6 @@ export type UsersUncheckedUpdateWithoutLanguageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3609,12 +3568,12 @@ export type UsersUncheckedUpdateWithoutLanguageInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -3625,7 +3584,6 @@ export type UsersUncheckedUpdateManyWithoutLanguageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3644,6 +3602,7 @@ export type UsersUncheckedUpdateManyWithoutLanguageInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -3652,7 +3611,6 @@ export type UsersCreateManyCurrencyInput = {
   id?: string
   telegramId: string
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3671,6 +3629,7 @@ export type UsersCreateManyCurrencyInput = {
   telegramDataId?: string | null
   balanceId?: string | null
   languageId: string
+  subscriptionId?: string | null
   adsDataId?: string | null
   acquisitionId?: string | null
 }
@@ -3679,7 +3638,6 @@ export type UsersUpdateWithoutCurrencyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3701,7 +3659,7 @@ export type UsersUpdateWithoutCurrencyInput = {
   telegramData?: Prisma.UserTelegramDataUpdateOneWithoutUserNestedInput
   balance?: Prisma.UserBalanceUpdateOneWithoutUserNestedInput
   language?: Prisma.LanguageUpdateOneRequiredWithoutUsersNestedInput
-  subscriptions?: Prisma.SubscriptionsUpdateManyWithoutUserNestedInput
+  subscription?: Prisma.SubscriptionsUpdateOneWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUpdateManyWithoutUserNestedInput
   adsData?: Prisma.UserAdsDataUpdateOneWithoutUserNestedInput
@@ -3714,7 +3672,6 @@ export type UsersUncheckedUpdateWithoutCurrencyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3733,12 +3690,12 @@ export type UsersUncheckedUpdateWithoutCurrencyInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutUserNestedInput
   referrals?: Prisma.ReferralsUncheckedUpdateManyWithoutInviterNestedInput
   inviters?: Prisma.ReferralsUncheckedUpdateManyWithoutReferralNestedInput
-  subscriptions?: Prisma.SubscriptionsUncheckedUpdateManyWithoutUserNestedInput
   withdrawals?: Prisma.WithdrawalsUncheckedUpdateManyWithoutUserNestedInput
   adsViews?: Prisma.AdsViewsUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionsUncheckedUpdateManyWithoutUserNestedInput
@@ -3749,7 +3706,6 @@ export type UsersUncheckedUpdateManyWithoutCurrencyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   telegramId?: Prisma.StringFieldUpdateOperationsInput | string
   isTgProgramPartner?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isFreePlanAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isChannel?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3768,6 +3724,7 @@ export type UsersUncheckedUpdateManyWithoutCurrencyInput = {
   telegramDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balanceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   languageId?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   adsDataId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -3781,7 +3738,6 @@ export type UsersCountOutputType = {
   payments: number
   referrals: number
   inviters: number
-  subscriptions: number
   withdrawals: number
   adsViews: number
   sessions: number
@@ -3792,7 +3748,6 @@ export type UsersCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   payments?: boolean | UsersCountOutputTypeCountPaymentsArgs
   referrals?: boolean | UsersCountOutputTypeCountReferralsArgs
   inviters?: boolean | UsersCountOutputTypeCountInvitersArgs
-  subscriptions?: boolean | UsersCountOutputTypeCountSubscriptionsArgs
   withdrawals?: boolean | UsersCountOutputTypeCountWithdrawalsArgs
   adsViews?: boolean | UsersCountOutputTypeCountAdsViewsArgs
   sessions?: boolean | UsersCountOutputTypeCountSessionsArgs
@@ -3833,13 +3788,6 @@ export type UsersCountOutputTypeCountInvitersArgs<ExtArgs extends runtime.Types.
 /**
  * UsersCountOutputType without action
  */
-export type UsersCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SubscriptionsWhereInput
-}
-
-/**
- * UsersCountOutputType without action
- */
 export type UsersCountOutputTypeCountWithdrawalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.WithdrawalsWhereInput
 }
@@ -3870,7 +3818,6 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   telegramId?: boolean
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3890,6 +3837,7 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   balanceId?: boolean
   languageId?: boolean
   currencyKey?: boolean
+  subscriptionId?: boolean
   adsDataId?: boolean
   acquisitionId?: boolean
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
@@ -3900,7 +3848,7 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
-  subscriptions?: boolean | Prisma.Users$subscriptionsArgs<ExtArgs>
+  subscription?: boolean | Prisma.Users$subscriptionArgs<ExtArgs>
   withdrawals?: boolean | Prisma.Users$withdrawalsArgs<ExtArgs>
   adsViews?: boolean | Prisma.Users$adsViewsArgs<ExtArgs>
   adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
@@ -3914,7 +3862,6 @@ export type UsersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   telegramId?: boolean
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3934,6 +3881,7 @@ export type UsersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   balanceId?: boolean
   languageId?: boolean
   currencyKey?: boolean
+  subscriptionId?: boolean
   adsDataId?: boolean
   acquisitionId?: boolean
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
@@ -3941,6 +3889,7 @@ export type UsersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  subscription?: boolean | Prisma.Users$subscriptionArgs<ExtArgs>
   adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
   acquisition?: boolean | Prisma.Users$acquisitionArgs<ExtArgs>
 }, ExtArgs["result"]["users"]>
@@ -3949,7 +3898,6 @@ export type UsersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   telegramId?: boolean
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -3969,6 +3917,7 @@ export type UsersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   balanceId?: boolean
   languageId?: boolean
   currencyKey?: boolean
+  subscriptionId?: boolean
   adsDataId?: boolean
   acquisitionId?: boolean
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
@@ -3976,6 +3925,7 @@ export type UsersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  subscription?: boolean | Prisma.Users$subscriptionArgs<ExtArgs>
   adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
   acquisition?: boolean | Prisma.Users$acquisitionArgs<ExtArgs>
 }, ExtArgs["result"]["users"]>
@@ -3984,7 +3934,6 @@ export type UsersSelectScalar = {
   id?: boolean
   telegramId?: boolean
   isTgProgramPartner?: boolean
-  isFreePlanAvailable?: boolean
   isBanned?: boolean
   isDeleted?: boolean
   isChannel?: boolean
@@ -4004,11 +3953,12 @@ export type UsersSelectScalar = {
   balanceId?: boolean
   languageId?: boolean
   currencyKey?: boolean
+  subscriptionId?: boolean
   adsDataId?: boolean
   acquisitionId?: boolean
 }
 
-export type UsersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramId" | "isTgProgramPartner" | "isFreePlanAvailable" | "isBanned" | "isDeleted" | "isChannel" | "isChat" | "createdAt" | "updatedAt" | "lastStartedAt" | "banExpiredAt" | "deletedAt" | "tgProgramPartnerExpiredAt" | "nextAdsRewardAt" | "nextAdsgramTaskAt" | "premiumExpiredAt" | "countryRegistration" | "roleId" | "telegramDataId" | "balanceId" | "languageId" | "currencyKey" | "adsDataId" | "acquisitionId", ExtArgs["result"]["users"]>
+export type UsersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramId" | "isTgProgramPartner" | "isBanned" | "isDeleted" | "isChannel" | "isChat" | "createdAt" | "updatedAt" | "lastStartedAt" | "banExpiredAt" | "deletedAt" | "tgProgramPartnerExpiredAt" | "nextAdsRewardAt" | "nextAdsgramTaskAt" | "premiumExpiredAt" | "countryRegistration" | "roleId" | "telegramDataId" | "balanceId" | "languageId" | "currencyKey" | "subscriptionId" | "adsDataId" | "acquisitionId", ExtArgs["result"]["users"]>
 export type UsersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RolesDefaultArgs<ExtArgs>
   payments?: boolean | Prisma.Users$paymentsArgs<ExtArgs>
@@ -4018,7 +3968,7 @@ export type UsersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
-  subscriptions?: boolean | Prisma.Users$subscriptionsArgs<ExtArgs>
+  subscription?: boolean | Prisma.Users$subscriptionArgs<ExtArgs>
   withdrawals?: boolean | Prisma.Users$withdrawalsArgs<ExtArgs>
   adsViews?: boolean | Prisma.Users$adsViewsArgs<ExtArgs>
   adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
@@ -4033,6 +3983,7 @@ export type UsersIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  subscription?: boolean | Prisma.Users$subscriptionArgs<ExtArgs>
   adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
   acquisition?: boolean | Prisma.Users$acquisitionArgs<ExtArgs>
 }
@@ -4042,6 +3993,7 @@ export type UsersIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   balance?: boolean | Prisma.Users$balanceArgs<ExtArgs>
   language?: boolean | Prisma.LanguageDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  subscription?: boolean | Prisma.Users$subscriptionArgs<ExtArgs>
   adsData?: boolean | Prisma.Users$adsDataArgs<ExtArgs>
   acquisition?: boolean | Prisma.Users$acquisitionArgs<ExtArgs>
 }
@@ -4057,7 +4009,7 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     balance: Prisma.$UserBalancePayload<ExtArgs> | null
     language: Prisma.$LanguagePayload<ExtArgs>
     currency: Prisma.$CurrencyPayload<ExtArgs>
-    subscriptions: Prisma.$SubscriptionsPayload<ExtArgs>[]
+    subscription: Prisma.$SubscriptionsPayload<ExtArgs> | null
     withdrawals: Prisma.$WithdrawalsPayload<ExtArgs>[]
     adsViews: Prisma.$AdsViewsPayload<ExtArgs>[]
     adsData: Prisma.$UserAdsDataPayload<ExtArgs> | null
@@ -4069,7 +4021,6 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     id: string
     telegramId: string
     isTgProgramPartner: boolean
-    isFreePlanAvailable: boolean
     isBanned: boolean
     isDeleted: boolean
     isChannel: boolean
@@ -4089,6 +4040,7 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     balanceId: string | null
     languageId: string
     currencyKey: $Enums.CurrencyEnum
+    subscriptionId: string | null
     adsDataId: string | null
     acquisitionId: string | null
   }, ExtArgs["result"]["users"]>
@@ -4493,7 +4445,7 @@ export interface Prisma__UsersClient<T, Null = never, ExtArgs extends runtime.Ty
   balance<T extends Prisma.Users$balanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$balanceArgs<ExtArgs>>): Prisma.Prisma__UserBalanceClient<runtime.Types.Result.GetResult<Prisma.$UserBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   language<T extends Prisma.LanguageDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LanguageDefaultArgs<ExtArgs>>): Prisma.Prisma__LanguageClient<runtime.Types.Result.GetResult<Prisma.$LanguagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   currency<T extends Prisma.CurrencyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CurrencyDefaultArgs<ExtArgs>>): Prisma.Prisma__CurrencyClient<runtime.Types.Result.GetResult<Prisma.$CurrencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  subscriptions<T extends Prisma.Users$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscription<T extends Prisma.Users$subscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$subscriptionArgs<ExtArgs>>): Prisma.Prisma__SubscriptionsClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   withdrawals<T extends Prisma.Users$withdrawalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$withdrawalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WithdrawalsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adsViews<T extends Prisma.Users$adsViewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$adsViewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdsViewsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adsData<T extends Prisma.Users$adsDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Users$adsDataArgs<ExtArgs>>): Prisma.Prisma__UserAdsDataClient<runtime.Types.Result.GetResult<Prisma.$UserAdsDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -4532,7 +4484,6 @@ export interface UsersFieldRefs {
   readonly id: Prisma.FieldRef<"Users", 'String'>
   readonly telegramId: Prisma.FieldRef<"Users", 'String'>
   readonly isTgProgramPartner: Prisma.FieldRef<"Users", 'Boolean'>
-  readonly isFreePlanAvailable: Prisma.FieldRef<"Users", 'Boolean'>
   readonly isBanned: Prisma.FieldRef<"Users", 'Boolean'>
   readonly isDeleted: Prisma.FieldRef<"Users", 'Boolean'>
   readonly isChannel: Prisma.FieldRef<"Users", 'Boolean'>
@@ -4552,6 +4503,7 @@ export interface UsersFieldRefs {
   readonly balanceId: Prisma.FieldRef<"Users", 'String'>
   readonly languageId: Prisma.FieldRef<"Users", 'String'>
   readonly currencyKey: Prisma.FieldRef<"Users", 'CurrencyEnum'>
+  readonly subscriptionId: Prisma.FieldRef<"Users", 'String'>
   readonly adsDataId: Prisma.FieldRef<"Users", 'String'>
   readonly acquisitionId: Prisma.FieldRef<"Users", 'String'>
 }
@@ -5060,9 +5012,9 @@ export type Users$balanceArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Users.subscriptions
+ * Users.subscription
  */
-export type Users$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Users$subscriptionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Subscriptions
    */
@@ -5076,11 +5028,6 @@ export type Users$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.SubscriptionsInclude<ExtArgs> | null
   where?: Prisma.SubscriptionsWhereInput
-  orderBy?: Prisma.SubscriptionsOrderByWithRelationInput | Prisma.SubscriptionsOrderByWithRelationInput[]
-  cursor?: Prisma.SubscriptionsWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SubscriptionsScalarFieldEnum | Prisma.SubscriptionsScalarFieldEnum[]
 }
 
 /**

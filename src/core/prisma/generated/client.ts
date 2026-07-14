@@ -103,15 +103,20 @@ export type AdsNetworks = Prisma.AdsNetworksModel
  */
 export type UserBalance = Prisma.UserBalanceModel
 /**
- * Model GreenList
- * Модель для белого списка
- */
-export type GreenList = Prisma.GreenListModel
-/**
- * Model Plans
+ * Model InternalSquads
  * 
  */
-export type Plans = Prisma.PlansModel
+export type InternalSquads = Prisma.InternalSquadsModel
+/**
+ * Model ExternalSquad
+ * 
+ */
+export type ExternalSquad = Prisma.ExternalSquadModel
+/**
+ * Model DefaultSubData
+ * 
+ */
+export type DefaultSubData = Prisma.DefaultSubDataModel
 /**
  * Model Subscriptions
  * Модель подписок
@@ -122,21 +127,6 @@ export type Subscriptions = Prisma.SubscriptionsModel
  * 
  */
 export type SubscriptionExtensions = Prisma.SubscriptionExtensionsModel
-/**
- * Model Devices
- * 
- */
-export type Devices = Prisma.DevicesModel
-/**
- * Model SubscriptionToGreenList
- * 
- */
-export type SubscriptionToGreenList = Prisma.SubscriptionToGreenListModel
-/**
- * Model XrayInbounds
- * 
- */
-export type XrayInbounds = Prisma.XrayInboundsModel
 /**
  * Model Roles
  * Модель ролей пользователей

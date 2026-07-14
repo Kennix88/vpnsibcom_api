@@ -397,13 +397,11 @@ export const ModelName = {
   AdsBlocks: 'AdsBlocks',
   AdsNetworks: 'AdsNetworks',
   UserBalance: 'UserBalance',
-  GreenList: 'GreenList',
-  Plans: 'Plans',
+  InternalSquads: 'InternalSquads',
+  ExternalSquad: 'ExternalSquad',
+  DefaultSubData: 'DefaultSubData',
   Subscriptions: 'Subscriptions',
   SubscriptionExtensions: 'SubscriptionExtensions',
-  Devices: 'Devices',
-  SubscriptionToGreenList: 'SubscriptionToGreenList',
-  XrayInbounds: 'XrayInbounds',
   Roles: 'Roles',
   Language: 'Language',
   Currency: 'Currency',
@@ -426,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "settings" | "userTelegramData" | "referrals" | "users" | "events" | "acquisition" | "sessions" | "userAdsData" | "adsRewards" | "adsViews" | "adsBlocks" | "adsNetworks" | "userBalance" | "greenList" | "plans" | "subscriptions" | "subscriptionExtensions" | "devices" | "subscriptionToGreenList" | "xrayInbounds" | "roles" | "language" | "currency" | "transactions" | "withdrawals" | "payments" | "paymentMethods"
+    modelProps: "settings" | "userTelegramData" | "referrals" | "users" | "events" | "acquisition" | "sessions" | "userAdsData" | "adsRewards" | "adsViews" | "adsBlocks" | "adsNetworks" | "userBalance" | "internalSquads" | "externalSquad" | "defaultSubData" | "subscriptions" | "subscriptionExtensions" | "roles" | "language" | "currency" | "transactions" | "withdrawals" | "payments" | "paymentMethods"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1392,151 +1390,225 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    GreenList: {
-      payload: Prisma.$GreenListPayload<ExtArgs>
-      fields: Prisma.GreenListFieldRefs
+    InternalSquads: {
+      payload: Prisma.$InternalSquadsPayload<ExtArgs>
+      fields: Prisma.InternalSquadsFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.GreenListFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload> | null
+          args: Prisma.InternalSquadsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.GreenListFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>
+          args: Prisma.InternalSquadsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>
         }
         findFirst: {
-          args: Prisma.GreenListFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload> | null
+          args: Prisma.InternalSquadsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.GreenListFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>
+          args: Prisma.InternalSquadsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>
         }
         findMany: {
-          args: Prisma.GreenListFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>[]
+          args: Prisma.InternalSquadsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>[]
         }
         create: {
-          args: Prisma.GreenListCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>
+          args: Prisma.InternalSquadsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>
         }
         createMany: {
-          args: Prisma.GreenListCreateManyArgs<ExtArgs>
+          args: Prisma.InternalSquadsCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.GreenListCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>[]
+          args: Prisma.InternalSquadsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>[]
         }
         delete: {
-          args: Prisma.GreenListDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>
+          args: Prisma.InternalSquadsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>
         }
         update: {
-          args: Prisma.GreenListUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>
+          args: Prisma.InternalSquadsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>
         }
         deleteMany: {
-          args: Prisma.GreenListDeleteManyArgs<ExtArgs>
+          args: Prisma.InternalSquadsDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.GreenListUpdateManyArgs<ExtArgs>
+          args: Prisma.InternalSquadsUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.GreenListUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>[]
+          args: Prisma.InternalSquadsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>[]
         }
         upsert: {
-          args: Prisma.GreenListUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GreenListPayload>
+          args: Prisma.InternalSquadsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InternalSquadsPayload>
         }
         aggregate: {
-          args: Prisma.GreenListAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateGreenList>
+          args: Prisma.InternalSquadsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInternalSquads>
         }
         groupBy: {
-          args: Prisma.GreenListGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GreenListGroupByOutputType>[]
+          args: Prisma.InternalSquadsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InternalSquadsGroupByOutputType>[]
         }
         count: {
-          args: Prisma.GreenListCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GreenListCountAggregateOutputType> | number
+          args: Prisma.InternalSquadsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InternalSquadsCountAggregateOutputType> | number
         }
       }
     }
-    Plans: {
-      payload: Prisma.$PlansPayload<ExtArgs>
-      fields: Prisma.PlansFieldRefs
+    ExternalSquad: {
+      payload: Prisma.$ExternalSquadPayload<ExtArgs>
+      fields: Prisma.ExternalSquadFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.PlansFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload> | null
+          args: Prisma.ExternalSquadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.PlansFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>
+          args: Prisma.ExternalSquadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>
         }
         findFirst: {
-          args: Prisma.PlansFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload> | null
+          args: Prisma.ExternalSquadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.PlansFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>
+          args: Prisma.ExternalSquadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>
         }
         findMany: {
-          args: Prisma.PlansFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>[]
+          args: Prisma.ExternalSquadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>[]
         }
         create: {
-          args: Prisma.PlansCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>
+          args: Prisma.ExternalSquadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>
         }
         createMany: {
-          args: Prisma.PlansCreateManyArgs<ExtArgs>
+          args: Prisma.ExternalSquadCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.PlansCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>[]
+          args: Prisma.ExternalSquadCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>[]
         }
         delete: {
-          args: Prisma.PlansDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>
+          args: Prisma.ExternalSquadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>
         }
         update: {
-          args: Prisma.PlansUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>
+          args: Prisma.ExternalSquadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>
         }
         deleteMany: {
-          args: Prisma.PlansDeleteManyArgs<ExtArgs>
+          args: Prisma.ExternalSquadDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.PlansUpdateManyArgs<ExtArgs>
+          args: Prisma.ExternalSquadUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.PlansUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>[]
+          args: Prisma.ExternalSquadUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>[]
         }
         upsert: {
-          args: Prisma.PlansUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlansPayload>
+          args: Prisma.ExternalSquadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalSquadPayload>
         }
         aggregate: {
-          args: Prisma.PlansAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePlans>
+          args: Prisma.ExternalSquadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExternalSquad>
         }
         groupBy: {
-          args: Prisma.PlansGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PlansGroupByOutputType>[]
+          args: Prisma.ExternalSquadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExternalSquadGroupByOutputType>[]
         }
         count: {
-          args: Prisma.PlansCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PlansCountAggregateOutputType> | number
+          args: Prisma.ExternalSquadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExternalSquadCountAggregateOutputType> | number
+        }
+      }
+    }
+    DefaultSubData: {
+      payload: Prisma.$DefaultSubDataPayload<ExtArgs>
+      fields: Prisma.DefaultSubDataFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DefaultSubDataFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DefaultSubDataFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>
+        }
+        findFirst: {
+          args: Prisma.DefaultSubDataFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DefaultSubDataFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>
+        }
+        findMany: {
+          args: Prisma.DefaultSubDataFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>[]
+        }
+        create: {
+          args: Prisma.DefaultSubDataCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>
+        }
+        createMany: {
+          args: Prisma.DefaultSubDataCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DefaultSubDataCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>[]
+        }
+        delete: {
+          args: Prisma.DefaultSubDataDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>
+        }
+        update: {
+          args: Prisma.DefaultSubDataUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>
+        }
+        deleteMany: {
+          args: Prisma.DefaultSubDataDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DefaultSubDataUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DefaultSubDataUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>[]
+        }
+        upsert: {
+          args: Prisma.DefaultSubDataUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DefaultSubDataPayload>
+        }
+        aggregate: {
+          args: Prisma.DefaultSubDataAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDefaultSubData>
+        }
+        groupBy: {
+          args: Prisma.DefaultSubDataGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DefaultSubDataGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DefaultSubDataCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DefaultSubDataCountAggregateOutputType> | number
         }
       }
     }
@@ -1685,228 +1757,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SubscriptionExtensionsCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SubscriptionExtensionsCountAggregateOutputType> | number
-        }
-      }
-    }
-    Devices: {
-      payload: Prisma.$DevicesPayload<ExtArgs>
-      fields: Prisma.DevicesFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DevicesFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DevicesFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
-        }
-        findFirst: {
-          args: Prisma.DevicesFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DevicesFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
-        }
-        findMany: {
-          args: Prisma.DevicesFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>[]
-        }
-        create: {
-          args: Prisma.DevicesCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
-        }
-        createMany: {
-          args: Prisma.DevicesCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.DevicesCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>[]
-        }
-        delete: {
-          args: Prisma.DevicesDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
-        }
-        update: {
-          args: Prisma.DevicesUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
-        }
-        deleteMany: {
-          args: Prisma.DevicesDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DevicesUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.DevicesUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>[]
-        }
-        upsert: {
-          args: Prisma.DevicesUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicesPayload>
-        }
-        aggregate: {
-          args: Prisma.DevicesAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDevices>
-        }
-        groupBy: {
-          args: Prisma.DevicesGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DevicesGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DevicesCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DevicesCountAggregateOutputType> | number
-        }
-      }
-    }
-    SubscriptionToGreenList: {
-      payload: Prisma.$SubscriptionToGreenListPayload<ExtArgs>
-      fields: Prisma.SubscriptionToGreenListFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.SubscriptionToGreenListFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.SubscriptionToGreenListFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>
-        }
-        findFirst: {
-          args: Prisma.SubscriptionToGreenListFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.SubscriptionToGreenListFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>
-        }
-        findMany: {
-          args: Prisma.SubscriptionToGreenListFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>[]
-        }
-        create: {
-          args: Prisma.SubscriptionToGreenListCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>
-        }
-        createMany: {
-          args: Prisma.SubscriptionToGreenListCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.SubscriptionToGreenListCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>[]
-        }
-        delete: {
-          args: Prisma.SubscriptionToGreenListDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>
-        }
-        update: {
-          args: Prisma.SubscriptionToGreenListUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>
-        }
-        deleteMany: {
-          args: Prisma.SubscriptionToGreenListDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.SubscriptionToGreenListUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.SubscriptionToGreenListUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>[]
-        }
-        upsert: {
-          args: Prisma.SubscriptionToGreenListUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionToGreenListPayload>
-        }
-        aggregate: {
-          args: Prisma.SubscriptionToGreenListAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSubscriptionToGreenList>
-        }
-        groupBy: {
-          args: Prisma.SubscriptionToGreenListGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SubscriptionToGreenListGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.SubscriptionToGreenListCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SubscriptionToGreenListCountAggregateOutputType> | number
-        }
-      }
-    }
-    XrayInbounds: {
-      payload: Prisma.$XrayInboundsPayload<ExtArgs>
-      fields: Prisma.XrayInboundsFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.XrayInboundsFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.XrayInboundsFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>
-        }
-        findFirst: {
-          args: Prisma.XrayInboundsFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.XrayInboundsFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>
-        }
-        findMany: {
-          args: Prisma.XrayInboundsFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>[]
-        }
-        create: {
-          args: Prisma.XrayInboundsCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>
-        }
-        createMany: {
-          args: Prisma.XrayInboundsCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.XrayInboundsCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>[]
-        }
-        delete: {
-          args: Prisma.XrayInboundsDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>
-        }
-        update: {
-          args: Prisma.XrayInboundsUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>
-        }
-        deleteMany: {
-          args: Prisma.XrayInboundsDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.XrayInboundsUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.XrayInboundsUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>[]
-        }
-        upsert: {
-          args: Prisma.XrayInboundsUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$XrayInboundsPayload>
-        }
-        aggregate: {
-          args: Prisma.XrayInboundsAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateXrayInbounds>
-        }
-        groupBy: {
-          args: Prisma.XrayInboundsGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.XrayInboundsGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.XrayInboundsCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.XrayInboundsCountAggregateOutputType> | number
         }
       }
     }
@@ -2471,13 +2321,6 @@ export const SettingsScalarFieldEnum = {
   key: 'key',
   tgStarsToUSD: 'tgStarsToUSD',
   telegramPremiumRatio: 'telegramPremiumRatio',
-  devicesPriceStars: 'devicesPriceStars',
-  serversPriceStars: 'serversPriceStars',
-  premiumServersPriceStars: 'premiumServersPriceStars',
-  allBaseServersPriceStars: 'allBaseServersPriceStars',
-  allPremiumServersPriceStars: 'allPremiumServersPriceStars',
-  trafficGbPriceStars: 'trafficGbPriceStars',
-  unlimitTrafficPriceStars: 'unlimitTrafficPriceStars',
   hourRatioPayment: 'hourRatioPayment',
   dayRatioPayment: 'dayRatioPayment',
   weekRatioPayment: 'weekRatioPayment',
@@ -2507,23 +2350,13 @@ export const SettingsScalarFieldEnum = {
   bonusPayment50000: 'bonusPayment50000',
   isActiveSendAdsMessages: 'isActiveSendAdsMessages',
   nextAdsHours: 'nextAdsHours',
-  isActiveFakeAds: 'isActiveFakeAds',
-  nextFakeAdsHours: 'nextFakeAdsHours',
-  lastFakeAdsSend: 'lastFakeAdsSend',
-  proxyPartnerLink: 'proxyPartnerLink',
-  partnerBotLink: 'partnerBotLink',
-  partnerMiniAppLink: 'partnerMiniAppLink',
-  partnerSiteLink: 'partnerSiteLink',
   importUsersUrl: 'importUsersUrl',
   isActiveImportUsers: 'isActiveImportUsers',
   isActiveCheckUsers: 'isActiveCheckUsers',
   defaultAnnounce: 'defaultAnnounce',
   telegramConfigLinks: 'telegramConfigLinks',
-  routingUrl: 'routingUrl',
   premiumStatusPriceStars: 'premiumStatusPriceStars',
   premiumStatusDiscountRatio: 'premiumStatusDiscountRatio',
-  subscriptionRemovalAfterInactiveDays: 'subscriptionRemovalAfterInactiveDays',
-  removeOldSubscriptionsAfter: 'removeOldSubscriptionsAfter',
   chatId: 'chatId',
   channelId: 'channelId'
 } as const
@@ -2567,7 +2400,6 @@ export const ReferralsScalarFieldEnum = {
   referralId: 'referralId',
   totalUsdtRewarded: 'totalUsdtRewarded',
   isActivated: 'isActivated',
-  isPremium: 'isPremium',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2579,7 +2411,6 @@ export const UsersScalarFieldEnum = {
   id: 'id',
   telegramId: 'telegramId',
   isTgProgramPartner: 'isTgProgramPartner',
-  isFreePlanAvailable: 'isFreePlanAvailable',
   isBanned: 'isBanned',
   isDeleted: 'isDeleted',
   isChannel: 'isChannel',
@@ -2599,6 +2430,7 @@ export const UsersScalarFieldEnum = {
   balanceId: 'balanceId',
   languageId: 'languageId',
   currencyKey: 'currencyKey',
+  subscriptionId: 'subscriptionId',
   adsDataId: 'adsDataId',
   acquisitionId: 'acquisitionId'
 } as const
@@ -2755,78 +2587,48 @@ export const UserBalanceScalarFieldEnum = {
 export type UserBalanceScalarFieldEnum = (typeof UserBalanceScalarFieldEnum)[keyof typeof UserBalanceScalarFieldEnum]
 
 
-export const GreenListScalarFieldEnum = {
-  green: 'green',
-  isActive: 'isActive',
-  isPremium: 'isPremium',
-  code: 'code',
-  flagKey: 'flagKey',
-  flagEmoji: 'flagEmoji',
-  name: 'name',
-  network: 'network',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+export const InternalSquadsScalarFieldEnum = {
+  key: 'key',
+  uuid: 'uuid'
 } as const
 
-export type GreenListScalarFieldEnum = (typeof GreenListScalarFieldEnum)[keyof typeof GreenListScalarFieldEnum]
+export type InternalSquadsScalarFieldEnum = (typeof InternalSquadsScalarFieldEnum)[keyof typeof InternalSquadsScalarFieldEnum]
 
 
-export const PlansScalarFieldEnum = {
+export const ExternalSquadScalarFieldEnum = {
   key: 'key',
-  isActive: 'isActive',
-  name: 'name',
-  priceStars: 'priceStars',
-  isCustom: 'isCustom',
+  uuid: 'uuid'
+} as const
+
+export type ExternalSquadScalarFieldEnum = (typeof ExternalSquadScalarFieldEnum)[keyof typeof ExternalSquadScalarFieldEnum]
+
+
+export const DefaultSubDataScalarFieldEnum = {
+  key: 'key',
   devicesCount: 'devicesCount',
-  isAllBaseServers: 'isAllBaseServers',
-  isAllPremiumServers: 'isAllPremiumServers',
+  isPremiumServers: 'isPremiumServers',
   trafficLimitGb: 'trafficLimitGb',
   isUnlimitTraffic: 'isUnlimitTraffic',
-  serversSelectType: 'serversSelectType',
   days: 'days',
   isNoAds: 'isNoAds',
   isRoleChat: 'isRoleChat',
+  isAutoRenewing: 'isAutoRenewing',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type PlansScalarFieldEnum = (typeof PlansScalarFieldEnum)[keyof typeof PlansScalarFieldEnum]
+export type DefaultSubDataScalarFieldEnum = (typeof DefaultSubDataScalarFieldEnum)[keyof typeof DefaultSubDataScalarFieldEnum]
 
 
 export const SubscriptionsScalarFieldEnum = {
   id: 'id',
   username: 'username',
-  name: 'name',
-  planKey: 'planKey',
-  isActive: 'isActive',
-  isAutoRenewal: 'isAutoRenewal',
-  token: 'token',
-  period: 'period',
-  periodMultiplier: 'periodMultiplier',
-  announce: 'announce',
-  nextRenewalStars: 'nextRenewalStars',
-  isPremium: 'isPremium',
-  devicesCount: 'devicesCount',
-  isAllBaseServers: 'isAllBaseServers',
-  isAllPremiumServers: 'isAllPremiumServers',
-  trafficLimitGb: 'trafficLimitGb',
-  isUnlimitTraffic: 'isUnlimitTraffic',
-  links: 'links',
-  lastUserAgent: 'lastUserAgent',
-  dataLimit: 'dataLimit',
-  usedTraffic: 'usedTraffic',
-  lifeTimeUsedTraffic: 'lifeTimeUsedTraffic',
-  trafficReset: 'trafficReset',
-  marzbanData: 'marzbanData',
+  uuid: 'uuid',
+  shortUuid: 'shortUuid',
+  subscriptionUrl: 'subscriptionUrl',
   happCryptoUrl: 'happCryptoUrl',
-  days: 'days',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  expiredAt: 'expiredAt',
-  removalAt: 'removalAt',
-  onlineAt: 'onlineAt',
-  deletedAt: 'deletedAt',
-  userId: 'userId'
+  updatedAt: 'updatedAt'
 } as const
 
 export type SubscriptionsScalarFieldEnum = (typeof SubscriptionsScalarFieldEnum)[keyof typeof SubscriptionsScalarFieldEnum]
@@ -2840,53 +2642,18 @@ export const SubscriptionExtensionsScalarFieldEnum = {
   isUnlimitTraffic: 'isUnlimitTraffic',
   isPremiumServers: 'isPremiumServers',
   isNoAds: 'isNoAds',
-  isRoleChat: 'isRoleChat'
+  isRoleChat: 'isRoleChat',
+  isAutoRenewing: 'isAutoRenewing',
+  roleName: 'roleName'
 } as const
 
 export type SubscriptionExtensionsScalarFieldEnum = (typeof SubscriptionExtensionsScalarFieldEnum)[keyof typeof SubscriptionExtensionsScalarFieldEnum]
-
-
-export const DevicesScalarFieldEnum = {
-  id: 'id',
-  model: 'model',
-  hwid: 'hwid',
-  osVersion: 'osVersion',
-  os: 'os',
-  locale: 'locale',
-  happVersion: 'happVersion',
-  userAgent: 'userAgent',
-  token: 'token',
-  happCryptoUrl: 'happCryptoUrl',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  subscriptionId: 'subscriptionId'
-} as const
-
-export type DevicesScalarFieldEnum = (typeof DevicesScalarFieldEnum)[keyof typeof DevicesScalarFieldEnum]
-
-
-export const SubscriptionToGreenListScalarFieldEnum = {
-  subscriptionId: 'subscriptionId',
-  greenListId: 'greenListId',
-  assignedAt: 'assignedAt'
-} as const
-
-export type SubscriptionToGreenListScalarFieldEnum = (typeof SubscriptionToGreenListScalarFieldEnum)[keyof typeof SubscriptionToGreenListScalarFieldEnum]
-
-
-export const XrayInboundsScalarFieldEnum = {
-  inboundTag: 'inboundTag',
-  type: 'type'
-} as const
-
-export type XrayInboundsScalarFieldEnum = (typeof XrayInboundsScalarFieldEnum)[keyof typeof XrayInboundsScalarFieldEnum]
 
 
 export const RolesScalarFieldEnum = {
   key: 'key',
   name: 'name',
   discount: 'discount',
-  limitSubscriptions: 'limitSubscriptions',
   minPayStars: 'minPayStars',
   days: 'days',
   devicesCount: 'devicesCount',
@@ -2894,7 +2661,9 @@ export const RolesScalarFieldEnum = {
   isUnlimitTraffic: 'isUnlimitTraffic',
   isPremiumServers: 'isPremiumServers',
   isNoAds: 'isNoAds',
-  isRoleChat: 'isRoleChat'
+  isRoleChat: 'isRoleChat',
+  isAutoRenewing: 'isAutoRenewing',
+  roleName: 'roleName'
 } as const
 
 export type RolesScalarFieldEnum = (typeof RolesScalarFieldEnum)[keyof typeof RolesScalarFieldEnum]
@@ -2971,13 +2740,13 @@ export const PaymentsScalarFieldEnum = {
   linkPay: 'linkPay',
   details: 'details',
   data: 'data',
+  period: 'period',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
   currencyKey: 'currencyKey',
   methodKey: 'methodKey',
-  transactionId: 'transactionId',
-  subscriptionId: 'subscriptionId'
+  transactionId: 'transactionId'
 } as const
 
 export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typeof PaymentsScalarFieldEnum]
@@ -3098,20 +2867,6 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'DateTime'
- */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-/**
- * Reference to a field of type 'DateTime[]'
- */
-export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
-
-
-/**
  * Reference to a field of type 'String'
  */
 export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
@@ -3136,6 +2891,20 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'DateTime'
+ */
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+/**
+ * Reference to a field of type 'DateTime[]'
+ */
+export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -3266,58 +3035,30 @@ export type ListEnumAdsBlockPlaceEnumFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
- * Reference to a field of type 'PlansEnum'
+ * Reference to a field of type 'InternalSquadsEnum'
  */
-export type EnumPlansEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlansEnum'>
+export type EnumInternalSquadsEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InternalSquadsEnum'>
     
 
 
 /**
- * Reference to a field of type 'PlansEnum[]'
+ * Reference to a field of type 'InternalSquadsEnum[]'
  */
-export type ListEnumPlansEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlansEnum[]'>
+export type ListEnumInternalSquadsEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InternalSquadsEnum[]'>
     
 
 
 /**
- * Reference to a field of type 'PlansServersSelectTypeEnum'
+ * Reference to a field of type 'ExternalSquadEnum'
  */
-export type EnumPlansServersSelectTypeEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlansServersSelectTypeEnum'>
+export type EnumExternalSquadEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExternalSquadEnum'>
     
 
 
 /**
- * Reference to a field of type 'PlansServersSelectTypeEnum[]'
+ * Reference to a field of type 'ExternalSquadEnum[]'
  */
-export type ListEnumPlansServersSelectTypeEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlansServersSelectTypeEnum[]'>
-    
-
-
-/**
- * Reference to a field of type 'SubscriptionPeriodEnum'
- */
-export type EnumSubscriptionPeriodEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPeriodEnum'>
-    
-
-
-/**
- * Reference to a field of type 'SubscriptionPeriodEnum[]'
- */
-export type ListEnumSubscriptionPeriodEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPeriodEnum[]'>
-    
-
-
-/**
- * Reference to a field of type 'TrafficResetEnum'
- */
-export type EnumTrafficResetEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrafficResetEnum'>
-    
-
-
-/**
- * Reference to a field of type 'TrafficResetEnum[]'
- */
-export type ListEnumTrafficResetEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrafficResetEnum[]'>
+export type ListEnumExternalSquadEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExternalSquadEnum[]'>
     
 
 
@@ -3332,20 +3073,6 @@ export type EnumSubscriptionExtensionsEnumFieldRefInput<$PrismaModel> = FieldRef
  * Reference to a field of type 'SubscriptionExtensionsEnum[]'
  */
 export type ListEnumSubscriptionExtensionsEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionExtensionsEnum[]'>
-    
-
-
-/**
- * Reference to a field of type 'XrayInboundTypeEnum'
- */
-export type EnumXrayInboundTypeEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'XrayInboundTypeEnum'>
-    
-
-
-/**
- * Reference to a field of type 'XrayInboundTypeEnum[]'
- */
-export type ListEnumXrayInboundTypeEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'XrayInboundTypeEnum[]'>
     
 
 
@@ -3444,6 +3171,20 @@ export type EnumPaymentTypeEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'PaymentTypeEnum[]'
  */
 export type ListEnumPaymentTypeEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentTypeEnum[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionPeriodEnum'
+ */
+export type EnumSubscriptionPeriodEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPeriodEnum'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionPeriodEnum[]'
+ */
+export type ListEnumSubscriptionPeriodEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPeriodEnum[]'>
     
 
 
@@ -3580,13 +3321,11 @@ export type GlobalOmitConfig = {
   adsBlocks?: Prisma.AdsBlocksOmit
   adsNetworks?: Prisma.AdsNetworksOmit
   userBalance?: Prisma.UserBalanceOmit
-  greenList?: Prisma.GreenListOmit
-  plans?: Prisma.PlansOmit
+  internalSquads?: Prisma.InternalSquadsOmit
+  externalSquad?: Prisma.ExternalSquadOmit
+  defaultSubData?: Prisma.DefaultSubDataOmit
   subscriptions?: Prisma.SubscriptionsOmit
   subscriptionExtensions?: Prisma.SubscriptionExtensionsOmit
-  devices?: Prisma.DevicesOmit
-  subscriptionToGreenList?: Prisma.SubscriptionToGreenListOmit
-  xrayInbounds?: Prisma.XrayInboundsOmit
   roles?: Prisma.RolesOmit
   language?: Prisma.LanguageOmit
   currency?: Prisma.CurrencyOmit

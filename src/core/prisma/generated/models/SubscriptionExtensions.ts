@@ -47,6 +47,8 @@ export type SubscriptionExtensionsMinAggregateOutputType = {
   isPremiumServers: boolean | null
   isNoAds: boolean | null
   isRoleChat: boolean | null
+  isAutoRenewing: boolean | null
+  roleName: string | null
 }
 
 export type SubscriptionExtensionsMaxAggregateOutputType = {
@@ -58,6 +60,8 @@ export type SubscriptionExtensionsMaxAggregateOutputType = {
   isPremiumServers: boolean | null
   isNoAds: boolean | null
   isRoleChat: boolean | null
+  isAutoRenewing: boolean | null
+  roleName: string | null
 }
 
 export type SubscriptionExtensionsCountAggregateOutputType = {
@@ -69,6 +73,8 @@ export type SubscriptionExtensionsCountAggregateOutputType = {
   isPremiumServers: number
   isNoAds: number
   isRoleChat: number
+  isAutoRenewing: number
+  roleName: number
   _all: number
 }
 
@@ -94,6 +100,8 @@ export type SubscriptionExtensionsMinAggregateInputType = {
   isPremiumServers?: true
   isNoAds?: true
   isRoleChat?: true
+  isAutoRenewing?: true
+  roleName?: true
 }
 
 export type SubscriptionExtensionsMaxAggregateInputType = {
@@ -105,6 +113,8 @@ export type SubscriptionExtensionsMaxAggregateInputType = {
   isPremiumServers?: true
   isNoAds?: true
   isRoleChat?: true
+  isAutoRenewing?: true
+  roleName?: true
 }
 
 export type SubscriptionExtensionsCountAggregateInputType = {
@@ -116,6 +126,8 @@ export type SubscriptionExtensionsCountAggregateInputType = {
   isPremiumServers?: true
   isNoAds?: true
   isRoleChat?: true
+  isAutoRenewing?: true
+  roleName?: true
   _all?: true
 }
 
@@ -214,6 +226,8 @@ export type SubscriptionExtensionsGroupByOutputType = {
   isPremiumServers: boolean
   isNoAds: boolean
   isRoleChat: boolean
+  isAutoRenewing: boolean
+  roleName: string | null
   _count: SubscriptionExtensionsCountAggregateOutputType | null
   _avg: SubscriptionExtensionsAvgAggregateOutputType | null
   _sum: SubscriptionExtensionsSumAggregateOutputType | null
@@ -248,6 +262,8 @@ export type SubscriptionExtensionsWhereInput = {
   isPremiumServers?: Prisma.BoolFilter<"SubscriptionExtensions"> | boolean
   isNoAds?: Prisma.BoolFilter<"SubscriptionExtensions"> | boolean
   isRoleChat?: Prisma.BoolFilter<"SubscriptionExtensions"> | boolean
+  isAutoRenewing?: Prisma.BoolFilter<"SubscriptionExtensions"> | boolean
+  roleName?: Prisma.StringNullableFilter<"SubscriptionExtensions"> | string | null
 }
 
 export type SubscriptionExtensionsOrderByWithRelationInput = {
@@ -259,6 +275,8 @@ export type SubscriptionExtensionsOrderByWithRelationInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type SubscriptionExtensionsWhereUniqueInput = Prisma.AtLeast<{
@@ -273,6 +291,8 @@ export type SubscriptionExtensionsWhereUniqueInput = Prisma.AtLeast<{
   isPremiumServers?: Prisma.BoolFilter<"SubscriptionExtensions"> | boolean
   isNoAds?: Prisma.BoolFilter<"SubscriptionExtensions"> | boolean
   isRoleChat?: Prisma.BoolFilter<"SubscriptionExtensions"> | boolean
+  isAutoRenewing?: Prisma.BoolFilter<"SubscriptionExtensions"> | boolean
+  roleName?: Prisma.StringNullableFilter<"SubscriptionExtensions"> | string | null
 }, "key">
 
 export type SubscriptionExtensionsOrderByWithAggregationInput = {
@@ -284,6 +304,8 @@ export type SubscriptionExtensionsOrderByWithAggregationInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SubscriptionExtensionsCountOrderByAggregateInput
   _avg?: Prisma.SubscriptionExtensionsAvgOrderByAggregateInput
   _max?: Prisma.SubscriptionExtensionsMaxOrderByAggregateInput
@@ -303,6 +325,8 @@ export type SubscriptionExtensionsScalarWhereWithAggregatesInput = {
   isPremiumServers?: Prisma.BoolWithAggregatesFilter<"SubscriptionExtensions"> | boolean
   isNoAds?: Prisma.BoolWithAggregatesFilter<"SubscriptionExtensions"> | boolean
   isRoleChat?: Prisma.BoolWithAggregatesFilter<"SubscriptionExtensions"> | boolean
+  isAutoRenewing?: Prisma.BoolWithAggregatesFilter<"SubscriptionExtensions"> | boolean
+  roleName?: Prisma.StringNullableWithAggregatesFilter<"SubscriptionExtensions"> | string | null
 }
 
 export type SubscriptionExtensionsCreateInput = {
@@ -314,6 +338,8 @@ export type SubscriptionExtensionsCreateInput = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: string | null
 }
 
 export type SubscriptionExtensionsUncheckedCreateInput = {
@@ -325,6 +351,8 @@ export type SubscriptionExtensionsUncheckedCreateInput = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: string | null
 }
 
 export type SubscriptionExtensionsUpdateInput = {
@@ -336,6 +364,8 @@ export type SubscriptionExtensionsUpdateInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SubscriptionExtensionsUncheckedUpdateInput = {
@@ -347,6 +377,8 @@ export type SubscriptionExtensionsUncheckedUpdateInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SubscriptionExtensionsCreateManyInput = {
@@ -358,6 +390,8 @@ export type SubscriptionExtensionsCreateManyInput = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: string | null
 }
 
 export type SubscriptionExtensionsUpdateManyMutationInput = {
@@ -369,6 +403,8 @@ export type SubscriptionExtensionsUpdateManyMutationInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SubscriptionExtensionsUncheckedUpdateManyInput = {
@@ -380,6 +416,8 @@ export type SubscriptionExtensionsUncheckedUpdateManyInput = {
   isPremiumServers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isNoAds?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRoleChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoRenewing?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  roleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SubscriptionExtensionsCountOrderByAggregateInput = {
@@ -391,6 +429,8 @@ export type SubscriptionExtensionsCountOrderByAggregateInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrder
 }
 
 export type SubscriptionExtensionsAvgOrderByAggregateInput = {
@@ -408,6 +448,8 @@ export type SubscriptionExtensionsMaxOrderByAggregateInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrder
 }
 
 export type SubscriptionExtensionsMinOrderByAggregateInput = {
@@ -419,6 +461,8 @@ export type SubscriptionExtensionsMinOrderByAggregateInput = {
   isPremiumServers?: Prisma.SortOrder
   isNoAds?: Prisma.SortOrder
   isRoleChat?: Prisma.SortOrder
+  isAutoRenewing?: Prisma.SortOrder
+  roleName?: Prisma.SortOrder
 }
 
 export type SubscriptionExtensionsSumOrderByAggregateInput = {
@@ -442,6 +486,8 @@ export type SubscriptionExtensionsSelect<ExtArgs extends runtime.Types.Extension
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: boolean
 }, ExtArgs["result"]["subscriptionExtensions"]>
 
 export type SubscriptionExtensionsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -453,6 +499,8 @@ export type SubscriptionExtensionsSelectCreateManyAndReturn<ExtArgs extends runt
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: boolean
 }, ExtArgs["result"]["subscriptionExtensions"]>
 
 export type SubscriptionExtensionsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -464,6 +512,8 @@ export type SubscriptionExtensionsSelectUpdateManyAndReturn<ExtArgs extends runt
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: boolean
 }, ExtArgs["result"]["subscriptionExtensions"]>
 
 export type SubscriptionExtensionsSelectScalar = {
@@ -475,9 +525,11 @@ export type SubscriptionExtensionsSelectScalar = {
   isPremiumServers?: boolean
   isNoAds?: boolean
   isRoleChat?: boolean
+  isAutoRenewing?: boolean
+  roleName?: boolean
 }
 
-export type SubscriptionExtensionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "days" | "devicesCount" | "trafficLimitGb" | "isUnlimitTraffic" | "isPremiumServers" | "isNoAds" | "isRoleChat", ExtArgs["result"]["subscriptionExtensions"]>
+export type SubscriptionExtensionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "days" | "devicesCount" | "trafficLimitGb" | "isUnlimitTraffic" | "isPremiumServers" | "isNoAds" | "isRoleChat" | "isAutoRenewing" | "roleName", ExtArgs["result"]["subscriptionExtensions"]>
 
 export type $SubscriptionExtensionsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SubscriptionExtensions"
@@ -491,6 +543,8 @@ export type $SubscriptionExtensionsPayload<ExtArgs extends runtime.Types.Extensi
     isPremiumServers: boolean
     isNoAds: boolean
     isRoleChat: boolean
+    isAutoRenewing: boolean
+    roleName: string | null
   }, ExtArgs["result"]["subscriptionExtensions"]>
   composites: {}
 }
@@ -922,6 +976,8 @@ export interface SubscriptionExtensionsFieldRefs {
   readonly isPremiumServers: Prisma.FieldRef<"SubscriptionExtensions", 'Boolean'>
   readonly isNoAds: Prisma.FieldRef<"SubscriptionExtensions", 'Boolean'>
   readonly isRoleChat: Prisma.FieldRef<"SubscriptionExtensions", 'Boolean'>
+  readonly isAutoRenewing: Prisma.FieldRef<"SubscriptionExtensions", 'Boolean'>
+  readonly roleName: Prisma.FieldRef<"SubscriptionExtensions", 'String'>
 }
     
 
