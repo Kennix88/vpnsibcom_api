@@ -5,7 +5,7 @@ import helmet from '@fastify/helmet'
 import fastifyJwt from '@fastify/jwt'
 import fastifyRateLimit from '@fastify/rate-limit'
 import session from '@fastify/session'
-import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common'
+import { Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import {
@@ -17,7 +17,6 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { LoggerErrorInterceptor, PinoLogger } from 'nestjs-pino'
 
 import { CoreModule } from '@core/core.module'
-import { PrismaSeed } from '@core/prisma/prisma.seed'
 import { RedisService } from '@core/redis/redis.service'
 import { genReqId } from '@shared/utils/gen-req-id.util'
 import { ms, type StringValue } from '@shared/utils/ms.util'
@@ -258,12 +257,12 @@ async function bootstrap() {
 
   await configureFastify(app, isProd, config, redis)
 
-  if (parseBoolean(process.env.SEED_MOD || '')) {
-    await PrismaSeed().catch(() => {
-      throw new BadRequestException('Error seeding database', 'Prisma-Seed')
-    })
-    process.exit(0)
-  }
+  // if (parseBoolean(process.env.SEED_MOD || '')) {
+  //   await PrismaSeed().catch(() => {
+  //     throw new BadRequestException('Error seeding database', 'Prisma-Seed')
+  //   })
+  //   process.exit(0)
+  // }
 
   const port = config.get<number>('APPLICATION_PORT') ?? 3000
   Logger.log(`Starting on port ${port}`, 'Bootstrap')
