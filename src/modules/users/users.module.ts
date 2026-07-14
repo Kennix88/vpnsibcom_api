@@ -3,6 +3,7 @@ import { AdsModule } from '@modules/ads/ads.module'
 import { GeoModule } from '@modules/geo/geo.module'
 import { UsersService } from '@modules/users/services/users.service'
 import { UsersController } from '@modules/users/users.controller'
+import { XrayModule } from '@modules/xray/xray.module'
 import { forwardRef, Global, Module } from '@nestjs/common'
 import { TelegramPaymentsService } from '../payments/services/telegram-payments.service'
 import { AcquisitionRepairService } from './services/acquisition-repair.service'
@@ -17,6 +18,7 @@ import { StartParamsRepairService } from './services/start-params-repair.service
     forwardRef(() => AuthModule),
     forwardRef(() => AdsModule),
     forwardRef(() => GeoModule),
+    forwardRef(() => XrayModule),
   ],
   controllers: [UsersController],
   providers: [
