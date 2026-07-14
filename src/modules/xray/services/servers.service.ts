@@ -2,14 +2,20 @@ import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { Injectable } from '@nestjs/common'
 import { PinoLogger } from 'nestjs-pino'
-import {
-  ServerDataInterface,
-  ServersResponseDataInterface,
-} from '../types/servers-data.interface'
+
+import { RemnaService } from '../remna/remna.service'
+import { resolveHostToIps } from '../utils/dns-resolve.util'
 import { normalizeIp } from '../utils/get-client-ip.util'
 
-/** Время кэширования результата green-check в секундах */
-const GREEN_CHECK_CACHE_TTL_SEC = 30
+/** Время кэширования множества "зелёных" IP (адреса нод + резолв их доменов) в секундах */
+const GREEN_IP_SET_CACHE_TTL_SEC = 30
+
+/** Таймаут на резолв одного домена ноды, чтобы одна зависшая DNS-запись не тормозила всю проверку */
+const NODE_DNS_RESOLVE_TIMEOUT_MS = 3000
+
+const GREEN_IP_SET_CACHE_KEY = 'green:node-ip-set'
+
+const IP_REGEX = /^\d{1,3}(?:\.\d{1,3}){3}$|^[\da-fA-F:]+$/
 
 @Injectable()
 export class ServersService {
@@ -19,46 +25,23 @@ export class ServersService {
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
+    private readonly remnaService: RemnaService,
   ) {}
 
-  public async getAll(): Promise<ServersResponseDataInterface> {
-    const servers = await this.prismaService.greenList.findMany({
-      where: { isActive: true },
-      select: {
-        code: true,
-        name: true,
-        flagKey: true,
-        flagEmoji: true,
-        network: true,
-        isActive: true,
-        isPremium: true,
-      },
-    })
-
-    let baseServersCount = 0
-    let premiumServersCount = 0
-
-    const serversMapped: ServerDataInterface[] = servers.map((server) => {
-      if (server.isPremium) premiumServersCount++
-      else baseServersCount++
-      return server
-    })
-
-    return { baseServersCount, premiumServersCount, servers: serversMapped }
-  }
-
   /**
-   * Проверяет, находится ли IP в зелёном списке.
+   * Проверяет, находится ли IP в зелёном списке (т.е. принадлежит одной из нод панели).
    *
-   * Нормализует IP перед проверкой (::ffff:x.x.x.x → x.x.x.x),
-   * кэширует результат в Redis на 30 секунд чтобы навигация
-   * между страницами не генерировала лишние запросы к БД.
+   * Нормализует IP перед проверкой (::ffff:x.x.x.x → x.x.x.x).
+   * Сверяется не только с "сырым" `node.address` (когда там уже IP), но и с адресами,
+   * в которые резолвится `node.address`, если там указан домен.
+   *
+   * Множество "зелёных" IP кэшируется в Redis на 30 секунд одним ключом — это дешевле,
+   * чем ходить в Remnawave API и резолвить DNS на каждый уникальный проверяемый IP.
    */
   public async greenCheck(rawIp: string): Promise<boolean> {
-    // Нормализуем на сервисном уровне — дополнительная защита
     const ip = normalizeIp(rawIp)
 
-    if (!ip || !/^\d{1,3}(?:\.\d{1,3}){3}$|^[\da-fA-F:]+$/.test(ip)) {
+    if (!ip || !IP_REGEX.test(ip)) {
       this.logger.warn({
         msg: `greenCheck: некорректный IP после нормализации`,
         rawIp,
@@ -68,65 +51,101 @@ export class ServersService {
       return false
     }
 
-    const cacheKey = `green:${ip}`
-
-    // Пробуем кэш — быстрый путь (навигация между страницами)
     try {
-      const cached = await this.redis.get(cacheKey)
-      if (cached !== null) {
-        const result = cached === '1'
-        this.logger.debug({
-          msg: `greenCheck cache hit`,
-          ip,
-          result,
-          service: this.serviceName,
-        })
-        return result
-      }
-    } catch (redisErr) {
-      // Redis недоступен — идём в БД, не падаем
-      this.logger.warn({
-        msg: `greenCheck: Redis недоступен, fallback на БД`,
-        err: String(redisErr),
-        service: this.serviceName,
-      })
-    }
+      const greenIpSet = await this.getGreenIpSet()
+      const result = greenIpSet.has(ip)
 
-    // Запрос в БД
-    try {
-      const record = await this.prismaService.greenList.findUnique({
-        where: { green: ip },
-        select: { green: true }, // нам нужен только факт существования
-      })
-
-      const result = record !== null
-
-      this.logger.info({
-        msg: `greenCheck DB result`,
+      this.logger.debug({
+        msg: `greenCheck result`,
         ip,
         result,
         service: this.serviceName,
       })
 
-      // Пишем в кэш — ошибка записи не критична
-      this.redis
-        .set(cacheKey, result ? '1' : '0', 'EX', GREEN_CHECK_CACHE_TTL_SEC)
-        .catch((e) =>
-          this.logger.warn({
-            msg: `greenCheck: не удалось записать кэш`,
-            err: String(e),
-          }),
-        )
-
       return result
     } catch (error) {
       this.logger.error({
-        msg: `greenCheck: ошибка БД для IP ${ip}`,
+        msg: `greenCheck: не удалось построить множество зелёных IP`,
+        ip,
         error,
         stack: error instanceof Error ? error.stack : undefined,
         service: this.serviceName,
       })
       return false
     }
+  }
+
+  /**
+   * Строит (или берёт из кэша) множество IP-адресов всех нод панели.
+   * Для нод с доменным `address` резолвит A/AAAA записи; для нод с IP-адресом
+   * использует его напрямую, без похода в DNS.
+   *
+   * Сбой резолва домена ОДНОЙ ноды не должен ронять всю проверку — такая нода
+   * просто не попадёт в множество в этом цикле обновления кэша, ошибка логируется.
+   */
+  private async getGreenIpSet(): Promise<Set<string>> {
+    try {
+      const cached = await this.redis.getObject<string[]>(
+        GREEN_IP_SET_CACHE_KEY,
+      )
+      if (cached) {
+        return new Set(cached)
+      }
+    } catch (redisErr) {
+      this.logger.warn({
+        msg: `greenCheck: Redis недоступен на чтении кэша множества IP, идём напрямую в Remnawave`,
+        err: String(redisErr),
+        service: this.serviceName,
+      })
+    }
+
+    const nodes = await this.remnaService.getAllNodes()
+
+    const resolutions = await Promise.allSettled(
+      nodes.map(async (node) => ({
+        node,
+        ips: await resolveHostToIps(node.address, NODE_DNS_RESOLVE_TIMEOUT_MS),
+      })),
+    )
+
+    const ipSet = new Set<string>()
+
+    for (const resolution of resolutions) {
+      if (resolution.status === 'fulfilled') {
+        for (const ip of resolution.value.ips) {
+          const normalized = normalizeIp(ip) ?? ip
+          ipSet.add(normalized)
+        }
+        continue
+      }
+
+      // Не знаем, для какой ноды именно упало (allSettled не даёт node в reject-ветке),
+      // поэтому логируем best-effort по исходному списку адресов — для точечного дебага
+      // почти всегда достаточно самого сообщения ошибки резолва (в нём есть host).
+      this.logger.warn({
+        msg: `greenCheck: не удалось зарезолвить адрес одной из нод, нода пропущена в этом цикле`,
+        err:
+          resolution.reason instanceof Error
+            ? resolution.reason.message
+            : String(resolution.reason),
+        service: this.serviceName,
+      })
+    }
+
+    this.redis
+      .setObjectWithExpiry(
+        GREEN_IP_SET_CACHE_KEY,
+        [...ipSet],
+        GREEN_IP_SET_CACHE_TTL_SEC,
+      )
+      .catch((e) =>
+        this.logger.warn({
+          msg: `greenCheck: не удалось записать кэш множества зелёных IP`,
+          err: String(e),
+          service: this.serviceName,
+        }),
+      )
+
+    return ipSet
   }
 }
