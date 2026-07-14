@@ -1,36 +1,39 @@
-import { Prisma } from '@core/prisma/generated/browser'
 import {
-  Plans,
+  DefaultSubData,
+  ExternalSquad,
+  InternalSquads,
   SubscriptionExtensions,
   Subscriptions,
-  XrayInbounds,
 } from '@core/prisma/generated/client'
 import {
   DefaultEnum,
+  ExternalSquadEnum,
+  InternalSquadsEnum,
   SubscriptionExtensionsEnum,
   UserRoleEnum,
 } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
-import { PlansEnum } from '@modules/plans/types/plans.enum'
 import { EventsService } from '@modules/users/services/events.service'
 import { UsersService } from '@modules/users/services/users.service'
 import { EventType } from '@modules/users/types/event-type.enum'
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Cron } from '@nestjs/schedule'
-import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
-import { TrafficResetEnum } from '@shared/enums/traffic-reset.enum'
-import { genToken } from '@shared/utils/gen-token.util'
+import { Cron, CronExpression } from '@nestjs/schedule'
 import axios from 'axios'
 import { randomBytes } from 'crypto'
-import { addDays, addHours, isAfter } from 'date-fns'
+import { addDays, isAfter } from 'date-fns'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
-import { UserCreate } from '../types/marzban.types'
-import { XrayInboundTypeEnum } from '../types/xray-inbound-type.enum'
-import { MarzbanService } from './marzban.service'
+import { RemnaService } from '../remna/remna.service'
+import {
+  CreateRemnaUserDto,
+  RemnaHwidDevice,
+  RemnaTrafficLimitStrategy,
+  RemnaUser,
+  RemnaUserStatus,
+} from '../remna/remna.types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -50,28 +53,31 @@ export interface SubscriptionExtensionsWithConditionsInterface {
   isPremiumServers: boolean
   isNoAds: boolean
   isRoleChat: boolean
+  isAutoRenewing: boolean
+  roleName?: string
 }
 
 export interface NewEraSubWithTmaInterface {
-  isActive: boolean
+  isNoSub: boolean
+  status: RemnaUserStatus
   isUnlimitTraffic: boolean
-  dataLimit?: number
-  usedTraffic?: number
-  devicesCount: number
-  lifeTimeUsedTraffic: number
+  dataLimitBytes?: number
+  devicesLimit: number
+  usedTrafficBytes: number
+  lifetimeUsedTrafficBytes: number
+  subscriptionUrl?: string
   happCryptoUrl?: string
   days: number
   expiredAt?: Date
   onlineAt?: Date
-  devices: DevicesInterface[]
+  devices: HwidDevice[]
 }
 
-export interface DevicesInterface {
-  id: string
-  model?: string
-  os?: string
-  happVersion: string
-  happCryptoUrl: string
+export interface HwidDevice {
+  hwid: string
+  platform: string | null
+  osVersion: string | null
+  deviceModel: string | null
 }
 
 export interface NewEraSubData {
@@ -82,6 +88,13 @@ export interface NewEraSubData {
   isPremiumServers: boolean
   isNoAds: boolean
   isRoleChat: boolean
+  isAutoRenewing: boolean
+  roleName?: string
+}
+
+interface ActiveSquads {
+  internal: string[]
+  external: string
 }
 
 // ─── Result monad ─────────────────────────────────────────────────────────────
@@ -117,33 +130,29 @@ enum typeSendTelegramEnum {
 export class NewEraService implements OnModuleInit {
   private readonly serviceName = 'NewEraService'
 
-  /** Сколько подписок на удаление обрабатываем параллельно за раз в кроне очистки */
   private readonly REMOVAL_CONCURRENCY = 5
   private readonly CHECK_CHANNEL_CHAT_CONCURRENCY = 5
-  private readonly SUBSCRIPTIONS_UPDATE_BATCH_SIZE = 50
+  private readonly SUBSCRIPTIONS_UPDATE_BATCH_SIZE = 10
 
   constructor(
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
     private readonly userService: UsersService,
+    private readonly remnaService: RemnaService,
     private readonly logger: PinoLogger,
     private readonly redis: RedisService,
-    private readonly marzbanService: MarzbanService,
     @InjectBot() private readonly bot: Telegraf,
     private readonly eventsService: EventsService,
   ) {}
 
   async onModuleInit() {
-    // WARN: вернуть потом крон
-    // void this.removalSubscriptions().catch((error) => {
-    //   this.logger.error('Ошибка в NewEraService onModuleInit', error)
-    // })
+    void this.removalSubscriptions().catch((error) => {
+      this.logger.error('Ошибка в NewEraService onModuleInit', error)
+    })
     void this.checkEntryChannelAndChat().catch((error) => {
       this.logger.error('Ошибка в NewEraService onModuleInit', error)
     })
   }
-
-  // ─── Private helpers ──────────────────────────────────────────────────────
 
   private async findUser(userId: string) {
     return this.prismaService.users.findFirst({
@@ -152,58 +161,80 @@ export class NewEraService implements OnModuleInit {
         telegramData: true,
         role: true,
         acquisition: true,
-        subscriptions: {
-          where: { planKey: PlansEnum.NEW_ERA },
-          include: { devices: true },
-        },
+        subscription: true,
       },
     })
   }
 
-  private generateMarzbanUsername(telegramId: string | number): string {
+  private generateRemnaUsername(telegramId: string | number): string {
     const suffix = randomBytes(6).toString('hex')
-    return `${telegramId}_${suffix}`
+    const devTag =
+      this.configService.get('NODE_ENV') === 'development' ? 'dev_' : ''
+    return `vpnsib_${devTag}${telegramId}_${suffix}`
   }
 
-  private buildMarzbanUserPayload(
+  private resolveActiveSquads(
+    subData: NewEraSubData,
+    internalSquads: InternalSquads[],
+    externalSquads: ExternalSquad[],
+  ): ActiveSquads {
+    const internal = internalSquads
+      .filter(
+        (el) =>
+          el.key !== InternalSquadsEnum.PREMIUM || subData.isPremiumServers,
+      )
+      .map((el) => el.uuid)
+
+    const externalSquad = externalSquads.find(
+      (el) => el.key === ExternalSquadEnum.RU_ROUTING_FRAGMENT,
+    )
+
+    if (!externalSquad) {
+      throw new Error(
+        `External squad "${ExternalSquadEnum.RU_ROUTING_FRAGMENT}" не найден`,
+      )
+    }
+
+    return { internal, external: externalSquad.uuid }
+  }
+
+  private buildRemnaTag(roleKey: string): string {
+    const devTag =
+      this.configService.get('NODE_ENV') === 'development' ? 'DEV_' : ''
+    return devTag + roleKey.toUpperCase()
+  }
+
+  private buildRemnaUserPayload(
     username: string,
-    inbounds: XrayInbounds[],
     subData: NewEraSubData,
     user: UserWithRelations,
-  ): UserCreate {
-    const hasType = (type: XrayInboundTypeEnum) =>
-      inbounds.some((el) => el.type === type)
-    const tagsByType = (type: XrayInboundTypeEnum) =>
-      inbounds.filter((el) => el.type === type).map((el) => el.inboundTag)
-
-    const isVless = hasType(XrayInboundTypeEnum.VLESS)
-    const isTrojan = hasType(XrayInboundTypeEnum.TROJAN)
-    const isSS = hasType(XrayInboundTypeEnum.SHADOWSOCKS)
-    const hasAnyProxy = isVless || isTrojan || isSS
+    internalSquads: InternalSquads[],
+    externalSquads: ExternalSquad[],
+  ): CreateRemnaUserDto {
+    const { internal, external } = this.resolveActiveSquads(
+      subData,
+      internalSquads,
+      externalSquads,
+    )
 
     return {
       username,
-      status: 'active',
-      ...(hasAnyProxy && {
-        proxies: {
-          ...(isVless && { vless: { flow: 'xtls-rprx-vision' } }),
-          ...(isTrojan && { trojan: {} }),
-          ...(isSS && { shadowsocks: {} }),
-        },
-        inbounds: {
-          ...(isVless && { vless: tagsByType(XrayInboundTypeEnum.VLESS) }),
-          ...(isTrojan && { trojan: tagsByType(XrayInboundTypeEnum.TROJAN) }),
-          ...(isSS && {
-            shadowsocks: tagsByType(XrayInboundTypeEnum.SHADOWSOCKS),
+      ...(subData.isUnlimitTraffic
+        ? {
+            trafficLimitStrategy: 'NO_RESET' as RemnaTrafficLimitStrategy,
+            trafficLimitBytes: 0,
+          }
+        : {
+            trafficLimitStrategy: 'DAY' as RemnaTrafficLimitStrategy,
+            trafficLimitBytes: subData.trafficLimitGb * 1024 ** 3,
           }),
-        },
-      }),
-      ...(!subData.isUnlimitTraffic && {
-        data_limit_reset_strategy: 'day',
-        data_limit: subData.trafficLimitGb * 1024 ** 3,
-      }),
-      note: [
-        'NEW_ERA',
+      telegramId: Number(user.telegramId),
+      tag: this.buildRemnaTag(user.role.key),
+      hwidDeviceLimit: subData.devicesCount,
+      expireAt: addDays(new Date(), subData.days).toISOString(),
+      activeInternalSquads: internal,
+      externalSquadUuid: external,
+      description: [
         user.id,
         user.telegramId,
         user.telegramData?.username ?? '',
@@ -214,15 +245,12 @@ export class NewEraService implements OnModuleInit {
     }
   }
 
-  private async fetchHappCryptoUrl(token: string): Promise<string | null> {
-    const baseUrl =
-      this.configService.getOrThrow('APPLICATION_URL') +
-      `/new-era/happ/${token}`
-
+  private async fetchHappCryptoUrl(shortUuid: string): Promise<string | null> {
     try {
+      const url = this.configService.getOrThrow('SUB_DOMAIN') + `/${shortUuid}`
       const { data } = await axios.post<{ encrypted_link: string }>(
         'https://crypto.happ.su/api-v2.php',
-        { url: baseUrl },
+        { url: url },
         { timeout: 5_000 },
       )
 
@@ -245,98 +273,162 @@ export class NewEraService implements OnModuleInit {
     }
   }
 
-  // ─── Public API ───────────────────────────────────────────────────────────
+  private async buildNewEraSub(
+    user: UserWithRelations,
+    preFetchedDevices?: RemnaHwidDevice[],
+  ): Promise<Result<NewEraSubWithTmaInterface>> {
+    const subDataResult = await this.calculateNewEraSubData(user)
+    if (isErr(subDataResult)) return subDataResult
 
-  /**
-   * Перегрузка для случаев, когда user ещё не загружен.
-   * Предпочитайте calculateNewEraSubData(user) там, где user уже есть.
-   */
+    const sub = user.subscription
+    if (!sub) {
+      return ok({
+        isNoSub: true,
+        status: 'DISABLED',
+        devicesLimit: subDataResult.data.devicesCount,
+        isUnlimitTraffic: subDataResult.data.isUnlimitTraffic,
+        dataLimitBytes: subDataResult.data.isUnlimitTraffic
+          ? undefined
+          : subDataResult.data.trafficLimitGb * 1024 ** 3,
+        usedTrafficBytes: 0,
+        lifetimeUsedTrafficBytes: 0,
+        days: subDataResult.data.days,
+        devices: [],
+      })
+    }
+
+    const [remnaUser, devices] = await Promise.all([
+      this.remnaService.getUserByUuid(sub.uuid),
+      preFetchedDevices
+        ? Promise.resolve(preFetchedDevices)
+        : this.remnaService
+            .getUserHwidDevices(sub.uuid)
+            .then((res) => res.devices),
+    ])
+
+    return ok(mapSubscriptionToTma(remnaUser, subDataResult.data, devices))
+  }
+
+  public async deleteDevice(
+    userId: string,
+    hwid: string,
+  ): Promise<Result<NewEraSubWithTmaInterface>> {
+    try {
+      const user = await this.findUser(userId)
+      if (!user) return err('Пользователь не найден')
+      if (!user.subscription) return err('Нет подписки!')
+
+      const deleteResult = await this.remnaService.deleteUserHwidDevice({
+        userUuid: user.subscription.uuid,
+        hwid,
+      })
+
+      return await this.buildNewEraSub(user, deleteResult.devices)
+    } catch (error) {
+      return this.logAndErr(`Ошибка удаления устройства пользователя`, error)
+    }
+  }
+
   public async createNewEraSubByUserId(
     userId: string,
-  ): Promise<Result<Subscriptions>> {
+  ): Promise<Result<RemnaUser>> {
+    const lockResult = await this.redis.withLock(
+      `newEraSub:mutate:${userId}`,
+      30,
+      () => this.createNewEraSubByUserIdUnsafe(userId),
+      { retries: 0 },
+    )
+
+    if (lockResult === null) {
+      return err(
+        `Создание подписки для userID: ${userId} уже выполняется, повторный вызов отклонён`,
+      )
+    }
+
+    return lockResult
+  }
+
+  private async createNewEraSubByUserIdUnsafe(
+    userId: string,
+  ): Promise<Result<RemnaUser>> {
     this.logger.info({
       msg: `Создание NEW_ERA подписки для userID: ${userId}`,
       service: this.serviceName,
     })
 
     try {
-      const [user, plan, inbounds] = await Promise.all([
+      const [user, internalSquads, externalSquads] = await Promise.all([
         this.findUser(userId),
-        this.prismaService.plans.findUnique({
-          where: { key: PlansEnum.NEW_ERA },
-        }),
-        this.prismaService.xrayInbounds.findMany(),
+        this.prismaService.internalSquads.findMany(),
+        this.prismaService.externalSquad.findMany(),
       ])
 
       if (!user) return err('Пользователь не найден')
-      if (!plan) return err(`План ${PlansEnum.NEW_ERA} не найден`)
+
+      if (user.subscription) {
+        return err(
+          `У пользователя ${userId} уже есть подписка (subscriptionId: ${user.subscription.id}); используйте renewingNewEraSubByUserId`,
+        )
+      }
 
       const subDataResult = await this.calculateNewEraSubData(user)
       if (isErr(subDataResult)) return subDataResult
 
       const subData = subDataResult.data
-      const username = this.generateMarzbanUsername(user.telegramId)
-      const token = genToken()
+      const username = this.generateRemnaUsername(user.telegramId)
+      const shortUuid = randomBytes(8).toString('hex')
 
-      // ── Внешние вызовы до транзакции ─────────────────────────────────────
-      // Оба HTTP-запроса выполняются параллельно и вне транзакции,
-      // чтобы не удерживать DB-соединение на время сетевых задержек.
-      const [marzbanUser, happCryptoUrl] = await Promise.all([
-        this.marzbanService.addUser(
-          this.buildMarzbanUserPayload(username, inbounds, subData, user),
+      const [remnaUser, happCryptoUrl] = await Promise.all([
+        this.remnaService.createUser(
+          this.buildRemnaUserPayload(
+            username,
+            subData,
+            user,
+            internalSquads,
+            externalSquads,
+          ),
         ),
-        this.fetchHappCryptoUrl(token),
+        this.fetchHappCryptoUrl(shortUuid),
       ])
 
-      if (!marzbanUser) {
+      if (!remnaUser) {
         return err(
-          `Не удалось создать пользователя в Marzban для userID: ${userId}`,
+          `Не удалось создать пользователя в Remna для userID: ${userId}`,
         )
       }
 
-      // ── БД-транзакция ─────────────────────────────────────────────────────
       let subscription: Subscriptions
       try {
+        const url =
+          this.configService.getOrThrow('SUB_DOMAIN') + `/${shortUuid}`
         subscription = await this.prismaService.$transaction(async (tx) => {
-          return tx.subscriptions.create({
+          const sub = await tx.subscriptions.create({
             data: {
               username,
-              isPremium: subData.isPremiumServers,
-              name: subData.isPremiumServers ? 'PREMIUM' : 'FREE',
-              planKey: PlansEnum.NEW_ERA,
-              isAutoRenewal: false,
-              devicesCount: subData.devicesCount,
-              isAllBaseServers: true,
-              isAllPremiumServers: subData.isPremiumServers,
-              trafficLimitGb: subData.trafficLimitGb,
-              isUnlimitTraffic: subData.isUnlimitTraffic,
-              trafficReset: TrafficResetEnum.DAY,
-              userId: user.id,
-              period: SubscriptionPeriodEnum.NEW_ERA,
-              periodMultiplier: 1,
-              isActive: true,
-              token,
-              links: marzbanUser.links,
-              dataLimit: marzbanUser.data_limit / 1024 / 1024,
-              usedTraffic: marzbanUser.used_traffic / 1024 / 1024,
-              lifeTimeUsedTraffic: marzbanUser.used_traffic / 1024 / 1024,
-              expiredAt: addDays(new Date(), subData.days),
-              nextRenewalStars: null,
-              marzbanData: marzbanUser as unknown as Prisma.InputJsonValue,
+              uuid: remnaUser.uuid,
               happCryptoUrl,
+              shortUuid,
+              subscriptionUrl: url,
             },
           })
+
+          await tx.users.update({
+            where: { id: userId },
+            data: { subscriptionId: sub.id },
+          })
+
+          return sub
         })
       } catch (txError) {
         this.logger.error({
-          msg: `БД-транзакция упала; удаляем Marzban-пользователя ${username}`,
+          msg: `БД-транзакция упала; удаляем Remna-пользователя ${remnaUser.uuid}`,
           error: txError,
           service: this.serviceName,
         })
 
-        await this.marzbanService.removeUser(username).catch((e) =>
+        await this.remnaService.deleteUser(remnaUser.uuid).catch((e) =>
           this.logger.error({
-            msg: `Не удалось удалить Marzban-пользователя ${username} после отката`,
+            msg: `Не удалось удалить Remna-пользователя ${remnaUser.uuid} после отката`,
             error: e,
             service: this.serviceName,
           }),
@@ -345,7 +437,6 @@ export class NewEraService implements OnModuleInit {
         throw txError
       }
 
-      // ── Побочные эффекты после транзакции ─────────────────────────────────
       this.eventsService
         .createEvent({ userId: user.id, eventType: EventType.ACTIVATION })
         .catch((e) =>
@@ -354,8 +445,10 @@ export class NewEraService implements OnModuleInit {
 
       this.sendSubscriptionLog(
         user,
-        subscription,
+        remnaUser,
+        subData,
         typeSendTelegramEnum.CREATE,
+        [],
       ).catch((e) =>
         this.logger.error({ msg: 'Ошибка отправки Telegram-лога', error: e }),
       )
@@ -366,7 +459,7 @@ export class NewEraService implements OnModuleInit {
         service: this.serviceName,
       })
 
-      return ok(subscription)
+      return ok(remnaUser)
     } catch (error) {
       return this.logAndErr(`Ошибка создания подписки`, error)
     }
@@ -376,33 +469,9 @@ export class NewEraService implements OnModuleInit {
     userId: string,
   ): Promise<Result<NewEraSubWithTmaInterface>> {
     try {
-      // Единый запрос — subData вычисляется из уже загруженного user
       const user = await this.findUser(userId)
       if (!user) return err('Пользователь не найден')
-
-      const subDataResult = await this.calculateNewEraSubData(user)
-      if (isErr(subDataResult)) return subDataResult
-
-      const sub = user.subscriptions[0]
-
-      if (!sub || sub.planKey !== PlansEnum.NEW_ERA) {
-        return ok({
-          isActive: false,
-          isUnlimitTraffic: false,
-          devicesCount: subDataResult.data.devicesCount,
-          lifeTimeUsedTraffic: 0,
-          days: subDataResult.data.days,
-          devices: [],
-        })
-      }
-
-      return ok(
-        mapSubscriptionToTma(
-          sub,
-          subDataResult.data.days,
-          sub.devices.map(mapDevice),
-        ),
-      )
+      return await this.buildNewEraSub(user)
     } catch (error) {
       return this.logAndErr(`Ошибка получения подписки`, error)
     }
@@ -411,75 +480,114 @@ export class NewEraService implements OnModuleInit {
   public async renewingNewEraSubByUserId(
     userId: string,
   ): Promise<Result<NewEraSubWithTmaInterface>> {
+    const lockResult = await this.redis.withLock(
+      `newEraSub:mutate:${userId}`,
+      30,
+      () => this.renewingNewEraSubByUserIdUnsafe(userId),
+      { retries: 2, retryDelayMs: 300 },
+    )
+
+    if (lockResult === null) {
+      return err(
+        `Не удалось получить блокировку продления подписки для userID: ${userId}`,
+      )
+    }
+
+    return lockResult
+  }
+
+  private async renewingNewEraSubByUserIdUnsafe(
+    userId: string,
+  ): Promise<Result<NewEraSubWithTmaInterface>> {
     try {
-      // Единый запрос — без повторной загрузки внутри calculateNewEraSubData
-      const user = await this.findUser(userId)
+      const [user, internalSquads, externalSquads] = await Promise.all([
+        this.findUser(userId),
+        this.prismaService.internalSquads.findMany(),
+        this.prismaService.externalSquad.findMany(),
+      ])
       if (!user) return err('Пользователь не найден')
 
       const subDataResult = await this.calculateNewEraSubData(user)
       if (isErr(subDataResult)) return subDataResult
 
       const subData = subDataResult.data
-      const sub = user.subscriptions[0]
+      const sub = user.subscription
 
-      // Подписки нет — создаём с нуля
       if (!sub) {
-        const create = await this.createNewEraSubByUserId(userId)
+        const create = await this.createNewEraSubByUserIdUnsafe(userId)
         if (isErr(create)) return create
-        return ok(mapSubscriptionToTma(create.data, subData.days, []))
+        return ok(mapSubscriptionToTma(create.data, subData, []))
       }
 
-      // ── Синхронизируем Marzban: статус + лимиты ───────────────────────────
-      await this.marzbanService.modifyUser(sub.username, {
-        status: 'active',
-        ...(!subData.isUnlimitTraffic && {
-          data_limit: subData.trafficLimitGb * 1024 ** 3,
-          data_limit_reset_strategy: 'day',
-        }),
-        ...(subData.isUnlimitTraffic && {
-          data_limit: 0,
-        }),
-      })
+      const { internal, external } = this.resolveActiveSquads(
+        subData,
+        internalSquads,
+        externalSquads,
+      )
 
-      const updated = await this.prismaService.subscriptions.update({
+      const [remnaUser, happCryptoUrl, devices] = await Promise.all([
+        this.remnaService.updateUser({
+          uuid: sub.uuid,
+          status: 'ACTIVE',
+          ...(subData.isUnlimitTraffic
+            ? {
+                trafficLimitStrategy: 'NO_RESET' as RemnaTrafficLimitStrategy,
+                trafficLimitBytes: 0,
+              }
+            : {
+                trafficLimitStrategy: 'DAY' as RemnaTrafficLimitStrategy,
+                trafficLimitBytes: subData.trafficLimitGb * 1024 ** 3,
+              }),
+          tag: this.buildRemnaTag(user.role.key),
+          expireAt: addDays(new Date(), subData.days).toISOString(),
+          activeInternalSquads: internal,
+          externalSquadUuid: external,
+        }),
+        this.fetchHappCryptoUrl(sub.shortUuid),
+        this.remnaService.getUserHwidDevices(sub.uuid),
+      ])
+
+      if (!remnaUser) {
+        return err(
+          `Не удалось создать пользователя в Remna для userID: ${userId}`,
+        )
+      }
+
+      const url =
+        this.configService.getOrThrow('SUB_DOMAIN') + `/${remnaUser.shortUuid}`
+
+      await this.prismaService.subscriptions.update({
         where: { id: sub.id },
         data: {
-          isPremium: subData.isPremiumServers,
-          name: subData.isPremiumServers ? 'PREMIUM' : 'FREE',
-          devicesCount: subData.devicesCount,
-          isAllBaseServers: true,
-          isAllPremiumServers: subData.isPremiumServers,
-          trafficLimitGb: subData.trafficLimitGb,
-          isUnlimitTraffic: subData.isUnlimitTraffic,
-          isActive: true,
-          expiredAt: addHours(new Date(), subData.days * 24),
+          uuid: remnaUser.uuid,
+          happCryptoUrl,
+          shortUuid: remnaUser.shortUuid,
+          subscriptionUrl: url,
         },
-        include: { devices: true },
       })
+
+      const enforcedDevices = await this.enforceHwidDeviceLimit(
+        sub.uuid,
+        subData.devicesCount,
+        devices.devices,
+      )
 
       this.sendSubscriptionLog(
         user,
-        updated,
+        remnaUser,
+        subData,
         typeSendTelegramEnum.RENEWING,
+        enforcedDevices,
       ).catch((e) =>
-        this.logger.error({ msg: 'Ошибка отправки Telegram-лога', e }),
+        this.logger.error({ msg: 'Ошибка отправки Telegram-лога', error: e }),
       )
 
-      return ok(
-        mapSubscriptionToTma(
-          updated,
-          subData.days,
-          updated.devices.map(mapDevice),
-        ),
-      )
+      return ok(mapSubscriptionToTma(remnaUser, subData, enforcedDevices))
     } catch (error) {
       return this.logAndErr(`Ошибка продления подписки`, error)
     }
   }
 
-  // ─── Private helpers ──────────────────────────────────────────────────────
-
-  /** Логирует ошибку и возвращает Err-результат */
   private logAndErr(prefix: string, error: unknown): Err {
     const message = `${prefix}: ${
       error instanceof Error ? error.message : String(error)
@@ -487,8 +595,6 @@ export class NewEraService implements OnModuleInit {
     this.logger.error({ msg: message, service: this.serviceName })
     return err(message)
   }
-
-  // ─── Private pure helpers (без обращений к БД) ────────────────────────────
 
   private buildSubscriptionExtensionsWithConditions(
     user: UserWithRelations,
@@ -523,6 +629,10 @@ export class NewEraService implements OnModuleInit {
         isPremiumServers: user.role.isPremiumServers,
         isNoAds: user.role.isNoAds,
         isRoleChat: user.role.isRoleChat,
+        isAutoRenewing:
+          user.premiumExpiredAt !== null &&
+          isAfter(user.premiumExpiredAt, new Date()),
+        roleName: user.role.roleName,
         conditionMet: true,
       },
       ...subscriptionExtensions.map((ext) => ({
@@ -536,7 +646,7 @@ export class NewEraService implements OnModuleInit {
 
   private buildNewEraSubData(
     user: UserWithRelations,
-    plan: Plans,
+    defaultSubData: DefaultSubData,
     subscriptionExtensions: SubscriptionExtensions[],
   ): NewEraSubData {
     const extensions = this.buildSubscriptionExtensionsWithConditions(
@@ -545,13 +655,15 @@ export class NewEraService implements OnModuleInit {
     )
 
     const result: NewEraSubData = {
-      days: plan.days,
-      devicesCount: plan.devicesCount,
-      trafficLimitGb: plan.trafficLimitGb,
-      isUnlimitTraffic: plan.isUnlimitTraffic,
+      days: defaultSubData.days,
+      devicesCount: defaultSubData.devicesCount,
+      trafficLimitGb: defaultSubData.trafficLimitGb,
+      isUnlimitTraffic: defaultSubData.isUnlimitTraffic,
       isPremiumServers: false,
       isNoAds: false,
       isRoleChat: false,
+      isAutoRenewing: false,
+      roleName: undefined,
     }
 
     for (const ext of extensions) {
@@ -563,28 +675,12 @@ export class NewEraService implements OnModuleInit {
       result.isNoAds = result.isNoAds || ext.isNoAds
       result.isUnlimitTraffic = result.isUnlimitTraffic || ext.isUnlimitTraffic
       result.isRoleChat = result.isRoleChat || ext.isRoleChat
+      result.isAutoRenewing = result.isAutoRenewing || ext.isAutoRenewing
+      result.roleName = result.roleName || ext.roleName
     }
 
     return result
   }
-
-  private getConfigName(link: string): string {
-    const hashIndex = link.lastIndexOf('#')
-    if (hashIndex === -1) return ''
-
-    const configNameEncoded = link.slice(hashIndex + 1)
-    try {
-      return decodeURIComponent(configNameEncoded)
-    } catch {
-      return configNameEncoded
-    }
-  }
-
-  private isTelegramOnlyConfig(link: string): boolean {
-    return this.getConfigName(link).toLowerCase().includes('telegram')
-  }
-
-  // ─── Public API — сигнатуры не менялись, остальные методы файла продолжают работать как раньше ──
 
   public async getSubscriptionExtensionsWithConditions(
     user: UserWithRelations,
@@ -616,27 +712,29 @@ export class NewEraService implements OnModuleInit {
     user: UserWithRelations,
   ): Promise<Result<NewEraSubData>> {
     try {
-      const [plan, subscriptionExtensions] = await Promise.all([
-        this.prismaService.plans.findUnique({
-          where: { key: PlansEnum.NEW_ERA },
+      const [defaultSubData, subscriptionExtensions] = await Promise.all([
+        this.prismaService.defaultSubData.findUnique({
+          where: { key: DefaultEnum.DEFAULT },
         }),
         this.prismaService.subscriptionExtensions.findMany(),
       ])
 
-      if (!plan) return err(`План ${PlansEnum.NEW_ERA} не найден`)
+      if (!defaultSubData) return err(`Не найдены дефолтные данные`)
 
-      return ok(this.buildNewEraSubData(user, plan, subscriptionExtensions))
+      return ok(
+        this.buildNewEraSubData(user, defaultSubData, subscriptionExtensions),
+      )
     } catch (error) {
       return this.logAndErr(`Ошибка калькуляции подписки`, error)
     }
   }
 
-  // ─── Telegram notifications ───────────────────────────────────────────────
-
   private async sendSubscriptionLog(
     user: UserWithRelations,
-    subscription: Subscriptions,
+    remnaUser: RemnaUser,
+    subData: NewEraSubData,
     type: typeSendTelegramEnum,
+    devices: RemnaHwidDevice[] = [],
   ): Promise<void> {
     const title =
       type === typeSendTelegramEnum.CREATE
@@ -647,8 +745,23 @@ export class NewEraService implements OnModuleInit {
     const username = tg?.username ? `@${tg.username}` : '—'
     const fullName =
       [tg?.firstName, tg?.lastName].filter(Boolean).join(' ') || '—'
+    const premium =
+      user.premiumExpiredAt !== null &&
+      isAfter(user.premiumExpiredAt, new Date())
+        ? '✅ да'
+        : '🚫 нет'
+    const userTraffic = remnaUser.userTraffic.usedTrafficBytes / 1024 ** 3
+    const lifeTimeUsedTraffic =
+      remnaUser.userTraffic.lifetimeUsedTrafficBytes / 1024 ** 3
 
-    // Вспомогательная функция: заменяет пустое значение на «нет»
+    const traffic = subData.isUnlimitTraffic
+      ? `♾️  ·  всего: <code>${lifeTimeUsedTraffic} GB</code>`
+      : `<code>${userTraffic.toFixed(2)}</code>/<code>${
+          subData.trafficLimitGb
+        }</code> GB  ·  всего: <code>${lifeTimeUsedTraffic.toFixed(
+          2,
+        )} GB</code>`
+
     const val = (v: string | null | undefined) =>
       v ? `<code>${v}</code>` : '🚫 нет'
 
@@ -658,28 +771,19 @@ export class NewEraService implements OnModuleInit {
       title,
       '',
       `<b>👤 Пользователь:</b> ${username} · <code>${fullName}</code>`,
-      `<b>🪪 User ID:</b> <code>${subscription.userId}</code>`,
+      `<b>🪪 User ID:</b> <code>${user.id}</code>`,
       `<b>🆔 Telegram ID:</b> <code>${user.telegramId}</code>`,
       '',
-      `<b>📋 Тариф:</b> <code>${subscription.planKey}</code>  ·  <b>Имя:</b> <code>${subscription.name}</code>`,
-      `<b>🔑 Username:</b> <code>${subscription.username}</code>`,
-      `<b>📅 Истекает:</b> <code>${
-        subscription.expiredAt?.toISOString() ?? '♾️'
+      `<b>🔑 Username:</b> <code>${remnaUser.username}</code>`,
+      `<b>📅 Истекает:</b> <code>${remnaUser.expireAt ?? '♾️'}</code>`,
+      `<b>📅 Онлайн:</b> <code>${
+        remnaUser.userTraffic.onlineAt ?? '🚫'
       }</code>`,
       '',
-      `<b>📱 Устройства:</b> <code>${subscription.devicesCount}</code>`,
-      `<b>📊 Трафик:</b> <code>${
-        subscription.usedTraffic ?? 0
-      } MB</code> / <code>${
-        subscription.trafficLimitGb
-      } GB</code>  ·  всего: <code>${
-        subscription.lifeTimeUsedTraffic ?? 0
-      } MB</code>`,
-      `<b>♾️ Безлимит:</b> ${
-        subscription.isUnlimitTraffic ? '✅ да' : '🚫 нет'
-      }`,
+      `<b>📱 Устройства:</b> <code>${devices.length}</code>/<code>${remnaUser.hwidDeviceLimit}</code>`,
+      `<b>📊 Трафик:</b> ${traffic}`,
       '',
-      `<b>⭐ Премиум:</b> ${subscription.isPremium ? '✅ да' : '🚫 нет'}`,
+      `<b>⭐ Премиум sub:</b> ${premium}`,
       `<b>📢 Канал:</b> ${
         user.isChannel ? '✅ да' : '🚫 нет'
       }  ·  <b>💬 Чат:</b> ${user.isChat ? '✅ да' : '🚫 нет'}`,
@@ -702,36 +806,38 @@ export class NewEraService implements OnModuleInit {
     )
   }
 
-  // ─── Кроны ──────────────────────────────────────────────────────────────────
-
-  /** Загружает подписки-кандидаты на удаление со всем необходимым для проверки условий */
   private async findSubscriptionsForRemoval() {
     return this.prismaService.subscriptions.findMany({
-      where: { deletedAt: null },
       include: {
         user: {
           include: {
             telegramData: true,
+            role: true,
           },
         },
       },
     })
   }
 
-  /** Решает, подлежит ли подписка удалению, согласно бизнес-правилам */
-  private shouldRemoveSubscription(
+  private async shouldRemoveSubscription(
     subscription: Awaited<
       ReturnType<NewEraService['findSubscriptionsForRemoval']>
     >[number],
     subscriptionRemovalAfterInactiveDays: number,
-    isAfterRemovalOldSub: boolean,
-  ): boolean {
-    // Удаляем, если пользователь не живой в боте
+  ): Promise<boolean> {
+    const isPremium =
+      subscription.user.premiumExpiredAt !== null &&
+      isAfter(subscription.user.premiumExpiredAt, new Date())
+    const isRole =
+      subscription.user.role.key === UserRoleEnum.SUPER_ADMIN ||
+      subscription.user.role.key === UserRoleEnum.ADMIN ||
+      subscription.user.role.key === UserRoleEnum.SUPPORT ||
+      subscription.user.role.key === UserRoleEnum.FRIEND
+
+    if (isPremium || isRole) return false
+
     const isNotLive = !(subscription.user.telegramData?.isLive ?? false)
 
-    // FIX: раньше формула была isAfter(now + N дней, lastStartedAt), что почти
-    // всегда true независимо от N (т.к. "будущее" почти всегда позже "прошлого").
-    // Теперь корректно проверяем, что с момента lastStartedAt прошло N дней.
     const isAfterDaysFromEntry = subscription.user.lastStartedAt
       ? isAfter(
           new Date(),
@@ -742,47 +848,34 @@ export class NewEraService implements OnModuleInit {
         )
       : true
 
-    // Удаляем все олдовые, исключаем NEW_ERA
-    const isOldRemoval =
-      isAfterRemovalOldSub && subscription.planKey !== PlansEnum.NEW_ERA
+    if (isNotLive || isAfterDaysFromEntry) return true
 
-    // FIX: раньше формула была isAfter(now + 7 дней, createdAt), что верно
-    // с первой секунды после создания подписки. Теперь проверяем, что с
-    // момента создания действительно прошла неделя.
-    const isNotTrafficForWeek =
-      isAfter(new Date(), addDays(subscription.createdAt, 7)) &&
-      subscription.lifeTimeUsedTraffic <= 0
+    if (!isAfter(new Date(), addDays(subscription.createdAt, 7))) return false
 
-    // TODO: НЕ удалять, если есть прем, и если роль не пользователь и не олд юзер
-
-    return (
-      isNotLive || isAfterDaysFromEntry || isOldRemoval || isNotTrafficForWeek
-    )
+    try {
+      const remnaUser = await this.remnaService.getUserByUuid(subscription.uuid)
+      return remnaUser.userTraffic.lifetimeUsedTrafficBytes <= 0
+    } catch (error) {
+      this.logger.warn({
+        msg: `Не удалось проверить трафик подписки ${subscription.id} в Remna, пропускаем`,
+        error: error instanceof Error ? error.message : String(error),
+        service: this.serviceName,
+      })
+      return false
+    }
   }
 
-  /**
-   * Удаляет подписку в Marzban, а затем атомарно — саму подписку вместе со
-   * всеми зависимыми сущностями: подключёнными устройствами и связями с
-   * индивидуальным списком серверов (greenList).
-   *
-   * В схеме на этих связях стоит onDelete: Cascade, поэтому в теории БД
-   * удалит их сама — но удаление делается явным и атомарным (одна
-   * транзакция), чтобы не зависеть от состояния каскадов в реальной БД и
-   * чтобы было однозначно видно из кода, что чистится при удалении подписки.
-   */
   private async removeSubscriptionWithRelations(
     subscriptionId: string,
-    username: string,
+    uuid: string,
   ): Promise<boolean> {
-    const isRemovedFromMarzban = await this.marzbanService.removeUser(username)
+    const isRemovedFromMarzban = await this.remnaService.deleteUser(uuid)
     if (!isRemovedFromMarzban) return false
 
     await this.prismaService.$transaction([
-      this.prismaService.devices.deleteMany({
+      this.prismaService.users.updateMany({
         where: { subscriptionId },
-      }),
-      this.prismaService.subscriptionToGreenList.deleteMany({
-        where: { subscriptionId },
+        data: { subscriptionId: null },
       }),
       this.prismaService.subscriptions.delete({
         where: { id: subscriptionId },
@@ -792,50 +885,23 @@ export class NewEraService implements OnModuleInit {
     return true
   }
 
-  // WARN: вернуть потом крон
-  // @Cron(CronExpression.EVERY_DAY_AT_5AM)
+  @Cron(CronExpression.EVERY_DAY_AT_5AM)
   private async removalSubscriptions() {
-    // Крон агрессивной очистки от ненужных подписок в сервисе
     try {
-      const settings = await this.prismaService.settings.findFirst({
-        where: { key: DefaultEnum.DEFAULT },
-      })
-
-      if (!settings) {
-        this.logger.error({
-          msg: 'Настройки не найдены — крон очистки подписок пропущен',
-          service: this.serviceName,
-        })
-        return
-      }
-
       const subscriptions = await this.findSubscriptionsForRemoval()
 
-      // Проверяем, настало время удалить все олдовые подписки, которые теперь не будем поддерживать
-      const isAfterRemovalOldSub = settings.removeOldSubscriptionsAfter
-        ? isAfter(new Date(), settings.removeOldSubscriptionsAfter)
-        : false
-
-      const candidates = subscriptions.filter((s) =>
-        this.shouldRemoveSubscription(
-          s,
-          settings.subscriptionRemovalAfterInactiveDays,
-          isAfterRemovalOldSub,
-        ),
+      const removalFlags = await Promise.all(
+        subscriptions.map((s) => this.shouldRemoveSubscription(s, 30)),
       )
+      const candidates = subscriptions.filter((_, idx) => removalFlags[idx])
 
       let removedCount = 0
 
-      // Обрабатываем удаление батчами, чтобы не бить Marzban тысячами
-      // последовательных запросов, но и не открывать неограниченное число
-      // параллельных соединений с БД
       for (let i = 0; i < candidates.length; i += this.REMOVAL_CONCURRENCY) {
         const chunk = candidates.slice(i, i + this.REMOVAL_CONCURRENCY)
 
         const results = await Promise.allSettled(
-          chunk.map((s) =>
-            this.removeSubscriptionWithRelations(s.id, s.username),
-          ),
+          chunk.map((s) => this.removeSubscriptionWithRelations(s.id, s.uuid)),
         )
 
         results.forEach((result, idx) => {
@@ -845,8 +911,6 @@ export class NewEraService implements OnModuleInit {
           }
 
           if (result.status === 'rejected') {
-            // FIX: раньше ошибка на одной подписке могла прервать весь крон
-            // и оставить необработанными все последующие кандидаты за день
             this.logger.error({
               msg: `Ошибка удаления подписки ${chunk[idx].id} (${chunk[idx].username})`,
               error:
@@ -860,7 +924,7 @@ export class NewEraService implements OnModuleInit {
       }
 
       this.logger.info({
-        msg: `Крон очистки подписок завершён: удалено ${removedCount} из ${candidates.length} кандидатов`,
+        msg: `Крон очистки подписок завершён: удалено ${removedCount} из ${candidates.length} кандидатов (всего проверено ${subscriptions.length})`,
         service: this.serviceName,
       })
     } catch (error) {
@@ -868,25 +932,49 @@ export class NewEraService implements OnModuleInit {
     }
   }
 
-  // WARN: вернуть потом крон
-  // @Cron('0 0 */6 * * *')
-  private async rebootTelegramConfig() {
-    await this.redis.withLock(
-      'rebootTelegramConfigLock',
-      30,
-      async () => {
-        try {
-          await this.marzbanService.revokeSubscription('telegram')
-        } catch (error) {
-          this.logger.error({
-            msg: 'Ошибка сброса Telegram конфигов',
-            service: this.serviceName,
-            error: error instanceof Error ? error.message : String(error),
-          })
-        }
-      },
-      { retries: 0, retryDelayMs: 0, autoRenewIntervalSec: 0 },
-    )
+  /**
+   * Проверяет членство пользователя в канале/чате через Telegram Bot API.
+   * Вынесено в отдельный метод, чтобы не дублировать одну и ту же логику
+   * между массовым кроном checkEntryChannelAndChat и точечной проверкой
+   * "по кнопке" из checkSubscriptionTasksByUserId ниже.
+   */
+  private async checkUserChannelAndChatMembership(
+    telegramId: string | number,
+    channelId: string | number,
+    chatId: string | number,
+  ): Promise<{
+    isChannel: boolean
+    isChat: boolean
+    chatMemberStatus: string | null
+  }> {
+    const tgId = Number(telegramId)
+
+    let isChannel = false
+    try {
+      const channelMember = await this.bot.telegram.getChatMember(
+        channelId,
+        tgId,
+      )
+      isChannel = ['member', 'administrator', 'creator'].includes(
+        channelMember.status,
+      )
+    } catch {
+      // kicked / left / пользователь не найден
+    }
+
+    let isChat = false
+    let chatMemberStatus: string | null = null
+    try {
+      const chatMember = await this.bot.telegram.getChatMember(chatId, tgId)
+      chatMemberStatus = chatMember.status
+      isChat = ['member', 'administrator', 'creator'].includes(
+        chatMember.status,
+      )
+    } catch {
+      // kicked / left / пользователь не найден
+    }
+
+    return { isChannel, isChat, chatMemberStatus }
   }
 
   @Cron('0 0 * * * *')
@@ -916,19 +1004,24 @@ export class NewEraService implements OnModuleInit {
 
       const users = await this.prismaService.users.findMany({
         where: { isDeleted: false, isBanned: false },
-        select: {
-          id: true,
-          telegramId: true,
-          isChannel: true,
-          isChat: true,
-          premiumExpiredAt: true,
+        include: {
+          telegramData: true,
+          role: true,
+          acquisition: true,
+          subscription: true,
         },
       })
 
-      const now = new Date()
+      const [defaultSubData, subscriptionExtensions] = await Promise.all([
+        this.prismaService.defaultSubData.findUnique({
+          where: { key: DefaultEnum.DEFAULT },
+        }),
+        this.prismaService.subscriptionExtensions.findMany(),
+      ])
+
       let updatedCount = 0
-      let premiumGranted = 0
-      let premiumRevoked = 0
+      let roleGranted = 0
+      let roleRevoked = 0
 
       for (
         let i = 0;
@@ -942,37 +1035,13 @@ export class NewEraService implements OnModuleInit {
             try {
               const telegramId = Number(user.telegramId)
 
-              // ── Проверяем канал ──────────────────────────────────────────────
-              let isChannel = false
-              try {
-                const channelMember = await this.bot.telegram.getChatMember(
-                  Number(channelId),
+              const { isChannel, isChat, chatMemberStatus } =
+                await this.checkUserChannelAndChatMembership(
                   telegramId,
+                  channelId,
+                  chatId,
                 )
-                isChannel = ['member', 'administrator', 'creator'].includes(
-                  channelMember.status,
-                )
-              } catch {
-                // kicked / left / пользователь не найден
-              }
 
-              // ── Проверяем чат ────────────────────────────────────────────────
-              let isChat = false
-              let chatMemberStatus: string | null = null
-              try {
-                const chatMember = await this.bot.telegram.getChatMember(
-                  Number(chatId),
-                  telegramId,
-                )
-                chatMemberStatus = chatMember.status
-                isChat = ['member', 'administrator', 'creator'].includes(
-                  chatMember.status,
-                )
-              } catch {
-                // kicked / left / пользователь не найден
-              }
-
-              // ── Обновляем БД, если статус изменился ─────────────────────────
               if (isChannel !== user.isChannel || isChat !== user.isChat) {
                 await this.prismaService.users.update({
                   where: { id: user.id },
@@ -981,27 +1050,31 @@ export class NewEraService implements OnModuleInit {
                 updatedCount++
               }
 
-              // ── Управляем Premium-тегом в чате ──────────────────────────────
               if (!isChat || chatMemberStatus === 'creator') return
 
-              const hasPremium =
-                user.premiumExpiredAt !== null &&
-                isAfter(user.premiumExpiredAt, now)
-
               try {
+                if (!defaultSubData) return
+                const subData = this.buildNewEraSubData(
+                  user,
+                  defaultSubData,
+                  subscriptionExtensions,
+                )
                 await (this.bot.telegram as any).callApi(
                   'setChatAdministratorCustomTitle',
                   {
                     chat_id: Number(chatId),
                     user_id: telegramId,
-                    custom_title: hasPremium ? 'Premium' : '',
+                    custom_title: subData.isRoleChat
+                      ? subData.roleName
+                        ? subData.roleName
+                        : ''
+                      : '',
                   },
                 )
 
-                if (hasPremium) premiumGranted++
-                else premiumRevoked++
+                if (subData.isRoleChat) roleGranted++
+                else roleRevoked++
               } catch (error) {
-                // Пользователь мог выйти между проверкой и установкой тега
                 this.logger.warn({
                   msg: `Не удалось установить тег для telegramId=${user.telegramId}`,
                   error: error instanceof Error ? error.message : String(error),
@@ -1024,8 +1097,8 @@ export class NewEraService implements OnModuleInit {
           `Крон проверки канала/чата завершён:`,
           `всего=${users.length}`,
           `обновлено в БД=${updatedCount}`,
-          `Premium выдан=${premiumGranted}`,
-          `Premium снят=${premiumRevoked}`,
+          `Роль выдана=${roleGranted}`,
+          `Роль снята=${roleRevoked}`,
         ].join(' | '),
         service: this.serviceName,
       })
@@ -1034,8 +1107,94 @@ export class NewEraService implements OnModuleInit {
     }
   }
 
-  // WARN: вернуть потом крон
-  // @Cron(CronExpression.EVERY_MINUTE)
+  /**
+   * Точечная проверка заданий (подписка на канал/вступление в чат) по кнопке
+   * "Проверить" на фронте. В отличие от checkEntryChannelAndChat (крон по
+   * всем пользователям раз в час), тут только один userId, и человек ждёт
+   * ответа в TMA синхронно.
+   *
+   * ЗАЩИТА (от спама по кнопке): у Telegram Bot API есть свои rate limit'ы на
+   * getChatMember — как по конкретному чату, так и по боту в целом. Без
+   * кулдауна частые нажатия "Проверить" от одного пользователя могут не
+   * только впустую грузить сервис повторными одинаковыми проверками, но и
+   * подъедать общий лимит бота, задевая остальных пользователей. Короткий
+   * NX-лок в Redis на userId делает повторный вызов в течение TTL явной
+   * ошибкой вместо тихого дублирования запросов к Telegram.
+   */
+  public async checkSubscriptionTasksByUserId(
+    userId: string,
+  ): Promise<Result<SubscriptionExtensionsWithConditionsInterface[]>> {
+    const cooldownKey = `newEraSub:checkTasks:${userId}`
+    const acquired = await this.redis.setWithExpiryNx(cooldownKey, '1', 5)
+    if (!acquired) {
+      return err(
+        `Проверка заданий для userID: ${userId} уже выполняется или недавно выполнялась, подождите`,
+      )
+    }
+
+    try {
+      const [user, settings] = await Promise.all([
+        this.findUser(userId),
+        this.prismaService.settings.findFirst({
+          where: { key: DefaultEnum.DEFAULT },
+        }),
+      ])
+
+      if (!user) return err('Пользователь не найден')
+      if (!settings) return err('Настройки не найдены')
+
+      const { chatId, channelId } = settings
+      if (!chatId || !channelId) {
+        return err('chatId или channelId не заданы в настройках')
+      }
+
+      const { isChannel, isChat, chatMemberStatus } =
+        await this.checkUserChannelAndChatMembership(
+          user.telegramId,
+          channelId,
+          chatId,
+        )
+
+      if (isChannel !== user.isChannel || isChat !== user.isChat) {
+        await this.prismaService.users.update({
+          where: { id: user.id },
+          data: { isChannel, isChat },
+        })
+        user.isChannel = isChannel
+        user.isChat = isChat
+      }
+
+      if (isChat && chatMemberStatus !== 'creator') {
+        try {
+          const subDataResult = await this.calculateNewEraSubData(user)
+          if (!isErr(subDataResult)) {
+            await (this.bot.telegram as any).callApi(
+              'setChatAdministratorCustomTitle',
+              {
+                chat_id: Number(chatId),
+                user_id: Number(user.telegramId),
+                custom_title: subDataResult.data.isRoleChat
+                  ? subDataResult.data.roleName ?? ''
+                  : '',
+              },
+            )
+          }
+        } catch (error) {
+          this.logger.warn({
+            msg: `Не удалось установить тег для telegramId=${user.telegramId} (точечная проверка)`,
+            error: error instanceof Error ? error.message : String(error),
+            service: this.serviceName,
+          })
+        }
+      }
+
+      return this.getSubscriptionExtensionsWithConditions(user)
+    } catch (error) {
+      return this.logAndErr(`Ошибка проверки заданий пользователя`, error)
+    }
+  }
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async subscriptionsUpdater() {
     await this.redis.withLock(
       'subscriptionsUpdaterLock',
@@ -1047,41 +1206,26 @@ export class NewEraService implements OnModuleInit {
         })
 
         try {
-          // Settings, план и extensions общие для всех подписок —
-          // забираем один раз за прогон, а не на каждую запись
-          const [
-            settings,
-            plan,
-            subscriptionExtensions,
-            marzbanUsers,
-            subscriptions,
-          ] = await Promise.all([
-            this.prismaService.settings.findFirst({
-              where: { key: DefaultEnum.DEFAULT },
-            }),
-            this.prismaService.plans.findUnique({
-              where: { key: PlansEnum.NEW_ERA },
-            }),
-            this.prismaService.subscriptionExtensions.findMany(),
-            this.marzbanService.getUsers(),
-            this.prismaService.subscriptions.findMany({
-              where: {
-                planKey: PlansEnum.NEW_ERA,
-                deletedAt: null, // по аналогии с findSubscriptionsForRemoval — проверь, что это соответствует твоей логике удаления
-              },
-              include: {
-                user: {
-                  include: {
-                    telegramData: true,
-                    role: true,
+          const [settings, subscriptions, internalSquads, externalSquads] =
+            await Promise.all([
+              this.prismaService.settings.findFirst({
+                where: { key: DefaultEnum.DEFAULT },
+              }),
+              this.prismaService.subscriptions.findMany({
+                include: {
+                  user: {
+                    include: {
+                      telegramData: true,
+                      role: true,
+                      acquisition: true,
+                      subscription: true,
+                    },
                   },
                 },
-                servers: {
-                  include: { greenList: true },
-                },
-              },
-            }),
-          ])
+              }),
+              this.prismaService.internalSquads.findMany(),
+              this.prismaService.externalSquad.findMany(),
+            ])
 
           if (!settings) {
             this.logger.error({
@@ -1091,224 +1235,125 @@ export class NewEraService implements OnModuleInit {
             return
           }
 
-          if (!plan) {
-            this.logger.error({
-              msg: `План ${PlansEnum.NEW_ERA} не найден — крон обновления подписок пропущен`,
-              service: this.serviceName,
-            })
-            return
-          }
-
-          const globalTelegramOnlyLinks = (
-            marzbanUsers.users.find((u) => u.username === 'telegram')?.links ??
-            []
-          ).filter((link) => this.isTelegramOnlyConfig(link))
-
-          // Пишем в Settings только если набор линков реально поменялся
-          const storedTelegramLinks =
-            (settings.telegramConfigLinks as { links?: string[] } | null)
-              ?.links ?? []
-          const telegramLinksChanged =
-            storedTelegramLinks.length !== globalTelegramOnlyLinks.length ||
-            storedTelegramLinks.some(
-              (link, idx) => link !== globalTelegramOnlyLinks[idx],
-            )
-
-          if (telegramLinksChanged) {
-            await this.prismaService.settings.update({
-              where: { key: DefaultEnum.DEFAULT },
-              data: { telegramConfigLinks: { links: globalTelegramOnlyLinks } },
-            })
-          }
-
           this.logger.info({
             msg: `Found ${subscriptions.length} subscriptions to update`,
             service: this.serviceName,
           })
 
+          const [defaultSubData, subscriptionExtensions] = await Promise.all([
+            this.prismaService.defaultSubData.findUnique({
+              where: { key: DefaultEnum.DEFAULT },
+            }),
+            this.prismaService.subscriptionExtensions.findMany(),
+          ])
+
+          if (!defaultSubData) {
+            this.logger.error({
+              msg: 'Дефолтные данные подписки не найдены',
+              service: this.serviceName,
+            })
+            return
+          }
+
           let updatedCount = 0
-          let skippedCount = 0
+          let failedCount = 0
 
           for (
             let i = 0;
             i < subscriptions.length;
             i += this.SUBSCRIPTIONS_UPDATE_BATCH_SIZE
           ) {
-            const batch = subscriptions.slice(
+            const chunk = subscriptions.slice(
               i,
               i + this.SUBSCRIPTIONS_UPDATE_BATCH_SIZE,
             )
 
-            try {
-              // Шаг 1: синхронная подготовка — без единого запроса в БД
-              const prepared = batch
-                .map((subscription) => {
-                  const marzbanUser = marzbanUsers.users.find(
-                    (u) => u.username === subscription.username,
+            const results = await Promise.allSettled(
+              chunk.map(async (sub) => {
+                const subData = this.buildNewEraSubData(
+                  sub.user,
+                  defaultSubData,
+                  subscriptionExtensions,
+                )
+
+                const { internal, external } = this.resolveActiveSquads(
+                  subData,
+                  internalSquads,
+                  externalSquads,
+                )
+
+                const isAutoRenewing = subData.isAutoRenewing
+
+                const [remnaUser, happCryptoUrl] = await Promise.all([
+                  this.remnaService.updateUser({
+                    uuid: sub.uuid,
+                    ...(subData.isUnlimitTraffic
+                      ? {
+                          trafficLimitStrategy:
+                            'NO_RESET' as RemnaTrafficLimitStrategy,
+                          trafficLimitBytes: 0,
+                        }
+                      : {
+                          trafficLimitStrategy:
+                            'DAY' as RemnaTrafficLimitStrategy,
+                          trafficLimitBytes: subData.trafficLimitGb * 1024 ** 3,
+                        }),
+                    tag: this.buildRemnaTag(sub.user.role.key),
+                    ...(isAutoRenewing && {
+                      expireAt: addDays(new Date(), subData.days).toISOString(),
+                    }),
+                    activeInternalSquads: internal,
+                    externalSquadUuid: external,
+                  }),
+                  this.fetchHappCryptoUrl(sub.shortUuid),
+                ])
+
+                if (!remnaUser) {
+                  throw new Error(
+                    `Не удалось обновить пользователя в Remna для userID: ${sub.user.id}`,
                   )
-
-                  if (!marzbanUser) {
-                    this.logger.warn({
-                      msg: `Marzban user not found for subscription ${subscription.id}`,
-                      username: subscription.username,
-                      service: this.serviceName,
-                    })
-                    return null
-                  }
-
-                  const serverCodes =
-                    subscription.isAllBaseServers &&
-                    subscription.isAllPremiumServers
-                      ? []
-                      : subscription.servers
-                          ?.flatMap((server) => server.greenList.green)
-                          .filter(Boolean) ?? []
-
-                  const filteredLinks = marzbanUser.links.filter((link) => {
-                    if (!serverCodes.length) return true
-                    return serverCodes.some((code) => link.includes(`${code}`))
-                  })
-
-                  const subData = this.buildNewEraSubData(
-                    subscription.user as UserWithRelations,
-                    plan,
-                    subscriptionExtensions,
-                  )
-
-                  return { subscription, marzbanUser, filteredLinks, subData }
-                })
-                .filter((el): el is NonNullable<typeof el> => el !== null)
-
-              skippedCount += batch.length - prepared.length
-
-              // Шаг 2: считаем статус по каждой подписке (тут и правится инверсия)
-              const enriched = prepared.map((item) => {
-                const { subscription } = item
-
-                const isExpired =
-                  subscription.expiredAt !== null &&
-                  isAfter(new Date(), subscription.expiredAt)
-
-                const hasActivePremium =
-                  subscription.user.premiumExpiredAt !== null &&
-                  isAfter(subscription.user.premiumExpiredAt, new Date())
-
-                // Реально истекла и премиум не покрывает — только тут отключаем
-                const isStillExpired = isExpired && !hasActivePremium
-
-                // Если у пользователя есть премиум — подписка автоматически
-                // продлевается, пока не закончится прем
-                const newExpiredAt =
-                  isExpired && hasActivePremium
-                    ? addHours(new Date(), item.subData.days * 24)
-                    : null
-
-                return {
-                  ...item,
-                  isStillExpired,
-                  newExpiredAt,
-                  hasActivePremium,
                 }
-              })
 
-              // Шаг 3: синхронизация Marzban — параллельно, с await и логом ошибок
-              const modifyUserPromises = enriched.map((item) =>
-                this.marzbanService
-                  .modifyUser(item.subscription.username, {
-                    status: item.isStillExpired ? 'disabled' : 'active',
-                    ...(!item.subData.isUnlimitTraffic && {
-                      data_limit: item.subData.trafficLimitGb * 1024 ** 3,
-                      data_limit_reset_strategy: 'day',
-                    }),
-                    ...(item.subData.isUnlimitTraffic && { data_limit: 0 }),
-                  })
-                  .catch((e) =>
-                    this.logger.error({
-                      msg: `Не удалось синхронизировать Marzban-пользователя ${item.subscription.username}`,
-                      error: e instanceof Error ? e.message : String(e),
-                      service: this.serviceName,
-                    }),
-                  ),
-              )
-
-              await Promise.allSettled(modifyUserPromises)
-
-              // Шаг 4: одна транзакция на батч обновлений в БД
-              const transactionOps = enriched.map((item) => {
-                const defaultAnnounce = settings.defaultAnnounce
-                const announce = item.isStillExpired
-                  ? `Ваша подписка закончилась, необходимо нажать кнопку "продлить" в telegram боте @vpnsibcom_bot. Telegram конфиг остается доступным для захода в бота${
-                      defaultAnnounce ? `\n${defaultAnnounce}` : ''
-                    }`
-                  : defaultAnnounce
-
-                const linksWithoutOwnTelegramOnly = item.filteredLinks.filter(
-                  (link) => !this.isTelegramOnlyConfig(link),
+                await this.enforceHwidDeviceLimit(
+                  sub.uuid,
+                  subData.devicesCount,
                 )
 
-                const links = Array.from(
-                  new Set([
-                    ...linksWithoutOwnTelegramOnly,
-                    ...globalTelegramOnlyLinks,
-                  ]),
-                )
+                const url =
+                  this.configService.getOrThrow('SUB_DOMAIN') +
+                  `/${remnaUser.shortUuid}`
 
-                // Урезаем линки только если реально отключаем, а не если есть grace-период
-                const linksForUpdate = item.isStillExpired
-                  ? globalTelegramOnlyLinks
-                  : links
-
-                return this.prismaService.subscriptions.update({
-                  where: { id: item.subscription.id },
+                await this.prismaService.subscriptions.update({
+                  where: { id: sub.id },
                   data: {
-                    links: linksForUpdate,
-                    usedTraffic: item.marzbanUser.used_traffic / 1024 / 1024,
-                    dataLimit: item.marzbanUser.data_limit / 1024 / 1024,
-                    lifeTimeUsedTraffic:
-                      item.marzbanUser.lifetime_used_traffic / 1024 / 1024,
-                    onlineAt: item.marzbanUser.online_at
-                      ? new Date(item.marzbanUser.online_at + 'Z')
-                      : null,
-                    marzbanData:
-                      item.marzbanUser as unknown as Prisma.InputJsonValue,
-                    ...(announce === undefined ? {} : { announce }),
-                    ...(item.isStillExpired && { isActive: false }),
-                    ...(item.newExpiredAt && { expiredAt: item.newExpiredAt }),
-                    devicesCount: item.subData.devicesCount,
-                    days: item.subData.days,
-                    isUnlimitTraffic: item.subData.isUnlimitTraffic,
-                    trafficLimitGb: item.subData.trafficLimitGb,
-                    name: item.hasActivePremium ? 'PREMIUM' : 'FREE',
-                    isAllPremiumServers: item.hasActivePremium,
+                    uuid: remnaUser.uuid,
+                    happCryptoUrl,
+                    shortUuid: remnaUser.shortUuid,
+                    subscriptionUrl: url,
                   },
                 })
-              })
+              }),
+            )
 
-              if (transactionOps.length > 0) {
-                await this.prismaService.$transaction(transactionOps)
+            results.forEach((result, idx) => {
+              if (result.status === 'fulfilled') {
+                updatedCount++
+                return
               }
-
-              updatedCount += transactionOps.length
-
-              this.logger.info({
-                msg: `Updated batch of ${transactionOps.length} subscriptions`,
-                service: this.serviceName,
-              })
-            } catch (batchError) {
-              // Ошибка одного батча не должна обрывать обработку остальных
+              failedCount++
               this.logger.error({
-                msg: `Ошибка обработки батча подписок (offset ${i})`,
+                msg: `Ошибка обновления подписки ${chunk[idx].id} (userID: ${chunk[idx].user.id})`,
                 error:
-                  batchError instanceof Error
-                    ? batchError.message
-                    : String(batchError),
+                  result.reason instanceof Error
+                    ? result.reason.message
+                    : String(result.reason),
                 service: this.serviceName,
               })
-            }
+            })
           }
 
           this.logger.info({
-            msg: `Successfully updated ${updatedCount} subscriptions (skipped ${skippedCount})`,
+            msg: `Subscriptions update finished: updated=${updatedCount} failed=${failedCount} total=${subscriptions.length}`,
             service: this.serviceName,
           })
         } catch (error) {
@@ -1323,50 +1368,140 @@ export class NewEraService implements OnModuleInit {
       { retries: 2, retryDelayMs: 300, autoRenewIntervalSec: 20 },
     )
   }
-}
 
-// ─── Module-level helpers ─────────────────────────────────────────────────────
+  /**
+   * Приводит фактическое количество зарегистрированных HWID-устройств пользователя
+   * в соответствие с текущим лимитом подписки (subData.devicesCount).
+   *
+   * Проблема: Remnawave не удаляет "лишние" устройства сама, когда hwidDeviceLimit
+   * уменьшается (например, при продлении с меньшим количеством ролей/расширений,
+   * дающих devicesCount). Она просто хранит все ранее привязанные hwid — так что без
+   * ручной чистки пользователь остаётся с доступом с большего числа устройств, чем
+   * оплатил.
+   *
+   * Стратегия:
+   *  - Первое привязанное устройство (минимальный createdAt) считаем "основным" и
+   *    никогда не удаляем его первым.
+   *  - Остальные сортируем по updatedAt по убыванию, оставляем сколько влезает по
+   *    лимиту, остальное (давно не обращавшееся) — удаляем.
+   *
+   * Best-effort: ошибки удаления отдельных устройств не бросаются наружу, только
+   * логируются — рассинхрон исправится на следующем проходе крона.
+   */
+  private async enforceHwidDeviceLimit(
+    userUuid: string,
+    hwidDeviceLimit: number,
+    knownDevices?: RemnaHwidDevice[],
+  ): Promise<RemnaHwidDevice[]> {
+    if (!hwidDeviceLimit || hwidDeviceLimit < 1) return knownDevices ?? []
 
-function mapDevice(el: {
-  id: string
-  model?: string | null
-  os?: string | null
-  happVersion: string
-  happCryptoUrl: string
-}): DevicesInterface {
-  return {
-    id: el.id,
-    model: el.model ?? undefined,
-    os: el.os ?? undefined,
-    happVersion: el.happVersion,
-    happCryptoUrl: el.happCryptoUrl,
+    try {
+      const devices =
+        knownDevices ??
+        (await this.remnaService.getUserHwidDevices(userUuid)).devices
+
+      if (devices.length <= hwidDeviceLimit) return devices
+
+      const sortedByCreated = [...devices].sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      )
+      const [primaryDevice, ...rest] = sortedByCreated
+
+      const sortedRestByRecency = rest.sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+      )
+
+      const keepFromRest = sortedRestByRecency.slice(0, hwidDeviceLimit - 1)
+      const toRemove = sortedRestByRecency.slice(hwidDeviceLimit - 1)
+
+      if (toRemove.length === 0) return devices
+
+      this.logger.info({
+        msg: `Превышен лимит HWID-устройств userUuid=${userUuid}: ${devices.length}/${hwidDeviceLimit}, удаляем ${toRemove.length}`,
+        service: this.serviceName,
+      })
+
+      const results = await Promise.allSettled(
+        toRemove.map((d) =>
+          this.remnaService.deleteUserHwidDevice({ userUuid, hwid: d.hwid }),
+        ),
+      )
+
+      results.forEach((result, idx) => {
+        if (result.status === 'rejected') {
+          this.logger.warn({
+            msg: `Не удалось удалить HWID-устройство ${toRemove[idx].hwid} userUuid=${userUuid}`,
+            error:
+              result.reason instanceof Error
+                ? result.reason.message
+                : String(result.reason),
+            service: this.serviceName,
+          })
+        }
+      })
+
+      return [primaryDevice, ...keepFromRest]
+    } catch (error) {
+      this.logger.warn({
+        msg: `Ошибка синхронизации лимита HWID-устройств userUuid=${userUuid}, пропускаем`,
+        error: error instanceof Error ? error.message : String(error),
+        service: this.serviceName,
+      })
+      return knownDevices ?? []
+    }
   }
 }
 
+function mapDevice(el: RemnaHwidDevice): HwidDevice {
+  return {
+    hwid: el.hwid,
+    platform: el.platform,
+    osVersion: el.osVersion,
+    deviceModel: el.deviceModel,
+  }
+}
+
+function sortDevicesByRemovalPriority(
+  devices: RemnaHwidDevice[],
+): RemnaHwidDevice[] {
+  if (devices.length <= 1) return devices
+
+  const sortedByCreated = [...devices].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  )
+
+  const [primaryDevice, ...rest] = sortedByCreated
+
+  rest.sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  )
+
+  return [primaryDevice, ...rest]
+}
+
 function mapSubscriptionToTma(
-  subscription: {
-    isActive: boolean
-    isUnlimitTraffic: boolean
-    devicesCount: number
-    dataLimit: number | null
-    usedTraffic: number | null
-    lifeTimeUsedTraffic: number
-    expiredAt: Date | null
-    onlineAt: Date | null
-  },
-  days: number,
-  devices: DevicesInterface[],
+  remnaUser: RemnaUser,
+  subData: NewEraSubData,
+  devices: RemnaHwidDevice[],
 ): NewEraSubWithTmaInterface {
   return {
-    isActive: subscription.isActive,
-    isUnlimitTraffic: subscription.isUnlimitTraffic,
-    devicesCount: subscription.devicesCount,
-    dataLimit: subscription.dataLimit ?? undefined,
-    usedTraffic: subscription.usedTraffic ?? undefined,
-    lifeTimeUsedTraffic: subscription.lifeTimeUsedTraffic,
-    expiredAt: subscription.expiredAt ?? undefined,
-    onlineAt: subscription.onlineAt ?? undefined,
-    days,
-    devices,
+    isNoSub: false,
+    status: remnaUser.status,
+    isUnlimitTraffic: remnaUser.trafficLimitBytes === 0,
+    devicesLimit: remnaUser.hwidDeviceLimit,
+    dataLimitBytes:
+      remnaUser.trafficLimitBytes === 0
+        ? undefined
+        : subData.trafficLimitGb * 1024 ** 3,
+    usedTrafficBytes: remnaUser.userTraffic.usedTrafficBytes,
+    lifetimeUsedTrafficBytes: remnaUser.userTraffic.lifetimeUsedTrafficBytes,
+    expiredAt: new Date(remnaUser.expireAt),
+    onlineAt: remnaUser.userTraffic.onlineAt
+      ? new Date(remnaUser.userTraffic.onlineAt)
+      : undefined,
+    days: subData.days,
+    devices: sortDevicesByRemovalPriority(devices).map(mapDevice),
   }
 }
