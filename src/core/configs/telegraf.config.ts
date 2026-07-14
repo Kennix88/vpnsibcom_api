@@ -13,7 +13,7 @@ export function telegrafConfig(
 
     options: {
       telegram: {
-        apiRoot: configService.getOrThrow<string>('GRASPIL_PRIXY_URL'),
+        apiRoot: configService.getOrThrow<string>('GRASPIL_PROXY_URL'),
       },
     },
 
