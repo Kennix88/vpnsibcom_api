@@ -2,15 +2,13 @@ import { I18nTranslations } from '@core/i18n/i18n.type'
 import { RedisService } from '@core/redis/redis.service'
 import { RatesService } from '@modules/rates/rates.service'
 import { UsersService } from '@modules/users/services/users.service'
-import { MarzbanService } from '@modules/xray/services/marzban.service'
-import { XrayService } from '@modules/xray/services/xray.service'
 
-import { Prisma } from '@core/prisma/generated/client'
+import { Prisma, Settings } from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
+import { ReferralsService } from '@modules/referrals/referrals.service'
 import { EventsService } from '@modules/users/services/events.service'
 import { EventType } from '@modules/users/types/event-type.enum'
-import { roundUp } from '@modules/xray/utils/calculate-subscription-cost.util'
-import { forwardRef, Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
@@ -19,14 +17,13 @@ import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { PaymentSystemEnum } from '@shared/enums/payment-system.enum'
 import { PaymentMethodsDataInterface } from '@shared/types/payment-methods-data.interface'
+import { roundUp } from '@shared/utils/calculate.util'
 import { fxUtil } from '@shared/utils/fx.util'
 import { genToken } from '@shared/utils/gen-token.util'
 import { SuccessfulPayment } from '@telegraf/types'
 import { BalanceTypeEnum } from '@vpnsibcom/src/shared/enums/balance-type.enum'
 import { DefaultEnum } from '@vpnsibcom/src/shared/enums/default.enum'
 import { TransactionReasonEnum } from '@vpnsibcom/src/shared/enums/transaction-reason.enum'
-import { TransactionTypeEnum } from '@vpnsibcom/src/shared/enums/transaction-type.enum'
-import { addDays } from 'date-fns'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
@@ -45,18 +42,16 @@ export class PaymentsService {
     private readonly redis: RedisService,
     private readonly ratesService: RatesService,
     private readonly telegramPaymentsService: TelegramPaymentsService,
-    private readonly marzbanService: MarzbanService,
-    @Inject(forwardRef(() => XrayService))
-    private readonly xrayService: XrayService,
     private readonly i18n: I18nService<I18nTranslations>,
     @InjectBot() private readonly bot: Telegraf,
     private readonly eventsService: EventsService,
+    private readonly referralsService: ReferralsService,
   ) {}
 
   // FIX #10: Выделен общий приватный метод для расчёта бонусных звёзд,
   // чтобы избежать дублирования идентичной логики в createInvoice и
   // processTelegramStarsIncomingPayment.
-  private calculateBonusStars(amountStars: number, settings: any): number {
+  private calculateBonusStars(amountStars: number, settings: Settings): number {
     if (amountStars < 250) return 0
     if (amountStars < 500) return amountStars * settings.bonusPayment250
     if (amountStars < 1000) return amountStars * settings.bonusPayment500
@@ -74,7 +69,6 @@ export class PaymentsService {
     tgId: string,
     paymentType: PaymentTypeEnum,
     data: object | null = null,
-    subscriptionId: string | null = null,
   ): Promise<{
     linkPay: string
     isTonPayment: boolean
@@ -145,18 +139,17 @@ export class PaymentsService {
 
         let linkPay: string | null = null
         if (getMethod.key === PaymentMethodEnum.STARS) {
-          const title = subscriptionId
-            ? 'Subscription payment'
-            : await this.i18n.translate('payments.invoice.title', {
-                args: { amount },
-                lang: getUser.language.iso6391,
-              })
-          const description = subscriptionId
-            ? 'Subscription payment'
-            : await this.i18n.translate('payments.invoice.description', {
-                args: { amount },
-                lang: getUser.language.iso6391,
-              })
+          const title = await this.i18n.translate('payments.invoice.title', {
+            args: { amount },
+            lang: getUser.language.iso6391,
+          })
+          const description = await this.i18n.translate(
+            'payments.invoice.description',
+            {
+              args: { amount },
+              lang: getUser.language.iso6391,
+            },
+          )
 
           linkPay = await this.telegramPaymentsService.createTelegramInvoice(
             amount,
@@ -176,7 +169,6 @@ export class PaymentsService {
             type: paymentType,
             data,
             linkPay,
-            subscriptionId,
           },
         })
 
@@ -237,7 +229,6 @@ export class PaymentsService {
       const payment = await this.prismaService.payments.findUnique({
         where: { token },
         include: {
-          subscription: { include: { plan: true } },
           user: {
             include: {
               inviters: {
@@ -269,98 +260,9 @@ export class PaymentsService {
 
       this.logger.info({ msg: `Payment completed`, token, status })
 
-      const isSubscription = payment.subscriptionId !== null
-
-      // if (payment.type === PaymentTypeEnum.PAY_SUBSCRIPTION) {
-      //   const data = payment.data as {
-      //     telegramId: string
-      //     name: string
-      //     planKey: PlansEnum
-      //     period: SubscriptionPeriodEnum
-      //     periodMultiplier: number
-      //     isPremium: boolean
-      //     trafficReset: TrafficResetEnum
-      //     nextRenewalStars?: number
-      //     devicesCount: number
-      //     isAllBaseServers: boolean
-      //     isAllPremiumServers: boolean
-      //     trafficLimitGb?: number
-      //     isUnlimitTraffic: boolean
-      //     servers: string[]
-      //     isAutoRenewal?: boolean
-      //   }
-
-      //   await this.xrayService.createSubscription({
-      //     isPremium: data.isPremium,
-      //     name: data.name,
-      //     planKey: data.planKey as PlansEnum,
-      //     period: data.period,
-      //     periodMultiplier: data.periodMultiplier,
-      //     nextRenewalStars: data.nextRenewalStars,
-      //     devicesCount: data.devicesCount,
-      //     isAllBaseServers: data.isAllBaseServers,
-      //     isAllPremiumServers: data.isAllPremiumServers,
-      //     trafficReset: data.trafficReset,
-      //     trafficLimitGb: data.trafficLimitGb,
-      //     isUnlimitTraffic: data.isUnlimitTraffic,
-      //     servers: data.servers,
-      //     isAutoRenewal: data.isAutoRenewal,
-      //     telegramId: data.telegramId,
-      //   })
-      // }
-
-      // if (
-      //   isSubscription &&
-      //   payment.type === PaymentTypeEnum.ADD_TRAFFIC_SUBSCRIPTION
-      // ) {
-      //   // FIX #6: результат сохраняется и логируется вместо молчаливого игнора
-      //   const addTrafficResult =
-      //     await this.xrayService.addTrafficToSubscription(
-      //       payment.subscriptionId,
-      //       Number((payment.data as { traffic: number })?.traffic),
-      //     )
-      //   this.logger.info({
-      //     msg: `Traffic added to subscription`,
-      //     subscriptionId: payment.subscriptionId,
-      //     result: addTrafficResult,
-      //   })
-      // }
-
-      // // FIX #8:
-      // if (
-      //   isSubscription &&
-      //   payment.type === PaymentTypeEnum.UPDATE_SUBSCTIPTION
-      // ) {
-      //   const data = payment.data as {
-      //     isSavePeriod: boolean
-      //     period: SubscriptionPeriodEnum
-      //     periodMultiplier: number
-      //     trafficReset: TrafficResetEnum
-      //   }
-      //   // FIX #6: результат сохраняется и логируется
-      //   const renewResult = await this.xrayService.renewSubFinaly(
-      //     payment.userId,
-      //     payment.subscriptionId,
-      //     data.isSavePeriod,
-      //     data.period,
-      //     data.periodMultiplier,
-      //     data.trafficReset,
-      //   )
-      //   this.logger.info({
-      //     msg: `Subscription renewed`,
-      //     subscriptionId: payment.subscriptionId,
-      //     result: renewResult,
-      //   })
-      // }
-
       // FIX #1: начисление бонуса перенесено внутрь processCompletedPayment,
       // чтобы оно выполнялось атомарно в одной транзакции вместе с основным балансом.
-      await this.processCompletedPayment(
-        payment,
-        status,
-        details,
-        isSubscription,
-      )
+      await this.processCompletedPayment(payment, status, details)
 
       return { amountStars: payment.amountStars }
     } catch (e) {
@@ -528,94 +430,67 @@ export class PaymentsService {
     payment,
     status: PaymentStatusEnum,
     details?: object,
-    isSubscription: boolean = false,
   ) {
     return this.prismaService.$transaction(async (tx) => {
-      // 1. Обновляем баланс пользователя
-      if (!isSubscription) await this.updateUserBalance(tx, payment)
+      // 1. Основное начисление баланса + создание транзакции — одним вызовом
+      const balanceResult = await this.userService.addUserBalance(
+        payment.userId,
+        payment.amountStars,
+        TransactionReasonEnum.PAYMENT,
+        BalanceTypeEnum.PAYMENT,
+        tx,
+      )
 
-      // FIX #1: начисление бонуса перенесено сюда из updatePayment,
-      // чтобы выполняться атомарно внутри транзакции вместе с основным балансом.
+      if (!balanceResult.success || !balanceResult.transactionId) {
+        throw new Error(
+          `Failed to credit payment balance for user ${payment.userId}`,
+        )
+      }
+
+      this.logger.info({
+        msg: `Updated user balance`,
+        userId: payment.user.id,
+        balanceId: payment.user.balanceId,
+        amount: payment.amountStars,
+      })
+
+      // 2. Бонус — теперь ВНУТРИ той же транзакции (раньше вызывался без tx,
+      // из-за чего мог начислиться отдельно от основного платежа при сбое
+      // дальнейших шагов).
       if (
         payment.type === PaymentTypeEnum.ADD_PAYMENT_BALANCE &&
         payment.bonusStars > 0
       ) {
-        await this.userService.addUserBalance(
+        const bonusResult = await this.userService.addUserBalance(
           payment.userId,
           payment.bonusStars,
           TransactionReasonEnum.BONUS,
           BalanceTypeEnum.PAYMENT,
+          tx,
         )
+
+        if (!bonusResult.success) {
+          this.logger.error({
+            msg: `Failed to credit payment bonus`,
+            userId: payment.userId,
+            bonusStars: payment.bonusStars,
+          })
+        }
       }
 
-      // 2. Создаем транзакцию платежа
-      const transaction = await this.createPaymentTransaction(
-        tx,
-        payment,
-        isSubscription,
-      )
-
-      // 3. Обновляем статус платежа
+      // 3. Обновляем статус платежа, используя id транзакции, вернувшийся
+      // из addUserBalance — отдельный createPaymentTransaction больше не нужен.
       await this.updatePaymentStatus(
         tx,
         payment.token,
         status,
-        transaction.id,
+        balanceResult.transactionId,
         details,
       )
 
-      // 4. Обрабатываем реферальные комиссии
-      await this.processReferralCommissions(tx, payment)
+      // 4. Реферальные комиссии
+      await this.referralsService.processReferralCommissions(tx, payment)
     })
-  }
-
-  /**
-   * Обновляет баланс пользователя
-   */
-  private async updateUserBalance(tx, payment) {
-    await tx.userBalance.update({
-      where: { id: payment.user.balanceId },
-      data: { paymentBalance: { increment: payment.amountStars } },
-    })
-
-    this.logger.info({
-      msg: `Updated user balance`,
-      userId: payment.user.id,
-      balanceId: payment.user.balanceId,
-      amount: payment.amountStars,
-    })
-  }
-
-  /**
-   * Создает транзакцию для платежа
-   */
-  private async createPaymentTransaction(
-    tx,
-    payment,
-    isSubscription: boolean = false,
-  ) {
-    const transaction = await tx.transactions.create({
-      data: {
-        amount: payment.amountStars,
-        type: isSubscription
-          ? TransactionTypeEnum.SUBSCRIPTIONS
-          : TransactionTypeEnum.PLUS,
-        reason: TransactionReasonEnum.PAYMENT,
-        balanceType: isSubscription
-          ? BalanceTypeEnum.NOT_BALANCE
-          : BalanceTypeEnum.PAYMENT,
-        balanceId: isSubscription ? null : payment.user.balanceId,
-      },
-    })
-
-    this.logger.info({
-      msg: `Created payment transaction`,
-      transactionId: transaction.id,
-      userId: payment.user.id,
-      amount: payment.amountStars,
-    })
-
-    return transaction
   }
 
   /**
@@ -748,138 +623,6 @@ export class PaymentsService {
       status,
       transactionId,
     })
-  }
-
-  /**
-   * Обрабатывает начисление реферальных комиссий
-   */
-  private async processReferralCommissions(tx, payment) {
-    const referrers = payment.user.inviters
-
-    if (referrers.length === 0) return
-
-    this.logger.info({
-      msg: `Processing referral commissions`,
-      referrersCount: referrers.length,
-      userId: payment.user.id,
-    })
-
-    const getSettings = await tx.settings.findUnique({
-      where: { key: DefaultEnum.DEFAULT },
-    })
-
-    if (!getSettings) {
-      this.logger.warn({
-        msg: `Default settings not found, skipping referral commissions`,
-      })
-      return
-    }
-
-    for (const referrer of referrers) {
-      await this.processReferralCommission(tx, referrer, getSettings, payment)
-    }
-  }
-
-  /**
-   * Обрабатывает начисление комиссии для конкретного реферера
-   */
-  private async processReferralCommission(tx, referrer, settings, payment) {
-    const commissionLvl = this.getReferralCommissionPercent(
-      referrer.level,
-      settings,
-    )
-    const tgPartnerCommission =
-      payment.isTgPartnerProgram && payment.methodKey == PaymentMethodEnum.STARS
-        ? payment.amountStarsFeeTgPartner
-        : 0
-    const referralCommission = Number(
-      ((payment.amountStars - tgPartnerCommission) * commissionLvl).toFixed(3),
-    )
-
-    this.logger.info({
-      msg: `Calculated referral commission`,
-      referralCommission,
-      commissionLvl,
-      referrerLevel: referrer.level,
-      referrerId: referrer.inviter.id,
-    })
-
-    if (referralCommission <= 0) return
-
-    await tx.referrals.update({
-      where: { id: referrer.id },
-      data: {
-        isActivated: true,
-        totalUsdtRewarded: {
-          increment: referralCommission * settings.tgStarsToUSD,
-        },
-      },
-    })
-
-    await tx.userBalance.update({
-      where: { id: referrer.inviter.balanceId },
-      data: {
-        usdt: { increment: referralCommission * settings.tgStarsToUSD },
-        ...(payment.methodKey == PaymentMethodEnum.STARS && {
-          holdBalance: new Prisma.Decimal(referrer.inviter.balance.holdBalance)
-            .plus(referralCommission)
-            .toString(),
-        }),
-      },
-    })
-
-    this.logger.info({
-      msg: `Updated referrer balance`,
-      referrerId: referrer.inviter.id,
-      balanceId: referrer.inviter.balanceId,
-      amount: referralCommission,
-    })
-
-    const transactions = [
-      referralCommission * settings.tgStarsToUSD > 0 && {
-        amount: referralCommission * settings.tgStarsToUSD,
-        type: TransactionTypeEnum.PLUS,
-        reason: TransactionReasonEnum.REFERRAL,
-        balanceType: BalanceTypeEnum.USDT,
-        balanceId: referrer.inviter.balanceId,
-      },
-      payment.methodKey == PaymentMethodEnum.STARS &&
-        referralCommission > 0 && {
-          amount: referralCommission,
-          type: TransactionTypeEnum.PLUS,
-          reason: TransactionReasonEnum.REFERRAL,
-          balanceType: BalanceTypeEnum.HOLD,
-          balanceId: referrer.inviter.balanceId,
-          holdExpiredAt: addDays(new Date(), 21),
-        },
-    ].filter(Boolean)
-
-    const referralTransactions = await tx.transactions.createMany({
-      data: transactions,
-    })
-
-    this.logger.info({
-      msg: `Created referral commission transaction`,
-      transactions: referralTransactions,
-      referrerId: referrer.inviter.id,
-      amount: referralCommission,
-    })
-  }
-
-  /**
-   * Возвращает процент комиссии в зависимости от уровня реферера
-   */
-  private getReferralCommissionPercent(level: number, settings): number {
-    switch (level) {
-      case 1:
-        return settings.referralOneLevelPercent
-      case 2:
-        return settings.referralTwoLevelPercent
-      case 3:
-        return settings.referralThreeLevelPercent
-      default:
-        return 0
-    }
   }
 
   public async getPaymentMethods(
