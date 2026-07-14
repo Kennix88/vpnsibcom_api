@@ -24,7 +24,7 @@ export POSTGRES_DB='$(escape_squotes "${POSTGRES_DB}")'
 export TELEGRAM_BOT_TOKEN='$(escape_squotes "${TELEGRAM_BOT_TOKEN}")'
 export TELEGRAM_LOG_CHAT_ID='$(escape_squotes "${TELEGRAM_LOG_CHAT_ID}")'
 export TELEGRAM_THREAD_ID_BACKUPS='$(escape_squotes "${TELEGRAM_THREAD_ID_BACKUPS:-}")'
-export GRASPIL_PRIXY_URL='$(escape_squotes "${GRASPIL_PRIXY_URL:-}")'
+export GRASPIL_PROXY_URL='$(escape_squotes "${GRASPIL_PROXY_URL:-}")'
 EOF
 
 chmod 600 /tmp/backup-env.sh
@@ -79,7 +79,7 @@ if ! PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump \
 fi
 
 echo "[INFO] Sending ${FILENAME} to Telegram..."
-TELEGRAM_API_ROOT="${GRASPIL_PRIXY_URL:-https://api.telegram.org}"
+TELEGRAM_API_ROOT="${GRASPIL_PROXY_URL:-https://api.telegram.org}"
 TELEGRAM_API_ROOT="${TELEGRAM_API_ROOT%/}"
 TELEGRAM_SEND_URL="${TELEGRAM_API_ROOT}/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
 
