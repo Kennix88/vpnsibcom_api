@@ -3,5 +3,7 @@ export enum UserRolesEnum {
   ADMIN = 'ADMIN',
   USER = 'USER',
   FRIEND = 'FRIEND',
+  SUPPORT = 'SUPPORT',
+  VOLUNTEER = 'VOLUNTEER',
   OLD_USER = 'OLD_USER',
 }
