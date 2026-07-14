@@ -1,4 +1,4 @@
-import { SubscriptionPeriodEnum } from '@shared/enums/subscription-period.enum'
+import { SubscriptionPeriodEnum } from '@modules/xray/utils/subscription-period.enum'
 
 /**
  * Рассчитывает количество часов для периода подписки
