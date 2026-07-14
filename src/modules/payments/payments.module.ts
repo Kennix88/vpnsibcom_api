@@ -4,6 +4,7 @@ import { PaymentsController } from '@modules/payments/payments.controller'
 import { PaymentsCronService } from '@modules/payments/services/payments-cron.service'
 import { PaymentsService } from '@modules/payments/services/payments.service'
 import { RatesModule } from '@modules/rates/rates.module'
+import { ReferralsModule } from '@modules/referrals/referrals.module'
 import { UsersModule } from '@modules/users/users.module'
 import { XrayModule } from '@modules/xray/xray.module'
 import { forwardRef, Global, Module } from '@nestjs/common'
@@ -18,6 +19,7 @@ import { TonUtimeService } from './services/ton-uptime.service'
     RatesModule,
     forwardRef(() => XrayModule),
     forwardRef(() => TelegramModule),
+    forwardRef(() => ReferralsModule),
   ],
   controllers: [PaymentsController],
   providers: [
