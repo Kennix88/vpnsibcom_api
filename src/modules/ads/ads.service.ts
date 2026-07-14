@@ -1,4 +1,3 @@
-import { PlansEnum } from '@core/prisma/generated/enums'
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
 import { UsersService } from '@modules/users/services/users.service'
@@ -125,23 +124,20 @@ export class AdsService {
       include: {
         adsData: true,
         telegramData: true,
-        subscriptions: {
-          where: {
-            isActive: true,
-            NOT: {
-              planKey: PlansEnum.TRIAL,
-            },
-          },
-        },
+        subscription: true,
       },
     })
 
-    if (!user) {
+    if (
+      !user ||
+      (user.premiumExpiredAt !== null &&
+        isAfter(user.premiumExpiredAt, new Date()))
+    ) {
       return { isNoAds: true }
     }
 
     if (
-      user.subscriptions.length > 0 &&
+      user.subscription &&
       (place == AdsPlaceEnum.MESSAGE ||
         place == AdsPlaceEnum.FULLSCREEN ||
         place == AdsPlaceEnum.BANNER)
@@ -396,8 +392,9 @@ export class AdsService {
     )
 
     const goAdsUrl =
-      (this.configService.get<string>('ALLOWED_ORIGIN') ||
-        'https://fasti.fun') + `/ad-redirect/${sessionId}`
+      'https://' +
+      (this.configService.get<string>('MAIN_DOMAIN') || 'gonet.fun') +
+      `/ad-redirect/${sessionId}`
 
     return {
       isNoAds: false,
@@ -614,7 +611,7 @@ export class AdsService {
     meta?: any
     isTaddy?: boolean
   }) {
-    const { userId, verifyKey, verificationCode, ip, ua, meta, isEasy } = opts
+    const { userId, verifyKey, ip, ua, meta, isEasy } = opts
 
     let metaObj = meta
     let sessionId: string | undefined
@@ -639,13 +636,15 @@ export class AdsService {
       sessionId = verifyKey
     }
 
+    const claimKey = isEasy ? verifyKey : sessionId
+
     // Логируем попытку в Redis list (антифрод)
     const attempt = {
       at: Date.now(),
       ip: ip ?? null,
       ua: ua ?? null,
       userId,
-      verificationCode: verificationCode ?? null,
+      verificationCode: opts.verificationCode ?? null,
     }
 
     if (!isEasy) {
@@ -668,23 +667,7 @@ export class AdsService {
       }
     }
 
-    const networkOk = true
-    if (!networkOk) {
-      try {
-        const statsKey = `ad:stats:user:${userId}`
-        await this.redisService.hincrby(statsKey, 'verif_failed', 1)
-        await this.redisService.expire(statsKey, metaObj.duration * 2)
-      } catch (e) {
-        this.logger.warn(
-          `Failed to update stats for user ${userId}: ${
-            e instanceof Error ? e.message : String(e)
-          }`,
-        )
-      }
-      return { success: false, reason: 'NETWORK_VERIFICATION_FAILED' }
-    }
-
-    // Проверяем, что сессия ещё не была использована
+    // Проверяем, что сессия ещё не была использована (Redis, быстрый path)
     const usedKey = `ad:session:used:${sessionId}`
     if (!isEasy) {
       const isUsed = await this.redisService.get(usedKey)
@@ -694,29 +677,14 @@ export class AdsService {
     }
 
     try {
-      await this.prisma.$transaction(async (prisma) => {
-        const getAd = await prisma.adsViews.findUnique({
+      const txResult = await this.prisma.$transaction(async (prisma) => {
+        // Атомарно "захватываем" запись: claimedAt переходит null -> now
+        // только для одной параллельной попытки. Это же защищает от гонки,
+        // которую не даёт обычный findUnique + update.
+        const claimed = await prisma.adsViews.updateMany({
           where: {
-            verifyKey: isEasy ? verifyKey : sessionId,
-            claimedAt: {
-              not: null,
-            },
-          },
-        })
-
-        if (!getAd || getAd.claimedAt) return
-
-        const addBalanceResult = await this.usersService.addUserBalance(
-          getAd.userId,
-          Number(getAd.rewardStars),
-          TransactionReasonEnum.REWARD,
-          BalanceTypeEnum.PAYMENT,
-        )
-        if (!addBalanceResult.success) return
-
-        const ad = await prisma.adsViews.update({
-          where: {
-            verifyKey: sessionId,
+            verifyKey: claimKey,
+            claimedAt: null,
           },
           data: {
             claimedAt: new Date(),
@@ -724,15 +692,42 @@ export class AdsService {
             ua: ua ?? null,
             ...(opts.isTaddy && { networkKey: AdsNetworkEnum.TADDY }),
           },
+        })
+
+        if (claimed.count === 0) {
+          // Либо записи нет, либо она уже была подтверждена ранее
+          return { granted: false, reason: 'ALREADY_CLAIMED_OR_NOT_FOUND' }
+        }
+
+        const ad = await prisma.adsViews.findUnique({
+          where: { verifyKey: claimKey },
           select: {
             type: true,
             networkKey: true,
             userId: true,
+            rewardStars: true,
             user: {
               select: { adsDataId: true },
             },
           },
         })
+
+        if (!ad) {
+          // Не должно происходить, но подстрахуемся
+          throw new Error('Ad claimed but row disappeared')
+        }
+
+        const addBalanceResult = await this.usersService.addUserBalance(
+          ad.userId,
+          Number(ad.rewardStars),
+          TransactionReasonEnum.REWARD,
+          BalanceTypeEnum.PAYMENT,
+        )
+        if (!addBalanceResult.success) {
+          // Откатываем всю транзакцию, включая claimedAt — пользователь
+          // сможет повторить попытку.
+          throw new Error('addUserBalance failed')
+        }
 
         const settings = await prisma.settings.findUnique({
           where: { key: DefaultEnum.DEFAULT },
@@ -778,7 +773,13 @@ export class AdsService {
             }),
           },
         })
+
+        return { granted: true }
       })
+
+      if (!txResult.granted) {
+        return { success: false, reason: txResult.reason }
+      }
 
       if (!isEasy) {
         await this.redisService.setWithExpiry(usedKey, '1', metaObj.duration)
