@@ -19,13 +19,6 @@ model Settings {
   tgStarsToUSD Float       @default(0.013) @map("tg_stars_to_usd")
 
   telegramPremiumRatio        Float @default(1.5) @map("telegram_premium_ratio")
-  devicesPriceStars           Float @default(50) @map("devices_price_stars")
-  serversPriceStars           Float @default(20) @map("servers_price_stars")
-  premiumServersPriceStars    Float @default(50) @map("premium_servers_price_stars")
-  allBaseServersPriceStars    Float @default(17) @map("all_base_servers_price_stars")
-  allPremiumServersPriceStars Float @default(40) @map("all_premium_servers_price_stars")
-  trafficGbPriceStars         Float @default(60) @map("traffic_gb_price_stars")
-  unlimitTrafficPriceStars    Float @default(100) @map("unlimit_traffic_price_stars")
   // Коэффициенты оплаты для разных периодов подписки
   hourRatioPayment            Float @default(1.39) @map("hour_ratio_payment")
   dayRatioPayment             Float @default(1.31) @map("day_ratio_payment")
@@ -63,30 +56,17 @@ model Settings {
 
   isActiveSendAdsMessages Boolean  @default(false) @map("is_active_send_ads_messages")
   nextAdsHours            Int      @default(12) @map("next_ads_hours")
-  isActiveFakeAds         Boolean  @default(false) @map("is_active_fake_ads")
-  nextFakeAdsHours        Int      @default(6) @map("next_fake_ads_hours")
-  lastFakeAdsSend         DateTime @default(now()) @map("last_fake_ads_send")
-  proxyPartnerLink        String?  @default("https://t.me/tonplay_proxybot?start=hUWchdxNIh6oeO") @map("proxy_partner_link")
-  partnerBotLink          String?  @default("https://t.me/tonplay?start=hUWcg19SE6EZ5e") @map("partner_bot_link")
-  partnerMiniAppLink      String?  @default("https://t.me/tonplay/dapp?startapp=hUWcg19SE6EZ5e") @map("partner_mini_app_link")
-  partnerSiteLink         String?  @default("https://tonplay.fo/hUWcg1950zMXOm") @map("partner_site_link")
 
   importUsersUrl      String? @default("https://kennix88.github.io/vpnsib-tonconnect-manifest/users.txt") @map("import_users_url")
   isActiveImportUsers Boolean @default(false) @map("is_active_import_users")
-
   isActiveCheckUsers Boolean @default(false) @map("is_active_check_users")
 
   defaultAnnounce String? @default("(🇳🇱⏪🇷🇺) - Double Tunnel, 🆓 - Free Server, ⭐️ - Premium Server") @map("default_announce")
 
   telegramConfigLinks Json? @map("telegram_config_links") @db.JsonB
 
-  routingUrl String? @default("happ://routing/onadd/eyJOYW1lIjoiVlBOc2liUlUiLCJHbG9iYWxQcm94eSI6InRydWUiLCJSb3V0ZU9yZGVyIjoiYmxvY2stcHJveHktZGlyZWN0IiwiUmVtb3RlRE5TVHlwZSI6IkRvSCIsIlJlbW90ZUROU0RvbWFpbiI6Imh0dHBzOi8vZG5zLmFkZ3VhcmQtZG5zLmNvbS9kbnMtcXVlcnkiLCJSZW1vdGVETlNJUCI6Ijk0LjE0MC4xNC4xNCIsIkRvbWVzdGljRE5TVHlwZSI6IkRvSCIsIkRvbWVzdGljRE5TRG9tYWluIjoiaHR0cHM6Ly9jb21tb24uZG90LmRucy55YW5kZXgubmV0L2Rucy1xdWVyeSIsIkRvbWVzdGljRE5TSVAiOiI3Ny44OC44LjgiLCJHZW9pcHVybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9mcmF5WlYvc2ltcGxlLXJ1LWdlb2lwL3JlbGVhc2VzL2xhdGVzdC9kb3dubG9hZC9nZW9pcC5kYXQiLCJHZW9zaXRldXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL2ZyYXlaVi9zaW1wbGUtcnUtZ2Vvc2l0ZS9yZWxlYXNlcy9sYXRlc3QvZG93bmxvYWQvZ2Vvc2l0ZS5kYXQiLCJMYXN0VXBkYXRlZCI6IjE3ODA2NTgzNzgiLCJEbnNIb3N0cyI6eyJjbG91ZGZsYXJlLWRucy5jb20iOiIxLjEuMS4xIiwiZG5zLmdvb2dsZSI6IjguOC44LjgifSwiRGlyZWN0U2l0ZXMiOlsiZ2Vvc2l0ZTpydSJdLCJEaXJlY3RJcCI6WyJnZW9pcDpydSIsImdlb2lwOnByaXZhdGUiXSwiUHJveHlTaXRlcyI6WyJnZW9zaXRlOnJvc2tvbW5hZHpvciJdLCJQcm94eUlwIjpbXSwiQmxvY2tTaXRlcyI6W10sIkJsb2NrSXAiOltdLCJEb21haW5TdHJhdGVneSI6IklQSWZOb25NYXRjaCIsIkZha2VETlMiOiJmYWxzZSIsIlVzZUNodW5rRmlsZXMiOiJmYWxzZSJ9") @map("routing_url")
-
   premiumStatusPriceStars    Float @default(1499) @map("premium_status_price_stars")
   premiumStatusDiscountRatio Float @default(0.8) @map("premium_status_discount_ratio")
-
-    subscriptionRemovalAfterInactiveDays Int @default(30) @map("subscription_removal_after_inactive_days")
-    removeOldSubscriptionsAfter DateTime? @map("remove_old_subscriptions_after")
 
     chatId String @default("-1001670520580") @map("chat_id")
     channelId String @default("-1001695733492") @map("channel_id")
@@ -135,7 +115,6 @@ model Referrals {
 
   totalUsdtRewarded Decimal @default(0) @db.Decimal(18, 6)
   isActivated       Boolean @default(false)
-  isPremium         Boolean @default(false)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -151,7 +130,6 @@ model Users {
   id                  String  @id @default(uuid())
   telegramId          String  @unique @map("telegram_id")
   isTgProgramPartner  Boolean @default(false) @map("is_tg_program_partner")
-  isFreePlanAvailable Boolean @default(true) @map("is_free_plan_available")
   isBanned            Boolean @default(false) @map("is_banned")
   isDeleted           Boolean @default(false) @map("is_deleted")
   isChannel           Boolean @default(false) @map("is_channel")
@@ -182,7 +160,8 @@ model Users {
   languageId     String            @map("language_id")
   currency       Currency          @relation(fields: [currencyKey], references: [key])
   currencyKey    CurrencyEnum      @default(USD) @map("currency_key")
-  subscriptions  Subscriptions[]
+  subscription        Subscriptions?      @relation(fields: [subscriptionId], references: [id])
+  subscriptionId      String?           @unique @map("subscription_id")
   withdrawals    Withdrawals[]
   adsViews       AdsViews[]
   adsData        UserAdsData?      @relation(fields: [adsDataId], references: [id])
@@ -430,126 +409,71 @@ model UserBalance {
   @@map("user_balance")
 }
 
-/// Модель для белого списка
-model GreenList {
-  green     String  @id
-  isActive  Boolean @default(true) @map("is_active")
-  isPremium Boolean @default(false) @map("is_premium")
-  code      String  @unique
-  flagKey   String  @map("flag_key")
-  flagEmoji String  @map("flag_emoji")
-  name      String
-  network   Float   @default(2)
+model InternalSquads {
+ key InternalSquadsEnum @id
+ uuid String @unique
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  subscriptions SubscriptionToGreenList[]
-
-  @@map("green_list")
+ @@index([uuid])
+ @@map("internal_squads")
 }
 
-model Plans {
-  key                 PlansEnum                  @id
-  isActive            Boolean                    @default(true) @map("is_active")
-  name                String
-  priceStars          Float?                     @default(0) @map("price_stars")
-  isCustom            Boolean                    @default(false) @map("is_custom")
-  devicesCount        Int                        @default(1) @map("devices_count")
-  isAllBaseServers    Boolean                    @default(false) @map("is_all_base_servers")
-  isAllPremiumServers Boolean                    @default(false) @map("is_all_premium_servers")
-  trafficLimitGb      Float?                     @map("traffic_limit_gb")
-  isUnlimitTraffic    Boolean                    @default(false) @map("is_unlimit_traffic")
-  serversSelectType   PlansServersSelectTypeEnum @default(NOT_SELECTED) @map("servers_select_type")
-  days                Int?
-  isNoAds Boolean @default(false) @map("is_no_ads")
-  isRoleChat Boolean @default(false) @map("is_role_chat")
-
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @updatedAt @map("updated_at")
-  Subscriptions Subscriptions[]
-
-  @@map("plans")
+enum InternalSquadsEnum {
+ FREE
+ PREMIUM
+ TELEGRAM
 }
 
-enum PlansServersSelectTypeEnum {
-  ONE_BASE
-  ONE_BASE_OR_PREMIUM
-  CUSTOM
-  NOT_SELECTED
+model ExternalSquad {
+ key ExternalSquadEnum @id
+ uuid String @unique
+
+ @@index([uuid])
+ @@map("external_squads")
 }
 
-enum PlansEnum {
-  TRIAL
-  START
-  BASE
-  PLUS
-  PRO
-  PREMIUM
-  ULTIMATE
-  CUSTOM
-  TRAFFIC
-  NEW_ERA
+enum ExternalSquadEnum {
+ GLOBAL
+ RU_ROUTING
+ RU_ROUTING_FRAGMENT
+}
+
+
+model DefaultSubData {
+ key          DefaultEnum @id @default(DEFAULT)
+devicesCount        Int                        @default(1) @map("devices_count")
+isPremiumServers Boolean                    @default(false) @map("is_premium_servers")
+trafficLimitGb      Float?                     @map("traffic_limit_gb")
+isUnlimitTraffic    Boolean                    @default(false) @map("is_unlimit_traffic")
+days                Int?
+isNoAds Boolean @default(false) @map("is_no_ads")
+isRoleChat Boolean @default(false) @map("is_role_chat")
+isAutoRenewing Boolean @default(false) @map("is_auto_renewing")
+
+createdAt     DateTime        @default(now()) @map("created_at")
+updatedAt     DateTime        @updatedAt @map("updated_at")
+
+@@map("default_sub_data")
 }
 
 /// Модель подписок
 model Subscriptions {
   id               String                 @id @default(uuid())
   username         String                 @unique
-  name             String                 @default("Subscription")
-  plan             Plans                  @relation(fields: [planKey], references: [key])
-  planKey          PlansEnum              @default(CUSTOM) @map("plan_key")
-  isActive         Boolean                @default(false) @map("is_active")
-  isAutoRenewal    Boolean                @default(true) @map("is_auto_renewal")
-  token            String                 @unique @map("token")
-  period           SubscriptionPeriodEnum @default(MONTH)
-  periodMultiplier Int                    @default(1) @map("period_multiplier")
+  uuid String @unique
+  shortUuid String @unique
 
-  announce String?
-
-  nextRenewalStars    Float?           @map("next_renewal_stars")
-  isPremium           Boolean          @default(false) @map("is_premium")
-  devicesCount        Int              @default(1) @map("devices_count")
-  isAllBaseServers    Boolean          @default(false) @map("is_all_base_servers")
-  isAllPremiumServers Boolean          @default(false) @map("is_all_premium_servers")
-  trafficLimitGb      Float?           @map("traffic_limit_gb")
-  isUnlimitTraffic    Boolean          @default(false) @map("is_unlimit_traffic")
-  links               Json?            @map("links") @db.JsonB
-  lastUserAgent       String?          @map("last_user_agent")
-  dataLimit           Int              @default(0) @map("data_limit")
-  usedTraffic         Int              @default(0) @map("used_traffic")
-  lifeTimeUsedTraffic Int              @default(0) @map("life_time_used_traffic")
-  trafficReset        TrafficResetEnum @default(DAY) @map("traffic_reset")
-  marzbanData         Json?            @map("marzban_data") @db.JsonB
+  subscriptionUrl String? @map("subscription_url")
   happCryptoUrl String? @map("happ_crypto_url")
-  days Int @default(0)
-
-  servers SubscriptionToGreenList[]
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
-  expiredAt DateTime? @map("expired_at")
-  removalAt DateTime? @map("removal_at")
-  onlineAt  DateTime? @map("online_at")
-  deletedAt DateTime? @map("deleted_at")
 
-  user    Users      @relation(fields: [userId], references: [id])
-  userId  String     @map("user_id")
-  payment Payments[]
-  devices Devices[]
+  user      Users?
 
-  @@index([userId])
-  @@index([token])
+  @@index([shortUuid])
+  @@index([uuid])
   @@index([username])
   @@map("subscriptions")
-}
-
-enum TrafficResetEnum {
-  NO_RESET
-  DAY
-  WEEK
-  MONTH
-  YEAR
 }
 
 model SubscriptionExtensions {
@@ -561,6 +485,8 @@ model SubscriptionExtensions {
   isPremiumServers Boolean @default(false) @map("is_premium_servers")
   isNoAds Boolean @default(false) @map("is_no_ads")
   isRoleChat Boolean @default(false) @map("is_role_chat")
+  isAutoRenewing Boolean @default(false) @map("is_auto_renewing")
+  roleName String? @map("role_name")
 
   @@map("subscription_extensions")
 }
@@ -573,50 +499,8 @@ enum SubscriptionExtensionsEnum {
   NAME
 }
 
-model Devices {
-  id            String @id @default(uuid())
-  model         String?
-  hwid          String
-  osVersion     String? @map("os_version")
-  os            String?
-  locale        String?
-  happVersion   String @map("happ_version")
-  userAgent     String @map("user_agent")
-  token         String @unique @map("token")
-  happCryptoUrl String @map("happ_crypto_url")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  subscription   Subscriptions @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  subscriptionId String        @map("subscription_id")
-
-  @@unique([subscriptionId, hwid])
-  @@index([token])
-  @@index([hwid])
-  @@map("devices")
-}
-
-model SubscriptionToGreenList {
-  subscription   Subscriptions @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  subscriptionId String        @map("subscription_id")
-
-  greenList   GreenList @relation(fields: [greenListId], references: [green])
-  greenListId String    @map("green_list_id")
-
-  /// Дата добавления сервера в подписку
-  assignedAt DateTime @default(now()) @map("assigned_at")
-
-  @@id([subscriptionId, greenListId])
-  @@index([subscriptionId])
-  @@index([greenListId])
-  @@map("subscription_to_green_list")
-}
-
 /// Перечисление периодов подписки
 enum SubscriptionPeriodEnum {
-  TRIAL
-  TRAFFIC
   HOUR
   DAY
   WEEK
@@ -627,20 +511,6 @@ enum SubscriptionPeriodEnum {
   TWO_YEAR
   THREE_YEAR
   INDEFINITELY
-  NEW_ERA
-}
-
-model XrayInbounds {
-  inboundTag String              @id @map("inbound_tag")
-  type       XrayInboundTypeEnum @default(VLESS) @map("type")
-
-  @@map("xray_inbounds")
-}
-
-enum XrayInboundTypeEnum {
-  VLESS
-  TROJAN
-  SHADOWSOCKS
 }
 
 /// Модель ролей пользователей
@@ -648,7 +518,6 @@ model Roles {
   key                UserRoleEnum @id
   name               String
   discount           Float        @default(1)
-  limitSubscriptions Int          @default(10) @map("limit_subscriptions")
   minPayStars        Int          @default(50) @map("min_pay_stars")
   days               Int          @default(0)
   devicesCount       Int          @default(0) @map("devices_count")
@@ -657,6 +526,8 @@ model Roles {
   isPremiumServers Boolean @default(false) @map("is_premium_servers")
   isNoAds Boolean @default(false) @map("is_no_ads")
   isRoleChat Boolean @default(false) @map("is_role_chat")
+  isAutoRenewing Boolean @default(false) @map("is_auto_renewing")
+  roleName String? @map("role_name")
 
   users Users[]
 
@@ -668,6 +539,8 @@ enum UserRoleEnum {
   SUPER_ADMIN
   ADMIN
   FRIEND
+  SUPPORT
+  VOLUNTEER
   OLD_USER
   USER
 }
@@ -849,6 +722,7 @@ enum TransactionReasonEnum {
   WITHDRAWAL
   SYSTEM
   SUBSCRIPTIONS
+  PREMIUM
   PAYMENT
   REWARD
   REFERRAL
@@ -904,6 +778,7 @@ model Payments {
   linkPay                 String?           @map("link_pay")
   details                 Json?             @db.JsonB
   data                    Json?             @db.JsonB
+  period SubscriptionPeriodEnum?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -916,8 +791,6 @@ model Payments {
   methodKey      PaymentMethodEnum @map("method_key")
   transacrion    Transactions?     @relation(fields: [transactionId], references: [id])
   transactionId  String?           @unique @map("transaction_id")
-  subscription   Subscriptions?    @relation(fields: [subscriptionId], references: [id])
-  subscriptionId String?           @map("subscription_id")
 
   @@index([userId])
   @@index([status])
@@ -932,6 +805,7 @@ enum PaymentTypeEnum {
   UPDATE_SUBSCTIPTION
   ADD_TRAFFIC_SUBSCRIPTION
   ADD_PAYMENT_BALANCE
+  PAY_PREMIUM_SUBSCRIPTION
 }
 
 /// Перечисление статусов платежа
