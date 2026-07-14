@@ -12,15 +12,43 @@ import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
 import { UserRolesEnum } from '@shared/enums/user-roles.enum'
 import { TelegramInitDataInterface } from '@shared/types/telegram-init-data.interface'
-import { UserDataInterface } from '@shared/types/user-data.interface'
+import {
+  PremiumStatusMethodInterface,
+  PremiumStatusPeriodInterface,
+  UserDataInterface,
+} from '@shared/types/user-data.interface'
 import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import { isRtl } from '@shared/utils/is-rtl.util'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
+import { addHours, isBefore } from 'date-fns'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Markup, Telegraf } from 'telegraf'
 import { EventType } from '../types/event-type.enum'
+import {
+  PayPremiumMethodsEnum,
+  PayPremiumPeriodEnum,
+} from '../types/pay-premium.dto'
+import {
+  periodHoursCalculateUtil,
+  periodMonthsCalculateUtil,
+  periodRatioCalculateUtil,
+} from '../util/period-calculate.util'
 import { EventsService } from './events.service'
+
+type BalanceMutationType =
+  | BalanceTypeEnum.PAYMENT
+  | BalanceTypeEnum.HOLD
+  | BalanceTypeEnum.USDT
+
+interface MutateBalanceExtra {
+  holdExpiredAt?: Date
+}
+
+interface MutateBalanceResult {
+  success: boolean
+  transactionId?: string
+}
 
 @Injectable()
 export class UsersService {
@@ -105,7 +133,7 @@ export class UsersService {
             thumbnail_url:
               'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome-2.jpg',
             caption:
-              '<b>Бесплатный, быстрый и безопасный VPN для всех!\nОставайся всегда на связи и получай доступ к интернету с VPNsib!</b>',
+              '<b>VPN, который думает за тебя 🧠\nЗаблокированное — открывает. Российские сайты — пускает напрямую. Игры — без потери пинга.\nИ всё это бесплатно, прямо в Telegram</b>',
             parse_mode: 'HTML',
             reply_markup: {
               inline_keyboard: [
@@ -121,32 +149,6 @@ export class UsersService {
                     style: 'success',
                   },
                 ],
-                [
-                  {
-                    ...Markup.button.url(
-                      '📰 Заказать рекламу через Taddy',
-                      'https://taddy.pro/vpnsibcom_bot',
-                    ),
-                    // @ts-ignore
-                    style: 'danger',
-                  },
-                ],
-                [
-                  Markup.button.url(
-                    '🤝 Сотрудничество и Реклама',
-                    this.configService.get<string>('CHANNEL_URL') + '?direct',
-                  ),
-                ],
-                [
-                  Markup.button.url(
-                    '📢 Канал',
-                    this.configService.get<string>('CHANNEL_URL'),
-                  ),
-                  Markup.button.url(
-                    '💬 Чат и Поддержка',
-                    this.configService.get<string>('CHAT_URL'),
-                  ),
-                ],
               ],
             },
           },
@@ -160,21 +162,101 @@ export class UsersService {
           return res?.id as string
         })
 
+      const amountStars =
+        settings.premiumStatusPriceStars *
+        settings.premiumStatusDiscountRatio *
+        user.role.discount
+
+      const normolize = (amount) => Number(amount.toFixed(2))
+
+      const methods: PremiumStatusMethodInterface[] = [
+        {
+          method: PayPremiumMethodsEnum.BALANCE_STARS,
+          price: settings.premiumStatusPriceStars,
+          finalPrice: normolize(amountStars),
+          icon: 'star',
+        },
+        {
+          method: PayPremiumMethodsEnum.BALANCE_USDT,
+          price: normolize(
+            settings.premiumStatusPriceStars * settings.tgStarsToUSD,
+          ),
+          finalPrice: normolize(amountStars * settings.tgStarsToUSD),
+          icon: 'usdt',
+        },
+      ]
+      const periods: PremiumStatusPeriodInterface[] = [
+        {
+          period: PayPremiumPeriodEnum.MONTH,
+          name: '1 месяц',
+          discount: periodRatioCalculateUtil(
+            PayPremiumPeriodEnum.MONTH,
+            settings,
+          ),
+        },
+        {
+          period: PayPremiumPeriodEnum.THREE_MONTH,
+          name: '3 месяца',
+          discount: periodRatioCalculateUtil(
+            PayPremiumPeriodEnum.THREE_MONTH,
+            settings,
+          ),
+        },
+        {
+          period: PayPremiumPeriodEnum.SIX_MONTH,
+          name: '6 месяцев',
+          discount: periodRatioCalculateUtil(
+            PayPremiumPeriodEnum.SIX_MONTH,
+            settings,
+          ),
+        },
+        {
+          period: PayPremiumPeriodEnum.YEAR,
+          name: '1 год',
+          discount: periodRatioCalculateUtil(
+            PayPremiumPeriodEnum.YEAR,
+            settings,
+          ),
+        },
+        {
+          period: PayPremiumPeriodEnum.TWO_YEAR,
+          name: '2 года',
+          discount: periodRatioCalculateUtil(
+            PayPremiumPeriodEnum.TWO_YEAR,
+            settings,
+          ),
+        },
+        {
+          period: PayPremiumPeriodEnum.THREE_YEAR,
+          name: '3 года',
+          discount: periodRatioCalculateUtil(
+            PayPremiumPeriodEnum.THREE_YEAR,
+            settings,
+          ),
+        },
+        {
+          period: PayPremiumPeriodEnum.INDEFINITELY,
+          name: 'Пожизненно',
+          discount: periodRatioCalculateUtil(
+            PayPremiumPeriodEnum.INDEFINITELY,
+            settings,
+          ),
+        },
+      ]
+
       return {
         id: user.id,
         telegramId: user.telegramId,
         isTgProgramPartner: user.isTgProgramPartner,
-        isFreePlanAvailable: user.isFreePlanAvailable,
-        trialGb: 5000,
         isBanned: user.isBanned,
         isDeleted: user.isDeleted,
         banExpiredAt: user.banExpiredAt,
+        premiumExpiredAt: user.premiumExpiredAt,
         deletedAt: user.deletedAt,
         tgProgramPartnerExpiredAt: user.tgProgramPartnerExpiredAt,
         role: user.role.key as UserRolesEnum,
         roleName: user.role.name,
         roleDiscount: user.role.discount,
-        limitSubscriptions: user.role.limitSubscriptions,
         isPremium: user.telegramData.isPremium,
         fullName: `${user.telegramData.firstName}${
           user.telegramData.lastName ? ` ${user.telegramData.lastName}` : ''
@@ -197,6 +279,10 @@ export class UsersService {
         nextAdsgramTaskAt: user.nextAdsgramTaskAt,
         minPayStars: user.role.minPayStars,
         lastFullscreenViewedAt: user.adsData.lastFullscreenViewedAt,
+        premium: {
+          methods,
+          periods,
+        },
       }
     } catch (e) {
       this.logger.error({ msg: `Error while getting user by tgId`, e })
@@ -209,7 +295,7 @@ export class UsersService {
         where: { telegramId },
         include: {
           balance: true,
-          subscriptions: { where: { deletedAt: null } },
+          subscription: true,
           referrals: true,
           inviters: {
             include: {
@@ -608,159 +694,227 @@ export class UsersService {
       .replace(/>/g, '&gt;')
   }
 
-  public async deductUserBalance(
+  private balanceColumn(balanceType: BalanceMutationType) {
+    switch (balanceType) {
+      case BalanceTypeEnum.USDT:
+        return 'usdt' as const
+      case BalanceTypeEnum.PAYMENT:
+        return 'paymentBalance' as const
+      case BalanceTypeEnum.HOLD:
+        return 'holdBalance' as const
+    }
+  }
+
+  /**
+   * Единая точка изменения баланса + записи транзакции.
+   * Amount может быть Prisma.Decimal (для вызовов из сервисов, где сумма уже
+   * посчитана через Decimal-арифметику, например ReferralsService) — так мы
+   * не теряем точность на конвертации в number до апдейта колонки.
+   */
+  private async mutateBalance(
+    tx: Prisma.TransactionClient,
     userId: string,
-    amount: number,
+    amount: number | Prisma.Decimal,
     reason: TransactionReasonEnum,
-    balanceType:
-      | BalanceTypeEnum.PAYMENT
-      | BalanceTypeEnum.HOLD
-      | BalanceTypeEnum.USDT,
-  ): Promise<{ success: boolean }> {
-    try {
-      if (amount <= 0) return { success: true }
+    balanceType: BalanceMutationType,
+    direction: 'increment' | 'decrement',
+    extra?: MutateBalanceExtra,
+  ): Promise<MutateBalanceResult> {
+    const decimalAmount =
+      amount instanceof Prisma.Decimal ? amount : new Prisma.Decimal(amount)
 
-      const user = await this.prismaService.users.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          balance: true,
-          language: { select: { iso6391: true } },
-        },
-      })
+    if (decimalAmount.lessThanOrEqualTo(0)) return { success: true }
 
-      if (!user || !user.balance) {
-        this.logger.error({
-          msg: `User or balance not found for deduction`,
-          userId,
-          balanceType,
-        })
-        return { success: false }
-      }
+    const user = await tx.users.findUnique({
+      where: { id: userId },
+      select: { balanceId: true },
+    })
 
-      if (
-        (balanceType === BalanceTypeEnum.USDT &&
-          Number(user.balance.usdt) < amount) ||
-        (balanceType === BalanceTypeEnum.PAYMENT &&
-          Number(user.balance.paymentBalance) < amount) ||
-        (balanceType === BalanceTypeEnum.HOLD &&
-          Number(user.balance.holdBalance) < amount)
-      )
-        return { success: false }
-
-      const result = await this.prismaService.$transaction(async (tx) => {
-        await tx.userBalance.update({
-          where: { id: user.balance.id },
-          data: {
-            ...(balanceType === BalanceTypeEnum.USDT
-              ? { usdt: { decrement: amount } }
-              : balanceType === BalanceTypeEnum.PAYMENT
-              ? { paymentBalance: { decrement: amount } }
-              : balanceType === BalanceTypeEnum.HOLD
-              ? { holdBalance: { increment: amount } }
-              : {}),
-          },
-        })
-
-        await tx.transactions.create({
-          data: {
-            amount,
-            type: TransactionTypeEnum.MINUS,
-            reason,
-            balanceType,
-            balanceId: user.balance.id,
-          },
-        })
-
-        return { success: true }
-      })
-
-      return result
-    } catch (error) {
+    if (!user?.balanceId) {
       this.logger.error({
-        msg: `Error while deducting user balance`,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
+        msg: `User balance not found for ${direction}`,
         userId,
-        amount,
-        reason,
         balanceType,
       })
-
       return { success: false }
     }
+
+    const column = this.balanceColumn(balanceType)
+
+    const where: Prisma.UserBalanceWhereInput = {
+      id: user.balanceId,
+      ...(direction === 'decrement'
+        ? { [column]: { gte: decimalAmount } }
+        : {}),
+    }
+
+    const { count } = await tx.userBalance.updateMany({
+      where,
+      data: { [column]: { [direction]: decimalAmount } },
+    })
+
+    if (count === 0) return { success: false }
+
+    const transaction = await tx.transactions.create({
+      data: {
+        amount: decimalAmount.toNumber(),
+        type:
+          direction === 'decrement'
+            ? TransactionTypeEnum.MINUS
+            : TransactionTypeEnum.PLUS,
+        reason,
+        balanceType,
+        balanceId: user.balanceId,
+        ...(extra?.holdExpiredAt && { holdExpiredAt: extra.holdExpiredAt }),
+      },
+    })
+
+    return { success: true, transactionId: transaction.id }
   }
 
   public async addUserBalance(
     userId: string,
-    amount: number,
+    amount: number | Prisma.Decimal,
     reason: TransactionReasonEnum,
-    balanceType:
-      | BalanceTypeEnum.PAYMENT
-      | BalanceTypeEnum.HOLD
-      | BalanceTypeEnum.USDT,
-  ): Promise<{ success: boolean }> {
+    balanceType: BalanceMutationType,
+    tx: Prisma.TransactionClient = this
+      .prismaService as unknown as Prisma.TransactionClient,
+    extra?: MutateBalanceExtra,
+  ): Promise<MutateBalanceResult> {
     try {
-      if (amount <= 0) return { success: true }
-
-      const user = await this.prismaService.users.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          balance: true,
-          language: { select: { iso6391: true } },
-        },
-      })
-
-      if (!user || !user.balance) {
-        this.logger.error({
-          msg: `User or balance not found for deduction`,
-          userId,
-          balanceType,
-        })
-        return { success: false }
-      }
-
-      const result = await this.prismaService.$transaction(async (tx) => {
-        await tx.userBalance.update({
-          where: { id: user.balance.id },
-          data: {
-            ...(balanceType === BalanceTypeEnum.USDT
-              ? { usdt: { increment: amount } }
-              : balanceType === BalanceTypeEnum.PAYMENT
-              ? { paymentBalance: { increment: amount } }
-              : balanceType === BalanceTypeEnum.HOLD
-              ? { holdBalance: { increment: amount } }
-              : {}),
-          },
-        })
-
-        await tx.transactions.create({
-          data: {
-            amount,
-            type: TransactionTypeEnum.PLUS,
-            reason,
-            balanceType,
-            balanceId: user.balance.id,
-          },
-        })
-
-        return { success: true }
-      })
-
-      return result
+      return await this.mutateBalance(
+        tx,
+        userId,
+        amount,
+        reason,
+        balanceType,
+        'increment',
+        extra,
+      )
     } catch (error) {
       this.logger.error({
         msg: `Error while adding user balance`,
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
         userId,
-        amount,
         reason,
         balanceType,
       })
-
       return { success: false }
+    }
+  }
+
+  public async deductUserBalance(
+    userId: string,
+    amount: number | Prisma.Decimal,
+    reason: TransactionReasonEnum,
+    balanceType: BalanceMutationType,
+    tx: Prisma.TransactionClient = this
+      .prismaService as unknown as Prisma.TransactionClient,
+    extra?: MutateBalanceExtra,
+  ): Promise<MutateBalanceResult> {
+    try {
+      return await this.mutateBalance(
+        tx,
+        userId,
+        amount,
+        reason,
+        balanceType,
+        'decrement',
+        extra,
+      )
+    } catch (error) {
+      this.logger.error({
+        msg: `Error while deducting user balance`,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        userId,
+        reason,
+        balanceType,
+      })
+      return { success: false }
+    }
+  }
+
+  public async payPremiumSub({
+    userId,
+    method,
+    period,
+  }: {
+    userId: string
+    method: PayPremiumMethodsEnum
+    period: PayPremiumPeriodEnum
+  }): Promise<boolean> {
+    try {
+      const [user, settings] = await Promise.all([
+        this.prismaService.users.findUnique({
+          where: { id: userId },
+          include: { role: true },
+        }),
+        this.prismaService.settings.findUnique({
+          where: { key: DefaultEnum.DEFAULT },
+        }),
+      ])
+      if (!user || !settings) return false
+
+      const amountStars =
+        settings.premiumStatusPriceStars *
+        periodMonthsCalculateUtil(period) *
+        settings.premiumStatusDiscountRatio *
+        periodRatioCalculateUtil(period, settings) *
+        user.role.discount
+
+      const amount =
+        method === PayPremiumMethodsEnum.BALANCE_STARS
+          ? amountStars
+          : amountStars * settings.tgStarsToUSD
+
+      const amountNormalize = Number(amount.toFixed(2))
+      const balanceType =
+        method === PayPremiumMethodsEnum.BALANCE_STARS
+          ? BalanceTypeEnum.PAYMENT
+          : BalanceTypeEnum.USDT
+
+      const startDate =
+        user.premiumExpiredAt === null ||
+        isBefore(user.premiumExpiredAt, new Date())
+          ? new Date()
+          : user.premiumExpiredAt
+
+      const premiumExpiredAt = addHours(
+        startDate,
+        periodHoursCalculateUtil(period),
+      )
+
+      // Всё в ОДНОЙ транзакции — списание и продление подписки атомарны,
+      // никакой ручной компенсации не требуется, откат делает сама БД.
+      return await this.prismaService.$transaction(async (tx) => {
+        const deduct = await this.deductUserBalance(
+          userId,
+          amountNormalize,
+          TransactionReasonEnum.PREMIUM,
+          balanceType,
+          tx,
+        )
+        if (!deduct.success) return false
+
+        await tx.users.update({
+          where: { id: userId },
+          data: { premiumExpiredAt },
+        })
+
+        return true
+      })
+    } catch (error) {
+      this.logger.error({
+        msg: `Error while paying premium subscription`,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        userId,
+        method,
+        period,
+      })
+      return false
     }
   }
 }
