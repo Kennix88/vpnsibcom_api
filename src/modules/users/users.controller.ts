@@ -7,7 +7,9 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
+  InternalServerErrorException,
   Post,
   Req,
   Res,
@@ -17,13 +19,62 @@ import { Throttle } from '@nestjs/throttler'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 import { JwtPayload } from '@shared/types/jwt-payload.interface'
 import { FastifyReply, FastifyRequest } from 'fastify'
+import { PinoLogger } from 'nestjs-pino'
+import { PayPremiumDto } from './types/pay-premium.dto'
 
 @Controller('user')
 export class UsersController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
+    private readonly logger: PinoLogger,
   ) {}
+
+  private async refreshActivity(req: FastifyRequest): Promise<void> {
+    const token = req.headers.authorization?.split(' ')[1]
+    if (token) {
+      await this.authService.updateUserActivity(token)
+    }
+  }
+
+  @Post('pay-premium')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ defaults: { limit: 10, ttl: 60 } })
+  @HttpCode(HttpStatus.OK)
+  async payPremium(
+    @CurrentUser() user: JwtPayload,
+    @Body() data: PayPremiumDto,
+    @Req() req: FastifyRequest,
+  ) {
+    try {
+      await this.refreshActivity(req)
+      this.logger.info(
+        `Покупка премиум подписки для пользователя: ${user.telegramId}`,
+      )
+
+      const [success, userData] = await Promise.all([
+        this.userService.payPremiumSub({
+          userId: user.sub,
+          method: data.method,
+          period: data.period,
+        }),
+        this.userService.getResUserByTgId(user.telegramId),
+      ])
+
+      return { success, user: userData }
+    } catch (error) {
+      if (error instanceof HttpException) throw error
+      this.logger.error(
+        `Ошибка при покупке премиум подписки: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
+      )
+      throw new InternalServerErrorException(
+        'Произошла ошибка при покупке премиум подписки',
+      )
+    }
+  }
 
   @Get('me')
   @Throttle({ defaults: { limit: 5, ttl: 60 } })
