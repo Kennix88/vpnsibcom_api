@@ -1,16 +1,31 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { randomUUID } from 'crypto'
 import Redis from 'ioredis'
 
 @Injectable()
-export class RedisService extends Redis implements OnModuleInit {
+export class RedisService
+  extends Redis
+  implements OnModuleInit, OnModuleDestroy
+{
   private readonly logger = new Logger(RedisService.name)
 
   constructor(private readonly configService: ConfigService) {
     super({
-      host: configService.get('REDIS_HOST'),
-      port: configService.get('REDIS_PORT'),
+      // ИСПРАВЛЕНО: раньше host/port тихо брались через configService.get(),
+      // и при отсутствующих ENV-переменных ioredis просто подставлял свои
+      // дефолты (localhost:6379) — в проде это означает, что сервис молча
+      // подключался бы не туда (или к локальному Redis в контейнере,
+      // которого там нет) вместо явной ошибки при старте. getOrThrow() падает
+      // сразу и явно, как и в остальных сервисах проекта (см. паттерн
+      // configService.getOrThrow('SUBSCRIPTION_URL') в NewEraService).
+      host: configService.getOrThrow('REDIS_HOST'),
+      port: configService.getOrThrow('REDIS_PORT'),
       password: configService.get('REDIS_PASSWORD'),
 
       enableOfflineQueue: true, // пусть очередь команд хранится при реконнекте
@@ -27,13 +42,21 @@ export class RedisService extends Redis implements OnModuleInit {
         return delay
       },
 
-      // если хочешь ещё более жёсткий контроль над реконнектом
+      // ИСПРАВЛЕНО (инверсия логики): раньше на ошибке READONLY (типичный
+      // симптом Sentinel failover — клиент всё ещё держит соединение со
+      // старым мастером, который Sentinel уже понизил до реплики) возвращали
+      // `false`, то есть ЗАПРЕЩАЛИ реконнект. Это ровно противоположно тому,
+      // что нужно: именно в этой ситуации клиенту НАДО форсированно
+      // переподключиться, чтобы ioredis заново прошёл через Sentinel и нашёл
+      // актуальный мастер. С `false` клиент так и продолжал бы слать команды
+      // на readonly-узел, получая READONLY на каждой записи, пока что-то
+      // другое (обрыв сокета и т.п.) не заставит его переподключиться само.
+      // Теперь на READONLY форсируем reconnect (и повторную отправку команды).
       reconnectOnError: (err) => {
-        // например, переподключаемся только на сетевые ошибки
         if (err.message.includes('READONLY')) {
-          return false // не пытаться реконнектиться при failover sentinel
+          return true // форсируем reconnect + resend команды после failover
         }
-        return true
+        return false
       },
     })
 
@@ -64,12 +87,30 @@ export class RedisService extends Redis implements OnModuleInit {
 
   /**
    * Wait until Redis connection is established (even after reconnects).
+   *
+   * ИСПРАВЛЕНО (утечка listener'ов): раньше вешали `this.once('ready', ...)`
+   * и `this.once('error', ...)`, но снимали только тот listener, который
+   * реально сработал. Второй (несработавший) оставался подписанным навсегда
+   * и срабатывал на следующее по времени событие того же типа — уже после
+   * того, как промис давно settled. При частых вызовах waitForConnection()
+   * это копило множество мёртвых листенеров на инстансе клиента. Теперь оба
+   * снимаются сразу после того, как один из них сработал.
    */
   private async waitForConnection(): Promise<void> {
     if (this.status === 'ready') return
+
     await new Promise<void>((resolve, reject) => {
-      this.once('ready', () => resolve())
-      this.once('error', (err) => reject(err))
+      const onReady = () => {
+        this.off('error', onError)
+        resolve()
+      }
+      const onError = (err: Error) => {
+        this.off('ready', onReady)
+        reject(err)
+      }
+
+      this.once('ready', onReady)
+      this.once('error', onError)
     })
   }
 
@@ -77,12 +118,35 @@ export class RedisService extends Redis implements OnModuleInit {
     try {
       await this.waitForConnection()
     } catch (error) {
-      this.logger.error(
-        `Failed to connect to Redis: ${
+      const message = error instanceof Error ? error.message : String(error)
+      this.logger.error(`Failed to connect to Redis: ${message}`)
+
+      // ИСПРАВЛЕНО: раньше ошибка подключения к Redis на старте приложения
+      // просто логировалась и проглатывалась — NestJS считал модуль успешно
+      // инициализированным, хотя Redis мог быть недоступен. Учитывая, что от
+      // Redis зависят распределённые локи (withLock используется во всех
+      // кронах и в создании/продлении подписок), тихий запуск без Redis —
+      // это скрытая бомба замедленного действия, а не изящная деградация.
+      // Перебрасываем ошибку, чтобы Nest остановил старт приложения и
+      // проблема была видна сразу, а не превратилась в загадочные сбои
+      // кронов и гонки в проде.
+      throw error
+    }
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    // ДОБАВЛЕНО: раньше соединение с Redis нигде явно не закрывалось при
+    // остановке приложения — полагались на то, что процесс просто убьют.
+    // Явный graceful quit() важен для чистого shutdown (например, в тестах
+    // или при rolling restart, где важно не оставлять висящие сокеты).
+    try {
+      await this.quit()
+    } catch (error) {
+      this.logger.warn(
+        `Ошибка при graceful shutdown Redis-соединения: ${
           error instanceof Error ? error.message : String(error)
         }`,
       )
-      // Optionally re-throw or handle the error as appropriate for your application's needs
     }
   }
 
@@ -151,6 +215,12 @@ export class RedisService extends Redis implements OnModuleInit {
       const data = await this.get(key)
       return data ? JSON.parse(data) : null
     } catch (err) {
+      // ПРИМЕЧАНИЕ: тут в одну кучу попадают и "ключ не найден"/битый JSON, и
+      // реальные сетевые ошибки Redis — снаружи их не отличить, оба случая
+      // молча превращаются в null. Осознанно оставляю поведение как есть
+      // (это безопасный дефолт для кеша), но если где-то в проекте важно
+      // отличать "нет данных" от "Redis недоступен" — этот метод для таких
+      // мест не подходит, нужен отдельный вызов без глотания ошибки.
       this.logger.warn(
         `Failed to parse JSON for key ${key}: ${
           err instanceof Error ? err.message : String(err)
@@ -245,6 +315,8 @@ export class RedisService extends Redis implements OnModuleInit {
     token: string,
     ttlSeconds: number,
   ): Promise<boolean> {
+    if (ttlSeconds <= 0) throw new Error('TTL must be positive')
+
     const extendScript = `
       if redis.call("get", KEYS[1]) == ARGV[1] then
         return redis.call("expire", KEYS[1], ARGV[2])
@@ -300,7 +372,7 @@ export class RedisService extends Redis implements OnModuleInit {
 
     let renewHandle: NodeJS.Timeout | null = null
     try {
-      // автопродление, если задача долг running
+      // автопродление, если задача долго running
       if (autoRenewIntervalSec > 0) {
         renewHandle = setInterval(async () => {
           try {
