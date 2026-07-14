@@ -1,16 +1,14 @@
 import { PrismaService } from '@core/prisma/prisma.service'
 import { RedisService } from '@core/redis/redis.service'
-import { XrayService } from '@modules/xray/services/xray.service'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 
+import { TransactionTypeEnum } from '@core/prisma/generated/enums'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
-import { TransactionTypeEnum } from '@shared/enums/transaction-type.enum'
-import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
@@ -32,12 +30,9 @@ export class PaymentsCronService {
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
-    private readonly xrayService: XrayService,
-    private readonly i18n: I18nService,
     private readonly tonPaymentsService: TonPaymentsService,
     private readonly paymentsService: PaymentsService,
     private readonly tonUtimeService: TonUtimeService,
-    // FIX #3: внедряем RedisService для distributed locking
     private readonly redis: RedisService,
     @InjectBot() private readonly bot: Telegraf,
   ) {
@@ -143,9 +138,7 @@ export class PaymentsCronService {
    */
   @Cron('0 5 0 * * *')
   async processExpiredHolds() {
-    // FIX #3: distributed lock — при нескольких инстанциях только одна
-    // обработает expired holds, остальные пропустят итерацию.
-    const locked = await this.acquireLock(LOCK_EXPIRED_HOLDS, 5 * 60) // TTL 5 минут
+    const locked = await this.acquireLock(LOCK_EXPIRED_HOLDS, 5 * 60)
     if (!locked) {
       this.logger.info({
         msg: 'processExpiredHolds: lock already held, skipping',
@@ -163,11 +156,7 @@ export class PaymentsCronService {
             holdExpiredAt: { lte: new Date() },
           },
           include: {
-            balance: {
-              include: {
-                user: { include: { language: true } },
-              },
-            },
+            balance: { include: { user: true } },
           },
         })
 
@@ -182,8 +171,8 @@ export class PaymentsCronService {
 
       for (const transaction of expiredHoldTransactions) {
         await this.prismaService.$transaction(async (tx) => {
-          // FIX #3: updateMany с условием holdBalance >= amount гарантирует атомарность
-          // и защищает от двойного списания — если count === 0, пропускаем.
+          // Атомарно снимаем ограничение: decrement holdBalance с условием gte —
+          // если count === 0, значит хold уже был снят раньше (защита от повторной обработки).
           const balanceUpdate = await tx.userBalance.updateMany({
             where: {
               id: transaction.balanceId,
@@ -200,17 +189,22 @@ export class PaymentsCronService {
             return
           }
 
+          // Снимаем holdExpiredAt с исходной транзакции — чтобы она не попадала
+          // повторно в выборку expired holds на следующих прогонах крона.
           await tx.transactions.update({
             where: { id: transaction.id },
             data: { holdExpiredAt: null },
           })
 
+          // FIX: добавлен balanceId — раньше запись создавалась без привязки
+          // к балансу и выпадала из истории транзакций пользователя.
           await tx.transactions.create({
             data: {
               amount: transaction.amount,
               type: TransactionTypeEnum.MINUS,
               reason: TransactionReasonEnum.SYSTEM,
               balanceType: BalanceTypeEnum.HOLD,
+              balanceId: transaction.balanceId,
             },
           })
 
@@ -290,13 +284,6 @@ export class PaymentsCronService {
               msg: `Payment ${payment.id} already updated by another process, skipping`,
             })
             return
-          }
-
-          if (payment.subscriptionId) {
-            await this.xrayService.deleteSubscription(
-              payment.user.telegramId,
-              payment.subscriptionId,
-            )
           }
         })
 
