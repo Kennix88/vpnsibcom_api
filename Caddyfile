@@ -1,18 +1,16 @@
 {
-    # Глобальные настройки
     admin off
     log {
         level INFO
     }
 }
 
-(dns_cf) {
+(dns_bunny) {
     tls {
-        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+        dns bunny {env.BUNNY_API_KEY}
     }
 }
 
-# Общие заголовки безопасности
 (security_headers) {
     header {
         X-Content-Type-Options "nosniff"
@@ -25,7 +23,6 @@
     }
 }
 
-# TLS настройки
 (tls_settings) {
     tls {
         protocols tls1.2 tls1.3
@@ -33,15 +30,14 @@
     }
 }
 
-# Комбинированный импорт
 (standard_config) {
     import tls_settings
     import security_headers
-				import dns_cf
+    import dns_bunny
 }
 
-# Основной фронтенд
-fasti.fun, front.fasti.fun, www.fasti.fun {
+# Фронтенд — сайт + TMA на разных доменах, один контейнер frontend:3000
+{$FRONTEND_DOMAINS} {
     import standard_config
 
     handle_errors {
@@ -64,7 +60,7 @@ fasti.fun, front.fasti.fun, www.fasti.fun {
     header Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https:; script-src-elem 'self' 'unsafe-inline' blob: https:; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https: blob: data:; child-src 'self' https: blob: data:; media-src 'self' data: blob: https:; worker-src 'self' blob:; manifest-src 'self'; form-action 'self' https:; frame-ancestors https://web.telegram.org https://*.telegram.org;"
 
     log {
-        output file /var/log/caddy/fasti.access.log {
+        output file /var/log/caddy/frontend.access.log {
             roll_size 100MB
             roll_keep 5
         }
@@ -72,9 +68,7 @@ fasti.fun, front.fasti.fun, www.fasti.fun {
     }
 }
 
-
-# API
-api.fasti.fun {
+api.{$MAIN_DOMAIN} {
     import standard_config
 
     handle_errors {
@@ -105,10 +99,8 @@ api.fasti.fun {
     }
 }
 
-*.frps.fasti.fun {
+*.frps.{$MAIN_DOMAIN} {
     import standard_config
-
-    # Caddy не трогает CORS — заголовки от upstream проходят насквозь как есть
 
     reverse_proxy frps:8090 {
         transport http {
@@ -127,7 +119,7 @@ api.fasti.fun {
     }
 }
 
-rem.fasti.fun {
+rem.{$MAIN_DOMAIN} {
     import standard_config
 
     reverse_proxy remnawave:3020 {
@@ -144,9 +136,7 @@ rem.fasti.fun {
     }
 }
 
-
-# Grafana
-grafana.fasti.fun {
+grafana.{$MAIN_DOMAIN} {
     import standard_config
 
     reverse_proxy grafana:3000 {
@@ -161,8 +151,36 @@ grafana.fasti.fun {
     "
 }
 
+# Домен-маска для подписок — прячет rem.MAIN_DOMAIN/api/sub/* за коротким адресом
+{$SUB_DOMAIN} {
+    import standard_config
+
+    rewrite * /api/sub{uri}
+
+    reverse_proxy remnawave:3020 {
+        # header_up Host rem.{$MAIN_DOMAIN}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+
+        transport http {
+            read_timeout 300s
+            write_timeout 300s
+            keepalive 120s
+        }
+    }
+
+    log {
+        output file /var/log/caddy/sub.access.log {
+            roll_size 100MB
+            roll_keep 5
+        }
+        format json
+    }
+}
+
 # FRP Control (WebSocket)
-frp.fasti.fun {
+frp.{$MAIN_DOMAIN} {
     import standard_config
 
     reverse_proxy frps:7000 {
