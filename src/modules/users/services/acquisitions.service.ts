@@ -31,6 +31,7 @@ export class AcquisitionsService {
   }) {
     try {
       const hasInputData = Boolean(startParams || referralKey)
+      const hasTrackingData = Boolean(ip || ua || telegramPlatform)
 
       const parseStartParams = parseStartParamUtil(startParams ?? '')
       const hasOtherData =
@@ -178,7 +179,7 @@ export class AcquisitionsService {
         return
       }
 
-      if (!hasInputData) return
+      if (!hasInputData && !hasTrackingData) return
 
       await this.prismaService.acquisition.update({
         where: { id: user.acquisition.id },
