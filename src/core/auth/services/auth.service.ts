@@ -338,15 +338,9 @@ export class AuthService {
       userId: user.id,
       startParams: startParam,
       ...(refId && { referralKey: refId }),
-      ...(ip && {
-        lastIp: ip,
-      }),
-      ...(ua && {
-        lastUserAgent: ua,
-      }),
-      ...(telegramPlatform && {
-        lastTelegramPlatform: telegramPlatform,
-      }),
+      ...(ip && { ip }),
+      ...(ua && { ua }),
+      ...(telegramPlatform && { telegramPlatform }),
     })
 
     this.logger.info({
