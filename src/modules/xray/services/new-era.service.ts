@@ -71,6 +71,7 @@ export interface NewEraSubWithTmaInterface {
   expiredAt?: Date
   onlineAt?: Date
   devices: HwidDevice[]
+  isAutoRenewing: boolean
 }
 
 export interface HwidDevice {
@@ -293,6 +294,7 @@ export class NewEraService implements OnModuleInit {
         usedTrafficBytes: 0,
         lifetimeUsedTrafficBytes: 0,
         days: subDataResult.data.days,
+        isAutoRenewing: false,
         devices: [],
       })
     }
@@ -306,7 +308,7 @@ export class NewEraService implements OnModuleInit {
             .then((res) => res.devices),
     ])
 
-    return ok(mapSubscriptionToTma(remnaUser, subDataResult.data, devices))
+    return ok(this.mapSubscriptionToTma(remnaUser, subDataResult.data, devices))
   }
 
   public async deleteDevice(
@@ -516,7 +518,7 @@ export class NewEraService implements OnModuleInit {
       if (!sub) {
         const create = await this.createNewEraSubByUserIdUnsafe(userId)
         if (isErr(create)) return create
-        return ok(mapSubscriptionToTma(create.data, subData, []))
+        return ok(this.mapSubscriptionToTma(create.data, subData, []))
       }
 
       const { internal, external } = this.resolveActiveSquads(
@@ -582,7 +584,7 @@ export class NewEraService implements OnModuleInit {
         this.logger.error({ msg: 'Ошибка отправки Telegram-лога', error: e }),
       )
 
-      return ok(mapSubscriptionToTma(remnaUser, subData, enforcedDevices))
+      return ok(this.mapSubscriptionToTma(remnaUser, subData, enforcedDevices))
     } catch (error) {
       return this.logAndErr(`Ошибка продления подписки`, error)
     }
@@ -1452,6 +1454,38 @@ export class NewEraService implements OnModuleInit {
       return knownDevices ?? []
     }
   }
+
+  private mapSubscriptionToTma(
+    remnaUser: RemnaUser,
+    subData: NewEraSubData,
+    devices: RemnaHwidDevice[],
+  ): NewEraSubWithTmaInterface {
+    const subUrl =
+      'https://' +
+      this.configService.getOrThrow('SUB_DOMAIN') +
+      '/' +
+      remnaUser.shortUuid
+    return {
+      isNoSub: false,
+      status: remnaUser.status,
+      isUnlimitTraffic: remnaUser.trafficLimitBytes === 0,
+      devicesLimit: remnaUser.hwidDeviceLimit,
+      dataLimitBytes:
+        remnaUser.trafficLimitBytes === 0
+          ? undefined
+          : subData.trafficLimitGb * 1024 ** 3,
+      usedTrafficBytes: remnaUser.userTraffic.usedTrafficBytes,
+      lifetimeUsedTrafficBytes: remnaUser.userTraffic.lifetimeUsedTrafficBytes,
+      expiredAt: new Date(remnaUser.expireAt),
+      onlineAt: remnaUser.userTraffic.onlineAt
+        ? new Date(remnaUser.userTraffic.onlineAt)
+        : undefined,
+      days: subData.days,
+      subscriptionUrl: subUrl,
+      devices: sortDevicesByRemovalPriority(devices).map(mapDevice),
+      isAutoRenewing: subData.isAutoRenewing,
+    }
+  }
 }
 
 function mapDevice(el: RemnaHwidDevice): HwidDevice {
@@ -1479,29 +1513,4 @@ function sortDevicesByRemovalPriority(
   )
 
   return [primaryDevice, ...rest]
-}
-
-function mapSubscriptionToTma(
-  remnaUser: RemnaUser,
-  subData: NewEraSubData,
-  devices: RemnaHwidDevice[],
-): NewEraSubWithTmaInterface {
-  return {
-    isNoSub: false,
-    status: remnaUser.status,
-    isUnlimitTraffic: remnaUser.trafficLimitBytes === 0,
-    devicesLimit: remnaUser.hwidDeviceLimit,
-    dataLimitBytes:
-      remnaUser.trafficLimitBytes === 0
-        ? undefined
-        : subData.trafficLimitGb * 1024 ** 3,
-    usedTrafficBytes: remnaUser.userTraffic.usedTrafficBytes,
-    lifetimeUsedTrafficBytes: remnaUser.userTraffic.lifetimeUsedTrafficBytes,
-    expiredAt: new Date(remnaUser.expireAt),
-    onlineAt: remnaUser.userTraffic.onlineAt
-      ? new Date(remnaUser.userTraffic.onlineAt)
-      : undefined,
-    days: subData.days,
-    devices: sortDevicesByRemovalPriority(devices).map(mapDevice),
-  }
 }
