@@ -27,6 +27,13 @@ export class PaymentsUpdate {
 
   /**
    * Обработка pre_checkout_query
+   *
+   * ВАЖНО: у апдейта pre_checkout_query нет поля `chat` (это не сообщение
+   * в чате, а отдельный тип апдейта), поэтому ctx.chat здесь всегда
+   * undefined. Проверка `ctx.chat?.type !== 'private'` была всегда true,
+   * из-за чего answerPreCheckoutQuery никогда не вызывался и любой
+   * платеж зависал на экране "Обработка..." до таймаута Telegram (~10с),
+   * после чего оплата отменялась. Проверка по chat удалена.
    */
   @On('pre_checkout_query')
   async handlePreCheckout(@Ctx() ctx: Context) {
@@ -44,11 +51,13 @@ export class PaymentsUpdate {
         return
       }
 
-      if (ctx.chat?.type !== 'private') {
+      const query = ctx.preCheckoutQuery
+      if (!query) {
         return
       }
-      const query = ctx.preCheckoutQuery
+
       this.logger.info(`PreCheckoutQuery received: ${JSON.stringify(query)}`)
+
       await ctx.answerPreCheckoutQuery(true)
     } catch (err) {
       this.logger.error({
@@ -61,6 +70,18 @@ export class PaymentsUpdate {
           err instanceof Error ? err.message : String(err)
         }`,
       )
+
+      // Если answerPreCheckoutQuery не был вызван из-за ошибки выше,
+      // пытаемся явно отклонить платеж, чтобы Telegram не ждал таймаута
+      // и пользователь сразу увидел ошибку вместо зависшего спиннера.
+      try {
+        await ctx.answerPreCheckoutQuery(
+          false,
+          'Произошла ошибка. Попробуйте еще раз.',
+        )
+      } catch {
+        // answerPreCheckoutQuery уже мог быть вызван выше — игнорируем
+      }
     }
   }
 
@@ -80,9 +101,6 @@ export class PaymentsUpdate {
         return
       }
 
-      if (ctx.chat?.type !== 'private') {
-        return
-      }
       const msg = ctx.message
       if (!msg) return
       if (!('successful_payment' in msg)) return
