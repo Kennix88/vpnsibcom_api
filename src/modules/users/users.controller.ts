@@ -52,14 +52,19 @@ export class UsersController {
         `Покупка премиум подписки для пользователя: ${user.telegramId}`,
       )
 
-      const [success, userData] = await Promise.all([
-        this.userService.payPremiumSub({
-          userId: user.sub,
-          method: data.method,
-          period: data.period,
-        }),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      // FIX: раньше payPremiumSub и getResUserByTgId запускались параллельно
+      // через Promise.all, из-за чего getResUserByTgId мог вернуть данные
+      // пользователя ДО того, как payPremiumSub успеет обновить
+      // premiumExpiredAt в БД (особенно с учётом Redis-лока, который теперь
+      // может добавлять задержку при конкурентных запросах). Клиент получал
+      // success: true, но user со старым premiumExpiredAt. Теперь сначала
+      // ждём завершения оплаты, и только потом читаем актуальные данные.
+      const success = await this.userService.payPremiumSub({
+        userId: user.sub,
+        method: data.method,
+        period: data.period,
+      })
+      const userData = await this.userService.getResUserByTgId(user.telegramId)
 
       return { success, user: userData }
     } catch (error) {
