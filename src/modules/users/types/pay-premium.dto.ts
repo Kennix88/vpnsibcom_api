@@ -17,16 +17,10 @@ export enum PayPremiumPeriodEnum {
 
 export class PayPremiumDto {
   @IsOptional()
-  @IsEnum({
-    default: PayPremiumMethodsEnum.BALANCE_STARS,
-    enum: PayPremiumMethodsEnum,
-  })
+  @IsEnum(PayPremiumMethodsEnum)
   method?: PayPremiumMethodsEnum
 
   @IsOptional()
-  @IsEnum({
-    default: PayPremiumPeriodEnum.MONTH,
-    enum: PayPremiumPeriodEnum,
-  })
+  @IsEnum(PayPremiumPeriodEnum)
   period?: PayPremiumPeriodEnum
 }
