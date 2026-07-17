@@ -870,11 +870,24 @@ export class UsersService {
           ])
           if (!user || !settings) return false
 
+          const ratio = periodRatioCalculateUtil(period, settings)
+          const months = periodMonthsCalculateUtil(period)
+
+          this.logger.info({
+            msg: 'Premium calc debug',
+            period,
+            months,
+            ratio,
+            premiumStatusPriceStars: settings.premiumStatusPriceStars,
+            premiumStatusDiscountRatio: settings.premiumStatusDiscountRatio,
+            roleDiscount: user.role.discount,
+          })
+
           const amountStars =
             settings.premiumStatusPriceStars *
-            periodMonthsCalculateUtil(period) *
+            months *
             settings.premiumStatusDiscountRatio *
-            periodRatioCalculateUtil(period, settings) *
+            ratio *
             user.role.discount
 
           const amount =
