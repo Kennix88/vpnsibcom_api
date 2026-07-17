@@ -128,16 +128,13 @@ export class AdsService {
       },
     })
 
-    if (
-      !user ||
-      (user.premiumExpiredAt !== null &&
-        isAfter(user.premiumExpiredAt, new Date()))
-    ) {
+    if (!user) {
       return { isNoAds: true }
     }
 
     if (
-      user.subscription &&
+      user.premiumExpiredAt !== null &&
+      isAfter(user.premiumExpiredAt, new Date()) &&
       (place == AdsPlaceEnum.MESSAGE ||
         place == AdsPlaceEnum.FULLSCREEN ||
         place == AdsPlaceEnum.BANNER)
