@@ -40,6 +40,10 @@ export class NewEraController {
 
   @Post('extensions')
   @UseGuards(JwtAuthGuard)
+  // FIX: добавлен PreventDuplicateRequest — этот эндпоинт мутирует состояние
+  // (проверка/зачисление выполнения заданий подписки), как и остальные
+  // мутирующие POST/DELETE в этом контроллере, но защиты от дублей не имел.
+  @PreventDuplicateRequest(60)
   @Throttle({ defaults: { limit: 10, ttl: 60 } })
   @HttpCode(HttpStatus.OK)
   async checkExtensions(
@@ -52,16 +56,21 @@ export class NewEraController {
         `Проверка расширений подписок для пользователя: ${user.telegramId}`,
       )
 
-      const [extensions, userData] = await Promise.all([
-        this.newEraService.checkSubscriptionTasksByUserId(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      // FIX: раньше checkSubscriptionTasksByUserId и getResUserByTgId
+      // запускались параллельно через Promise.all. Если проверка тасков
+      // засчитывает выполнение задания и меняет баланс/подписку —
+      // getResUserByTgId мог вернуть данные ДО применения этих изменений.
+      // Теперь сначала дожидаемся мутации, потом читаем актуального юзера.
+      const extensions =
+        await this.newEraService.checkSubscriptionTasksByUserId(user.sub)
 
       if (!extensions || !extensions.success) {
         throw new InternalServerErrorException(
           'Произошла ошибка при проверки расширений подписки',
         )
       }
+
+      const userData = await this.userService.getResUserByTgId(user.telegramId)
 
       return { success: true, extensions: extensions.data, user: userData }
     } catch (error) {
@@ -92,6 +101,7 @@ export class NewEraController {
         `Получение расширений подписок для пользователя: ${user.telegramId}`,
       )
 
+      // Read-only запрос — мутаций нет, параллельное выполнение корректно.
       const [extensions, userData] = await Promise.all([
         this.newEraService.getSubscriptionExtensionsWithConditionsByUserId(
           user.sub,
@@ -131,6 +141,7 @@ export class NewEraController {
         `Получение подписок для пользователя: ${user.telegramId}`,
       )
 
+      // Read-only запрос — мутаций нет, параллельное выполнение корректно.
       const [subscription, userData] = await Promise.all([
         this.newEraService.getNewEraSubByUserId(user.sub),
         this.userService.getResUserByTgId(user.telegramId),
@@ -171,16 +182,18 @@ export class NewEraController {
       await this.refreshActivity(req)
       this.logger.info(`Удаление устройства пользователя: ${user.telegramId}`)
 
-      const [subscription, userData] = await Promise.all([
-        this.newEraService.deleteDevice(user.sub, hwid),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      // FIX: deleteDevice мутирует состояние (список устройств), поэтому
+      // getResUserByTgId запускается только после её завершения, чтобы
+      // не вернуть устаревшие данные пользователя.
+      const subscription = await this.newEraService.deleteDevice(user.sub, hwid)
 
       if (!subscription || !subscription.success) {
         throw new InternalServerErrorException(
           'Произошла ошибка при Удаление устройства',
         )
       }
+
+      const userData = await this.userService.getResUserByTgId(user.telegramId)
 
       return { success: true, subscription: subscription.data, user: userData }
     } catch (error) {
@@ -207,16 +220,21 @@ export class NewEraController {
       await this.refreshActivity(req)
       this.logger.info(`Продление подписки пользователя: ${user.telegramId}`)
 
-      const [subscription, userData] = await Promise.all([
-        this.newEraService.renewingNewEraSubByUserId(user.sub),
-        this.userService.getResUserByTgId(user.telegramId),
-      ])
+      // FIX: renewingNewEraSubByUserId мутирует баланс/подписку —
+      // getResUserByTgId должен выполняться после её завершения,
+      // иначе клиент получит success: true, но старые данные баланса
+      // и срока действия подписки (тот же баг, что был в pay-premium).
+      const subscription = await this.newEraService.renewingNewEraSubByUserId(
+        user.sub,
+      )
 
       if (!subscription || !subscription.success) {
         throw new InternalServerErrorException(
           'Произошла ошибка при продление подписки',
         )
       }
+
+      const userData = await this.userService.getResUserByTgId(user.telegramId)
 
       return { success: true, subscription: subscription.data, user: userData }
     } catch (error) {
