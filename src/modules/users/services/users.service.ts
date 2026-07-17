@@ -846,65 +846,120 @@ export class UsersService {
     period: PayPremiumPeriodEnum
   }): Promise<boolean> {
     try {
-      const [user, settings] = await Promise.all([
-        this.prismaService.users.findUnique({
-          where: { id: userId },
-          include: { role: true },
-        }),
-        this.prismaService.settings.findUnique({
-          where: { key: DefaultEnum.DEFAULT },
-        }),
-      ])
-      if (!user || !settings) return false
+      const lockKey = `lock:premium-sub:${userId}`
 
-      const amountStars =
-        settings.premiumStatusPriceStars *
-        periodMonthsCalculateUtil(period) *
-        settings.premiumStatusDiscountRatio *
-        periodRatioCalculateUtil(period, settings) *
-        user.role.discount
+      // FIX: обёртка в Redis distributed lock — без него два почти
+      // одновременных вызова (двойной тап по кнопке, повторный webhook,
+      // параллельный запрос с другого устройства) могли пройти проверку
+      // и списание баланса независимо друг от друга, что могло привести
+      // к двойному продлению подписки или гонке при пересчёте
+      // premiumExpiredAt (обе операции читают один и тот же startDate
+      // до того, как первая успеет его обновить).
+      const result = await this.redis.withLock(
+        lockKey,
+        10, // ttlSeconds — с запасом над временем транзакции
+        async () => {
+          const [user, settings] = await Promise.all([
+            this.prismaService.users.findUnique({
+              where: { id: userId },
+              include: { role: true },
+            }),
+            this.prismaService.settings.findUnique({
+              where: { key: DefaultEnum.DEFAULT },
+            }),
+          ])
+          if (!user || !settings) return false
 
-      const amount =
-        method === PayPremiumMethodsEnum.BALANCE_STARS
-          ? amountStars
-          : amountStars * settings.tgStarsToUSD
+          const amountStars =
+            settings.premiumStatusPriceStars *
+            periodMonthsCalculateUtil(period) *
+            settings.premiumStatusDiscountRatio *
+            periodRatioCalculateUtil(period, settings) *
+            user.role.discount
 
-      const amountNormalize = Number(amount.toFixed(2))
-      const balanceType =
-        method === PayPremiumMethodsEnum.BALANCE_STARS
-          ? BalanceTypeEnum.PAYMENT
-          : BalanceTypeEnum.USDT
+          const amount =
+            method === PayPremiumMethodsEnum.BALANCE_STARS
+              ? amountStars
+              : amountStars * settings.tgStarsToUSD
 
-      const startDate =
-        user.premiumExpiredAt === null ||
-        isBefore(user.premiumExpiredAt, new Date())
-          ? new Date()
-          : user.premiumExpiredAt
+          // Защита от NaN/Infinity, если один из множителей задан
+          // некорректно (например, роль без discount в БД).
+          if (!Number.isFinite(amount) || amount < 0) {
+            this.logger.error({
+              msg: `Invalid computed amount for premium subscription`,
+              userId,
+              method,
+              period,
+              amountStars,
+              amount,
+            })
+            return false
+          }
 
-      const premiumExpiredAt = addHours(
-        startDate,
-        periodHoursCalculateUtil(period),
+          const amountNormalize = Number(amount.toFixed(2))
+          const balanceType =
+            method === PayPremiumMethodsEnum.BALANCE_STARS
+              ? BalanceTypeEnum.PAYMENT
+              : BalanceTypeEnum.USDT
+
+          const startDate =
+            user.premiumExpiredAt === null ||
+            isBefore(user.premiumExpiredAt, new Date())
+              ? new Date()
+              : user.premiumExpiredAt
+
+          const premiumExpiredAt = addHours(
+            startDate,
+            periodHoursCalculateUtil(period),
+          )
+
+          return await this.prismaService.$transaction(async (tx) => {
+            // FIX: при 100% скидке (amountNormalize === 0) списывать баланс
+            // не нужно — mutateBalance/deductUserBalance может трактовать
+            // amount <= 0 как невалидный вход и возвращать success: false,
+            // из-за чего продление premium срывалось даже при корректной
+            // нулевой итоговой цене.
+            if (amountNormalize > 0) {
+              const deduct = await this.deductUserBalance(
+                userId,
+                amountNormalize,
+                TransactionReasonEnum.PREMIUM,
+                balanceType,
+                tx,
+              )
+              if (!deduct.success) return false
+            } else {
+              this.logger.info({
+                msg: `Premium subscription granted for free (100% discount)`,
+                userId,
+                method,
+                period,
+              })
+            }
+
+            await tx.users.update({
+              where: { id: userId },
+              data: { premiumExpiredAt },
+            })
+
+            return true
+          })
+        },
+        { retries: 2, retryDelayMs: 300 },
       )
 
-      // Всё в ОДНОЙ транзакции — списание и продление подписки атомарны,
-      // никакой ручной компенсации не требуется, откат делает сама БД.
-      return await this.prismaService.$transaction(async (tx) => {
-        const deduct = await this.deductUserBalance(
+      // result === null означает, что лок не удалось получить даже
+      // после ретраев (например, параллельный запрос уже выполняется) —
+      // трактуем как неуспех, а не тихо продолжаем без гарантий.
+      if (result === null) {
+        this.logger.warn({
+          msg: `Could not acquire lock for premium subscription payment`,
           userId,
-          amountNormalize,
-          TransactionReasonEnum.PREMIUM,
-          balanceType,
-          tx,
-        )
-        if (!deduct.success) return false
-
-        await tx.users.update({
-          where: { id: userId },
-          data: { premiumExpiredAt },
         })
+        return false
+      }
 
-        return true
-      })
+      return result
     } catch (error) {
       this.logger.error({
         msg: `Error while paying premium subscription`,
