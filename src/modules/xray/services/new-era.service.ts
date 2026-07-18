@@ -540,6 +540,7 @@ export class NewEraService implements OnModuleInit {
                 trafficLimitStrategy: 'DAY' as RemnaTrafficLimitStrategy,
                 trafficLimitBytes: subData.trafficLimitGb * 1024 ** 3,
               }),
+          hwidDeviceLimit: subData.devicesCount,
           tag: this.buildRemnaTag(user.role.key),
           expireAt: addDays(new Date(), subData.days).toISOString(),
           activeInternalSquads: internal,
@@ -1061,18 +1062,16 @@ export class NewEraService implements OnModuleInit {
                   defaultSubData,
                   subscriptionExtensions,
                 )
-                await (this.bot.telegram as any).callApi(
-                  'setChatAdministratorCustomTitle',
-                  {
-                    chat_id: Number(chatId),
-                    user_id: telegramId,
-                    custom_title: subData.isRoleChat
-                      ? subData.roleName
-                        ? subData.roleName
-                        : ''
-                      : '',
-                  },
-                )
+
+                const rawTag = subData.isRoleChat ? subData.roleName ?? '' : ''
+                // защита от превышения лимита и эмодзи, раз API это не простит
+                const safeTag = this.sanitizeTag(rawTag)
+
+                await (this.bot.telegram as any).callApi('setChatMemberTag', {
+                  chat_id: Number(chatId),
+                  user_id: telegramId,
+                  tag: safeTag,
+                })
 
                 if (subData.isRoleChat) roleGranted++
                 else roleRevoked++
@@ -1107,6 +1106,12 @@ export class NewEraService implements OnModuleInit {
     } catch (error) {
       this.logAndErr('Ошибка в кроне проверки вступления в чат и канал', error)
     }
+  }
+
+  private sanitizeTag(tag: string): string {
+    // убираем эмодзи и всё, что не текст/цифры/пробелы/базовая пунктуация
+    const noEmoji = tag.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+    return noEmoji.slice(0, 16)
   }
 
   /**
@@ -1300,6 +1305,7 @@ export class NewEraService implements OnModuleInit {
                             'DAY' as RemnaTrafficLimitStrategy,
                           trafficLimitBytes: subData.trafficLimitGb * 1024 ** 3,
                         }),
+                    hwidDeviceLimit: subData.devicesCount,
                     tag: this.buildRemnaTag(sub.user.role.key),
                     ...(isAutoRenewing && {
                       expireAt: addDays(new Date(), subData.days).toISOString(),
