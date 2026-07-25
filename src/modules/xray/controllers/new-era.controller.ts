@@ -72,7 +72,12 @@ export class NewEraController {
 
       const userData = await this.userService.getResUserByTgId(user.telegramId)
 
-      return { success: true, extensions: extensions.data, user: userData }
+      return {
+        success: true,
+        extensions: extensions.data.extensions,
+        default: extensions.data.default,
+        user: userData,
+      }
     } catch (error) {
       if (error instanceof HttpException) throw error
       this.logger.error(
@@ -115,7 +120,12 @@ export class NewEraController {
         )
       }
 
-      return { success: true, extensions: extensions.data, user: userData }
+      return {
+        success: true,
+        extensions: extensions.data.extensions,
+        default: extensions.data.default,
+        user: userData,
+      }
     } catch (error) {
       if (error instanceof HttpException) throw error
       this.logger.error(
@@ -153,7 +163,12 @@ export class NewEraController {
         )
       }
 
-      return { success: true, subscription: subscription.data, user: userData }
+      return {
+        success: true,
+        subscription: subscription.data.sub,
+        default: subscription.data.default,
+        user: userData,
+      }
     } catch (error) {
       if (error instanceof HttpException) throw error
       this.logger.error(
@@ -195,7 +210,12 @@ export class NewEraController {
 
       const userData = await this.userService.getResUserByTgId(user.telegramId)
 
-      return { success: true, subscription: subscription.data, user: userData }
+      return {
+        success: true,
+        subscription: subscription.data.sub,
+        default: subscription.data.default,
+        user: userData,
+      }
     } catch (error) {
       if (error instanceof HttpException) throw error
       this.logger.error(
@@ -236,7 +256,12 @@ export class NewEraController {
 
       const userData = await this.userService.getResUserByTgId(user.telegramId)
 
-      return { success: true, subscription: subscription.data, user: userData }
+      return {
+        success: true,
+        subscription: subscription.data.sub,
+        default: subscription.data.default,
+        user: userData,
+      }
     } catch (error) {
       if (error instanceof HttpException) throw error
       this.logger.error(
