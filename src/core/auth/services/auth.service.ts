@@ -306,6 +306,7 @@ export class AuthService {
       if (refId) {
         const isPremium = user.telegramData?.isPremium ?? false
         await this.createReferralsForExistingUser(user.id, refId, isPremium)
+        this.userService.reactivationUser(user.id, refId)
       }
     }
 
