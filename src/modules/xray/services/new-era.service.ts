@@ -22,7 +22,7 @@ import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import axios from 'axios'
 import { randomBytes } from 'crypto'
-import { addDays, isAfter } from 'date-fns'
+import { addDays, differenceInDays, isAfter } from 'date-fns'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
@@ -163,6 +163,13 @@ export class NewEraService implements OnModuleInit {
         role: true,
         acquisition: true,
         subscription: true,
+        referrals: {
+          where: {
+            level: 1,
+            isActivated: true,
+            isWeekSub: true,
+          },
+        },
       },
     })
   }
@@ -277,25 +284,50 @@ export class NewEraService implements OnModuleInit {
   private async buildNewEraSub(
     user: UserWithRelations,
     preFetchedDevices?: RemnaHwidDevice[],
-  ): Promise<Result<NewEraSubWithTmaInterface>> {
+  ): Promise<
+    Result<{
+      sub: NewEraSubWithTmaInterface
+      default: NewEraSubWithTmaInterface
+    }>
+  > {
+    const defaultSubData = await this.prismaService.defaultSubData.findUnique({
+      where: { key: DefaultEnum.DEFAULT },
+    })
     const subDataResult = await this.calculateNewEraSubData(user)
     if (isErr(subDataResult)) return subDataResult
+    if (!defaultSubData) return err('Дефолтная подписка не получена')
 
     const sub = user.subscription
     if (!sub) {
       return ok({
-        isNoSub: true,
-        status: 'DISABLED',
-        devicesLimit: subDataResult.data.devicesCount,
-        isUnlimitTraffic: subDataResult.data.isUnlimitTraffic,
-        dataLimitBytes: subDataResult.data.isUnlimitTraffic
-          ? undefined
-          : subDataResult.data.trafficLimitGb * 1024 ** 3,
-        usedTrafficBytes: 0,
-        lifetimeUsedTrafficBytes: 0,
-        days: subDataResult.data.days,
-        isAutoRenewing: false,
-        devices: [],
+        sub: {
+          isNoSub: true,
+          status: 'DISABLED',
+          devicesLimit: subDataResult.data.devicesCount,
+          isUnlimitTraffic: subDataResult.data.isUnlimitTraffic,
+          dataLimitBytes: subDataResult.data.isUnlimitTraffic
+            ? undefined
+            : subDataResult.data.trafficLimitGb * 1024 ** 3,
+          usedTrafficBytes: 0,
+          lifetimeUsedTrafficBytes: 0,
+          days: subDataResult.data.days,
+          isAutoRenewing: false,
+          devices: [],
+        },
+        default: {
+          isNoSub: true,
+          status: 'DISABLED',
+          devicesLimit: defaultSubData.devicesCount,
+          isUnlimitTraffic: defaultSubData.isUnlimitTraffic,
+          dataLimitBytes: defaultSubData.isUnlimitTraffic
+            ? undefined
+            : defaultSubData.trafficLimitGb * 1024 ** 3,
+          usedTrafficBytes: 0,
+          lifetimeUsedTrafficBytes: 0,
+          days: defaultSubData.days,
+          isAutoRenewing: false,
+          devices: [],
+        },
       })
     }
 
@@ -308,13 +340,34 @@ export class NewEraService implements OnModuleInit {
             .then((res) => res.devices),
     ])
 
-    return ok(this.mapSubscriptionToTma(remnaUser, subDataResult.data, devices))
+    return ok({
+      sub: this.mapSubscriptionToTma(remnaUser, subDataResult.data, devices),
+      default: {
+        isNoSub: true,
+        status: 'DISABLED',
+        devicesLimit: defaultSubData.devicesCount,
+        isUnlimitTraffic: defaultSubData.isUnlimitTraffic,
+        dataLimitBytes: defaultSubData.isUnlimitTraffic
+          ? undefined
+          : defaultSubData.trafficLimitGb * 1024 ** 3,
+        usedTrafficBytes: 0,
+        lifetimeUsedTrafficBytes: 0,
+        days: defaultSubData.days,
+        isAutoRenewing: false,
+        devices: [],
+      },
+    })
   }
 
   public async deleteDevice(
     userId: string,
     hwid: string,
-  ): Promise<Result<NewEraSubWithTmaInterface>> {
+  ): Promise<
+    Result<{
+      sub: NewEraSubWithTmaInterface
+      default: NewEraSubWithTmaInterface
+    }>
+  > {
     try {
       const user = await this.findUser(userId)
       if (!user) return err('Пользователь не найден')
@@ -467,9 +520,12 @@ export class NewEraService implements OnModuleInit {
     }
   }
 
-  public async getNewEraSubByUserId(
-    userId: string,
-  ): Promise<Result<NewEraSubWithTmaInterface>> {
+  public async getNewEraSubByUserId(userId: string): Promise<
+    Result<{
+      sub: NewEraSubWithTmaInterface
+      default: NewEraSubWithTmaInterface
+    }>
+  > {
     try {
       const user = await this.findUser(userId)
       if (!user) return err('Пользователь не найден')
@@ -479,9 +535,12 @@ export class NewEraService implements OnModuleInit {
     }
   }
 
-  public async renewingNewEraSubByUserId(
-    userId: string,
-  ): Promise<Result<NewEraSubWithTmaInterface>> {
+  public async renewingNewEraSubByUserId(userId: string): Promise<
+    Result<{
+      sub: NewEraSubWithTmaInterface
+      default: NewEraSubWithTmaInterface
+    }>
+  > {
     const lockResult = await this.redis.withLock(
       `newEraSub:mutate:${userId}`,
       30,
@@ -498,15 +557,22 @@ export class NewEraService implements OnModuleInit {
     return lockResult
   }
 
-  private async renewingNewEraSubByUserIdUnsafe(
-    userId: string,
-  ): Promise<Result<NewEraSubWithTmaInterface>> {
+  private async renewingNewEraSubByUserIdUnsafe(userId: string): Promise<
+    Result<{
+      sub: NewEraSubWithTmaInterface
+      default: NewEraSubWithTmaInterface
+    }>
+  > {
     try {
-      const [user, internalSquads, externalSquads] = await Promise.all([
-        this.findUser(userId),
-        this.prismaService.internalSquads.findMany(),
-        this.prismaService.externalSquad.findMany(),
-      ])
+      const [user, internalSquads, externalSquads, defaultSubData] =
+        await Promise.all([
+          this.findUser(userId),
+          this.prismaService.internalSquads.findMany(),
+          this.prismaService.externalSquad.findMany(),
+          this.prismaService.defaultSubData.findUnique({
+            where: { key: DefaultEnum.DEFAULT },
+          }),
+        ])
       if (!user) return err('Пользователь не найден')
 
       const subDataResult = await this.calculateNewEraSubData(user)
@@ -518,7 +584,10 @@ export class NewEraService implements OnModuleInit {
       if (!sub) {
         const create = await this.createNewEraSubByUserIdUnsafe(userId)
         if (isErr(create)) return create
-        return ok(this.mapSubscriptionToTma(create.data, subData, []))
+        return ok({
+          sub: this.mapSubscriptionToTma(create.data, subData, []),
+          default: this.mapSubscriptionToTma(create.data, subData, []),
+        })
       }
 
       const { internal, external } = this.resolveActiveSquads(
@@ -585,7 +654,23 @@ export class NewEraService implements OnModuleInit {
         this.logger.error({ msg: 'Ошибка отправки Telegram-лога', error: e }),
       )
 
-      return ok(this.mapSubscriptionToTma(remnaUser, subData, enforcedDevices))
+      return ok({
+        sub: this.mapSubscriptionToTma(remnaUser, subData, enforcedDevices),
+        default: {
+          isNoSub: true,
+          status: 'DISABLED',
+          devicesLimit: defaultSubData.devicesCount,
+          isUnlimitTraffic: defaultSubData.isUnlimitTraffic,
+          dataLimitBytes: defaultSubData.isUnlimitTraffic
+            ? undefined
+            : defaultSubData.trafficLimitGb * 1024 ** 3,
+          usedTrafficBytes: 0,
+          lifetimeUsedTrafficBytes: 0,
+          days: defaultSubData.days,
+          isAutoRenewing: false,
+          devices: [],
+        },
+      })
     } catch (error) {
       return this.logAndErr(`Ошибка продления подписки`, error)
     }
@@ -603,6 +688,15 @@ export class NewEraService implements OnModuleInit {
     user: UserWithRelations,
     subscriptionExtensions: SubscriptionExtensions[],
   ): SubscriptionExtensionsWithConditionsInterface[] {
+    const targets = [
+      '@vpnsibcom_bot',
+      't.me/vpnsibcom_bot',
+      'telegram.me/vpnsibcom_bot',
+      'telegram.dog/vpnsibcom_bot',
+      'tg://resolve?domain=vpnsibcom_bot',
+    ]
+    const bio = user.telegramData.bio?.toLowerCase() ?? ''
+    const firstName = user.telegramData.firstName?.toLowerCase() ?? ''
     const conditions = new Map<SubscriptionExtensionsEnum, boolean>([
       [
         SubscriptionExtensionsEnum.PREMIUM,
@@ -611,13 +705,28 @@ export class NewEraService implements OnModuleInit {
       ],
       [SubscriptionExtensionsEnum.CHANNEL, user.isChannel ?? false],
       [SubscriptionExtensionsEnum.CHAT, user.isChat ?? false],
-      [
-        SubscriptionExtensionsEnum.BIO,
-        user.telegramData.bio?.includes('@vpnsibcom_bot') ?? false,
-      ],
+      [SubscriptionExtensionsEnum.BIO, targets.some((t) => bio.includes(t))],
       [
         SubscriptionExtensionsEnum.NAME,
-        user.telegramData.firstName?.includes('@vpnsibcom_bot') ?? false,
+        targets.some((t) => firstName.includes(t)),
+      ],
+      [SubscriptionExtensionsEnum.REFERRAL_3, user.referrals.length >= 3],
+      [SubscriptionExtensionsEnum.REFERRAL_5, user.referrals.length >= 5],
+      [SubscriptionExtensionsEnum.REFERRAL_10, user.referrals.length >= 10],
+      [SubscriptionExtensionsEnum.REFERRAL_25, user.referrals.length >= 25],
+      [SubscriptionExtensionsEnum.REFERRAL_50, user.referrals.length >= 50],
+      [SubscriptionExtensionsEnum.REFERRAL_100, user.referrals.length >= 100],
+      [
+        SubscriptionExtensionsEnum.REFERRAL_REACTIVATION_10,
+        user.referralReactivations >= 10,
+      ],
+      [
+        SubscriptionExtensionsEnum.REFERRAL_REACTIVATION_50,
+        user.referralReactivations >= 50,
+      ],
+      [
+        SubscriptionExtensionsEnum.REFERRAL_REACTIVATION_100,
+        user.referralReactivations >= 100,
       ],
     ])
 
@@ -687,17 +796,40 @@ export class NewEraService implements OnModuleInit {
 
   public async getSubscriptionExtensionsWithConditions(
     user: UserWithRelations,
-  ): Promise<Result<SubscriptionExtensionsWithConditionsInterface[]>> {
+  ): Promise<
+    Result<{
+      extensions: SubscriptionExtensionsWithConditionsInterface[]
+      default: NewEraSubWithTmaInterface
+    }>
+  > {
     try {
-      const subscriptionExtensions =
-        await this.prismaService.subscriptionExtensions.findMany()
+      const [defaultSubData, subscriptionExtensions] = await Promise.all([
+        this.prismaService.defaultSubData.findUnique({
+          where: { key: DefaultEnum.DEFAULT },
+        }),
+        this.prismaService.subscriptionExtensions.findMany(),
+      ])
 
-      return ok(
-        this.buildSubscriptionExtensionsWithConditions(
+      return ok({
+        extensions: this.buildSubscriptionExtensionsWithConditions(
           user,
           subscriptionExtensions,
         ),
-      )
+        default: {
+          isNoSub: true,
+          status: 'DISABLED',
+          devicesLimit: defaultSubData.devicesCount,
+          isUnlimitTraffic: defaultSubData.isUnlimitTraffic,
+          dataLimitBytes: defaultSubData.isUnlimitTraffic
+            ? undefined
+            : defaultSubData.trafficLimitGb * 1024 ** 3,
+          usedTrafficBytes: 0,
+          lifetimeUsedTrafficBytes: 0,
+          days: defaultSubData.days,
+          isAutoRenewing: false,
+          devices: [],
+        },
+      })
     } catch (error) {
       return this.logAndErr(`Ошибка получения расширений подписки`, error)
     }
@@ -705,7 +837,12 @@ export class NewEraService implements OnModuleInit {
 
   public async getSubscriptionExtensionsWithConditionsByUserId(
     userId: string,
-  ): Promise<Result<SubscriptionExtensionsWithConditionsInterface[]>> {
+  ): Promise<
+    Result<{
+      extensions: SubscriptionExtensionsWithConditionsInterface[]
+      default: NewEraSubWithTmaInterface
+    }>
+  > {
     const user = await this.findUser(userId)
     if (!user) return err('Пользователь не найден')
     return this.getSubscriptionExtensionsWithConditions(user)
@@ -1012,6 +1149,13 @@ export class NewEraService implements OnModuleInit {
           role: true,
           acquisition: true,
           subscription: true,
+          referrals: {
+            where: {
+              level: 1,
+              isActivated: true,
+              isWeekSub: true,
+            },
+          },
         },
       })
 
@@ -1128,9 +1272,12 @@ export class NewEraService implements OnModuleInit {
    * NX-лок в Redis на userId делает повторный вызов в течение TTL явной
    * ошибкой вместо тихого дублирования запросов к Telegram.
    */
-  public async checkSubscriptionTasksByUserId(
-    userId: string,
-  ): Promise<Result<SubscriptionExtensionsWithConditionsInterface[]>> {
+  public async checkSubscriptionTasksByUserId(userId: string): Promise<
+    Result<{
+      extensions: SubscriptionExtensionsWithConditionsInterface[]
+      default: NewEraSubWithTmaInterface
+    }>
+  > {
     const cooldownKey = `newEraSub:checkTasks:${userId}`
     const acquired = await this.redis.setWithExpiryNx(cooldownKey, '1', 5)
     if (!acquired) {
@@ -1207,6 +1354,9 @@ export class NewEraService implements OnModuleInit {
       'subscriptionsUpdaterLock',
       70,
       async () => {
+        const BYTES_IN_GB = 1024 ** 3
+        const MIN_DAYS_FOR_ACTIVATION = 7
+        const MIN_TRAFFIC_GB_FOR_ACTIVATION = 1
         this.logger.info({
           msg: 'Starting subscriptions update process',
           service: this.serviceName,
@@ -1226,6 +1376,18 @@ export class NewEraService implements OnModuleInit {
                       role: true,
                       acquisition: true,
                       subscription: true,
+                      referrals: {
+                        where: {
+                          level: 1,
+                          isActivated: true,
+                          isWeekSub: true,
+                        },
+                      },
+                      inviters: {
+                        where: {
+                          isWeekSub: false,
+                        },
+                      },
                     },
                   },
                 },
@@ -1340,6 +1502,44 @@ export class NewEraService implements OnModuleInit {
                     subscriptionUrl: url,
                   },
                 })
+
+                const daysSinceCreated = differenceInDays(
+                  new Date(),
+                  sub.createdAt,
+                )
+
+                const hasReachedTrafficThreshold =
+                  remnaUser.userTraffic.lifetimeUsedTrafficBytes / BYTES_IN_GB >
+                  MIN_TRAFFIC_GB_FOR_ACTIVATION
+
+                const needsActivation = sub.user.inviters.length > 0
+
+                if (
+                  daysSinceCreated > MIN_DAYS_FOR_ACTIVATION &&
+                  hasReachedTrafficThreshold &&
+                  needsActivation
+                ) {
+                  const { count } =
+                    await this.prismaService.referrals.updateMany({
+                      where: {
+                        referralId: sub.user.id,
+                        isWeekSub: false,
+                      },
+                      data: {
+                        isActivated: true,
+                        isWeekSub: true,
+                      },
+                    })
+
+                  // создаём событие только если реально что-то обновили —
+                  // иначе будет "пустое" событие для юзеров без реферера
+                  if (count > 0) {
+                    await this.eventsService.createEvent({
+                      userId: sub.user.id,
+                      eventType: EventType.WEEK_SUB,
+                    })
+                  }
+                }
               }),
             )
 
