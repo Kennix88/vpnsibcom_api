@@ -61,12 +61,12 @@ model Settings {
   isActiveImportUsers Boolean @default(false) @map("is_active_import_users")
   isActiveCheckUsers Boolean @default(false) @map("is_active_check_users")
 
-  defaultAnnounce String? @default("(🇳🇱⏪🇷🇺) - Double Tunnel, 🆓 - Free Server, ⭐️ - Premium Server") @map("default_announce")
-
   telegramConfigLinks Json? @map("telegram_config_links") @db.JsonB
 
   premiumStatusPriceStars    Float @default(1499) @map("premium_status_price_stars")
   premiumStatusDiscountRatio Float @default(0.8) @map("premium_status_discount_ratio")
+
+  reactivationDays Int @default(90) @map("reactivation_days")
 
     chatId String @default("-1001670520580") @map("chat_id")
     channelId String @default("-1001695733492") @map("channel_id")
@@ -115,6 +115,7 @@ model Referrals {
 
   totalUsdtRewarded Decimal @default(0) @db.Decimal(18, 6)
   isActivated       Boolean @default(false)
+  isWeekSub Boolean @default(false) @map("is_week_sub")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -144,6 +145,8 @@ model Users {
   nextAdsRewardAt           DateTime? @map("next_ads_reward_at")
   nextAdsgramTaskAt         DateTime? @map("next_adsgram_task_at")
   premiumExpiredAt          DateTime? @map("premium_expired_at")
+  reactivationAt          DateTime? @map("reactivation_at")
+  referralReactivations Int @default(0) @map("referral_reactivations")
 
   countryRegistration String? @map("country_registration")
 
@@ -204,6 +207,8 @@ enum EventTypeEnum {
   ACTIVATION
   FIRST_PAYMENT
   RELOAD_PAYMENT
+  WEEK_SUB
+  REACTIVATION
 }
 
 
@@ -497,6 +502,15 @@ enum SubscriptionExtensionsEnum {
   CHAT
   BIO
   NAME
+  REFERRAL_3
+  REFERRAL_5
+  REFERRAL_10
+  REFERRAL_25
+  REFERRAL_50
+  REFERRAL_100
+  REFERRAL_REACTIVATION_10
+  REFERRAL_REACTIVATION_50
+  REFERRAL_REACTIVATION_100
 }
 
 /// Перечисление периодов подписки
