@@ -13,17 +13,44 @@ const GRASPIL_TARGET_ID: Partial<Record<EventType, number>> = {
   [EventType.ACTIVATION]: 10809,
   [EventType.FIRST_PAYMENT]: 10807,
   [EventType.RELOAD_PAYMENT]: 10808,
+  [EventType.REACTIVATION]: 10831,
+  [EventType.WEEK_SUB]: 10832,
 }
 
 // Фиксированные суммы в звёздах для событий без реальной оплаты
 const GRASPIL_FIXED_STARS: Partial<Record<EventType, number>> = {
   [EventType.REGISTRATION]: 1,
   [EventType.ACTIVATION]: 10,
+  [EventType.REACTIVATION]: 1,
+  [EventType.WEEK_SUB]: 50,
+}
+
+// Типы целей в Adsgram. REACTIVATION намеренно переиспользует
+// Registration-цель — отдельной цели для реактивации в Adsgram нет.
+enum AdsgramGoalType {
+  Registration = 1,
+  Payment = 2,
+  Reload = 3,
+}
+
+const ADSGRAM_GOAL_BY_EVENT: Partial<Record<EventType, AdsgramGoalType>> = {
+  [EventType.REGISTRATION]: AdsgramGoalType.Registration,
+  [EventType.FIRST_PAYMENT]: AdsgramGoalType.Payment,
+  [EventType.RELOAD_PAYMENT]: AdsgramGoalType.Reload,
+  [EventType.REACTIVATION]: AdsgramGoalType.Registration,
+}
+
+// Минимальные данные события, необходимые для отправки в Adsgram.
+type AdsgramSendableEvent = {
+  id: string
+  eventType: EventType
+  recordId: string
 }
 
 @Injectable()
 export class EventsService {
   private readonly ADSGRAM_RETRY_BATCH = 200
+  private readonly ADSGRAM_RETRY_CONCURRENCY = 20
 
   constructor(
     private readonly prismaService: PrismaService,
@@ -33,7 +60,7 @@ export class EventsService {
   ) {}
 
   @Cron(process.env.ADSGRAM_REGISTRATION_RETRY_CRON || '0 */5 * * * *')
-  public async retryPendingAdsgramEvents() {
+  public async retryPendingAdsgramEvents(): Promise<void> {
     try {
       const pending = await this.prismaService.events.findMany({
         where: {
@@ -55,26 +82,45 @@ export class EventsService {
 
       if (pending.length === 0) return
 
+      const sendable = pending.filter(
+        (e): e is typeof e & { recordId: string } =>
+          Boolean(e.recordId?.trim()),
+      )
+
       let sentCount = 0
-      for (const event of pending) {
-        if (!event.recordId?.trim()) continue
-        const sent = await this.trySendAdsgramEventById(event.id)
-        if (sent) sentCount++
+      // Ограниченный параллелизм вместо полностью последовательной отправки —
+      // ускоряет прогон батча, не заваливая внешний API.
+      for (
+        let i = 0;
+        i < sendable.length;
+        i += this.ADSGRAM_RETRY_CONCURRENCY
+      ) {
+        const chunk = sendable.slice(i, i + this.ADSGRAM_RETRY_CONCURRENCY)
+        const results = await Promise.all(
+          chunk.map((event) =>
+            this.sendAdsgramEvent({
+              id: event.id,
+              eventType: event.eventType as EventType,
+              recordId: event.recordId,
+            }),
+          ),
+        )
+        sentCount += results.filter(Boolean).length
       }
 
-      if (sentCount > 0) {
-        this.logger.info({
-          msg: 'Adsgram retry sent',
-          processed: pending.length,
-          sent: sentCount,
-        })
-      }
+      this.logger.info({
+        msg: 'Adsgram retry sent',
+        processed: pending.length,
+        sent: sentCount,
+      })
     } catch (error) {
       this.logger.error({ msg: 'Adsgram retry failed', error })
     }
   }
 
-  public async trySendAdsgramRegistrationByUserId(userId: string) {
+  public async trySendAdsgramRegistrationByUserId(
+    userId: string,
+  ): Promise<boolean> {
     const event = await this.prismaService.events.findFirst({
       where: {
         userId,
@@ -84,37 +130,46 @@ export class EventsService {
         recordId: { not: null },
       },
       orderBy: { createdAt: 'asc' },
-      select: { id: true },
+      select: { id: true, eventType: true, recordId: true },
     })
 
-    if (!event) return false
+    if (!event?.recordId?.trim()) return false
 
-    return this.trySendAdsgramEventById(event.id)
+    return this.sendAdsgramEvent({
+      id: event.id,
+      eventType: event.eventType as EventType,
+      recordId: event.recordId,
+    })
   }
 
-  private getAdsgramGoalType(eventType: EventType): 1 | 2 | 3 | null {
-    if (eventType === EventType.REGISTRATION) return 1
-    if (eventType === EventType.FIRST_PAYMENT) return 2
-    if (eventType === EventType.RELOAD_PAYMENT) return 3
-    return null
-  }
-
-  private async trySendAdsgramEventById(eventId: string): Promise<boolean> {
-    const event = await this.prismaService.events.findUnique({
-      where: { id: eventId },
-      select: {
-        id: true,
-        eventType: true,
-        recordId: true,
-        adsgramRegistrationSentAt: true,
+  public async trySendAdsgramEventById(eventId: string): Promise<boolean> {
+    // Условие "ещё не отправлено" вынесено в WHERE, а не проверяется постфактум —
+    // сужает окно гонки между конкурентными вызовами.
+    const event = await this.prismaService.events.findFirst({
+      where: {
+        id: eventId,
+        adsgramRegistrationSentAt: null,
+        recordId: { not: null },
       },
+      select: { id: true, eventType: true, recordId: true },
     })
 
-    if (!event || event.adsgramRegistrationSentAt || !event.recordId?.trim()) {
-      return false
-    }
+    if (!event?.recordId?.trim()) return false
 
-    const goaltype = this.getAdsgramGoalType(event.eventType as EventType)
+    return this.sendAdsgramEvent({
+      id: event.id,
+      eventType: event.eventType as EventType,
+      recordId: event.recordId,
+    })
+  }
+
+  // Единая точка отправки события в Adsgram + атомарная простановка
+  // adsgramRegistrationSentAt. Не делает собственный fetch — вызывающий код
+  // уже должен был получить event из БД, чтобы не читать одну и ту же строку дважды.
+  private async sendAdsgramEvent(
+    event: AdsgramSendableEvent,
+  ): Promise<boolean> {
+    const goaltype = ADSGRAM_GOAL_BY_EVENT[event.eventType]
     if (!goaltype) return false
 
     const sent = await this.adsgramService.sendEvent({
@@ -123,8 +178,10 @@ export class EventsService {
     })
     if (!sent) return false
 
+    // Guard в WHERE — гарантирует, что «выигрывает» только один конкурентный вызов,
+    // даже если оба уже успели дернуть внешний API.
     const updated = await this.prismaService.events.updateMany({
-      where: { id: eventId, adsgramRegistrationSentAt: null },
+      where: { id: event.id, adsgramRegistrationSentAt: null },
       data: { adsgramRegistrationSentAt: new Date() },
     })
 
@@ -139,17 +196,18 @@ export class EventsService {
     userId: string
     eventType: EventType
     amountStars?: number
-  }) {
+  }): Promise<void> {
     try {
       if (
         eventType === EventType.ACTIVATION ||
         eventType === EventType.FIRST_PAYMENT ||
         eventType === EventType.REGISTRATION
       ) {
-        const getEvent = await this.prismaService.events.findFirst({
+        const existing = await this.prismaService.events.findFirst({
           where: { userId, eventType },
+          select: { id: true },
         })
-        if (getEvent) return
+        if (existing) return
       }
 
       const user = await this.prismaService.users.findUnique({
@@ -157,7 +215,14 @@ export class EventsService {
         include: { acquisition: true },
       })
 
-      if (!user) return
+      if (!user) {
+        this.logger.warn({
+          msg: 'createEvent: user not found',
+          userId,
+          eventType,
+        })
+        return
+      }
 
       const startParams =
         user.acquisition?.firstStartParams ||
@@ -168,7 +233,7 @@ export class EventsService {
         user.acquisition?.lastReferralId ||
         ''
 
-      const parseStartParams = parseStartParamUtil(startParams ?? '')
+      const parseStartParams = parseStartParamUtil(startParams)
       const hasOtherData =
         Object.keys(parseStartParams.params).length > 0 ||
         parseStartParams.none.length > 0
@@ -200,23 +265,26 @@ export class EventsService {
             },
           }),
         },
+        select: { id: true },
       })
 
-      if (
-        parseStartParams.params.source &&
-        parseStartParams.params.source.toLocaleLowerCase() === 'adsgram' &&
-        parseStartParams.params.record &&
+      const source = parseStartParams.params.source
+      const isAdsgramEligible =
+        source?.toLocaleLowerCase() === 'adsgram' &&
+        Boolean(parseStartParams.params.record) &&
         (eventType === EventType.REGISTRATION ||
           eventType === EventType.FIRST_PAYMENT ||
-          eventType === EventType.RELOAD_PAYMENT)
-      ) {
+          eventType === EventType.RELOAD_PAYMENT ||
+          eventType === EventType.REACTIVATION)
+
+      if (isAdsgramEligible) {
         await this.trySendAdsgramEventById(createdEvent.id)
-      } else if (parseStartParams.params.source) {
+      } else if (source) {
         this.logger.debug({
           msg: 'Adsgram conversion condition not met',
           userId,
           eventType,
-          source: parseStartParams.params.source,
+          source,
           hasRecord: Boolean(parseStartParams.params.record),
         })
       }
@@ -227,7 +295,7 @@ export class EventsService {
         amountStars,
       })
     } catch (error) {
-      this.logger.error(error)
+      this.logger.error({ msg: 'createEvent failed', userId, eventType, error })
     }
   }
 
