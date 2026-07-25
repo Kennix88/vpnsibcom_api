@@ -18,7 +18,6 @@ export interface UserDataInterface {
   photoUrl?: string
   languageCode: string
   currencyCode: CurrencyEnum
-  referralsCount: number
   isTgProgramPartner: boolean
   tgProgramPartnerExpiredAt?: Date
   balance: UserBalanceInterface
@@ -27,6 +26,10 @@ export interface UserDataInterface {
   nextAdsRewardAt?: Date
   nextAdsgramTaskAt?: Date
   minPayStars: number
+  referralReactivations: number
+  referralsCount: number
+  referralsWeekSubCount: number
+  reactivationDays: number
   lastFullscreenViewedAt?: Date
   premium: PremiumStatusInterface
 }
