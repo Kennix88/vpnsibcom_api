@@ -20,7 +20,7 @@ import {
 import { TelegramPlatformEnum } from '@shared/utils/detect-platform.util'
 import { isRtl } from '@shared/utils/is-rtl.util'
 import { parseStartParamUtil } from '@shared/utils/parse-start-param.util'
-import { addHours, isBefore } from 'date-fns'
+import { addHours, differenceInDays, isBefore } from 'date-fns'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Markup, Telegraf } from 'telegraf'
@@ -129,9 +129,9 @@ export class UsersService {
             type: 'photo',
             id: crypto.randomUUID(),
             photo_url:
-              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome-2.jpg',
+              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome-1.jpg',
             thumbnail_url:
-              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome-2.jpg',
+              'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome-1.jpg',
             caption:
               '<b>VPN, который думает за тебя 🧠\nЗаблокированное — открывает. Российские сайты — пускает напрямую. Игры — без потери пинга.\nИ всё это бесплатно, прямо в Telegram</b>',
             parse_mode: 'HTML',
@@ -244,6 +244,10 @@ export class UsersService {
         },
       ]
 
+      const refsWeekSub = user.referrals.filter(
+        (el) => el.level == 1 && el.isActivated && el.isWeekSub,
+      )
+
       return {
         id: user.id,
         telegramId: user.telegramId,
@@ -265,7 +269,6 @@ export class UsersService {
         photoUrl: user.telegramData.photoUrl,
         languageCode: user.language.iso6391,
         currencyCode: user.currency.key as CurrencyEnum,
-        referralsCount: user.referrals.length,
         balance: {
           payment: Number(user.balance.paymentBalance),
           hold: Number(user.balance.holdBalance),
@@ -279,6 +282,10 @@ export class UsersService {
         nextAdsgramTaskAt: user.nextAdsgramTaskAt,
         minPayStars: user.role.minPayStars,
         lastFullscreenViewedAt: user.adsData.lastFullscreenViewedAt,
+        reactivationDays: settings.reactivationDays,
+        referralReactivations: user.referralReactivations,
+        referralsCount: user.referrals.length,
+        referralsWeekSubCount: refsWeekSub.length,
         premium: {
           methods,
           periods,
@@ -983,6 +990,65 @@ export class UsersService {
         period,
       })
       return false
+    }
+  }
+
+  public async reactivationUser(
+    userId: string,
+    ref: number | string,
+  ): Promise<void> {
+    try {
+      const refTelegramId = ref.toString()
+
+      // Независимые запросы — параллельно
+      const [user, inviter, settings] = await Promise.all([
+        this.prismaService.users.findUnique({ where: { id: userId } }),
+        this.prismaService.users.findUnique({
+          where: { telegramId: refTelegramId },
+        }),
+        this.prismaService.settings.findUnique({
+          where: { key: DefaultEnum.DEFAULT },
+        }),
+      ])
+
+      if (!user || !inviter || !settings) return
+      if (!user.lastStartedAt) return
+
+      const { reactivationDays } = settings
+      if (typeof reactivationDays !== 'number' || reactivationDays <= 0) return
+
+      // Реактивация засчитывается, только если прошло >= reactivationDays с последнего старта
+      const daysSinceLastStart = differenceInDays(
+        new Date(),
+        user.lastStartedAt,
+      )
+      if (daysSinceLastStart < reactivationDays) return
+
+      await this.prismaService.$transaction(async (tx) => {
+        await tx.users.update({
+          where: { id: userId },
+          data: { reactivationAt: new Date() },
+        })
+
+        // Обновляем по id, а не по telegramId — избегаем повторного поиска по строковому индексу
+        await tx.users.update({
+          where: { id: inviter.id },
+          data: { referralReactivations: { increment: 1 } },
+        })
+
+        await this.eventsService.createEvent({
+          userId,
+          eventType: EventType.REACTIVATION,
+        })
+      })
+    } catch (error) {
+      this.logger.error({
+        msg: `Error при реактивации пользователя`,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        userId,
+        ref,
+      })
     }
   }
 }
