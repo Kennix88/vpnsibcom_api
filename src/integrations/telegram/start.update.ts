@@ -20,7 +20,10 @@ import { createReadStream } from 'fs'
 import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { Command, Ctx, Help, InjectBot, Start, Update } from 'nestjs-telegraf'
+import { join } from 'path'
 import { Markup, Telegraf } from 'telegraf'
+
+const ASSETS_PATH = join(process.cwd(), 'assets')
 
 @Update()
 export class StartUpdate {
@@ -44,7 +47,70 @@ export class StartUpdate {
     this.logger.setContext(StartUpdate.name)
   }
 
+  @Command(['terms', 'policy', 'privacy', 'docs'])
+  async docsCommand(@Ctx() ctx: Context) {
+    if (!ctx.from) {
+      return
+    }
+    if (ctx.from.is_bot) {
+      this.logger.warn({
+        msg: 'Bot update received',
+        update: ctx.update,
+      })
+      return
+    }
+    if (ctx.chat?.type !== 'private') {
+      await this.sendNonPrivateChatPitch(ctx).catch(console.error)
+      return
+    }
+
+    try {
+      await ctx.replyWithMediaGroup([
+        {
+          type: 'document',
+          media: {
+            source: createReadStream(join(ASSETS_PATH, 'agreement.md')),
+            filename: 'Пользовательское соглашение.md',
+          },
+          caption:
+            '📄 <b>Пользовательское соглашение VPNsib</b>\n\n' +
+            'Документ описывает условия использования сервиса, права и ' +
+            'обязанности сторон. Используя бота, вы подтверждаете согласие с его условиями.',
+          parse_mode: 'HTML',
+        },
+        {
+          type: 'document',
+          media: {
+            source: createReadStream(join(ASSETS_PATH, 'policy.md')),
+            filename: 'Политика конфиденциальности.md',
+          },
+          caption:
+            '🔒 <b>Политика конфиденциальности VPNsib</b>\n\n' +
+            'Здесь описано, какие данные мы собираем, как их храним и обрабатываем.',
+          parse_mode: 'HTML',
+        },
+      ])
+
+      await ctx.reply(
+        'Если остались вопросы по документам — используйте /help, там есть контакты поддержки.',
+        { reply_markup: { remove_keyboard: true } },
+      )
+    } catch (error) {
+      this.logger.error({
+        msg: 'Failed to send legal docs',
+        error,
+        userId: ctx.from.id,
+      })
+      await ctx
+        .reply(
+          'Не удалось отправить документы, попробуйте позже или напишите в поддержку через /help.',
+        )
+        .catch(console.error)
+    }
+  }
+
   @Help()
+  @Command(['support'])
   async helpCommand(@Ctx() ctx: Context) {
     if (!ctx.from) {
       return
@@ -65,14 +131,15 @@ export class StartUpdate {
     }
 
     await ctx.replyWithHTML(
-      `<b>Help</b>
+      `<b>Помощь</b>
 <b>Ваш Telegram id</b>: <code>${ctx.from.id}</code>
 
 Если у вас возникнут какие-либо трудности с оплатой, подпиской или чем-либо еще, напишите нам!
 
 <b>Команды</b>
 /start - Перезапустить бота
-/help - Помощь
+/help - Помощь или @vpnsibcom_support
+/docs - Пользовательское соглашение и Политика конфиденциальности
 `,
       {
         reply_markup: {
@@ -94,6 +161,16 @@ export class StartUpdate {
                 this.configService.get<string>('CHAT_URL'),
               ),
             ],
+            [
+              Markup.button.url(
+                '💬 Приватная поддержка',
+                'https://t.me/vpnsibcom?direct',
+              ),
+              Markup.button.url(
+                '💬 Агент поддержки',
+                'https://t.me/vpnsibcom_support',
+              ),
+            ],
           ],
         },
       },
@@ -101,7 +178,7 @@ export class StartUpdate {
   }
 
   @Start()
-  @Command(['settings', 'profile', 'cancel', 'subscribe', 'policy'])
+  @Command(['settings', 'profile', 'cancel', 'subscribe'])
   async startCommand(@Ctx() ctx: Context) {
     try {
       if (!ctx.from) {
@@ -256,6 +333,11 @@ export class StartUpdate {
 VPN, который думает за тебя 🧠
 Заблокированное — открывает. Российские сайты — пускает напрямую. Игры — без потери пинга.
 И всё это бесплатно, прямо в Telegram</b>
+
+<b>Команды</b>
+/start - Перезапустить бота
+/help - Помощь или @vpnsibcom_support
+/docs - Пользовательское соглашение и Политика конфиденциальности
 `,
           parse_mode: 'HTML',
           reply_markup: {
@@ -320,7 +402,6 @@ VPN, который думает за тебя 🧠
   //   await this.sendNonPrivateChatPitch(ctx).catch(console.error)
   //   return
   // }
-
   private async sendNonPrivateChatPitch(ctx: Context) {
     const tmaUrl =
       this.configService.get<string>('TMA_URL') ||
