@@ -58,6 +58,7 @@ export type SettingsAvgAggregateOutputType = {
   nextAdsHours: number | null
   premiumStatusPriceStars: number | null
   premiumStatusDiscountRatio: number | null
+  reactivationDays: number | null
 }
 
 export type SettingsSumAggregateOutputType = {
@@ -92,6 +93,7 @@ export type SettingsSumAggregateOutputType = {
   nextAdsHours: number | null
   premiumStatusPriceStars: number | null
   premiumStatusDiscountRatio: number | null
+  reactivationDays: number | null
 }
 
 export type SettingsMinAggregateOutputType = {
@@ -130,9 +132,9 @@ export type SettingsMinAggregateOutputType = {
   importUsersUrl: string | null
   isActiveImportUsers: boolean | null
   isActiveCheckUsers: boolean | null
-  defaultAnnounce: string | null
   premiumStatusPriceStars: number | null
   premiumStatusDiscountRatio: number | null
+  reactivationDays: number | null
   chatId: string | null
   channelId: string | null
 }
@@ -173,9 +175,9 @@ export type SettingsMaxAggregateOutputType = {
   importUsersUrl: string | null
   isActiveImportUsers: boolean | null
   isActiveCheckUsers: boolean | null
-  defaultAnnounce: string | null
   premiumStatusPriceStars: number | null
   premiumStatusDiscountRatio: number | null
+  reactivationDays: number | null
   chatId: string | null
   channelId: string | null
 }
@@ -216,10 +218,10 @@ export type SettingsCountAggregateOutputType = {
   importUsersUrl: number
   isActiveImportUsers: number
   isActiveCheckUsers: number
-  defaultAnnounce: number
   telegramConfigLinks: number
   premiumStatusPriceStars: number
   premiumStatusDiscountRatio: number
+  reactivationDays: number
   chatId: number
   channelId: number
   _all: number
@@ -258,6 +260,7 @@ export type SettingsAvgAggregateInputType = {
   nextAdsHours?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
+  reactivationDays?: true
 }
 
 export type SettingsSumAggregateInputType = {
@@ -292,6 +295,7 @@ export type SettingsSumAggregateInputType = {
   nextAdsHours?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
+  reactivationDays?: true
 }
 
 export type SettingsMinAggregateInputType = {
@@ -330,9 +334,9 @@ export type SettingsMinAggregateInputType = {
   importUsersUrl?: true
   isActiveImportUsers?: true
   isActiveCheckUsers?: true
-  defaultAnnounce?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
+  reactivationDays?: true
   chatId?: true
   channelId?: true
 }
@@ -373,9 +377,9 @@ export type SettingsMaxAggregateInputType = {
   importUsersUrl?: true
   isActiveImportUsers?: true
   isActiveCheckUsers?: true
-  defaultAnnounce?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
+  reactivationDays?: true
   chatId?: true
   channelId?: true
 }
@@ -416,10 +420,10 @@ export type SettingsCountAggregateInputType = {
   importUsersUrl?: true
   isActiveImportUsers?: true
   isActiveCheckUsers?: true
-  defaultAnnounce?: true
   telegramConfigLinks?: true
   premiumStatusPriceStars?: true
   premiumStatusDiscountRatio?: true
+  reactivationDays?: true
   chatId?: true
   channelId?: true
   _all?: true
@@ -547,10 +551,10 @@ export type SettingsGroupByOutputType = {
   importUsersUrl: string | null
   isActiveImportUsers: boolean
   isActiveCheckUsers: boolean
-  defaultAnnounce: string | null
   telegramConfigLinks: runtime.JsonValue | null
   premiumStatusPriceStars: number
   premiumStatusDiscountRatio: number
+  reactivationDays: number
   chatId: string
   channelId: string
   _count: SettingsCountAggregateOutputType | null
@@ -614,10 +618,10 @@ export type SettingsWhereInput = {
   importUsersUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
   isActiveImportUsers?: Prisma.BoolFilter<"Settings"> | boolean
   isActiveCheckUsers?: Prisma.BoolFilter<"Settings"> | boolean
-  defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableFilter<"Settings">
   premiumStatusPriceStars?: Prisma.FloatFilter<"Settings"> | number
   premiumStatusDiscountRatio?: Prisma.FloatFilter<"Settings"> | number
+  reactivationDays?: Prisma.IntFilter<"Settings"> | number
   chatId?: Prisma.StringFilter<"Settings"> | string
   channelId?: Prisma.StringFilter<"Settings"> | string
 }
@@ -658,10 +662,10 @@ export type SettingsOrderByWithRelationInput = {
   importUsersUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
-  defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrderInput | Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
+  reactivationDays?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
 }
@@ -705,10 +709,10 @@ export type SettingsWhereUniqueInput = Prisma.AtLeast<{
   importUsersUrl?: Prisma.StringNullableFilter<"Settings"> | string | null
   isActiveImportUsers?: Prisma.BoolFilter<"Settings"> | boolean
   isActiveCheckUsers?: Prisma.BoolFilter<"Settings"> | boolean
-  defaultAnnounce?: Prisma.StringNullableFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableFilter<"Settings">
   premiumStatusPriceStars?: Prisma.FloatFilter<"Settings"> | number
   premiumStatusDiscountRatio?: Prisma.FloatFilter<"Settings"> | number
+  reactivationDays?: Prisma.IntFilter<"Settings"> | number
   chatId?: Prisma.StringFilter<"Settings"> | string
   channelId?: Prisma.StringFilter<"Settings"> | string
 }, "key">
@@ -749,10 +753,10 @@ export type SettingsOrderByWithAggregationInput = {
   importUsersUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
-  defaultAnnounce?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrderInput | Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
+  reactivationDays?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
   _count?: Prisma.SettingsCountOrderByAggregateInput
@@ -801,10 +805,10 @@ export type SettingsScalarWhereWithAggregatesInput = {
   importUsersUrl?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   isActiveImportUsers?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
   isActiveCheckUsers?: Prisma.BoolWithAggregatesFilter<"Settings"> | boolean
-  defaultAnnounce?: Prisma.StringNullableWithAggregatesFilter<"Settings"> | string | null
   telegramConfigLinks?: Prisma.JsonNullableWithAggregatesFilter<"Settings">
   premiumStatusPriceStars?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
   premiumStatusDiscountRatio?: Prisma.FloatWithAggregatesFilter<"Settings"> | number
+  reactivationDays?: Prisma.IntWithAggregatesFilter<"Settings"> | number
   chatId?: Prisma.StringWithAggregatesFilter<"Settings"> | string
   channelId?: Prisma.StringWithAggregatesFilter<"Settings"> | string
 }
@@ -845,10 +849,10 @@ export type SettingsCreateInput = {
   importUsersUrl?: string | null
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
-  defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   premiumStatusPriceStars?: number
   premiumStatusDiscountRatio?: number
+  reactivationDays?: number
   chatId?: string
   channelId?: string
 }
@@ -889,10 +893,10 @@ export type SettingsUncheckedCreateInput = {
   importUsersUrl?: string | null
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
-  defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   premiumStatusPriceStars?: number
   premiumStatusDiscountRatio?: number
+  reactivationDays?: number
   chatId?: string
   channelId?: string
 }
@@ -933,10 +937,10 @@ export type SettingsUpdateInput = {
   importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActiveImportUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   premiumStatusPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   premiumStatusDiscountRatio?: Prisma.FloatFieldUpdateOperationsInput | number
+  reactivationDays?: Prisma.IntFieldUpdateOperationsInput | number
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
   channelId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -977,10 +981,10 @@ export type SettingsUncheckedUpdateInput = {
   importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActiveImportUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   premiumStatusPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   premiumStatusDiscountRatio?: Prisma.FloatFieldUpdateOperationsInput | number
+  reactivationDays?: Prisma.IntFieldUpdateOperationsInput | number
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
   channelId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -1021,10 +1025,10 @@ export type SettingsCreateManyInput = {
   importUsersUrl?: string | null
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
-  defaultAnnounce?: string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   premiumStatusPriceStars?: number
   premiumStatusDiscountRatio?: number
+  reactivationDays?: number
   chatId?: string
   channelId?: string
 }
@@ -1065,10 +1069,10 @@ export type SettingsUpdateManyMutationInput = {
   importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActiveImportUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   premiumStatusPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   premiumStatusDiscountRatio?: Prisma.FloatFieldUpdateOperationsInput | number
+  reactivationDays?: Prisma.IntFieldUpdateOperationsInput | number
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
   channelId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -1109,10 +1113,10 @@ export type SettingsUncheckedUpdateManyInput = {
   importUsersUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActiveImportUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActiveCheckUsers?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  defaultAnnounce?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramConfigLinks?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   premiumStatusPriceStars?: Prisma.FloatFieldUpdateOperationsInput | number
   premiumStatusDiscountRatio?: Prisma.FloatFieldUpdateOperationsInput | number
+  reactivationDays?: Prisma.IntFieldUpdateOperationsInput | number
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
   channelId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -1153,10 +1157,10 @@ export type SettingsCountOrderByAggregateInput = {
   importUsersUrl?: Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
-  defaultAnnounce?: Prisma.SortOrder
   telegramConfigLinks?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
+  reactivationDays?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
 }
@@ -1193,6 +1197,7 @@ export type SettingsAvgOrderByAggregateInput = {
   nextAdsHours?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
+  reactivationDays?: Prisma.SortOrder
 }
 
 export type SettingsMaxOrderByAggregateInput = {
@@ -1231,9 +1236,9 @@ export type SettingsMaxOrderByAggregateInput = {
   importUsersUrl?: Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
-  defaultAnnounce?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
+  reactivationDays?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
 }
@@ -1274,9 +1279,9 @@ export type SettingsMinOrderByAggregateInput = {
   importUsersUrl?: Prisma.SortOrder
   isActiveImportUsers?: Prisma.SortOrder
   isActiveCheckUsers?: Prisma.SortOrder
-  defaultAnnounce?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
+  reactivationDays?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   channelId?: Prisma.SortOrder
 }
@@ -1313,6 +1318,7 @@ export type SettingsSumOrderByAggregateInput = {
   nextAdsHours?: Prisma.SortOrder
   premiumStatusPriceStars?: Prisma.SortOrder
   premiumStatusDiscountRatio?: Prisma.SortOrder
+  reactivationDays?: Prisma.SortOrder
 }
 
 export type EnumDefaultEnumFieldUpdateOperationsInput = {
@@ -1393,10 +1399,10 @@ export type SettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   importUsersUrl?: boolean
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
-  defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
   premiumStatusPriceStars?: boolean
   premiumStatusDiscountRatio?: boolean
+  reactivationDays?: boolean
   chatId?: boolean
   channelId?: boolean
 }, ExtArgs["result"]["settings"]>
@@ -1437,10 +1443,10 @@ export type SettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   importUsersUrl?: boolean
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
-  defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
   premiumStatusPriceStars?: boolean
   premiumStatusDiscountRatio?: boolean
+  reactivationDays?: boolean
   chatId?: boolean
   channelId?: boolean
 }, ExtArgs["result"]["settings"]>
@@ -1481,10 +1487,10 @@ export type SettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   importUsersUrl?: boolean
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
-  defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
   premiumStatusPriceStars?: boolean
   premiumStatusDiscountRatio?: boolean
+  reactivationDays?: boolean
   chatId?: boolean
   channelId?: boolean
 }, ExtArgs["result"]["settings"]>
@@ -1525,15 +1531,15 @@ export type SettingsSelectScalar = {
   importUsersUrl?: boolean
   isActiveImportUsers?: boolean
   isActiveCheckUsers?: boolean
-  defaultAnnounce?: boolean
   telegramConfigLinks?: boolean
   premiumStatusPriceStars?: boolean
   premiumStatusDiscountRatio?: boolean
+  reactivationDays?: boolean
   chatId?: boolean
   channelId?: boolean
 }
 
-export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "isActiveSendAdsMessages" | "nextAdsHours" | "importUsersUrl" | "isActiveImportUsers" | "isActiveCheckUsers" | "defaultAnnounce" | "telegramConfigLinks" | "premiumStatusPriceStars" | "premiumStatusDiscountRatio" | "chatId" | "channelId", ExtArgs["result"]["settings"]>
+export type SettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "tgStarsToUSD" | "telegramPremiumRatio" | "hourRatioPayment" | "dayRatioPayment" | "weekRatioPayment" | "threeMouthesRatioPayment" | "sixMouthesRatioPayment" | "oneYearRatioPayment" | "twoYearRatioPayment" | "threeYearRatioPayment" | "indefinitelyRatio" | "minWithdrawalUsdt" | "referralOneLevelPercent" | "referralTwoLevelPercent" | "referralThreeLevelPercent" | "isActiveTgPartnerProgram" | "commissionRatioTgPartnerProgram" | "mouthesCountTgPartnerProgram" | "telegramPartnerProgramRatio" | "adsRewardNextCompletionInMinute" | "adsgramTaskNextCompletionInMinute" | "bonusPayment250" | "bonusPayment500" | "bonusPayment1000" | "bonusPayment2500" | "bonusPayment5000" | "bonusPayment10000" | "bonusPayment20000" | "bonusPayment50000" | "isActiveSendAdsMessages" | "nextAdsHours" | "importUsersUrl" | "isActiveImportUsers" | "isActiveCheckUsers" | "telegramConfigLinks" | "premiumStatusPriceStars" | "premiumStatusDiscountRatio" | "reactivationDays" | "chatId" | "channelId", ExtArgs["result"]["settings"]>
 
 export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settings"
@@ -1574,10 +1580,10 @@ export type $SettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     importUsersUrl: string | null
     isActiveImportUsers: boolean
     isActiveCheckUsers: boolean
-    defaultAnnounce: string | null
     telegramConfigLinks: runtime.JsonValue | null
     premiumStatusPriceStars: number
     premiumStatusDiscountRatio: number
+    reactivationDays: number
     chatId: string
     channelId: string
   }, ExtArgs["result"]["settings"]>
@@ -2038,10 +2044,10 @@ export interface SettingsFieldRefs {
   readonly importUsersUrl: Prisma.FieldRef<"Settings", 'String'>
   readonly isActiveImportUsers: Prisma.FieldRef<"Settings", 'Boolean'>
   readonly isActiveCheckUsers: Prisma.FieldRef<"Settings", 'Boolean'>
-  readonly defaultAnnounce: Prisma.FieldRef<"Settings", 'String'>
   readonly telegramConfigLinks: Prisma.FieldRef<"Settings", 'Json'>
   readonly premiumStatusPriceStars: Prisma.FieldRef<"Settings", 'Float'>
   readonly premiumStatusDiscountRatio: Prisma.FieldRef<"Settings", 'Float'>
+  readonly reactivationDays: Prisma.FieldRef<"Settings", 'Int'>
   readonly chatId: Prisma.FieldRef<"Settings", 'String'>
   readonly channelId: Prisma.FieldRef<"Settings", 'String'>
 }

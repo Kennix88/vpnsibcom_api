@@ -168,8 +168,8 @@ export type SubscriptionsGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 export type SubscriptionsGroupByOutputType = {
   id: string
   username: string
-  uuid: string | null
-  shortUuid: string | null
+  uuid: string
+  shortUuid: string
   subscriptionUrl: string | null
   happCryptoUrl: string | null
   createdAt: Date
@@ -200,8 +200,8 @@ export type SubscriptionsWhereInput = {
   NOT?: Prisma.SubscriptionsWhereInput | Prisma.SubscriptionsWhereInput[]
   id?: Prisma.StringFilter<"Subscriptions"> | string
   username?: Prisma.StringFilter<"Subscriptions"> | string
-  uuid?: Prisma.StringNullableFilter<"Subscriptions"> | string | null
-  shortUuid?: Prisma.StringNullableFilter<"Subscriptions"> | string | null
+  uuid?: Prisma.StringFilter<"Subscriptions"> | string
+  shortUuid?: Prisma.StringFilter<"Subscriptions"> | string
   subscriptionUrl?: Prisma.StringNullableFilter<"Subscriptions"> | string | null
   happCryptoUrl?: Prisma.StringNullableFilter<"Subscriptions"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Subscriptions"> | Date | string
@@ -212,8 +212,8 @@ export type SubscriptionsWhereInput = {
 export type SubscriptionsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   username?: Prisma.SortOrder
-  uuid?: Prisma.SortOrderInput | Prisma.SortOrder
-  shortUuid?: Prisma.SortOrderInput | Prisma.SortOrder
+  uuid?: Prisma.SortOrder
+  shortUuid?: Prisma.SortOrder
   subscriptionUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   happCryptoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -239,8 +239,8 @@ export type SubscriptionsWhereUniqueInput = Prisma.AtLeast<{
 export type SubscriptionsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   username?: Prisma.SortOrder
-  uuid?: Prisma.SortOrderInput | Prisma.SortOrder
-  shortUuid?: Prisma.SortOrderInput | Prisma.SortOrder
+  uuid?: Prisma.SortOrder
+  shortUuid?: Prisma.SortOrder
   subscriptionUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   happCryptoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -256,8 +256,8 @@ export type SubscriptionsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SubscriptionsScalarWhereWithAggregatesInput | Prisma.SubscriptionsScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Subscriptions"> | string
   username?: Prisma.StringWithAggregatesFilter<"Subscriptions"> | string
-  uuid?: Prisma.StringNullableWithAggregatesFilter<"Subscriptions"> | string | null
-  shortUuid?: Prisma.StringNullableWithAggregatesFilter<"Subscriptions"> | string | null
+  uuid?: Prisma.StringWithAggregatesFilter<"Subscriptions"> | string
+  shortUuid?: Prisma.StringWithAggregatesFilter<"Subscriptions"> | string
   subscriptionUrl?: Prisma.StringNullableWithAggregatesFilter<"Subscriptions"> | string | null
   happCryptoUrl?: Prisma.StringNullableWithAggregatesFilter<"Subscriptions"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Subscriptions"> | Date | string
@@ -267,8 +267,8 @@ export type SubscriptionsScalarWhereWithAggregatesInput = {
 export type SubscriptionsCreateInput = {
   id?: string
   username: string
-  uuid?: string | null
-  shortUuid?: string | null
+  uuid: string
+  shortUuid: string
   subscriptionUrl?: string | null
   happCryptoUrl?: string | null
   createdAt?: Date | string
@@ -279,8 +279,8 @@ export type SubscriptionsCreateInput = {
 export type SubscriptionsUncheckedCreateInput = {
   id?: string
   username: string
-  uuid?: string | null
-  shortUuid?: string | null
+  uuid: string
+  shortUuid: string
   subscriptionUrl?: string | null
   happCryptoUrl?: string | null
   createdAt?: Date | string
@@ -291,8 +291,8 @@ export type SubscriptionsUncheckedCreateInput = {
 export type SubscriptionsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  uuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shortUuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  shortUuid?: Prisma.StringFieldUpdateOperationsInput | string
   subscriptionUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -303,8 +303,8 @@ export type SubscriptionsUpdateInput = {
 export type SubscriptionsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  uuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shortUuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  shortUuid?: Prisma.StringFieldUpdateOperationsInput | string
   subscriptionUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -315,8 +315,8 @@ export type SubscriptionsUncheckedUpdateInput = {
 export type SubscriptionsCreateManyInput = {
   id?: string
   username: string
-  uuid?: string | null
-  shortUuid?: string | null
+  uuid: string
+  shortUuid: string
   subscriptionUrl?: string | null
   happCryptoUrl?: string | null
   createdAt?: Date | string
@@ -326,8 +326,8 @@ export type SubscriptionsCreateManyInput = {
 export type SubscriptionsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  uuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shortUuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  shortUuid?: Prisma.StringFieldUpdateOperationsInput | string
   subscriptionUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -337,8 +337,8 @@ export type SubscriptionsUpdateManyMutationInput = {
 export type SubscriptionsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  uuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shortUuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  shortUuid?: Prisma.StringFieldUpdateOperationsInput | string
   subscriptionUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -402,8 +402,8 @@ export type SubscriptionsUpdateOneWithoutUserNestedInput = {
 export type SubscriptionsCreateWithoutUserInput = {
   id?: string
   username: string
-  uuid?: string | null
-  shortUuid?: string | null
+  uuid: string
+  shortUuid: string
   subscriptionUrl?: string | null
   happCryptoUrl?: string | null
   createdAt?: Date | string
@@ -413,8 +413,8 @@ export type SubscriptionsCreateWithoutUserInput = {
 export type SubscriptionsUncheckedCreateWithoutUserInput = {
   id?: string
   username: string
-  uuid?: string | null
-  shortUuid?: string | null
+  uuid: string
+  shortUuid: string
   subscriptionUrl?: string | null
   happCryptoUrl?: string | null
   createdAt?: Date | string
@@ -440,8 +440,8 @@ export type SubscriptionsUpdateToOneWithWhereWithoutUserInput = {
 export type SubscriptionsUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  uuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shortUuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  shortUuid?: Prisma.StringFieldUpdateOperationsInput | string
   subscriptionUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -451,8 +451,8 @@ export type SubscriptionsUpdateWithoutUserInput = {
 export type SubscriptionsUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  uuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  shortUuid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  shortUuid?: Prisma.StringFieldUpdateOperationsInput | string
   subscriptionUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happCryptoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -521,8 +521,8 @@ export type $SubscriptionsPayload<ExtArgs extends runtime.Types.Extensions.Inter
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     username: string
-    uuid: string | null
-    shortUuid: string | null
+    uuid: string
+    shortUuid: string
     subscriptionUrl: string | null
     happCryptoUrl: string | null
     createdAt: Date

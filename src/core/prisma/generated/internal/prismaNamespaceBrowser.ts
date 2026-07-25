@@ -130,10 +130,10 @@ export const SettingsScalarFieldEnum = {
   importUsersUrl: 'importUsersUrl',
   isActiveImportUsers: 'isActiveImportUsers',
   isActiveCheckUsers: 'isActiveCheckUsers',
-  defaultAnnounce: 'defaultAnnounce',
   telegramConfigLinks: 'telegramConfigLinks',
   premiumStatusPriceStars: 'premiumStatusPriceStars',
   premiumStatusDiscountRatio: 'premiumStatusDiscountRatio',
+  reactivationDays: 'reactivationDays',
   chatId: 'chatId',
   channelId: 'channelId'
 } as const
@@ -177,6 +177,7 @@ export const ReferralsScalarFieldEnum = {
   referralId: 'referralId',
   totalUsdtRewarded: 'totalUsdtRewarded',
   isActivated: 'isActivated',
+  isWeekSub: 'isWeekSub',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -201,6 +202,8 @@ export const UsersScalarFieldEnum = {
   nextAdsRewardAt: 'nextAdsRewardAt',
   nextAdsgramTaskAt: 'nextAdsgramTaskAt',
   premiumExpiredAt: 'premiumExpiredAt',
+  reactivationAt: 'reactivationAt',
+  referralReactivations: 'referralReactivations',
   countryRegistration: 'countryRegistration',
   roleId: 'roleId',
   telegramDataId: 'telegramDataId',

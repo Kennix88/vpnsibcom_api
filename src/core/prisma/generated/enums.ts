@@ -20,7 +20,9 @@ export const EventTypeEnum = {
   REGISTRATION: 'REGISTRATION',
   ACTIVATION: 'ACTIVATION',
   FIRST_PAYMENT: 'FIRST_PAYMENT',
-  RELOAD_PAYMENT: 'RELOAD_PAYMENT'
+  RELOAD_PAYMENT: 'RELOAD_PAYMENT',
+  WEEK_SUB: 'WEEK_SUB',
+  REACTIVATION: 'REACTIVATION'
 } as const
 
 export type EventTypeEnum = (typeof EventTypeEnum)[keyof typeof EventTypeEnum]
@@ -106,7 +108,16 @@ export const SubscriptionExtensionsEnum = {
   CHANNEL: 'CHANNEL',
   CHAT: 'CHAT',
   BIO: 'BIO',
-  NAME: 'NAME'
+  NAME: 'NAME',
+  REFERRAL_3: 'REFERRAL_3',
+  REFERRAL_5: 'REFERRAL_5',
+  REFERRAL_10: 'REFERRAL_10',
+  REFERRAL_25: 'REFERRAL_25',
+  REFERRAL_50: 'REFERRAL_50',
+  REFERRAL_100: 'REFERRAL_100',
+  REFERRAL_REACTIVATION_10: 'REFERRAL_REACTIVATION_10',
+  REFERRAL_REACTIVATION_50: 'REFERRAL_REACTIVATION_50',
+  REFERRAL_REACTIVATION_100: 'REFERRAL_REACTIVATION_100'
 } as const
 
 export type SubscriptionExtensionsEnum = (typeof SubscriptionExtensionsEnum)[keyof typeof SubscriptionExtensionsEnum]
