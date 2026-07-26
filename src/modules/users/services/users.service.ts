@@ -133,7 +133,7 @@ export class UsersService {
             thumbnail_url:
               'https://kennix88.github.io/vpnsib-tonconnect-manifest/welcome-1.jpg',
             caption:
-              '<b>VPN, который думает за тебя 🧠\nЗаблокированное — открывает. Российские сайты — пускает напрямую. Игры — без потери пинга.\nИ всё это бесплатно, прямо в Telegram</b>',
+              '<b>VPN, который думает за тебя 🧠\nУмный роутинг оптимизирует открытие ресурсов. Игры — без потери пинга.\nИ всё это бесплатно, прямо в Telegram</b>',
             parse_mode: 'HTML',
             reply_markup: {
               inline_keyboard: [
