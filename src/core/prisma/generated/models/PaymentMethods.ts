@@ -27,23 +27,32 @@ export type AggregatePaymentMethods = {
 }
 
 export type PaymentMethodsAvgAggregateOutputType = {
+  tonJettonDecimals: number | null
   minAmount: number | null
   maxAmount: number | null
   commission: number | null
+  sort: number | null
 }
 
 export type PaymentMethodsSumAggregateOutputType = {
+  tonJettonDecimals: number | null
   minAmount: number | null
   maxAmount: number | null
   commission: number | null
+  sort: number | null
 }
 
 export type PaymentMethodsMinAggregateOutputType = {
   key: $Enums.PaymentMethodEnum | null
   name: string | null
+  description: string | null
+  bridge: string | null
   isActive: boolean | null
+  isVisible: boolean | null
   isTonBlockchain: boolean | null
+  category: $Enums.PaymentMethodCategoryEnum | null
   tonSmartContractAddress: string | null
+  tonJettonDecimals: number | null
   minAmount: number | null
   maxAmount: number | null
   commission: number | null
@@ -51,14 +60,20 @@ export type PaymentMethodsMinAggregateOutputType = {
   type: $Enums.PaymentMethodTypeEnum | null
   system: $Enums.PaymentSystemEnum | null
   currencyKey: $Enums.CurrencyEnum | null
+  sort: number | null
 }
 
 export type PaymentMethodsMaxAggregateOutputType = {
   key: $Enums.PaymentMethodEnum | null
   name: string | null
+  description: string | null
+  bridge: string | null
   isActive: boolean | null
+  isVisible: boolean | null
   isTonBlockchain: boolean | null
+  category: $Enums.PaymentMethodCategoryEnum | null
   tonSmartContractAddress: string | null
+  tonJettonDecimals: number | null
   minAmount: number | null
   maxAmount: number | null
   commission: number | null
@@ -66,14 +81,20 @@ export type PaymentMethodsMaxAggregateOutputType = {
   type: $Enums.PaymentMethodTypeEnum | null
   system: $Enums.PaymentSystemEnum | null
   currencyKey: $Enums.CurrencyEnum | null
+  sort: number | null
 }
 
 export type PaymentMethodsCountAggregateOutputType = {
   key: number
   name: number
+  description: number
+  bridge: number
   isActive: number
+  isVisible: number
   isTonBlockchain: number
+  category: number
   tonSmartContractAddress: number
+  tonJettonDecimals: number
   minAmount: number
   maxAmount: number
   commission: number
@@ -81,28 +102,38 @@ export type PaymentMethodsCountAggregateOutputType = {
   type: number
   system: number
   currencyKey: number
+  sort: number
   _all: number
 }
 
 
 export type PaymentMethodsAvgAggregateInputType = {
+  tonJettonDecimals?: true
   minAmount?: true
   maxAmount?: true
   commission?: true
+  sort?: true
 }
 
 export type PaymentMethodsSumAggregateInputType = {
+  tonJettonDecimals?: true
   minAmount?: true
   maxAmount?: true
   commission?: true
+  sort?: true
 }
 
 export type PaymentMethodsMinAggregateInputType = {
   key?: true
   name?: true
+  description?: true
+  bridge?: true
   isActive?: true
+  isVisible?: true
   isTonBlockchain?: true
+  category?: true
   tonSmartContractAddress?: true
+  tonJettonDecimals?: true
   minAmount?: true
   maxAmount?: true
   commission?: true
@@ -110,14 +141,20 @@ export type PaymentMethodsMinAggregateInputType = {
   type?: true
   system?: true
   currencyKey?: true
+  sort?: true
 }
 
 export type PaymentMethodsMaxAggregateInputType = {
   key?: true
   name?: true
+  description?: true
+  bridge?: true
   isActive?: true
+  isVisible?: true
   isTonBlockchain?: true
+  category?: true
   tonSmartContractAddress?: true
+  tonJettonDecimals?: true
   minAmount?: true
   maxAmount?: true
   commission?: true
@@ -125,14 +162,20 @@ export type PaymentMethodsMaxAggregateInputType = {
   type?: true
   system?: true
   currencyKey?: true
+  sort?: true
 }
 
 export type PaymentMethodsCountAggregateInputType = {
   key?: true
   name?: true
+  description?: true
+  bridge?: true
   isActive?: true
+  isVisible?: true
   isTonBlockchain?: true
+  category?: true
   tonSmartContractAddress?: true
+  tonJettonDecimals?: true
   minAmount?: true
   maxAmount?: true
   commission?: true
@@ -140,6 +183,7 @@ export type PaymentMethodsCountAggregateInputType = {
   type?: true
   system?: true
   currencyKey?: true
+  sort?: true
   _all?: true
 }
 
@@ -232,9 +276,14 @@ export type PaymentMethodsGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type PaymentMethodsGroupByOutputType = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description: string | null
+  bridge: string | null
   isActive: boolean
+  isVisible: boolean
   isTonBlockchain: boolean
+  category: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress: string | null
+  tonJettonDecimals: number | null
   minAmount: number
   maxAmount: number
   commission: number
@@ -242,6 +291,7 @@ export type PaymentMethodsGroupByOutputType = {
   type: $Enums.PaymentMethodTypeEnum
   system: $Enums.PaymentSystemEnum
   currencyKey: $Enums.CurrencyEnum
+  sort: number
   _count: PaymentMethodsCountAggregateOutputType | null
   _avg: PaymentMethodsAvgAggregateOutputType | null
   _sum: PaymentMethodsSumAggregateOutputType | null
@@ -270,9 +320,14 @@ export type PaymentMethodsWhereInput = {
   NOT?: Prisma.PaymentMethodsWhereInput | Prisma.PaymentMethodsWhereInput[]
   key?: Prisma.EnumPaymentMethodEnumFilter<"PaymentMethods"> | $Enums.PaymentMethodEnum
   name?: Prisma.StringFilter<"PaymentMethods"> | string
+  description?: Prisma.StringNullableFilter<"PaymentMethods"> | string | null
+  bridge?: Prisma.StringNullableFilter<"PaymentMethods"> | string | null
   isActive?: Prisma.BoolFilter<"PaymentMethods"> | boolean
+  isVisible?: Prisma.BoolFilter<"PaymentMethods"> | boolean
   isTonBlockchain?: Prisma.BoolFilter<"PaymentMethods"> | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFilter<"PaymentMethods"> | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.StringNullableFilter<"PaymentMethods"> | string | null
+  tonJettonDecimals?: Prisma.IntNullableFilter<"PaymentMethods"> | number | null
   minAmount?: Prisma.FloatFilter<"PaymentMethods"> | number
   maxAmount?: Prisma.FloatFilter<"PaymentMethods"> | number
   commission?: Prisma.FloatFilter<"PaymentMethods"> | number
@@ -280,6 +335,7 @@ export type PaymentMethodsWhereInput = {
   type?: Prisma.EnumPaymentMethodTypeEnumFilter<"PaymentMethods"> | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFilter<"PaymentMethods"> | $Enums.PaymentSystemEnum
   currencyKey?: Prisma.EnumCurrencyEnumFilter<"PaymentMethods"> | $Enums.CurrencyEnum
+  sort?: Prisma.IntFilter<"PaymentMethods"> | number
   payments?: Prisma.PaymentsListRelationFilter
   currency?: Prisma.XOR<Prisma.CurrencyScalarRelationFilter, Prisma.CurrencyWhereInput>
 }
@@ -287,9 +343,14 @@ export type PaymentMethodsWhereInput = {
 export type PaymentMethodsOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  bridge?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
   isTonBlockchain?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   tonSmartContractAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  tonJettonDecimals?: Prisma.SortOrderInput | Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
@@ -297,6 +358,7 @@ export type PaymentMethodsOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   system?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  sort?: Prisma.SortOrder
   payments?: Prisma.PaymentsOrderByRelationAggregateInput
   currency?: Prisma.CurrencyOrderByWithRelationInput
 }
@@ -308,8 +370,13 @@ export type PaymentMethodsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PaymentMethodsWhereInput[]
   NOT?: Prisma.PaymentMethodsWhereInput | Prisma.PaymentMethodsWhereInput[]
   name?: Prisma.StringFilter<"PaymentMethods"> | string
+  description?: Prisma.StringNullableFilter<"PaymentMethods"> | string | null
+  bridge?: Prisma.StringNullableFilter<"PaymentMethods"> | string | null
   isActive?: Prisma.BoolFilter<"PaymentMethods"> | boolean
+  isVisible?: Prisma.BoolFilter<"PaymentMethods"> | boolean
   isTonBlockchain?: Prisma.BoolFilter<"PaymentMethods"> | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFilter<"PaymentMethods"> | $Enums.PaymentMethodCategoryEnum
+  tonJettonDecimals?: Prisma.IntNullableFilter<"PaymentMethods"> | number | null
   minAmount?: Prisma.FloatFilter<"PaymentMethods"> | number
   maxAmount?: Prisma.FloatFilter<"PaymentMethods"> | number
   commission?: Prisma.FloatFilter<"PaymentMethods"> | number
@@ -317,6 +384,7 @@ export type PaymentMethodsWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumPaymentMethodTypeEnumFilter<"PaymentMethods"> | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFilter<"PaymentMethods"> | $Enums.PaymentSystemEnum
   currencyKey?: Prisma.EnumCurrencyEnumFilter<"PaymentMethods"> | $Enums.CurrencyEnum
+  sort?: Prisma.IntFilter<"PaymentMethods"> | number
   payments?: Prisma.PaymentsListRelationFilter
   currency?: Prisma.XOR<Prisma.CurrencyScalarRelationFilter, Prisma.CurrencyWhereInput>
 }, "key" | "tonSmartContractAddress">
@@ -324,9 +392,14 @@ export type PaymentMethodsWhereUniqueInput = Prisma.AtLeast<{
 export type PaymentMethodsOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  bridge?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
   isTonBlockchain?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   tonSmartContractAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  tonJettonDecimals?: Prisma.SortOrderInput | Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
@@ -334,6 +407,7 @@ export type PaymentMethodsOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   system?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  sort?: Prisma.SortOrder
   _count?: Prisma.PaymentMethodsCountOrderByAggregateInput
   _avg?: Prisma.PaymentMethodsAvgOrderByAggregateInput
   _max?: Prisma.PaymentMethodsMaxOrderByAggregateInput
@@ -347,9 +421,14 @@ export type PaymentMethodsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PaymentMethodsScalarWhereWithAggregatesInput | Prisma.PaymentMethodsScalarWhereWithAggregatesInput[]
   key?: Prisma.EnumPaymentMethodEnumWithAggregatesFilter<"PaymentMethods"> | $Enums.PaymentMethodEnum
   name?: Prisma.StringWithAggregatesFilter<"PaymentMethods"> | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"PaymentMethods"> | string | null
+  bridge?: Prisma.StringNullableWithAggregatesFilter<"PaymentMethods"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"PaymentMethods"> | boolean
+  isVisible?: Prisma.BoolWithAggregatesFilter<"PaymentMethods"> | boolean
   isTonBlockchain?: Prisma.BoolWithAggregatesFilter<"PaymentMethods"> | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumWithAggregatesFilter<"PaymentMethods"> | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.StringNullableWithAggregatesFilter<"PaymentMethods"> | string | null
+  tonJettonDecimals?: Prisma.IntNullableWithAggregatesFilter<"PaymentMethods"> | number | null
   minAmount?: Prisma.FloatWithAggregatesFilter<"PaymentMethods"> | number
   maxAmount?: Prisma.FloatWithAggregatesFilter<"PaymentMethods"> | number
   commission?: Prisma.FloatWithAggregatesFilter<"PaymentMethods"> | number
@@ -357,20 +436,27 @@ export type PaymentMethodsScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumPaymentMethodTypeEnumWithAggregatesFilter<"PaymentMethods"> | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumWithAggregatesFilter<"PaymentMethods"> | $Enums.PaymentSystemEnum
   currencyKey?: Prisma.EnumCurrencyEnumWithAggregatesFilter<"PaymentMethods"> | $Enums.CurrencyEnum
+  sort?: Prisma.IntWithAggregatesFilter<"PaymentMethods"> | number
 }
 
 export type PaymentMethodsCreateInput = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description?: string | null
+  bridge?: string | null
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: string | null
+  tonJettonDecimals?: number | null
   minAmount?: number
   maxAmount?: number
   commission?: number
   isPlusCommission?: boolean
   type?: $Enums.PaymentMethodTypeEnum
   system?: $Enums.PaymentSystemEnum
+  sort?: number
   payments?: Prisma.PaymentsCreateNestedManyWithoutMethodInput
   currency: Prisma.CurrencyCreateNestedOneWithoutPaymentMethodsInput
 }
@@ -378,9 +464,14 @@ export type PaymentMethodsCreateInput = {
 export type PaymentMethodsUncheckedCreateInput = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description?: string | null
+  bridge?: string | null
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: string | null
+  tonJettonDecimals?: number | null
   minAmount?: number
   maxAmount?: number
   commission?: number
@@ -388,21 +479,28 @@ export type PaymentMethodsUncheckedCreateInput = {
   type?: $Enums.PaymentMethodTypeEnum
   system?: $Enums.PaymentSystemEnum
   currencyKey: $Enums.CurrencyEnum
+  sort?: number
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutMethodInput
 }
 
 export type PaymentMethodsUpdateInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isPlusCommission?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
   payments?: Prisma.PaymentsUpdateManyWithoutMethodNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutPaymentMethodsNestedInput
 }
@@ -410,9 +508,14 @@ export type PaymentMethodsUpdateInput = {
 export type PaymentMethodsUncheckedUpdateInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -420,15 +523,21 @@ export type PaymentMethodsUncheckedUpdateInput = {
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutMethodNestedInput
 }
 
 export type PaymentMethodsCreateManyInput = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description?: string | null
+  bridge?: string | null
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: string | null
+  tonJettonDecimals?: number | null
   minAmount?: number
   maxAmount?: number
   commission?: number
@@ -436,28 +545,40 @@ export type PaymentMethodsCreateManyInput = {
   type?: $Enums.PaymentMethodTypeEnum
   system?: $Enums.PaymentSystemEnum
   currencyKey: $Enums.CurrencyEnum
+  sort?: number
 }
 
 export type PaymentMethodsUpdateManyMutationInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isPlusCommission?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type PaymentMethodsUncheckedUpdateManyInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -465,6 +586,7 @@ export type PaymentMethodsUncheckedUpdateManyInput = {
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type PaymentMethodsListRelationFilter = {
@@ -485,9 +607,14 @@ export type PaymentMethodsScalarRelationFilter = {
 export type PaymentMethodsCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  bridge?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
   isTonBlockchain?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   tonSmartContractAddress?: Prisma.SortOrder
+  tonJettonDecimals?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
@@ -495,20 +622,28 @@ export type PaymentMethodsCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   system?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  sort?: Prisma.SortOrder
 }
 
 export type PaymentMethodsAvgOrderByAggregateInput = {
+  tonJettonDecimals?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  sort?: Prisma.SortOrder
 }
 
 export type PaymentMethodsMaxOrderByAggregateInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  bridge?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
   isTonBlockchain?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   tonSmartContractAddress?: Prisma.SortOrder
+  tonJettonDecimals?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
@@ -516,14 +651,20 @@ export type PaymentMethodsMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   system?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  sort?: Prisma.SortOrder
 }
 
 export type PaymentMethodsMinOrderByAggregateInput = {
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  bridge?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isVisible?: Prisma.SortOrder
   isTonBlockchain?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   tonSmartContractAddress?: Prisma.SortOrder
+  tonJettonDecimals?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
@@ -531,12 +672,15 @@ export type PaymentMethodsMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   system?: Prisma.SortOrder
   currencyKey?: Prisma.SortOrder
+  sort?: Prisma.SortOrder
 }
 
 export type PaymentMethodsSumOrderByAggregateInput = {
+  tonJettonDecimals?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  sort?: Prisma.SortOrder
 }
 
 export type PaymentMethodsCreateNestedManyWithoutCurrencyInput = {
@@ -595,6 +739,10 @@ export type PaymentMethodsUpdateOneRequiredWithoutPaymentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PaymentMethodsUpdateToOneWithWhereWithoutPaymentsInput, Prisma.PaymentMethodsUpdateWithoutPaymentsInput>, Prisma.PaymentMethodsUncheckedUpdateWithoutPaymentsInput>
 }
 
+export type EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput = {
+  set?: $Enums.PaymentMethodCategoryEnum
+}
+
 export type EnumPaymentMethodTypeEnumFieldUpdateOperationsInput = {
   set?: $Enums.PaymentMethodTypeEnum
 }
@@ -606,30 +754,42 @@ export type EnumPaymentSystemEnumFieldUpdateOperationsInput = {
 export type PaymentMethodsCreateWithoutCurrencyInput = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description?: string | null
+  bridge?: string | null
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: string | null
+  tonJettonDecimals?: number | null
   minAmount?: number
   maxAmount?: number
   commission?: number
   isPlusCommission?: boolean
   type?: $Enums.PaymentMethodTypeEnum
   system?: $Enums.PaymentSystemEnum
+  sort?: number
   payments?: Prisma.PaymentsCreateNestedManyWithoutMethodInput
 }
 
 export type PaymentMethodsUncheckedCreateWithoutCurrencyInput = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description?: string | null
+  bridge?: string | null
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: string | null
+  tonJettonDecimals?: number | null
   minAmount?: number
   maxAmount?: number
   commission?: number
   isPlusCommission?: boolean
   type?: $Enums.PaymentMethodTypeEnum
   system?: $Enums.PaymentSystemEnum
+  sort?: number
   payments?: Prisma.PaymentsUncheckedCreateNestedManyWithoutMethodInput
 }
 
@@ -665,9 +825,14 @@ export type PaymentMethodsScalarWhereInput = {
   NOT?: Prisma.PaymentMethodsScalarWhereInput | Prisma.PaymentMethodsScalarWhereInput[]
   key?: Prisma.EnumPaymentMethodEnumFilter<"PaymentMethods"> | $Enums.PaymentMethodEnum
   name?: Prisma.StringFilter<"PaymentMethods"> | string
+  description?: Prisma.StringNullableFilter<"PaymentMethods"> | string | null
+  bridge?: Prisma.StringNullableFilter<"PaymentMethods"> | string | null
   isActive?: Prisma.BoolFilter<"PaymentMethods"> | boolean
+  isVisible?: Prisma.BoolFilter<"PaymentMethods"> | boolean
   isTonBlockchain?: Prisma.BoolFilter<"PaymentMethods"> | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFilter<"PaymentMethods"> | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.StringNullableFilter<"PaymentMethods"> | string | null
+  tonJettonDecimals?: Prisma.IntNullableFilter<"PaymentMethods"> | number | null
   minAmount?: Prisma.FloatFilter<"PaymentMethods"> | number
   maxAmount?: Prisma.FloatFilter<"PaymentMethods"> | number
   commission?: Prisma.FloatFilter<"PaymentMethods"> | number
@@ -675,29 +840,41 @@ export type PaymentMethodsScalarWhereInput = {
   type?: Prisma.EnumPaymentMethodTypeEnumFilter<"PaymentMethods"> | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFilter<"PaymentMethods"> | $Enums.PaymentSystemEnum
   currencyKey?: Prisma.EnumCurrencyEnumFilter<"PaymentMethods"> | $Enums.CurrencyEnum
+  sort?: Prisma.IntFilter<"PaymentMethods"> | number
 }
 
 export type PaymentMethodsCreateWithoutPaymentsInput = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description?: string | null
+  bridge?: string | null
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: string | null
+  tonJettonDecimals?: number | null
   minAmount?: number
   maxAmount?: number
   commission?: number
   isPlusCommission?: boolean
   type?: $Enums.PaymentMethodTypeEnum
   system?: $Enums.PaymentSystemEnum
+  sort?: number
   currency: Prisma.CurrencyCreateNestedOneWithoutPaymentMethodsInput
 }
 
 export type PaymentMethodsUncheckedCreateWithoutPaymentsInput = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description?: string | null
+  bridge?: string | null
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: string | null
+  tonJettonDecimals?: number | null
   minAmount?: number
   maxAmount?: number
   commission?: number
@@ -705,6 +882,7 @@ export type PaymentMethodsUncheckedCreateWithoutPaymentsInput = {
   type?: $Enums.PaymentMethodTypeEnum
   system?: $Enums.PaymentSystemEnum
   currencyKey: $Enums.CurrencyEnum
+  sort?: number
 }
 
 export type PaymentMethodsCreateOrConnectWithoutPaymentsInput = {
@@ -726,24 +904,35 @@ export type PaymentMethodsUpdateToOneWithWhereWithoutPaymentsInput = {
 export type PaymentMethodsUpdateWithoutPaymentsInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isPlusCommission?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutPaymentMethodsNestedInput
 }
 
 export type PaymentMethodsUncheckedUpdateWithoutPaymentsInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -751,64 +940,89 @@ export type PaymentMethodsUncheckedUpdateWithoutPaymentsInput = {
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
   currencyKey?: Prisma.EnumCurrencyEnumFieldUpdateOperationsInput | $Enums.CurrencyEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type PaymentMethodsCreateManyCurrencyInput = {
   key: $Enums.PaymentMethodEnum
   name: string
+  description?: string | null
+  bridge?: string | null
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: string | null
+  tonJettonDecimals?: number | null
   minAmount?: number
   maxAmount?: number
   commission?: number
   isPlusCommission?: boolean
   type?: $Enums.PaymentMethodTypeEnum
   system?: $Enums.PaymentSystemEnum
+  sort?: number
 }
 
 export type PaymentMethodsUpdateWithoutCurrencyInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isPlusCommission?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
   payments?: Prisma.PaymentsUpdateManyWithoutMethodNestedInput
 }
 
 export type PaymentMethodsUncheckedUpdateWithoutCurrencyInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isPlusCommission?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
   payments?: Prisma.PaymentsUncheckedUpdateManyWithoutMethodNestedInput
 }
 
 export type PaymentMethodsUncheckedUpdateManyWithoutCurrencyInput = {
   key?: Prisma.EnumPaymentMethodEnumFieldUpdateOperationsInput | $Enums.PaymentMethodEnum
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bridge?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVisible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isTonBlockchain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.EnumPaymentMethodCategoryEnumFieldUpdateOperationsInput | $Enums.PaymentMethodCategoryEnum
   tonSmartContractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonJettonDecimals?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   commission?: Prisma.FloatFieldUpdateOperationsInput | number
   isPlusCommission?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.EnumPaymentMethodTypeEnumFieldUpdateOperationsInput | $Enums.PaymentMethodTypeEnum
   system?: Prisma.EnumPaymentSystemEnumFieldUpdateOperationsInput | $Enums.PaymentSystemEnum
+  sort?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -845,9 +1059,14 @@ export type PaymentMethodsCountOutputTypeCountPaymentsArgs<ExtArgs extends runti
 export type PaymentMethodsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   name?: boolean
+  description?: boolean
+  bridge?: boolean
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: boolean
   tonSmartContractAddress?: boolean
+  tonJettonDecimals?: boolean
   minAmount?: boolean
   maxAmount?: boolean
   commission?: boolean
@@ -855,6 +1074,7 @@ export type PaymentMethodsSelect<ExtArgs extends runtime.Types.Extensions.Intern
   type?: boolean
   system?: boolean
   currencyKey?: boolean
+  sort?: boolean
   payments?: boolean | Prisma.PaymentMethods$paymentsArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.PaymentMethodsCountOutputTypeDefaultArgs<ExtArgs>
@@ -863,9 +1083,14 @@ export type PaymentMethodsSelect<ExtArgs extends runtime.Types.Extensions.Intern
 export type PaymentMethodsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   name?: boolean
+  description?: boolean
+  bridge?: boolean
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: boolean
   tonSmartContractAddress?: boolean
+  tonJettonDecimals?: boolean
   minAmount?: boolean
   maxAmount?: boolean
   commission?: boolean
@@ -873,15 +1098,21 @@ export type PaymentMethodsSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   type?: boolean
   system?: boolean
   currencyKey?: boolean
+  sort?: boolean
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["paymentMethods"]>
 
 export type PaymentMethodsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   name?: boolean
+  description?: boolean
+  bridge?: boolean
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: boolean
   tonSmartContractAddress?: boolean
+  tonJettonDecimals?: boolean
   minAmount?: boolean
   maxAmount?: boolean
   commission?: boolean
@@ -889,15 +1120,21 @@ export type PaymentMethodsSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   type?: boolean
   system?: boolean
   currencyKey?: boolean
+  sort?: boolean
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["paymentMethods"]>
 
 export type PaymentMethodsSelectScalar = {
   key?: boolean
   name?: boolean
+  description?: boolean
+  bridge?: boolean
   isActive?: boolean
+  isVisible?: boolean
   isTonBlockchain?: boolean
+  category?: boolean
   tonSmartContractAddress?: boolean
+  tonJettonDecimals?: boolean
   minAmount?: boolean
   maxAmount?: boolean
   commission?: boolean
@@ -905,9 +1142,10 @@ export type PaymentMethodsSelectScalar = {
   type?: boolean
   system?: boolean
   currencyKey?: boolean
+  sort?: boolean
 }
 
-export type PaymentMethodsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "name" | "isActive" | "isTonBlockchain" | "tonSmartContractAddress" | "minAmount" | "maxAmount" | "commission" | "isPlusCommission" | "type" | "system" | "currencyKey", ExtArgs["result"]["paymentMethods"]>
+export type PaymentMethodsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "name" | "description" | "bridge" | "isActive" | "isVisible" | "isTonBlockchain" | "category" | "tonSmartContractAddress" | "tonJettonDecimals" | "minAmount" | "maxAmount" | "commission" | "isPlusCommission" | "type" | "system" | "currencyKey" | "sort", ExtArgs["result"]["paymentMethods"]>
 export type PaymentMethodsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   payments?: boolean | Prisma.PaymentMethods$paymentsArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
@@ -929,9 +1167,14 @@ export type $PaymentMethodsPayload<ExtArgs extends runtime.Types.Extensions.Inte
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     key: $Enums.PaymentMethodEnum
     name: string
+    description: string | null
+    bridge: string | null
     isActive: boolean
+    isVisible: boolean
     isTonBlockchain: boolean
+    category: $Enums.PaymentMethodCategoryEnum
     tonSmartContractAddress: string | null
+    tonJettonDecimals: number | null
     minAmount: number
     maxAmount: number
     commission: number
@@ -939,6 +1182,7 @@ export type $PaymentMethodsPayload<ExtArgs extends runtime.Types.Extensions.Inte
     type: $Enums.PaymentMethodTypeEnum
     system: $Enums.PaymentSystemEnum
     currencyKey: $Enums.CurrencyEnum
+    sort: number
   }, ExtArgs["result"]["paymentMethods"]>
   composites: {}
 }
@@ -1366,9 +1610,14 @@ export interface Prisma__PaymentMethodsClient<T, Null = never, ExtArgs extends r
 export interface PaymentMethodsFieldRefs {
   readonly key: Prisma.FieldRef<"PaymentMethods", 'PaymentMethodEnum'>
   readonly name: Prisma.FieldRef<"PaymentMethods", 'String'>
+  readonly description: Prisma.FieldRef<"PaymentMethods", 'String'>
+  readonly bridge: Prisma.FieldRef<"PaymentMethods", 'String'>
   readonly isActive: Prisma.FieldRef<"PaymentMethods", 'Boolean'>
+  readonly isVisible: Prisma.FieldRef<"PaymentMethods", 'Boolean'>
   readonly isTonBlockchain: Prisma.FieldRef<"PaymentMethods", 'Boolean'>
+  readonly category: Prisma.FieldRef<"PaymentMethods", 'PaymentMethodCategoryEnum'>
   readonly tonSmartContractAddress: Prisma.FieldRef<"PaymentMethods", 'String'>
+  readonly tonJettonDecimals: Prisma.FieldRef<"PaymentMethods", 'Int'>
   readonly minAmount: Prisma.FieldRef<"PaymentMethods", 'Float'>
   readonly maxAmount: Prisma.FieldRef<"PaymentMethods", 'Float'>
   readonly commission: Prisma.FieldRef<"PaymentMethods", 'Float'>
@@ -1376,6 +1625,7 @@ export interface PaymentMethodsFieldRefs {
   readonly type: Prisma.FieldRef<"PaymentMethods", 'PaymentMethodTypeEnum'>
   readonly system: Prisma.FieldRef<"PaymentMethods", 'PaymentSystemEnum'>
   readonly currencyKey: Prisma.FieldRef<"PaymentMethods", 'CurrencyEnum'>
+  readonly sort: Prisma.FieldRef<"PaymentMethods", 'Int'>
 }
     
 

@@ -321,12 +321,26 @@ export const PaymentSystemEnum = {
   TELEGRAM: 'TELEGRAM',
   CRYPTOMUS: 'CRYPTOMUS',
   CRYPTOBOT: 'CRYPTOBOT',
+  XROCKET: 'XROCKET',
   TON_BLOCKCHAIN: 'TON_BLOCKCHAIN',
   PAYPALYCH: 'PAYPALYCH',
-  SKINSBACK: 'SKINSBACK'
+  SKINSBACK: 'SKINSBACK',
+  AURAPAY: 'AURAPAY',
+  PLATEGA: 'PLATEGA',
+  HELEKET: 'HELEKET'
 } as const
 
 export type PaymentSystemEnum = (typeof PaymentSystemEnum)[keyof typeof PaymentSystemEnum]
+
+
+export const PaymentMethodCategoryEnum = {
+  MAIN: 'MAIN',
+  RUS: 'RUS',
+  RESERVE: 'RESERVE',
+  CRYPTO: 'CRYPTO'
+} as const
+
+export type PaymentMethodCategoryEnum = (typeof PaymentMethodCategoryEnum)[keyof typeof PaymentMethodCategoryEnum]
 
 
 export const PaymentMethodTypeEnum = {
@@ -345,6 +359,11 @@ export const PaymentMethodEnum = {
   STARS: 'STARS',
   TOME_CARD: 'TOME_CARD',
   TOME_SBP: 'TOME_SBP',
+  AURAPAY_CARD: 'AURAPAY_CARD',
+  AURAPAY_SBP: 'AURAPAY_SBP',
+  PLATEGA_CARD: 'PLATEGA_CARD',
+  PLATEGA_SBP: 'PLATEGA_SBP',
+  HELEKET: 'HELEKET',
   PAYPALYCH_RUB: 'PAYPALYCH_RUB',
   PAYPALYCH_SBP: 'PAYPALYCH_SBP',
   PAYPALYCH_USD: 'PAYPALYCH_USD',

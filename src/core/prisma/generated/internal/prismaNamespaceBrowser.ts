@@ -535,16 +535,22 @@ export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typ
 export const PaymentMethodsScalarFieldEnum = {
   key: 'key',
   name: 'name',
+  description: 'description',
+  bridge: 'bridge',
   isActive: 'isActive',
+  isVisible: 'isVisible',
   isTonBlockchain: 'isTonBlockchain',
+  category: 'category',
   tonSmartContractAddress: 'tonSmartContractAddress',
+  tonJettonDecimals: 'tonJettonDecimals',
   minAmount: 'minAmount',
   maxAmount: 'maxAmount',
   commission: 'commission',
   isPlusCommission: 'isPlusCommission',
   type: 'type',
   system: 'system',
-  currencyKey: 'currencyKey'
+  currencyKey: 'currencyKey',
+  sort: 'sort'
 } as const
 
 export type PaymentMethodsScalarFieldEnum = (typeof PaymentMethodsScalarFieldEnum)[keyof typeof PaymentMethodsScalarFieldEnum]
