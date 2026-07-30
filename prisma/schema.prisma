@@ -834,9 +834,14 @@ enum PaymentStatusEnum {
 model PaymentMethods {
   key                     PaymentMethodEnum     @id
   name                    String
+  description String?
+  bridge String?
   isActive                Boolean               @default(false) @map("is_active")
+  isVisible Boolean @default(false) @map("is_visible")
   isTonBlockchain         Boolean               @default(false) @map("is_ton_blockchain")
-  tonSmartContractAddress String?               @unique @map("ton_smart_contract_address")
+  category PaymentMethodCategoryEnum @default(RESERVE)
+  tonSmartContractAddress String?  @unique @map("ton_smart_contract_address") // null = нативный TON, иначе jetton master
+    tonJettonDecimals       Int?     @map("ton_jetton_decimals") // 6 для USDT, только для jetton-методов
   minAmount               Float                 @default(0) @map("min_amount")
   maxAmount               Float                 @default(10000) @map("max_amount")
   commission              Float                 @default(1)
@@ -846,6 +851,7 @@ model PaymentMethods {
   payments                Payments[]
   currency                Currency              @relation(fields: [currencyKey], references: [key])
   currencyKey             CurrencyEnum          @map("currency_key")
+  sort Int @default(1)
 
   @@index([isActive])
   @@index([currencyKey])
@@ -863,9 +869,20 @@ enum PaymentSystemEnum {
   TELEGRAM
   CRYPTOMUS
   CRYPTOBOT
+  XROCKET
   TON_BLOCKCHAIN
   PAYPALYCH
   SKINSBACK
+  AURAPAY
+  PLATEGA
+  HELEKET
+}
+
+enum PaymentMethodCategoryEnum {
+    MAIN
+    RUS
+    RESERVE
+    CRYPTO
 }
 
 /// Перечисление типов методов оплаты
@@ -883,6 +900,11 @@ enum PaymentMethodEnum {
   STARS
   TOME_CARD
   TOME_SBP
+  AURAPAY_CARD
+  AURAPAY_SBP
+  PLATEGA_CARD
+  PLATEGA_SBP
+  HELEKET
   PAYPALYCH_RUB
   PAYPALYCH_SBP
   PAYPALYCH_USD
