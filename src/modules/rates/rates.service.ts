@@ -65,8 +65,6 @@ export class RatesService {
         },
       })
 
-      // явный маппинг на границе Prisma -> Domain,
-      // здесь и только здесь мы "доверяем" что значения совпадают
       const mapped: CurrencyDto[] = currencies.map((c) => ({
         key: c.key as unknown as CurrencyEnum,
         name: c.name,
@@ -79,11 +77,20 @@ export class RatesService {
         mapped.map((currency) => [currency.key, currency.rate]),
       ) as Record<CurrencyEnum, number>
 
+      // тип каждой валюты нужен fxUtil, чтобы понять конвенцию хранения rate
+      // (FIAT: rate = USD-стоимость единицы; CRYPTO/TELEGRAM: rate = кол-во
+      // единиц за 1 USD, см. updateCoinmarketcapRates/updateStarsRate).
+      // Берём его из тех же данных, а не из отдельного захардкоженного списка.
+      const types = Object.fromEntries(
+        mapped.map((currency) => [currency.key, currency.type]),
+      ) as Record<CurrencyEnum, CurrencyTypeEnum>
+
       return {
         currencies: mapped,
         rates: {
           base: CurrencyEnum.USD,
           rates,
+          types,
         },
       }
     } catch (e) {
