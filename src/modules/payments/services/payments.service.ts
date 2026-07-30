@@ -3,20 +3,24 @@ import { RedisService } from '@core/redis/redis.service'
 import { RatesService } from '@modules/rates/rates.service'
 import { UsersService } from '@modules/users/services/users.service'
 
-import { Prisma, Settings } from '@core/prisma/generated/client'
+import {
+  PaymentSystemEnum,
+  Prisma,
+  Settings,
+} from '@core/prisma/generated/client'
 import { PrismaService } from '@core/prisma/prisma.service'
+import { PaymentMethodEnum } from '@modules/payments/types/payment-method.enum'
+import {
+  PaymentMethodCategoryEnum,
+  PaymentMethodsDataInterface,
+} from '@modules/payments/types/payment-methods.types'
+import { PaymentStatusEnum } from '@modules/payments/types/payment-status.enum'
 import { ReferralsService } from '@modules/referrals/referrals.service'
 import { EventsService } from '@modules/users/services/events.service'
 import { EventType } from '@modules/users/types/event-type.enum'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
-import { PaymentMethodTypeEnum } from '@shared/enums/payment-method-type.enum'
-import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
-import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
-import { PaymentSystemEnum } from '@shared/enums/payment-system.enum'
-import { PaymentMethodsDataInterface } from '@shared/types/payment-methods-data.interface'
 import { roundUp } from '@shared/utils/calculate.util'
 import { fxUtil } from '@shared/utils/fx.util'
 import { genToken } from '@shared/utils/gen-token.util'
@@ -28,9 +32,18 @@ import { I18nService } from 'nestjs-i18n'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
+import { AurapayPaymentService } from '../types/aurapay.types'
 import { BonusesInterface } from '../types/bonuses.interface'
+import { CryptoPayAssetEnum } from '../types/cryptobot.types'
 import { PaymentTypeEnum } from '../types/payment-type.enum'
+import { PlategaPaymentMethodEnum } from '../types/platega.types'
+import { AurapayService } from './aurapay.service'
+import { CryptobotService } from './cryptobot.service'
+import { HeleketService } from './heleket.service'
+import { JettonWalletService } from './jetton-wallet.service'
+import { PlategaService } from './platega.service'
 import { TelegramPaymentsService } from './telegram-payments.service'
+import { XRocketPayService } from './xrocket-pay.service'
 
 @Injectable()
 export class PaymentsService {
@@ -46,6 +59,12 @@ export class PaymentsService {
     @InjectBot() private readonly bot: Telegraf,
     private readonly eventsService: EventsService,
     private readonly referralsService: ReferralsService,
+    private readonly jettonWalletService: JettonWalletService,
+    private readonly auraPay: AurapayService,
+    private readonly cryptobot: CryptobotService,
+    private readonly xrocket: XRocketPayService,
+    private readonly heleket: HeleketService,
+    private readonly platega: PlategaService,
   ) {}
 
   // FIX #10: Выделен общий приватный метод для расчёта бонусных звёзд,
@@ -69,10 +88,18 @@ export class PaymentsService {
     tgId: string,
     paymentType: PaymentTypeEnum,
     data: object | null = null,
+    walletAddress?: string, // ← новое: адрес подключённого TON-кошелька юзера
   ): Promise<{
     linkPay: string
     isTonPayment: boolean
+    isJettonPayment: boolean
+    isStars: boolean
+    sendTxAddress?: string
+    destinationAddress?: string
+    jettonMasterAddress?: string
+    jettonDecimals?: number
     amountTon: number
+    amountJetton?: string
     token: string
   }> {
     try {
@@ -94,20 +121,58 @@ export class PaymentsService {
         })
         if (!settings) throw new Error(`Default settings not found`)
 
-        const rates = await this.ratesService.getRates()
+        const rates = await this.ratesService.getCurrencyData()
+
+        const minStars = roundUp(
+          fxUtil(
+            getMethod.minAmount,
+            getMethod.currencyKey as CurrencyEnum,
+            CurrencyEnum.XTR,
+            rates.rates,
+          ),
+          2,
+        )
+        const maxStars = roundUp(
+          fxUtil(
+            getMethod.maxAmount,
+            getMethod.currencyKey as CurrencyEnum,
+            CurrencyEnum.XTR,
+            rates.rates,
+          ),
+          2,
+        )
+
+        if (amount < minStars || amount > maxStars)
+          throw new Error(`Недопустимые лимиты`)
+
+        // Определяем тип TON-платежа по данным метода, а не по конкретному enum-значению —
+        // это и даёт универсальность под любой jetton без правок кода.
+        const isTonPayment = getMethod.isTonBlockchain
+        const isJettonPayment =
+          isTonPayment && !!getMethod.tonSmartContractAddress
+
+        // Для jetton-платежа обязателен адрес кошелька пользователя — без него
+        // невозможно вычислить его jetton wallet.
+        if (isJettonPayment && !walletAddress) {
+          throw new Error(
+            `Wallet address is required for jetton payment method ${method}`,
+          )
+        }
+
         const token = genToken()
+        const commission = getMethod.isPlusCommission ? getMethod.commission : 1
 
         const convertedAmount =
           getMethod.currencyKey === CurrencyEnum.XTR
-            ? amount
+            ? roundUp(amount * commission, 0)
             : roundUp(
                 fxUtil(
-                  amount,
+                  amount * commission,
                   CurrencyEnum.XTR,
                   getMethod.currencyKey as CurrencyEnum,
-                  rates,
+                  rates.rates,
                 ),
-                5,
+                2,
               )
 
         const amountStars =
@@ -115,7 +180,6 @@ export class PaymentsService {
             ? Number(amount.toFixed(0))
             : amount
 
-        // FIX #10: используем общий метод вместо дублированного тернарного блока
         const bonusStars = this.calculateBonusStars(amountStars, settings)
 
         const paymentObject = {
@@ -137,20 +201,16 @@ export class PaymentsService {
           userId: getUser.id,
         }
 
+        const title = 'Пополнение баланса в VPNsib'
+        const description = 'Пополнение баланса в VPNsib'
+
+        const tmaUrl =
+          this.configService.getOrThrow('TMA_URL') + '?startapp=source-'
+
+        const apiUrl = this.configService.getOrThrow('APPLICATION_URL')
+
         let linkPay: string | null = null
         if (getMethod.key === PaymentMethodEnum.STARS) {
-          const title = await this.i18n.translate('payments.invoice.title', {
-            args: { amount },
-            lang: getUser.language.iso6391,
-          })
-          const description = await this.i18n.translate(
-            'payments.invoice.description',
-            {
-              args: { amount },
-              lang: getUser.language.iso6391,
-            },
-          )
-
           linkPay = await this.telegramPaymentsService.createTelegramInvoice(
             amount,
             token,
@@ -159,7 +219,76 @@ export class PaymentsService {
           )
         }
 
-        if (!linkPay && getMethod.key === PaymentMethodEnum.STARS) {
+        if (getMethod.system === PaymentSystemEnum.AURAPAY) {
+          const invoice = await this.auraPay.createInvoice({
+            amount: convertedAmount,
+            order_id: token,
+            comment: description,
+            service:
+              getMethod.key === PaymentMethodEnum.AURAPAY_SBP
+                ? AurapayPaymentService.SBP
+                : AurapayPaymentService.CARD,
+            success_url: tmaUrl + 'aurapay',
+            fail_url: tmaUrl + 'aurapay',
+            callback_url: apiUrl + '/aurapay/webhook/invoice',
+          })
+          linkPay = invoice.payment_data.url
+        }
+
+        if (getMethod.key === PaymentMethodEnum.CRYPTOBOT) {
+          const invoice = await this.cryptobot.createInvoice({
+            amount: convertedAmount.toString(),
+            payload: token,
+            allow_comments: false,
+            description: description,
+            asset: CryptoPayAssetEnum.USDT,
+          })
+          linkPay = invoice.mini_app_invoice_url
+        }
+
+        if (getMethod.key === PaymentMethodEnum.XROCKET) {
+          const invoice = await this.xrocket.createInvoice({
+            amount: convertedAmount,
+            payload: token,
+            commentsEnabled: false,
+            description: description,
+            currency: getMethod.currencyKey,
+            callbackUrl: apiUrl + '/xrocket/webhook/invoice',
+          })
+          linkPay = invoice.link
+        }
+
+        if (getMethod.key === PaymentMethodEnum.HELEKET) {
+          const invoice = await this.heleket.createInvoice({
+            amount: convertedAmount.toString(),
+            order_id: token,
+            currency: getMethod.currencyKey,
+            url_callback: apiUrl + '/heleket/webhook/invoice',
+            url_success: tmaUrl + 'heleket',
+            url_return: tmaUrl + 'heleket',
+          })
+          linkPay = invoice.url
+        }
+
+        if (getMethod.system === PaymentSystemEnum.PLATEGA) {
+          const invoice = await this.platega.createTransaction({
+            paymentDetails: {
+              amount: convertedAmount,
+              currency: 'RUB',
+            },
+            payload: token,
+            description: description,
+            paymentMethod:
+              getMethod.key === PaymentMethodEnum.PLATEGA_SBP
+                ? PlategaPaymentMethodEnum.SBP
+                : PlategaPaymentMethodEnum.CARD,
+            return: tmaUrl + 'platega',
+            failedUrl: tmaUrl + 'platega',
+          })
+          linkPay = invoice.redirect
+        }
+
+        if (!linkPay && !getMethod.isTonBlockchain) {
           throw new Error(`LinkPay not found`)
         }
 
@@ -172,15 +301,45 @@ export class PaymentsService {
           },
         })
 
+        const platformTonWallet =
+          this.configService.getOrThrow<string>('TON_WALLET')
+
+        // Адрес, на который нужно слать sendTransaction через TonConnect:
+        // — для jetton это jetton wallet ПОЛЬЗОВАТЕЛЯ (вычисляется динамически)
+        // — для нативного TON/GRAM это просто кошелёк платформы
+        let sendTxAddress: string | undefined
+        if (isJettonPayment) {
+          sendTxAddress = await this.jettonWalletService.getJettonWalletAddress(
+            walletAddress!,
+            getMethod.tonSmartContractAddress!,
+          )
+        } else if (isTonPayment) {
+          sendTxAddress = platformTonWallet
+        }
+
         return {
-          linkPay:
-            getMethod.key === PaymentMethodEnum.TON_TON
-              ? this.configService.getOrThrow<string>('TON_WALLET')
-              : linkPay,
-          isTonPayment: getMethod.key === PaymentMethodEnum.TON_TON,
+          // linkPay оставлен для обратной совместимости фронта; для TON-методов
+          // дублирует sendTxAddress, для STARS — реальная deeplink-ссылка
+          linkPay: isTonPayment ? sendTxAddress! : linkPay!,
+          isTonPayment,
+          isJettonPayment,
+          isStars: getMethod.key === PaymentMethodEnum.STARS,
+          sendTxAddress,
+          // Для jetton фронту нужен ещё и адрес получателя (owner), чтобы
+          // корректно собрать payload transfer — destination жетона это
+          // платформенный TON-кошелёк, а не его jetton wallet
+          destinationAddress: isJettonPayment ? platformTonWallet : undefined,
+          jettonMasterAddress: isJettonPayment
+            ? getMethod.tonSmartContractAddress!
+            : undefined,
+          jettonDecimals: isJettonPayment
+            ? getMethod.tonJettonDecimals ?? 6
+            : undefined,
           token: createPayment.token,
-          amountTon:
-            getMethod.key === PaymentMethodEnum.TON_TON ? convertedAmount : 0,
+          amountTon: isTonPayment && !isJettonPayment ? convertedAmount : 0,
+          amountJetton: isJettonPayment
+            ? convertedAmount.toFixed(getMethod.tonJettonDecimals ?? 6)
+            : undefined,
         }
       })
     } catch (e: unknown) {
@@ -625,47 +784,61 @@ export class PaymentsService {
     })
   }
 
-  public async getPaymentMethods(
-    isTma: boolean,
-  ): Promise<PaymentMethodsDataInterface[]> {
-    // FIX #12: пробрасываем ошибку вместо молчаливого возврата undefined
+  public async getPaymentMethods(): Promise<PaymentMethodsDataInterface[]> {
     const getPaymentMethods = await this.prismaService.paymentMethods.findMany({
       where: {
-        ...(isTma && { key: { in: [PaymentMethodEnum.STARS] } }),
-        isActive: true,
+        isVisible: true,
       },
       include: {
         currency: {
           select: {
             key: true,
-            name: true,
             symbol: true,
-            type: true,
-            rate: true,
           },
         },
       },
     })
 
-    return getPaymentMethods.map((method) => ({
-      key: method.key as PaymentMethodEnum,
-      name: method.name,
-      isTonBlockchain: method.isTonBlockchain,
-      tonSmartContractAddress: method.tonSmartContractAddress,
-      minAmount: method.minAmount,
-      maxAmount: method.maxAmount,
-      commission: method.commission,
-      isPlusCommission: method.isPlusCommission,
-      type: method.type as PaymentMethodTypeEnum,
-      system: method.system as PaymentSystemEnum,
-      currency: {
-        key: method.currency.key as CurrencyEnum,
-        name: method.currency.name,
-        symbol: method.currency.symbol,
-        type: method.currency.type as CurrencyTypeEnum,
-        rate: method.currency.rate,
-      },
-    }))
+    const rates = await this.ratesService.getCurrencyData()
+
+    return getPaymentMethods
+      .sort((a, b) => {
+        return a.sort - b.sort
+      })
+      .map((method) => ({
+        key: method.key as PaymentMethodEnum,
+        isActive: method.isActive,
+        name: method.name,
+        description: method.description,
+        bridge: method.bridge,
+        isTonBlockchain: method.isTonBlockchain,
+        tonSmartContractAddress: method.tonSmartContractAddress,
+        minStars: roundUp(
+          fxUtil(
+            method.minAmount,
+            method.currency.key as CurrencyEnum,
+            CurrencyEnum.XTR,
+            rates.rates,
+          ),
+          2,
+        ),
+        maxStars: roundUp(
+          fxUtil(
+            method.maxAmount,
+            method.currency.key as CurrencyEnum,
+            CurrencyEnum.XTR,
+            rates.rates,
+          ),
+          2,
+        ),
+        commission: method.commission,
+        isPlusCommission: method.isPlusCommission,
+        category: method.category as PaymentMethodCategoryEnum,
+        currency: {
+          key: method.currency.key as CurrencyEnum,
+          symbol: method.currency.symbol,
+        },
+      }))
   }
 
   public async getBonuses(): Promise<BonusesInterface> {
