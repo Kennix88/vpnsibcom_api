@@ -1,8 +1,8 @@
+import { CurrencyTypeEnum } from '@shared/enums/currency-type.enum'
 import { CurrencyEnum } from '@shared/enums/currency.enum'
 
 export interface RatesInterface {
   base: CurrencyEnum
-  rates: {
-    [K in CurrencyEnum]: number
-  }
+  rates: Record<CurrencyEnum, number>
+  types: Record<CurrencyEnum, CurrencyTypeEnum>
 }
