@@ -1,11 +1,11 @@
 import { Prisma } from '@core/prisma/generated/client'
 
 import { PrismaService } from '@core/prisma/prisma.service'
+import { PaymentMethodEnum } from '@modules/payments/types/payment-method.enum'
 import { UsersService } from '@modules/users/services/users.service'
 import { Injectable } from '@nestjs/common'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
 import { DefaultEnum } from '@shared/enums/default.enum'
-import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { ReferralsDataInterface } from '@shared/types/referrals-data.interface'
 import { addDays } from 'date-fns'
