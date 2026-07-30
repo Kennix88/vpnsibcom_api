@@ -5,24 +5,21 @@ import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 
 import { TransactionTypeEnum } from '@core/prisma/generated/enums'
+import { PaymentStatusEnum } from '@modules/payments/types/payment-status.enum'
 import { BalanceTypeEnum } from '@shared/enums/balance-type.enum'
-import { PaymentMethodEnum } from '@shared/enums/payment-method.enum'
-import { PaymentStatusEnum } from '@shared/enums/payment-status.enum'
 import { TransactionReasonEnum } from '@shared/enums/transaction-reason.enum'
 import { PinoLogger } from 'nestjs-pino'
 import { InjectBot } from 'nestjs-telegraf'
 import { Telegraf } from 'telegraf'
 import { PaymentsService } from './payments.service'
+import { TonJettonPaymentsService } from './ton-jetton-payments.service'
 import { TonPaymentsService } from './ton-payments.service'
 import { TonUtimeService } from './ton-uptime.service'
 
-// FIX #3: Добавлены константы для distributed lock через Redis.
-// Без блокировки при нескольких инстанциях сервиса один и тот же набор
-// expired holds / expired payments обрабатывается параллельно несколькими воркерами.
 const LOCK_EXPIRED_HOLDS = 'cron:lock:processExpiredHolds'
 const LOCK_CANCEL_PAYMENTS = 'cron:lock:cancelExpiredPayments'
 const LOCK_TON_PAYMENTS = 'cron:lock:checkTonPayments'
-const LOCK_TTL_SECONDS = 55 // чуть меньше минимального интервала крона
+const LOCK_TTL_SECONDS = 55
 
 @Injectable()
 export class PaymentsCronService {
@@ -31,6 +28,7 @@ export class PaymentsCronService {
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
     private readonly tonPaymentsService: TonPaymentsService,
+    private readonly tonJettonPaymentsService: TonJettonPaymentsService,
     private readonly paymentsService: PaymentsService,
     private readonly tonUtimeService: TonUtimeService,
     private readonly redis: RedisService,
@@ -39,13 +37,7 @@ export class PaymentsCronService {
     this.logger.setContext(PaymentsCronService.name)
   }
 
-  /**
-   * FIX #3: Пытается взять distributed lock в Redis.
-   * Возвращает true, если блокировка успешно получена, false — если уже занята.
-   * Использует SET NX EX для атомарной операции «установить, только если не существует».
-   */
   private async acquireLock(key: string, ttlSeconds: number): Promise<boolean> {
-    // SET key value NX EX ttl — атомарно, возвращает OK или null
     const result = await this.redis.set(key, '1', 'EX', ttlSeconds, 'NX')
     return result !== null
   }
@@ -56,7 +48,6 @@ export class PaymentsCronService {
 
   @Cron('*/15 * * * * *')
   async checkTonPayments() {
-    // FIX #3: distributed lock для TON-платежей
     const locked = await this.acquireLock(LOCK_TON_PAYMENTS, LOCK_TTL_SECONDS)
     if (!locked) {
       this.logger.info({ msg: 'checkTonPayments: lock already held, skipping' })
@@ -64,6 +55,24 @@ export class PaymentsCronService {
     }
 
     try {
+      // Все активные TON-based методы — без хардкода конкретного enum-значения
+      const tonMethods = await this.prismaService.paymentMethods.findMany({
+        where: { isTonBlockchain: true, isActive: true },
+      })
+
+      if (tonMethods.length === 0) {
+        this.logger.info({ msg: 'No active TON-based payment methods' })
+        return
+      }
+
+      const nativeMethodKeys = tonMethods
+        .filter((m) => !m.tonSmartContractAddress)
+        .map((m) => m.key)
+
+      const jettonMethods = tonMethods.filter((m) => m.tonSmartContractAddress)
+
+      const allTonMethodKeys = tonMethods.map((m) => m.key)
+
       const transactions = await this.prismaService.payments.findMany({
         where: {
           OR: [
@@ -73,62 +82,174 @@ export class PaymentsCronService {
               updatedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
             },
           ],
-          methodKey: PaymentMethodEnum.TON_TON,
+          methodKey: { in: allTonMethodKeys },
         },
       })
 
       if (transactions.length === 0) {
-        this.logger.info({ msg: 'No TON payments found' })
+        this.logger.info({ msg: 'No pending TON-based payments found' })
         return
       }
 
-      this.logger.info({ msg: `Found ${transactions.length} TON payments` })
+      this.logger.info({
+        msg: `Found ${transactions.length} pending TON-based payments`,
+      })
 
-      const payIds = transactions.map((t) => t.token)
-
-      const { payments: getTonPayments, maxUtime } =
-        await this.tonPaymentsService.findPayments(payIds)
-
-      for (const transaction of transactions) {
-        this.logger.info({ msg: `Processing TON payment ${transaction.id}` })
-
-        const payment = getTonPayments[transaction.token]
-        if (!payment) {
-          this.logger.warn({
-            msg: `TON payment ${transaction.token} not found`,
-          })
-          continue
-        }
-
-        const amountDelta = Number(
-          Math.abs(transaction.amount - payment.amount).toFixed(9),
+      // ── 1. Нативные TON/GRAM платежи ──────────────────────────────
+      if (nativeMethodKeys.length > 0) {
+        const nativeTransactions = transactions.filter((t) =>
+          nativeMethodKeys.includes(t.methodKey),
         )
-        const amountTolerance = 0.000001
 
-        if (amountDelta > amountTolerance) {
-          this.logger.warn({
-            msg: `TON payment ${transaction.token} amount mismatch. Expected: ${transaction.amount}, Got: ${payment.amount}, Delta: ${amountDelta}`,
-          })
-          continue
+        if (nativeTransactions.length > 0) {
+          await this.processNativeTonPayments(nativeTransactions)
         }
-
-        await this.paymentsService.updatePayment(
-          transaction.token,
-          PaymentStatusEnum.COMPLETED,
-          payment,
-        )
       }
 
-      if (maxUtime > 0) {
-        await this.tonUtimeService.setLastUtime(
-          this.configService.getOrThrow<string>('TON_WALLET'),
-          maxUtime,
+      // ── 2. Jetton платежи, сгруппированные по master-контракту ────
+      // Группируем по адресу мастер-контракта: несколько methodKey теоретически
+      // могут указывать на один и тот же jetton (разные UI-пресеты), поэтому
+      // группировка идёт по адресу, а не по methodKey.
+      const masterGroups = new Map<
+        string,
+        { decimals: number; methodKeys: string[] }
+      >()
+
+      for (const method of jettonMethods) {
+        const master = method.tonSmartContractAddress!
+        const existing = masterGroups.get(master)
+        if (existing) {
+          existing.methodKeys.push(method.key)
+        } else {
+          masterGroups.set(master, {
+            decimals: method.tonJettonDecimals ?? 6,
+            methodKeys: [method.key],
+          })
+        }
+      }
+
+      for (const [master, { decimals, methodKeys }] of masterGroups) {
+        const jettonTransactions = transactions.filter((t) =>
+          methodKeys.includes(t.methodKey),
         )
+        if (jettonTransactions.length === 0) continue
+
+        await this.processJettonPayments(master, decimals, jettonTransactions)
       }
     } catch (e) {
       this.logger.error({ msg: 'Error checking TON payments', e })
     } finally {
       await this.releaseLock(LOCK_TON_PAYMENTS)
+    }
+  }
+
+  private async processNativeTonPayments(
+    transactions: { id: string; token: string; amount: number }[],
+  ) {
+    const payIds = transactions.map((t) => t.token)
+
+    const { payments: getTonPayments, maxUtime } =
+      await this.tonPaymentsService.findPayments(payIds)
+
+    for (const transaction of transactions) {
+      const payment = getTonPayments[transaction.token]
+      if (!payment) {
+        this.logger.warn({
+          msg: `TON payment ${transaction.token} not found`,
+        })
+        continue
+      }
+
+      const amountDelta = Number(
+        Math.abs(transaction.amount - payment.amount).toFixed(9),
+      )
+      const amountTolerance = 0.000001
+
+      if (amountDelta > amountTolerance) {
+        this.logger.warn({
+          msg: `TON payment ${transaction.token} amount mismatch. Expected: ${transaction.amount}, Got: ${payment.amount}, Delta: ${amountDelta}`,
+        })
+        continue
+      }
+
+      await this.paymentsService.updatePayment(
+        transaction.token,
+        PaymentStatusEnum.COMPLETED,
+        payment,
+      )
+    }
+
+    if (maxUtime > 0) {
+      await this.tonUtimeService.setLastUtime(
+        this.configService.getOrThrow<string>('TON_WALLET'),
+        maxUtime,
+      )
+    }
+  }
+
+  private async processJettonPayments(
+    jettonMasterAddress: string,
+    decimals: number,
+    transactions: { id: string; token: string; amount: number }[],
+  ) {
+    const platformOwnerWallet =
+      this.configService.getOrThrow<string>('TON_WALLET')
+    const payIds = transactions.map((t) => t.token)
+
+    const {
+      payments: getJettonPayments,
+      maxUtime,
+      platformJettonWallet,
+    } = await this.tonJettonPaymentsService.findJettonPayments(
+      jettonMasterAddress,
+      platformOwnerWallet,
+      payIds,
+    )
+
+    for (const transaction of transactions) {
+      const payment = getJettonPayments[transaction.token]
+      if (!payment) {
+        this.logger.warn({
+          msg: `Jetton payment ${transaction.token} not found`,
+          jettonMasterAddress,
+        })
+        continue
+      }
+
+      const receivedAmount = Number(payment.amountUnits) / 10 ** decimals
+
+      const amountDelta = Number(
+        Math.abs(transaction.amount - receivedAmount).toFixed(decimals),
+      )
+      // Допуск: минимум 1 наименьшая единица джеттона, либо небольшая
+      // относительная погрешность на случай округления при конвертации курса
+      const amountTolerance = Math.max(
+        10 ** -decimals,
+        transaction.amount * 0.0005,
+      )
+
+      if (amountDelta > amountTolerance) {
+        this.logger.warn({
+          msg: `Jetton payment ${transaction.token} amount mismatch. Expected: ${transaction.amount}, Got: ${receivedAmount}, Delta: ${amountDelta}`,
+          jettonMasterAddress,
+        })
+        continue
+      }
+
+      await this.paymentsService.updatePayment(
+        transaction.token,
+        PaymentStatusEnum.COMPLETED,
+        {
+          from: payment.from,
+          amount: receivedAmount,
+          hash: payment.hash,
+          jettonMasterAddress,
+        },
+      )
+    }
+
+    if (maxUtime > 0) {
+      await this.tonUtimeService.setLastUtime(platformJettonWallet, maxUtime)
     }
   }
 
@@ -236,8 +357,7 @@ export class PaymentsCronService {
    */
   @Cron('0 15 * * * *')
   async cancelExpiredPayments() {
-    // FIX #3: distributed lock для отмены просроченных платежей
-    const locked = await this.acquireLock(LOCK_CANCEL_PAYMENTS, 10 * 60) // TTL 10 минут
+    const locked = await this.acquireLock(LOCK_CANCEL_PAYMENTS, 10 * 60)
     if (!locked) {
       this.logger.info({
         msg: 'cancelExpiredPayments: lock already held, skipping',
@@ -250,10 +370,20 @@ export class PaymentsCronService {
 
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000)
 
+      // Раньше был захардкожен единственный TON_TON — теперь исключаем ВСЕ
+      // активные TON-based методы (нативные и jetton), т.к. подтверждение
+      // ончейн-платежа может занять больше времени, чем обычный инвойс.
+      const tonMethodKeys = (
+        await this.prismaService.paymentMethods.findMany({
+          where: { isTonBlockchain: true },
+          select: { key: true },
+        })
+      ).map((m) => m.key)
+
       const expiredPayments = await this.prismaService.payments.findMany({
         where: {
           status: PaymentStatusEnum.PENDING,
-          methodKey: { not: PaymentMethodEnum.TON_TON },
+          methodKey: { notIn: tonMethodKeys },
           createdAt: { lt: thirtyMinutesAgo },
         },
         include: {
@@ -272,8 +402,6 @@ export class PaymentsCronService {
 
       for (const payment of expiredPayments) {
         await this.prismaService.$transaction(async (tx) => {
-          // FIX #3: используем updateMany с проверкой статуса для идемпотентности —
-          // если другой процесс уже успел обновить статус, пропускаем.
           const updated = await tx.payments.updateMany({
             where: { id: payment.id, status: PaymentStatusEnum.PENDING },
             data: { status: PaymentStatusEnum.FAILED },
