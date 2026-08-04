@@ -9,6 +9,8 @@ import axios, {
 } from 'axios'
 import axiosRetry from 'axios-retry'
 import { PinoLogger } from 'nestjs-pino'
+import * as http from 'node:http'
+import * as https from 'node:https'
 
 import {
   REMNA_CACHE_PREFIX,
@@ -67,6 +69,14 @@ import type {
   UpdateRemnaUserDto,
 } from './remna.types'
 
+// ДОБАВЛЕНО: короткий TTL кэша на список HWID-устройств пользователя.
+// getUserHwidDevices дёргается на каждый /new-era/sub и /new-era/extensions
+// без кэша (в отличие от getUserByUuid, у которого он уже был), хотя список
+// устройств меняется гораздо реже, чем читается. 15с достаточно, чтобы не
+// показывать заметно устаревшие данные, но убрать повторные запросы к Remna
+// при частых обращениях пользователя/фронта (двойные клики, ре-рендеры и т.д.).
+const HWID_DEVICES_CACHE_TTL_SECONDS = 15
+
 @Injectable()
 export class RemnaService {
   private client: AxiosInstance
@@ -95,9 +105,35 @@ export class RemnaService {
       REMNA_DEFAULT_MAX_RETRIES,
     )
 
+    // ДОБАВЛЕНО: keep-alive агенты вместо дефолтных (keepAlive: false).
+    // Без keep-alive каждый запрос к Remnawave — это новое TCP-соединение,
+    // которое после ответа уходит в TIME_WAIT (обычно 60с на Linux). Панель
+    // и API живут на одном сервере — при частых обращениях (каждый /new-era/*
+    // делает 1-2 запроса к Remna) это быстро копит сотни/тысячи сокетов в
+    // TIME_WAIT и может временно исчерпывать диапазон локальных портов
+    // (net.ipv4.ip_local_port_range) — что внешне выглядит как случайные
+    // ECONNRESET/таймауты у ВСЕХ пользователей разом, которые "сами
+    // проходят", когда сокеты освобождаются. maxSockets ограничивает
+    // параллелизм на случай резкого всплеска запросов, чтобы не открывать
+    // сокеты бесконтрольно.
+    const httpAgent = new http.Agent({
+      keepAlive: true,
+      keepAliveMsecs: 10_000,
+      maxSockets: 50,
+      maxFreeSockets: 10,
+    })
+    const httpsAgent = new https.Agent({
+      keepAlive: true,
+      keepAliveMsecs: 10_000,
+      maxSockets: 50,
+      maxFreeSockets: 10,
+    })
+
     const client = axios.create({
       baseURL,
       timeout,
+      httpAgent,
+      httpsAgent,
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -216,6 +252,10 @@ export class RemnaService {
           errors: body?.errors,
           isNetworkError,
           isTimeout,
+          // ДОБАВЛЕНО: код сетевой ошибки (ECONNRESET/ETIMEDOUT/ENOTFOUND/EADDRNOTAVAIL и т.д.) —
+          // именно он отличает "исчерпание портов"/обрыв соединения от обычного таймаута,
+          // и раньше терялся при пробросе в Telegram-алерт.
+          errorCode: (error as AxiosError & { code?: string }).code,
           url: error.config?.url,
           method: error.config?.method,
         },
@@ -333,6 +373,10 @@ export class RemnaService {
       { uuid },
     )
     await this.cacheInvalidate(this.cacheKey('user', uuid))
+    // ДОБАВЛЕНО: при удалении пользователя из Remna его список HWID-устройств
+    // тоже становится неактуальным — раньше кэш hwid-devices для этого uuid
+    // (после добавления кэша ниже) мог бы пережить удаление юзера на 15с.
+    await this.cacheInvalidate(this.cacheKey('hwid-devices', uuid))
     return result.isDeleted
   }
 
@@ -769,31 +813,41 @@ export class RemnaService {
   async createUserHwidDevice(
     dto: CreateHwidDeviceDto,
   ): Promise<GetUserHwidDevicesResult> {
-    return this.request<GetUserHwidDevicesResult>(
+    const result = await this.request<GetUserHwidDevicesResult>(
       { method: 'POST', url: '/api/hwid/devices', data: dto },
       'createUserHwidDevice',
       { userUuid: dto.userUuid, hwid: dto.hwid },
     )
+    // ДОБАВЛЕНО: инвалидация кэша списка устройств после добавления
+    await this.cacheInvalidate(this.cacheKey('hwid-devices', dto.userUuid))
+    return result
   }
 
   async deleteUserHwidDevice(
     dto: DeleteHwidDeviceDto,
   ): Promise<GetUserHwidDevicesResult> {
-    return this.request<GetUserHwidDevicesResult>(
+    const result = await this.request<GetUserHwidDevicesResult>(
       { method: 'POST', url: '/api/hwid/devices/delete', data: dto },
       'deleteUserHwidDevice',
       dto,
     )
+    // ДОБАВЛЕНО: инвалидация кэша списка устройств после удаления —
+    // без неё deleteDevice в NewEraService мог бы вернуть устаревший список
+    // (то же самое, чего мы уже избегали для getResUserByTgId в контроллере)
+    await this.cacheInvalidate(this.cacheKey('hwid-devices', dto.userUuid))
+    return result
   }
 
   async deleteAllUserHwidDevices(
     dto: DeleteAllHwidDevicesDto,
   ): Promise<GetUserHwidDevicesResult> {
-    return this.request<GetUserHwidDevicesResult>(
+    const result = await this.request<GetUserHwidDevicesResult>(
       { method: 'POST', url: '/api/hwid/devices/delete-all', data: dto },
       'deleteAllUserHwidDevices',
       dto,
     )
+    await this.cacheInvalidate(this.cacheKey('hwid-devices', dto.userUuid))
+    return result
   }
 
   async getHwidDevicesStats(): Promise<GetHwidDevicesStatsResult> {
@@ -824,14 +878,32 @@ export class RemnaService {
     )
   }
 
+  // ИЗМЕНЕНО: добавлен кэш (см. HWID_DEVICES_CACHE_TTL_SECONDS выше).
+  // getUserHwidDevices вызывается на каждый /new-era/sub, /new-era/extensions
+  // и внутри cron'ов (subscriptionsUpdater) — обычно список устройств не
+  // меняется между этими вызовами, кэшировать его безопасно на короткий срок.
   async getUserHwidDevices(
     userUuid: string,
+    useCache = true,
   ): Promise<GetUserHwidDevicesResult> {
-    return this.request<GetUserHwidDevicesResult>(
+    const cacheKey = this.cacheKey('hwid-devices', userUuid)
+
+    if (useCache) {
+      const cached = await this.cacheGet<GetUserHwidDevicesResult>(cacheKey)
+      if (cached) return cached
+    }
+
+    const result = await this.request<GetUserHwidDevicesResult>(
       { method: 'GET', url: `/api/hwid/devices/${userUuid}` },
       'getUserHwidDevices',
       { userUuid },
     )
+
+    if (useCache) {
+      await this.cacheSet(cacheKey, result, HWID_DEVICES_CACHE_TTL_SECONDS)
+    }
+
+    return result
   }
 
   // =========================================================================
