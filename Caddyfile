@@ -196,3 +196,64 @@ frp.{$MAIN_DOMAIN} {
         format json
     }
 }
+
+# Shlink — редирект коротких ссылок
+{$SHORT_DOMAIN} {
+    import standard_config
+
+    handle_errors {
+        @error500 {
+            expression {http.error.status_code} == 500
+        }
+        respond @error500 "{ \"error\": \"Internal Server Error\" }" 500
+        header @error500 Content-Type application/json
+    }
+
+    reverse_proxy shlink:8080 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+        header_up Host {host}
+
+        transport http {
+            read_buffer 4096
+            read_timeout 10s
+            write_timeout 10s
+            keepalive 60s
+        }
+    }
+
+    log {
+        output file /var/log/caddy/short.access.log {
+            roll_size 100MB
+            roll_keep 5
+        }
+        format json
+    }
+}
+
+# Shlink Web Client — дашборд/админка
+{$SHLINK_DASH_DOMAIN} {
+    import standard_config
+
+    basicauth {
+        admin {$SHLINK_DASH_HASH}
+    }
+
+    reverse_proxy shlink_web_client:80 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+        header_up Host {host}
+    }
+
+    header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'none';"
+
+    log {
+        output file /var/log/caddy/shlink-dash.access.log {
+            roll_size 100MB
+            roll_keep 5
+        }
+        format json
+    }
+}
