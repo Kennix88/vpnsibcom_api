@@ -240,7 +240,7 @@ frp.{$MAIN_DOMAIN} {
         admin {$SHLINK_DASH_HASH}
     }
 
-    reverse_proxy shlink_web_client:80 {
+    reverse_proxy shlink_web_client:8080 {
         header_up X-Forwarded-Proto {scheme}
         header_up X-Forwarded-For {remote_host}
         header_up X-Real-IP {remote_host}
