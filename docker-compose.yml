@@ -326,13 +326,15 @@ services:
   shlink_geoip_init:
     container_name: shlink_geoip_init
     image: curlimages/curl:latest
+    user: '0:0'
     restart: 'no'
     volumes:
       - shlink_data:/data
-    entrypoint: ['/bin/sh', '-c']
-    command: >
-      "curl -fsSL -o /data/GeoLite2-City.mmdb
-      https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-City.mmdb"
+    command:
+      - -fsSL
+      - -o
+      - /data/GeoLite2-City.mmdb
+      - https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-City.mmdb
     logging: *default-logging
 
   shlink:
