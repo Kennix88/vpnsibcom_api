@@ -263,6 +263,9 @@ services:
       - BUNNY_API_KEY=${BUNNY_API_KEY}
       - CADDY_DISABLE_HTTP_CHALLENGE=true
       - ACME_EMAIL=shel.live@yandex.ru
+      - SHORT_DOMAIN=${SHORT_DOMAIN}
+      - SHLINK_DASH_DOMAIN=${SHLINK_DASH_DOMAIN}
+      - SHLINK_DASH_HASH=${SHLINK_DASH_HASH}
     depends_on:
       api:
         condition: service_healthy
@@ -320,6 +323,90 @@ services:
       - token-backend
     logging: *default-logging
 
+  shlink_geoip_init:
+    container_name: shlink_geoip_init
+    image: curlimages/curl:latest
+    restart: 'no'
+    volumes:
+      - shlink_data:/data
+    entrypoint: ['/bin/sh', '-c']
+    command: >
+      "curl -fsSL -o /data/GeoLite2-City.mmdb
+      https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-City.mmdb"
+    logging: *default-logging
+
+  shlink:
+    container_name: shlink
+    image: shlinkio/shlink:stable
+    restart: unless-stopped
+    depends_on:
+      shlink_db:
+        condition: service_healthy
+      shlink_geoip_init:
+        condition: service_completed_successfully
+    environment:
+      - DEFAULT_DOMAIN=${SHORT_DOMAIN}
+      - IS_HTTPS_ENABLED=true
+      - DB_DRIVER=postgres
+      - DB_NAME=${SHLINK_DB_NAME}
+      - DB_USER=${SHLINK_DB_USER}
+      - DB_PASSWORD=${SHLINK_DB_PASSWORD}
+      - DB_HOST=shlink_db
+      - DB_PORT=5432
+      - SKIP_INITIAL_GEOLITE_DOWNLOAD=true
+      - TIMEZONE=Europe/Moscow
+    volumes:
+      - shlink_data:/etc/shlink/data
+    networks:
+      - token-backend
+    expose:
+      - '8080'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:8080/rest/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    logging: *default-logging
+
+  shlink_web_client:
+    container_name: shlink_web_client
+    image: shlinkio/shlink-web-client:stable
+    restart: unless-stopped
+    depends_on:
+      - shlink
+    environment:
+      - SHLINK_SERVER_URL=https://${SHORT_DOMAIN}
+      - SHLINK_SERVER_API_KEY=${SHLINK_API_KEY}
+      - SHLINK_SERVER_NAME=VPNsib Shortener
+    networks:
+      - token-backend
+    expose:
+      - '80'
+    logging: *default-logging
+
+  shlink_db:
+    container_name: shlink_db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${SHLINK_DB_NAME}
+      - POSTGRES_USER=${SHLINK_DB_USER}
+      - POSTGRES_PASSWORD=${SHLINK_DB_PASSWORD}
+    volumes:
+      - shlink_db_data:/var/lib/postgresql/data
+    networks:
+      - token-backend
+    expose:
+      - '5432'
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${SHLINK_DB_USER} -d ${SHLINK_DB_NAME}']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    logging: *default-logging
+
 networks:
   token-backend:
     driver: bridge
@@ -344,4 +431,8 @@ volumes:
   grafana_data:
     driver: local
   loki_data:
+    driver: local
+  shlink_data:
+    driver: local
+  shlink_db_data:
     driver: local
