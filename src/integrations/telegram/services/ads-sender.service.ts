@@ -194,7 +194,7 @@ export class AdsSenderService implements OnModuleInit {
       // const sponsorMessage = `\n\n<b><i>Переходя по рекламе, вы получаете ${Number(
       //   adsRewards.botMessage,
       // )} STARS на ваш баланс и поддерживаете наш VPN сервис❤️‍🔥</i></b>`
-      const sponsorMessage = `\n\n<b><i>VPNsib: Поддержи нас, твой переход и выполнение действий по рекламе поможет запустить новые сервера, устойчивые к блокировкам, как можно скорее, бесплатно для всех!</i></b>`
+      const sponsorMessage = ``
 
       this.logger.info({
         msg: 'Send ads started',
@@ -287,7 +287,7 @@ export class AdsSenderService implements OnModuleInit {
                               url: ad.richAds.link,
                               // url: ad.ad.goAdsUrl,
                               // @ts-ignore
-                              style: 'success',
+                              style: 'danger',
                             },
                           ],
                         ]
@@ -357,6 +357,8 @@ export class AdsSenderService implements OnModuleInit {
                                 text: ad.taddy.result.button,
                                 url: ad.taddy.result.link,
                                 // url: ad.ad.goAdsUrl,
+                                // @ts-ignore
+                                style: 'danger',
                               },
                             ],
                           ]
@@ -380,7 +382,8 @@ export class AdsSenderService implements OnModuleInit {
                               {
                                 text: ad.taddy.result.button,
                                 url: ad.taddy.result.link,
-                                // url: ad.ad.goAdsUrl,
+                                // @ts-ignore
+                                style: 'danger',
                               },
                             ],
                           ]
@@ -437,7 +440,12 @@ export class AdsSenderService implements OnModuleInit {
               const inlineKeyboard: any[][] = []
               if (adsgramAd.button_name && adsgramAd.click_url) {
                 inlineKeyboard.push([
-                  { text: adsgramAd.button_name, url: adsgramAd.click_url },
+                  {
+                    text: adsgramAd.button_name,
+                    url: adsgramAd.click_url,
+                    // @ts-ignore
+                    style: 'danger',
+                  },
                 ])
               }
               if (adsgramAd.button_reward_name && adsgramAd.reward_url) {
